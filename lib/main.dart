@@ -1,8 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/providers/auth_provider.dart';
+import 'package:my_tube/providers/youtube_provider.dart';
+import 'package:my_tube/respositories/auth_repository.dart';
+import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:provider/provider.dart';
+
+import 'app_bloc_observer.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  /// Bloc observer
+  Bloc.observer = AppBlocObserver();
+
+  runApp(MultiProvider(
+    providers: [
+      /// Providers
+      Provider<AuthProvider>(create: (context) => AuthProvider()),
+      Provider(create: (context) => YoutubeProvider()),
+    ],
+    child: MultiRepositoryProvider(
+      /// Repositories
+      providers: [
+        RepositoryProvider<AuthRepository>(
+          create: (context) =>
+              AuthRepository(authProvider: context.read<AuthProvider>()),
+        ),
+        RepositoryProvider<YoutubeRepository>(
+          create: (context) => YoutubeRepository(
+              youtubeProvider: context.read<YoutubeProvider>()),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {

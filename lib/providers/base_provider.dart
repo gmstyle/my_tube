@@ -1,10 +1,12 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/youtube/v3.dart';
 
 class BaseProvider {
-  static final scopes = [
-    'email',
-    'https://www.googleapis.com/auth/youtube.readonly'
-  ];
-
-  final GoogleSignIn googleSignIn = GoogleSignIn(scopes: scopes);
+  GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: [
+      YouTubeApi.youtubeReadonlyScope,
+      YouTubeApi.youtubeScope,
+      YouTubeApi.youtubepartnerScope
+    ],
+  );
 }

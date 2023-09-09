@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/blocs/home/home_bloc.dart';
+import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/ui/views/dashboard/dashboard_view.dart';
 
 class DashboardPage extends Page {
@@ -9,7 +12,12 @@ class DashboardPage extends Page {
     return MaterialPageRoute(
         settings: this,
         builder: (context) {
-          return const DashboardView();
+          return MultiBlocProvider(providers: [
+            BlocProvider<HomeBloc>(
+                create: (context) => HomeBloc(
+                    youtubeRepository: context.read<YoutubeRepository>())
+                  ..add(const GetVideos())),
+          ], child: const DashboardView());
         });
   }
 }

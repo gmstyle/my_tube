@@ -10,7 +10,7 @@ class AuthProvider extends BaseProvider {
       return await googleSignIn.signIn();
     } catch (e) {
       log(e.toString());
-      return Future.error(e);
+      return Future.error('signIn: $e');
     }
   }
 
@@ -19,16 +19,31 @@ class AuthProvider extends BaseProvider {
       return await googleSignIn.signInSilently();
     } catch (e) {
       log(e.toString());
-      return Future.error(e);
+      return Future.error('signInSilently: $e');
     }
   }
 
   Future<void> signOut() async {
     try {
-      await googleSignIn.signOut();
+      await googleSignIn.disconnect();
     } catch (e) {
       log(e.toString());
-      return Future.error(e);
+      return Future.error('signOut: $e');
+    }
+  }
+
+  Future<bool> isLogged() async {
+    return await googleSignIn.isSignedIn();
+  }
+
+  Future<String?> getAccessToken() async {
+    try {
+      final account = await googleSignIn.signInSilently();
+      final auth = await account?.authentication;
+      return auth?.accessToken;
+    } catch (error) {
+      log('Error: $error');
+      return Future.error('getAccessToken: $error');
     }
   }
 }
