@@ -22,5 +22,9 @@ class YoutubeRepository {
     return await youtubeProvider.getVideos();
   }
 
+  Future<VideoListResponse> getTrendigVideos() async {
+    return await youtubeProvider.getTrendingVideos();
+  }
+
   //TODO: Implementare gli altri metodi
 }

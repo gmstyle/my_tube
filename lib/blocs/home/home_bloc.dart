@@ -19,9 +19,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(const HomeState.loading());
     try {
       final response = await youtubeRepository.getVideos();
-      emit(HomeState.loaded(response.items!));
+      emit(HomeState.loaded(videos: response.items!));
     } catch (error) {
-      emit(HomeState.error(error.toString()));
+      emit(HomeState.error(error: error.toString()));
     }
   }
 }

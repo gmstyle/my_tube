@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:googleapis/content/v2_1.dart';
 import 'package:googleapis/youtube/v3.dart';
 
 import 'base_provider.dart';
@@ -176,6 +177,27 @@ class YoutubeProvider extends BaseProvider {
       final playlistId = playlists.items!.first.id!;
 
       return await getVideosFromPlaylist(playlistId);
+    } catch (error) {
+      log('Error: $error');
+      return Future.error('Error: $error');
+    }
+  }
+
+  /// Get trending videos
+// TODO: dinamizzare la regione
+  Future<VideoListResponse> getTrendingVideos() async {
+    try {
+      final autClient = await googleSignIn.authenticatedClient();
+
+      final youtubeApi = YouTubeApi(autClient!);
+
+      final videos = await youtubeApi.videos.list(
+        ['snippet', 'contentDetails', 'statistics'],
+        chart: 'mostPopular',
+        regionCode: 'IT',
+      );
+
+      return videos;
     } catch (error) {
       log('Error: $error');
       return Future.error('Error: $error');
