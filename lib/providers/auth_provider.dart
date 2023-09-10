@@ -4,7 +4,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'base_provider.dart';
 
-class AuthProvider extends BaseProvider {
+class AuthProvider {
+  final GoogleSignIn googleSignIn = BaseProvider.googleSignIn;
   Future<GoogleSignInAccount?> signIn() async {
     try {
       final response = await googleSignIn.signIn();

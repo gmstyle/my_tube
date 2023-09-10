@@ -1,17 +1,19 @@
 import 'dart:developer';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
-import 'package:googleapis/content/v2_1.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart';
+import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
 
 import 'base_provider.dart';
 
-class YoutubeProvider extends BaseProvider {
+class YoutubeProvider {
+  final GoogleSignIn googleSignIn = BaseProvider.googleSignIn;
   Future<ChannelListResponse> getChannels() async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final channels = await youtubeApi.channels.list(
         ['snippet', 'contentDetails', 'statistics'],
@@ -27,9 +29,9 @@ class YoutubeProvider extends BaseProvider {
 
   Future<PlaylistListResponse> getPlaylists(String channelId) async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final playlists = await youtubeApi.playlists.list(
         ['snippet', 'contentDetails'],
@@ -45,9 +47,9 @@ class YoutubeProvider extends BaseProvider {
 
   Future<PlaylistItemListResponse> getPlaylistItems(String playlistId) async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final playlistItems = await youtubeApi.playlistItems.list(
         ['snippet', 'contentDetails'],
@@ -63,12 +65,13 @@ class YoutubeProvider extends BaseProvider {
 
   Future<VideoListResponse> getVideos() async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final videos = await youtubeApi.videos.list(
         ['snippet', 'contentDetails', 'statistics'],
+        chart: 'mostPopular',
       );
 
       return videos;
@@ -80,9 +83,8 @@ class YoutubeProvider extends BaseProvider {
 
   Future<SearchListResponse> getRelatedVideos(String videoId) async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
-
-      final youtubeApi = YouTubeApi(autClient!);
+      final autClient = await _getAuthClient();
+      final youtubeApi = YouTubeApi(autClient);
 
       final videos = await youtubeApi.search.list(
         ['snippet'],
@@ -99,9 +101,9 @@ class YoutubeProvider extends BaseProvider {
 
   Future<SearchListResponse> searchVideos(String query) async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final videos = await youtubeApi.search.list(
         ['snippet'],
@@ -118,9 +120,9 @@ class YoutubeProvider extends BaseProvider {
 
   Future<VideoListResponse> getVideosFromPlaylist(String playlistId) async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final playlistItems = await youtubeApi.playlistItems.list(
         ['snippet', 'contentDetails'],
@@ -145,9 +147,9 @@ class YoutubeProvider extends BaseProvider {
 
   Future<VideoListResponse> getVideosFromChannel(String channelId) async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final playlists = await youtubeApi.playlists.list(
         ['snippet', 'contentDetails'],
@@ -165,9 +167,9 @@ class YoutubeProvider extends BaseProvider {
 
   Future<VideoListResponse> getVideosFromChannelId(String channelId) async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final playlists = await youtubeApi.playlists.list(
         ['snippet', 'contentDetails'],
@@ -187,9 +189,9 @@ class YoutubeProvider extends BaseProvider {
 // TODO: dinamizzare la regione
   Future<VideoListResponse> getTrendingVideos() async {
     try {
-      final autClient = await googleSignIn.authenticatedClient();
+      final autClient = await _getAuthClient();
 
-      final youtubeApi = YouTubeApi(autClient!);
+      final youtubeApi = YouTubeApi(autClient);
 
       final videos = await youtubeApi.videos.list(
         ['snippet', 'contentDetails', 'statistics'],
@@ -202,5 +204,13 @@ class YoutubeProvider extends BaseProvider {
       log('Error: $error');
       return Future.error('Error: $error');
     }
+  }
+
+  Future<auth.AuthClient> _getAuthClient() async {
+    final autClient = await googleSignIn.authenticatedClient();
+    if (autClient == null) {
+      return Future.error('Error: autClient is null');
+    }
+    return autClient;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/auth/auth_bloc.dart';
+import 'package:my_tube/ui/views/home/home_view.dart';
 import 'package:my_tube/ui/views/login/login_view.dart';
 
 class DashboardView extends StatelessWidget {
@@ -13,16 +14,9 @@ class DashboardView extends StatelessWidget {
         builder: (context, state) {
           switch (state.status) {
             case AuthStatus.authenticated:
-              return Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(const SignOut());
-                  },
-                  child: const Text('Logout'),
-                ),
-              );
+              return const HomeView();
             case AuthStatus.unauthenticated:
-              return LoginView();
+              return const LoginView();
             case AuthStatus.unknown:
               return const Center(child: CircularProgressIndicator());
           }
