@@ -7,7 +7,8 @@ import 'base_provider.dart';
 class AuthProvider extends BaseProvider {
   Future<GoogleSignInAccount?> signIn() async {
     try {
-      return await googleSignIn.signIn();
+      final response = await googleSignIn.signIn();
+      return response;
     } catch (e) {
       log(e.toString());
       return Future.error('signIn: $e');
