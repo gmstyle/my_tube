@@ -1,26 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/home_bloc.dart';
+import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class ExploreTab extends StatelessWidget {
-  const ExploreTab({super.key});
+  ExploreTab({super.key});
+
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
+    final exploreTabBloc = context.read<ExploreTabBloc>();
+
+    return BlocBuilder<ExploreTabBloc, ExploreTabState>(
       builder: (context, state) {
         switch (state.status) {
           case YoutubeStatus.loading:
             return const Center(child: CircularProgressIndicator());
 
           case YoutubeStatus.loaded:
-            return ListView.builder(
-              itemCount: state.videos!.length,
-              itemBuilder: (context, index) {
-                final video = state.videos?[index];
-                return VideoTile(video: video!);
+            return RefreshIndicator(
+              onRefresh: () async {
+                exploreTabBloc.add(const GetVideos());
               },
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollInfo) {
+                  if (scrollInfo.metrics.pixels ==
+                      scrollInfo.metrics.maxScrollExtent) {
+                    /// Sono arrivato alla fine della lista quindi carico altri video
+                    /// finchè non arrivo al massimo di 100 video
+                    if (state.videos!.length < 100) {
+                      exploreTabBloc.add(GetNextPageVideos(
+                          nextPageToken: state.nextPageToken));
+                    }
+                  }
+                  return false;
+                },
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: state.videos!.length,
+                  itemBuilder: (context, index) {
+                    if (index >= state.videos!.length) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      final video = state.videos?[index];
+                      return VideoTile(video: video!);
+                    }
+                  },
+                ),
+              ),
             );
           case YoutubeStatus.error:
             return Center(

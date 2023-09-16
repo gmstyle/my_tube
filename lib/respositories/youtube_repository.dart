@@ -18,8 +18,8 @@ class YoutubeRepository {
     return await youtubeProvider.getPlaylistItems(playlistId);
   }
 
-  Future<VideoListResponse> getVideos() async {
-    return await youtubeProvider.getVideos();
+  Future<VideoListResponse> getVideos({String? nextPageToken}) async {
+    return await youtubeProvider.getVideos(nextPageToken: nextPageToken);
   }
 
   Future<VideoListResponse> getTrendigVideos() async {

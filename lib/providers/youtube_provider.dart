@@ -64,16 +64,15 @@ class YoutubeProvider {
     }
   }
 
-  Future<VideoListResponse> getVideos() async {
+  Future<VideoListResponse> getVideos({String? nextPageToken}) async {
     try {
       final autClient = await _getAuthClient();
 
       final youtubeApi = YouTubeApi(autClient);
 
       final videos = await youtubeApi.videos.list(
-        ['snippet', 'contentDetails', 'statistics'],
-        chart: 'mostPopular',
-      );
+          ['snippet', 'contentDetails', 'statistics'],
+          chart: 'mostPopular', maxResults: 20, pageToken: nextPageToken);
 
       return videos;
     } catch (error) {

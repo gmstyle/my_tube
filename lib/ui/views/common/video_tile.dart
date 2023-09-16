@@ -8,10 +8,12 @@ class VideoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// Build a Youtube video tile
     return ListTile(
       leading: Image.network(video.snippet!.thumbnails!.medium!.url!),
-      title: Text(video.snippet!.title!),
+      title: Text(
+        video.snippet!.title!,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
       subtitle: Text(video.snippet!.channelTitle!),
     );
   }

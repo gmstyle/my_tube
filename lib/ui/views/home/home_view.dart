@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/home_bloc.dart';
+import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/ui/views/home/tabs/account_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/explore_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/subscriptions_tab.dart';
@@ -33,7 +33,7 @@ class _HomeViewState extends State<HomeView> {
     ),
   ];
 
-  final _tabs = const [ExploreTab(), SubscriptionsTab(), AccountTab()];
+  final _tabs = [ExploreTab(), SubscriptionsTab(), AccountTab()];
 
   void _onPageChanged(int index) {
     setState(() {
@@ -50,10 +50,10 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
         providers: [
-          BlocProvider<HomeBloc>(
-              create: (_) =>
-                  HomeBloc(youtubeRepository: context.read<YoutubeRepository>())
-                    ..add(const GetVideos()))
+          BlocProvider<ExploreTabBloc>(
+              create: (_) => ExploreTabBloc(
+                  youtubeRepository: context.read<YoutubeRepository>())
+                ..add(const GetVideos()))
         ],
         child: Scaffold(
           appBar: AppBar(
