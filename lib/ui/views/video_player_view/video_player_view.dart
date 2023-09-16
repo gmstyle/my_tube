@@ -9,12 +9,16 @@ class VideoPlayerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(video.snippet!.title!),
-      ),
-      body: Center(
-        child: Text(video.snippet!.description!),
-      ),
-    );
+        appBar: AppBar(
+          title: Text(video.snippet!.title!),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Image.network(video.snippet!.thumbnails!.high!.url!),
+              Text(video.snippet!.description!),
+            ],
+          ),
+        ));
   }
 }
