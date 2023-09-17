@@ -68,14 +68,15 @@ class ExploreTab extends StatelessWidget {
                     ),
                     BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
                         builder: (context, state) {
-                      if (state is ShowMiniPlayer) {
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          height: MediaQuery.of(context).size.height * 0.1,
-                          child: Center(child: MiniPlayer(video: state.video)),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
+                      switch (state.status) {
+                        case MiniPlayerStatus.shown:
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            height: MediaQuery.of(context).size.height * 0.1,
+                            child: MiniPlayer(video: state.video!),
+                          );
+                        default:
+                          return const SizedBox.shrink();
                       }
                     }),
                   ],

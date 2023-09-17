@@ -1,21 +1,17 @@
 part of 'mini_player_cubit.dart';
 
-sealed class MiniPlayerState extends Equatable {
-  const MiniPlayerState();
-}
+enum MiniPlayerStatus { hidden, shown }
 
-final class ShowMiniPlayer extends MiniPlayerState {
-  final Video video;
+class MiniPlayerState extends Equatable {
+  const MiniPlayerState._({required this.status, this.video});
 
-  const ShowMiniPlayer(this.video);
+  final MiniPlayerStatus status;
+  final Video? video;
 
-  @override
-  List<Object> get props => [video];
-}
-
-final class HideMiniPlayer extends MiniPlayerState {
-  const HideMiniPlayer();
+  const MiniPlayerState.hidden() : this._(status: MiniPlayerStatus.hidden);
+  const MiniPlayerState.shown(Video video)
+      : this._(status: MiniPlayerStatus.shown, video: video);
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [status, video];
 }
