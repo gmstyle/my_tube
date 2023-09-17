@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/blocs/home/explore_tab/cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/ui/views/home/tabs/account_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/explore_tab.dart';
@@ -53,7 +54,8 @@ class _HomeViewState extends State<HomeView> {
           BlocProvider<ExploreTabBloc>(
               create: (_) => ExploreTabBloc(
                   youtubeRepository: context.read<YoutubeRepository>())
-                ..add(const GetVideos()))
+                ..add(const GetVideos())),
+          BlocProvider<MiniPlayerCubit>(create: (_) => MiniPlayerCubit())
         ],
         child: Scaffold(
           appBar: AppBar(

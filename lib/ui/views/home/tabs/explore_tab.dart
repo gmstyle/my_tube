@@ -1,6 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:googleapis/youtube/v3.dart';
+import 'package:my_tube/blocs/home/explore_tab/cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
+import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class ExploreTab extends StatelessWidget {
@@ -8,6 +13,7 @@ class ExploreTab extends StatelessWidget {
 
   final ScrollController _scrollController = ScrollController();
 
+  bool isPlayerVisible = false;
   @override
   Widget build(BuildContext context) {
     final exploreTabBloc = context.read<ExploreTabBloc>();
@@ -36,19 +42,43 @@ class ExploreTab extends StatelessWidget {
                   }
                   return false;
                 },
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: state.videos!.length,
-                  itemBuilder: (context, index) {
-                    if (index >= state.videos!.length) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else {
-                      final video = state.videos?[index];
-                      return VideoTile(video: video!);
-                    }
-                  },
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        itemCount: state.videos!.length,
+                        itemBuilder: (context, index) {
+                          if (index >= state.videos!.length) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else {
+                            final video = state.videos?[index];
+                            return GestureDetector(
+                                onTap: () {
+                                  context
+                                      .read<MiniPlayerCubit>()
+                                      .showMiniPlayer(video);
+                                },
+                                child: VideoTile(video: video!));
+                          }
+                        },
+                      ),
+                    ),
+                    BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+                        builder: (context, state) {
+                      if (state is ShowMiniPlayer) {
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          height: MediaQuery.of(context).size.height * 0.1,
+                          child: Center(child: MiniPlayer(video: state.video)),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+                  ],
                 ),
               ),
             );

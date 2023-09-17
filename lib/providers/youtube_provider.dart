@@ -72,7 +72,10 @@ class YoutubeProvider {
 
       final videos = await youtubeApi.videos.list(
           ['snippet', 'contentDetails', 'statistics'],
-          chart: 'mostPopular', maxResults: 20, pageToken: nextPageToken);
+          chart: 'mostPopular',
+          maxResults: 20,
+          pageToken: nextPageToken,
+          regionCode: 'IT');
 
       return videos;
     } catch (error) {
