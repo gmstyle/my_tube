@@ -1,110 +1,100 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:googleapis/youtube/v3.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class VideoPlayerView extends StatefulWidget {
-  const VideoPlayerView({super.key, required this.video});
+  const VideoPlayerView(
+      {super.key,
+      required this.video,
+      required this.streamUrl,
+      required this.vlcPlayerController});
 
   final Video video;
-
+  final String streamUrl;
+  final VlcPlayerController vlcPlayerController;
   @override
   State<VideoPlayerView> createState() => _VideoPlayerViewState();
 }
 
-class _VideoPlayerViewState extends State<VideoPlayerView> {
-  late YoutubePlayerController youtubePlayerController;
+class _VideoPlayerViewState extends State<VideoPlayerView>
+    with TickerProviderStateMixin {
+  late AnimationController scaleVideoAnimationController;
+  Animation<double> scaleVideoAnimation =
+      const AlwaysStoppedAnimation<double>(1.0);
+  double? targetVideoScale;
 
   @override
   void initState() {
     super.initState();
 
-    youtubePlayerController = YoutubePlayerController.fromVideoId(
-      videoId: widget.video.id!,
-      autoPlay: true,
-      params: const YoutubePlayerParams(
-          showControls: true, showFullscreenButton: true, loop: false),
-    );
+    //forceLandscape();
 
-    youtubePlayerController.setFullScreenListener((isFullScreen) {
-      log('isFullScreen $isFullScreen');
-    });
+    scaleVideoAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 125));
+  }
+
+  @override
+  void dispose() {
+    //forcePortrait();
+    scaleVideoAnimationController.dispose();
+    widget.vlcPlayerController.stopRendererScanning();
+    widget.vlcPlayerController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayerScaffold(
-        builder: (context, player) {
-          return Scaffold(
-              body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                title: Text(widget.video.snippet!.title!),
-                expandedHeight: 250,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: player,
-                ),
-              ),
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ExpansionTile(
-                        initiallyExpanded: true,
-                        title: const Text('Description'),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(widget.video.snippet!.description!),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ExpansionTile(
-                          initiallyExpanded: true,
-                          title: const Text('Statistics'),
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Text('View Count: '),
-                                      Text(widget.video.statistics!.viewCount!),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Text('Like Count: '),
-                                      Text(widget.video.statistics!.likeCount!),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Text('Comments: '),
-                                      Text(widget
-                                          .video.statistics!.commentCount!),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ));
-        },
-        controller: youtubePlayerController);
+    final screenSize = MediaQuery.of(context).size;
+    final videoSize = widget.vlcPlayerController.value.size;
+    if (videoSize.width > 0) {
+      final newTargetScale = screenSize.width /
+          (videoSize.width * screenSize.height / videoSize.height);
+      setTargetNativeScale(newTargetScale);
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Video in Full Screen'),
+      ),
+      body: Center(
+        child: VlcPlayer(
+          controller: widget.vlcPlayerController,
+          aspectRatio: 16 / 9,
+        ),
+      ),
+    );
+  }
+
+  void setTargetNativeScale(double newValue) {
+    if (!newValue.isFinite) {
+      return;
+    }
+    scaleVideoAnimation =
+        Tween<double>(begin: 1.0, end: newValue).animate(CurvedAnimation(
+      parent: scaleVideoAnimationController,
+      curve: Curves.easeInOut,
+    ));
+
+    if (targetVideoScale == null) {
+      scaleVideoAnimationController.forward();
+    }
+    targetVideoScale = newValue;
+  }
+
+  Future<void> forceLandscape() async {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
+  Future<void> forcePortrait() async {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values); // to re-show bars
   }
 }

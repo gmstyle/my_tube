@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/blocs/home/explore_tab/cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
@@ -66,17 +65,14 @@ class ExploreTab extends StatelessWidget {
                         },
                       ),
                     ),
+
+                    /// Mini player
                     BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
                         builder: (context, state) {
                       switch (state.status) {
                         case MiniPlayerStatus.shown:
-                          return AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            height: MediaQuery.of(context).size.height * 0.1,
-                            child: MiniPlayer(
-                                video: state.video!,
-                                streamUrl: state.streamUrl!),
-                          );
+                          return MiniPlayer(
+                              video: state.video!, streamUrl: state.streamUrl!);
                         default:
                           return const SizedBox.shrink();
                       }

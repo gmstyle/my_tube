@@ -218,22 +218,6 @@ class YoutubeProvider {
     return autClient;
   }
 
-  Future<Stream<List<int>>> playYoutubeVideo(String videoId) async {
-    // Get video metadata
-    final video = await BaseProvider.youtubeExplode.videos.get(videoId);
-
-    // Get video manifest
-    final manifest = await BaseProvider.youtubeExplode.videos.streamsClient
-        .getManifest(videoId);
-    final streams = manifest.muxed.bestQuality;
-
-    // Get video media stream
-    final stream =
-        BaseProvider.youtubeExplode.videos.streamsClient.get(streams);
-
-    return stream;
-  }
-
   // get the youtube stream url
   Future<String> getStreamUrl(String videoId) async {
     final video = await BaseProvider.youtubeExplode.videos.get(videoId);

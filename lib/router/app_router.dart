@@ -1,3 +1,4 @@
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:go_router/go_router.dart';
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/router/pages/dashboard_page.dart';
@@ -14,8 +15,16 @@ class AppRouter {
             name: AppRoute.videoPlayer.name,
             path: AppRoute.videoPlayer.path,
             pageBuilder: (context, state) {
-              final video = state.extra as Video;
-              return VideoPlayerPage(video: video);
+              final extra = state.extra as Map<String, dynamic>;
+              final video = extra['video'] as Video;
+              final streamUrl = extra['streamUrl'] as String;
+              final vlcPlayerController =
+                  extra['vlcPlayerController'] as VlcPlayerController;
+
+              return VideoPlayerPage(
+                  video: video,
+                  streamUrl: streamUrl,
+                  vlcPlayerController: vlcPlayerController);
             },
           )
         ])
