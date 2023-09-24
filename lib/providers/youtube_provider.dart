@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart';
 // ignore: depend_on_referenced_packages
 import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import 'base_provider.dart';
 
@@ -215,5 +216,30 @@ class YoutubeProvider {
       return Future.error('Error: autClient is null');
     }
     return autClient;
+  }
+
+  Future<Stream<List<int>>> playYoutubeVideo(String videoId) async {
+    // Get video metadata
+    final video = await BaseProvider.youtubeExplode.videos.get(videoId);
+
+    // Get video manifest
+    final manifest = await BaseProvider.youtubeExplode.videos.streamsClient
+        .getManifest(videoId);
+    final streams = manifest.muxed.bestQuality;
+
+    // Get video media stream
+    final stream =
+        BaseProvider.youtubeExplode.videos.streamsClient.get(streams);
+
+    return stream;
+  }
+
+  // get the youtube stream url
+  Future<String> getStreamUrl(String videoId) async {
+    final video = await BaseProvider.youtubeExplode.videos.get(videoId);
+    final manifest = await BaseProvider.youtubeExplode.videos.streamsClient
+        .getManifest(videoId);
+    final streams = manifest.muxed.bestQuality;
+    return streams.url.toString();
   }
 }

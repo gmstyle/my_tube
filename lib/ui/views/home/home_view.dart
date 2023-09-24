@@ -49,13 +49,17 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final youtubeRepository = context.read<YoutubeRepository>();
+
     return MultiBlocProvider(
         providers: [
           BlocProvider<ExploreTabBloc>(
-              create: (_) => ExploreTabBloc(
-                  youtubeRepository: context.read<YoutubeRepository>())
-                ..add(const GetVideos())),
-          BlocProvider<MiniPlayerCubit>(create: (_) => MiniPlayerCubit())
+              create: (_) =>
+                  ExploreTabBloc(youtubeRepository: youtubeRepository)
+                    ..add(const GetVideos())),
+          BlocProvider<MiniPlayerCubit>(
+              create: (_) =>
+                  MiniPlayerCubit(youtubeRepository: youtubeRepository))
         ],
         child: Scaffold(
           appBar: AppBar(

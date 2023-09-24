@@ -26,5 +26,13 @@ class YoutubeRepository {
     return await youtubeProvider.getTrendingVideos();
   }
 
+  Future<Stream<List<int>>> playVideo(String videoId) async {
+    return await youtubeProvider.playYoutubeVideo(videoId);
+  }
+
+  Future<String> getStreamUrl(String videoId) async {
+    return await youtubeProvider.getStreamUrl(videoId);
+  }
+
   //TODO: Implementare gli altri metodi
 }

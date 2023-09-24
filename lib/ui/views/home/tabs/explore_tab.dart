@@ -56,8 +56,8 @@ class ExploreTab extends StatelessWidget {
                           } else {
                             final video = state.videos?[index];
                             return GestureDetector(
-                                onTap: () {
-                                  context
+                                onTap: () async {
+                                  await context
                                       .read<MiniPlayerCubit>()
                                       .showMiniPlayer(video);
                                 },
@@ -73,7 +73,9 @@ class ExploreTab extends StatelessWidget {
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             height: MediaQuery.of(context).size.height * 0.1,
-                            child: MiniPlayer(video: state.video!),
+                            child: MiniPlayer(
+                                video: state.video!,
+                                streamUrl: state.streamUrl!),
                           );
                         default:
                           return const SizedBox.shrink();
