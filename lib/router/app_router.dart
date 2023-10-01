@@ -1,5 +1,4 @@
 import 'package:chewie/chewie.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:go_router/go_router.dart';
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/router/pages/dashboard_page.dart';

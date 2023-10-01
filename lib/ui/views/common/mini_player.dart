@@ -5,151 +5,89 @@ import 'package:go_router/go_router.dart';
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/blocs/home/explore_tab/cubit/mini_player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:video_player/video_player.dart';
 
-class MiniPlayer extends StatefulWidget {
-  const MiniPlayer({super.key, required this.video, required this.streamUrl});
+class MiniPlayer extends StatelessWidget {
+  const MiniPlayer(
+      {super.key,
+      required this.video,
+      required this.streamUrl,
+      required this.chewieController});
 
   final Video video;
   final String streamUrl;
-
-  @override
-  State<MiniPlayer> createState() => _MiniPlayerState();
-}
-
-class _MiniPlayerState extends State<MiniPlayer> {
-  VideoPlayerController? videoPlayerController;
-  ChewieController? chewieController;
-
-  @override
-  void initState() {
-    super.initState();
-    initPlayer();
-  }
-
-  @override
-  void dispose() async {
-    videoPlayerController?.dispose();
-    chewieController?.dispose();
-    super.dispose();
-  }
+  final ChewieController chewieController;
 
   @override
   Widget build(BuildContext context) {
+    final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
           Expanded(
-              child: chewieController != null &&
-                      chewieController!
-                          .videoPlayerController.value.isInitialized
-                  ? Row(
-                      children: [
-                        SizedBox(
-                            width: 0,
-                            child: Chewie(controller: chewieController!)),
-                        GestureDetector(
-                          onTap: () {
-                            context.goNamed(AppRoute.videoPlayer.name, extra: {
-                              'video': widget.video,
-                              'streamUrl': widget.streamUrl,
-                              'chewieController': chewieController
-                            });
-                          },
-                          child: Image.network(
-                              widget.video.snippet!.thumbnails!.high!.url!),
-                        )
-                      ],
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(),
-                    ) /* FutureBuilder(
-                  future: initPlayer(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return Row(
-                        children: [
-                          SizedBox(
-                              width: 0,
-                              child: Chewie(controller: chewieController!)),
-                          GestureDetector(
-                            onTap: () {
-                              context
-                                  .goNamed(AppRoute.videoPlayer.name, extra: {
-                                'video': widget.video,
-                                'streamUrl': widget.streamUrl,
-                                'chewieController': chewieController
-                              });
-                            },
-                            child: Image.network(
-                                widget.video.snippet!.thumbnails!.high!.url!),
-                          )
-                        ],
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  }) */
-              ),
-          const SizedBox(
-            width: 8,
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              widget.video.snippet!.title!,
-              overflow: TextOverflow.ellipsis,
+              child: GestureDetector(
+            onTap: () {
+              context.goNamed(AppRoute.videoPlayer.name, extra: {
+                'video': video,
+                'streamUrl': streamUrl,
+                'chewieController': chewieController
+              });
+            },
+            child: Row(
+              children: [
+                /// SzedBox con width 0 per far partire il chewieController
+                /// senza che si veda il video in modalità mini player
+                SizedBox(width: 0, child: Chewie(controller: chewieController)),
+                Image.network(video.snippet!.thumbnails!.high!.url!),
+                const SizedBox(
+                  width: 8,
+                ),
+                /* onTap: () {
+                    context.goNamed(AppRoute.videoPlayer.name, extra: {
+                      'video': video,
+                      'streamUrl': streamUrl,
+                      'chewieController': chewieController
+                    });
+                  } */
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    video.snippet!.title!,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-          ),
+          )),
           const SizedBox(
             width: 8,
           ),
-          if (chewieController != null)
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              StatefulBuilder(builder: (context, setState) {
-                return IconButton(
-                    onPressed: () {
-                      setState(() {
-                        if (chewieController!.isPlaying) {
-                          chewieController!.pause();
-                          setState(() {});
-                        } else {
-                          chewieController!.play();
-                          setState(() {});
-                        }
-                      });
-                    },
-                    icon: Icon(chewieController!.isPlaying
-                        ? Icons.pause
-                        : Icons.play_arrow));
-              }),
-              IconButton(
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            StatefulBuilder(builder: (context, setState) {
+              return IconButton(
                   onPressed: () {
-                    context.read<MiniPlayerCubit>().hideMiniPlayer();
+                    setState(() {
+                      if (chewieController.isPlaying) {
+                        miniPlayerCubit.pauseMiniPlayer();
+                        setState(() {});
+                      } else {
+                        miniPlayerCubit.playMiniPlayer();
+                        setState(() {});
+                      }
+                    });
                   },
-                  icon: const Icon(Icons.close)),
-            ]),
+                  icon: Icon(chewieController.isPlaying
+                      ? Icons.pause
+                      : Icons.play_arrow));
+            }),
+            IconButton(
+                onPressed: () {
+                  miniPlayerCubit.hideMiniPlayer();
+                },
+                icon: const Icon(Icons.close)),
+          ]),
         ],
       ),
     );
-  }
-
-  Future<void> initPlayer() async {
-    videoPlayerController =
-        VideoPlayerController.networkUrl(Uri.parse(widget.streamUrl));
-    await videoPlayerController!.initialize();
-    chewieController = ChewieController(
-      videoPlayerController: videoPlayerController!,
-      autoPlay: true,
-      hideControlsTimer: const Duration(seconds: 1),
-      /* additionalOptions: (context) {
-        return [OptionItem(onTap: () {}, iconData: Icons.abc, title: 'Prova')];
-      }, */
-    );
-
-    setState(() {});
   }
 }

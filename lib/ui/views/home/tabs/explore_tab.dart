@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/cubit/mini_player_cubit.dart';
@@ -11,7 +10,6 @@ class ExploreTab extends StatelessWidget {
 
   final ScrollController _scrollController = ScrollController();
 
-  bool isPlayerVisible = false;
   @override
   Widget build(BuildContext context) {
     final exploreTabBloc = context.read<ExploreTabBloc>();
@@ -24,6 +22,8 @@ class ExploreTab extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
 
           case YoutubeStatus.loaded:
+            final miniplayerStatus =
+                context.watch<MiniPlayerCubit>().state.status;
             return RefreshIndicator(
               onRefresh: () async {
                 exploreTabBloc.add(const GetVideos());
@@ -67,25 +67,35 @@ class ExploreTab extends StatelessWidget {
                     ),
 
                     /// Mini player
-                    BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
-                        builder: (context, state) {
-                      switch (state.status) {
-                        case MiniPlayerStatus.shown:
-                          return AnimatedContainer(
-                            decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(10),
-                                    topRight: Radius.circular(10))),
-                            duration: const Duration(milliseconds: 500),
-                            height: miniPlayerHeight,
-                            child: MiniPlayer(
-                                video: state.video!,
-                                streamUrl: state.streamUrl!),
-                          );
-                        default:
-                          return const SizedBox.shrink();
-                      }
-                    }),
+                    AnimatedContainer(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10))),
+                      duration: const Duration(milliseconds: 500),
+                      height: miniplayerStatus == MiniPlayerStatus.shown ||
+                              miniplayerStatus == MiniPlayerStatus.loading
+                          ? miniPlayerHeight
+                          : 0,
+                      child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+                          builder: (context, state) {
+                        switch (state.status) {
+                          case MiniPlayerStatus.loading:
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          case MiniPlayerStatus.shown:
+                            return MiniPlayer(
+                              video: state.video!,
+                              streamUrl: state.streamUrl!,
+                              chewieController: state.chewieController!,
+                            );
+                          default:
+                            return const SizedBox.shrink();
+                        }
+                      }),
+                    ),
                   ],
                 ),
               ),
