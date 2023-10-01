@@ -42,7 +42,7 @@ class VideoPlayerView extends StatelessWidget {
                 ),
                 Text(
                   video.snippet!.description!,
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
             ),

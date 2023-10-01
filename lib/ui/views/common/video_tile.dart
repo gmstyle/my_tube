@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:googleapis/youtube/v3.dart';
-import 'package:my_tube/router/app_router.dart';
 
 class VideoTile extends StatelessWidget {
   const VideoTile({super.key, required this.video});
