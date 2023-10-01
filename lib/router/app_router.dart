@@ -1,3 +1,4 @@
+import 'package:chewie/chewie.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:go_router/go_router.dart';
 import 'package:googleapis/youtube/v3.dart';
@@ -19,12 +20,12 @@ class AppRouter {
               final video = extra['video'] as Video;
               final streamUrl = extra['streamUrl'] as String;
               final vlcPlayerController =
-                  extra['vlcPlayerController'] as VlcPlayerController;
+                  extra['chewieController'] as ChewieController;
 
               return VideoPlayerPage(
                   video: video,
                   streamUrl: streamUrl,
-                  vlcPlayerController: vlcPlayerController);
+                  chewieController: vlcPlayerController);
             },
           )
         ])

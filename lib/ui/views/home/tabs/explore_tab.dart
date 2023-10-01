@@ -16,6 +16,7 @@ class ExploreTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final exploreTabBloc = context.read<ExploreTabBloc>();
+    final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
 
     return BlocBuilder<ExploreTabBloc, ExploreTabState>(
       builder: (context, state) {
@@ -71,8 +72,17 @@ class ExploreTab extends StatelessWidget {
                         builder: (context, state) {
                       switch (state.status) {
                         case MiniPlayerStatus.shown:
-                          return MiniPlayer(
-                              video: state.video!, streamUrl: state.streamUrl!);
+                          return AnimatedContainer(
+                            decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10))),
+                            duration: const Duration(milliseconds: 500),
+                            height: miniPlayerHeight,
+                            child: MiniPlayer(
+                                video: state.video!,
+                                streamUrl: state.streamUrl!),
+                          );
                         default:
                           return const SizedBox.shrink();
                       }
