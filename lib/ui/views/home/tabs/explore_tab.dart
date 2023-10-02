@@ -14,6 +14,7 @@ class ExploreTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final exploreTabBloc = context.read<ExploreTabBloc>();
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
+    final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
     return BlocBuilder<ExploreTabBloc, ExploreTabState>(
       builder: (context, state) {
@@ -22,8 +23,6 @@ class ExploreTab extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
 
           case YoutubeStatus.loaded:
-            final miniplayerStatus =
-                context.watch<MiniPlayerCubit>().state.status;
             return RefreshIndicator(
               onRefresh: () async {
                 exploreTabBloc.add(const GetVideos());

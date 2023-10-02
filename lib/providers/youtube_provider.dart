@@ -11,6 +11,7 @@ import 'base_provider.dart';
 
 class YoutubeProvider {
   final GoogleSignIn googleSignIn = BaseProvider.googleSignIn;
+  final YoutubeExplode youtubeExplode = BaseProvider.youtubeExplode;
   Future<ChannelListResponse> getChannels() async {
     try {
       final autClient = await _getAuthClient();
@@ -220,9 +221,8 @@ class YoutubeProvider {
 
   // get the youtube stream url
   Future<String> getStreamUrl(String videoId) async {
-    final video = await BaseProvider.youtubeExplode.videos.get(videoId);
-    final manifest = await BaseProvider.youtubeExplode.videos.streamsClient
-        .getManifest(videoId);
+    final manifest =
+        await youtubeExplode.videos.streamsClient.getManifest(videoId);
     final streams = manifest.muxed.bestQuality;
     return streams.url.toString();
   }
