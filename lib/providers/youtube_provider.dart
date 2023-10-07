@@ -107,19 +107,20 @@ class YoutubeProvider {
     }
   }
 
-  Future<SearchListResponse> searchVideos(String query) async {
+  Future<SearchListResponse> searchContents(String query) async {
     try {
       final autClient = await _getAuthClient();
 
       final youtubeApi = YouTubeApi(autClient);
 
-      final videos = await youtubeApi.search.list(
+      final results = await youtubeApi.search.list(
         ['snippet'],
         q: query,
-        type: ['video'],
+        type: ['video', 'channel', 'playlist'],
+        maxResults: 100,
       );
 
-      return videos;
+      return results;
     } catch (error) {
       log('Error: $error');
       return Future.error('Error: $error');

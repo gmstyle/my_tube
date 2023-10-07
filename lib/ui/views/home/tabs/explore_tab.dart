@@ -12,8 +12,6 @@ class ExploreTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final exploreTabBloc = context.read<ExploreTabBloc>();
-    final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
-    final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
     return BlocBuilder<ExploreTabBloc, ExploreTabState>(
       builder: (context, state) {
@@ -53,7 +51,7 @@ class ExploreTab extends StatelessWidget {
                           onTap: () async {
                             await context
                                 .read<MiniPlayerCubit>()
-                                .showMiniPlayer(video);
+                                .showMiniPlayer(video, null);
                           },
                           child: VideoTile(video: video!));
                     }

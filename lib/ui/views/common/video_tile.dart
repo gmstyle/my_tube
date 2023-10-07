@@ -15,9 +15,6 @@ class VideoTile extends StatelessWidget {
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Text(video.snippet!.channelTitle!),
-      /* onTap: () {
-        context.goNamed(AppRoute.videoPlayer.name, extra: video);
-      }, */
     );
   }
 }

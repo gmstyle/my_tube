@@ -43,5 +43,10 @@ class YoutubeRepository {
         .toList();
   }
 
+  Future<List<SearchResult>?> searchContents(String query) async {
+    final response = await youtubeProvider.searchContents(query);
+    return response.items;
+  }
+
   //TODO: Implementare gli altri metodi
 }

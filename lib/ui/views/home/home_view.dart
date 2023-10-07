@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/home/tabs/account_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/explore_tab.dart';
@@ -52,6 +53,8 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final youtubeRepository = context.read<YoutubeRepository>();
+    final searchBloc = context.read<SearchBloc>();
+    final miniPlayerCubit = context.read<MiniPlayerCubit>();
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
@@ -69,7 +72,11 @@ class _HomeViewState extends State<HomeView> {
               // Search button
               IconButton(
                   onPressed: () {
-                    showSearch(context: context, delegate: MTSearchDelegate());
+                    showSearch(
+                        context: context,
+                        delegate: MTSearchDelegate(
+                            searchBloc: searchBloc,
+                            miniPlayerCubit: miniPlayerCubit));
                   },
                   icon: const Icon(Icons.search),
                   tooltip: 'Search'),
@@ -85,11 +92,15 @@ class _HomeViewState extends State<HomeView> {
                   children: _tabs,
                 ),
               ),
-
+            ],
+          ),
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               /// Mini player
               AnimatedContainer(
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
+                    //color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10))),
@@ -107,7 +118,8 @@ class _HomeViewState extends State<HomeView> {
                       );
                     case MiniPlayerStatus.shown:
                       return MiniPlayer(
-                        video: state.video!,
+                        video: state.video,
+                        result: state.result,
                         streamUrl: state.streamUrl!,
                         chewieController: state.chewieController!,
                       );
@@ -115,14 +127,14 @@ class _HomeViewState extends State<HomeView> {
                       return const SizedBox.shrink();
                   }
                 }),
-              )
+              ),
+              BottomNavigationBar(
+                currentIndex: currentIndex,
+                items: _navBarItems,
+                onTap: _onTap,
+                type: BottomNavigationBarType.fixed,
+              ),
             ],
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: currentIndex,
-            items: _navBarItems,
-            onTap: _onTap,
-            type: BottomNavigationBarType.fixed,
           ),
         ));
   }
