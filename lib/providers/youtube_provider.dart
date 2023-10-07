@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart';
 // ignore: depend_on_referenced_packages
 import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
+import 'package:my_tube/models/video_category_mt.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import 'base_provider.dart';
@@ -66,7 +67,8 @@ class YoutubeProvider {
     }
   }
 
-  Future<VideoListResponse> getVideos({String? nextPageToken}) async {
+  Future<VideoListResponse> getVideos(
+      {String? nextPageToken, String? categoryId}) async {
     try {
       final autClient = await _getAuthClient();
 
@@ -75,6 +77,7 @@ class YoutubeProvider {
       final videos = await youtubeApi.videos.list(
           ['snippet', 'contentDetails', 'statistics'],
           chart: 'mostPopular',
+          videoCategoryId: categoryId,
           maxResults: 20,
           pageToken: nextPageToken,
           regionCode: 'IT');
@@ -211,12 +214,23 @@ class YoutubeProvider {
     }
   }
 
-  Future<auth.AuthClient> _getAuthClient() async {
-    final autClient = await googleSignIn.authenticatedClient();
-    if (autClient == null) {
-      return Future.error('Error: autClient is null');
+  // Get video categories
+  Future<VideoCategoryListResponse> getVideoCategories() async {
+    try {
+      final autClient = await _getAuthClient();
+
+      final youtubeApi = YouTubeApi(autClient);
+
+      final categories = await youtubeApi.videoCategories.list(
+        ['snippet'],
+        regionCode: 'IT',
+      );
+
+      return categories;
+    } catch (error) {
+      log('Error: $error');
+      return Future.error('Error: $error');
     }
-    return autClient;
   }
 
   // get the youtube stream url
@@ -225,5 +239,13 @@ class YoutubeProvider {
         await youtubeExplode.videos.streamsClient.getManifest(videoId);
     final streams = manifest.muxed.bestQuality;
     return streams.url.toString();
+  }
+
+  Future<auth.AuthClient> _getAuthClient() async {
+    final autClient = await googleSignIn.authenticatedClient();
+    if (autClient == null) {
+      return Future.error('Error: autClient is null');
+    }
+    return autClient;
   }
 }

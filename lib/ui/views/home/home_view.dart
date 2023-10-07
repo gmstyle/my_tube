@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/explore_tab/cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
+import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/home/tabs/account_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/explore_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/subscriptions_tab.dart';
 
 import '../../../respositories/youtube_repository.dart';
+import 'package:my_tube/ui/views/common/mt_search_delegate.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -64,6 +65,15 @@ class _HomeViewState extends State<HomeView> {
         child: Scaffold(
           appBar: AppBar(
             title: const Text('My Tube'),
+            actions: [
+              // Search button
+              IconButton(
+                  onPressed: () {
+                    showSearch(context: context, delegate: MTSearchDelegate());
+                  },
+                  icon: const Icon(Icons.search),
+                  tooltip: 'Search'),
+            ],
           ),
           body: Column(
             children: [
