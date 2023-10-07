@@ -40,62 +40,25 @@ class ExploreTab extends StatelessWidget {
                   }
                   return false;
                 },
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        itemCount: state.videos!.length,
-                        itemBuilder: (context, index) {
-                          if (index >= state.videos!.length) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else {
-                            final video = state.videos?[index];
-                            return GestureDetector(
-                                onTap: () async {
-                                  await context
-                                      .read<MiniPlayerCubit>()
-                                      .showMiniPlayer(video);
-                                },
-                                child: VideoTile(video: video!));
-                          }
-                        },
-                      ),
-                    ),
-
-                    /// Mini player
-                    AnimatedContainer(
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10))),
-                      duration: const Duration(milliseconds: 500),
-                      height: miniplayerStatus == MiniPlayerStatus.shown ||
-                              miniplayerStatus == MiniPlayerStatus.loading
-                          ? miniPlayerHeight
-                          : 0,
-                      child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
-                          builder: (context, state) {
-                        switch (state.status) {
-                          case MiniPlayerStatus.loading:
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          case MiniPlayerStatus.shown:
-                            return MiniPlayer(
-                              video: state.video!,
-                              streamUrl: state.streamUrl!,
-                              chewieController: state.chewieController!,
-                            );
-                          default:
-                            return const SizedBox.shrink();
-                        }
-                      }),
-                    ),
-                  ],
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: state.videos!.length,
+                  itemBuilder: (context, index) {
+                    if (index >= state.videos!.length) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      final video = state.videos?[index];
+                      return GestureDetector(
+                          onTap: () async {
+                            await context
+                                .read<MiniPlayerCubit>()
+                                .showMiniPlayer(video);
+                          },
+                          child: VideoTile(video: video!));
+                    }
+                  },
                 ),
               ),
             );
