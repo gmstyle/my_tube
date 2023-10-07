@@ -52,90 +52,82 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final youtubeRepository = context.read<YoutubeRepository>();
     final searchBloc = context.read<SearchBloc>();
     final miniPlayerCubit = context.read<MiniPlayerCubit>();
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider<ExploreTabBloc>(
-              create: (_) =>
-                  ExploreTabBloc(youtubeRepository: youtubeRepository)
-                    ..add(const GetVideos())),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Tube'),
+        actions: [
+          // Search button
+          IconButton(
+              onPressed: () {
+                showSearch(
+                    context: context,
+                    delegate: MTSearchDelegate(
+                        searchBloc: searchBloc,
+                        miniPlayerCubit: miniPlayerCubit));
+              },
+              icon: const Icon(Icons.search),
+              tooltip: 'Search'),
         ],
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('My Tube'),
-            actions: [
-              // Search button
-              IconButton(
-                  onPressed: () {
-                    showSearch(
-                        context: context,
-                        delegate: MTSearchDelegate(
-                            searchBloc: searchBloc,
-                            miniPlayerCubit: miniPlayerCubit));
-                  },
-                  icon: const Icon(Icons.search),
-                  tooltip: 'Search'),
-            ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView(
+              controller: pageController,
+              onPageChanged: _onPageChanged,
+              physics: const NeverScrollableScrollPhysics(),
+              children: _tabs,
+            ),
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: PageView(
-                  controller: pageController,
-                  onPageChanged: _onPageChanged,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: _tabs,
-                ),
-              ),
-            ],
+        ],
+      ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          /// Mini player
+          AnimatedContainer(
+            decoration: BoxDecoration(
+                //color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10))),
+            duration: const Duration(milliseconds: 500),
+            height: miniplayerStatus == MiniPlayerStatus.shown ||
+                    miniplayerStatus == MiniPlayerStatus.loading
+                ? miniPlayerHeight
+                : 0,
+            child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+                builder: (context, state) {
+              switch (state.status) {
+                case MiniPlayerStatus.loading:
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                case MiniPlayerStatus.shown:
+                  return MiniPlayer(
+                    video: state.video,
+                    result: state.result,
+                    streamUrl: state.streamUrl!,
+                    chewieController: state.chewieController!,
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            }),
           ),
-          bottomNavigationBar: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              /// Mini player
-              AnimatedContainer(
-                decoration: BoxDecoration(
-                    //color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10))),
-                duration: const Duration(milliseconds: 500),
-                height: miniplayerStatus == MiniPlayerStatus.shown ||
-                        miniplayerStatus == MiniPlayerStatus.loading
-                    ? miniPlayerHeight
-                    : 0,
-                child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
-                    builder: (context, state) {
-                  switch (state.status) {
-                    case MiniPlayerStatus.loading:
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    case MiniPlayerStatus.shown:
-                      return MiniPlayer(
-                        video: state.video,
-                        result: state.result,
-                        streamUrl: state.streamUrl!,
-                        chewieController: state.chewieController!,
-                      );
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                }),
-              ),
-              BottomNavigationBar(
-                currentIndex: currentIndex,
-                items: _navBarItems,
-                onTap: _onTap,
-                type: BottomNavigationBarType.fixed,
-              ),
-            ],
+          BottomNavigationBar(
+            currentIndex: currentIndex,
+            items: _navBarItems,
+            onTap: _onTap,
+            type: BottomNavigationBarType.fixed,
           ),
-        ));
+        ],
+      ),
+    );
   }
 }
