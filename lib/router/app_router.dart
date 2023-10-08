@@ -16,13 +16,15 @@ class AppRouter {
             path: AppRoute.videoPlayer.path,
             pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>;
-              final video = extra['video'] as Video;
+              final video = extra['video'] as Video?;
+              final result = extra['result'] as SearchResult?;
               final streamUrl = extra['streamUrl'] as String;
               final vlcPlayerController =
                   extra['chewieController'] as ChewieController;
 
               return VideoPlayerPage(
                   video: video,
+                  result: result,
                   streamUrl: streamUrl,
                   chewieController: vlcPlayerController);
             },

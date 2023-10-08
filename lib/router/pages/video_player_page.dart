@@ -7,10 +7,12 @@ class VideoPlayerPage extends Page {
   const VideoPlayerPage(
       {Key? key,
       required this.video,
+      required this.result,
       required this.streamUrl,
       required this.chewieController});
 
-  final Video video;
+  final Video? video;
+  final SearchResult? result;
   final String streamUrl;
   final ChewieController chewieController;
 
@@ -21,6 +23,7 @@ class VideoPlayerPage extends Page {
       builder: (BuildContext context) {
         return VideoPlayerView(
           video: video,
+          searchResult: result,
           streamUrl: streamUrl,
           chewieController: chewieController,
         );

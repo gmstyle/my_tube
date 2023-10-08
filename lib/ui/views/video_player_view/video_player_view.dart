@@ -6,10 +6,12 @@ class VideoPlayerView extends StatelessWidget {
   const VideoPlayerView(
       {super.key,
       required this.video,
+      required this.searchResult,
       required this.streamUrl,
       required this.chewieController});
 
-  final Video video;
+  final Video? video;
+  final SearchResult? searchResult;
   final String streamUrl;
   final ChewieController chewieController;
 
@@ -19,7 +21,9 @@ class VideoPlayerView extends StatelessWidget {
         body: CustomScrollView(
       slivers: [
         SliverAppBar(
-          title: Text(video.snippet!.title!),
+          title: Text(video != null
+              ? video!.snippet!.title!
+              : searchResult!.snippet!.title!),
           pinned: true,
           expandedHeight: MediaQuery.of(context).size.height * 0.4,
           flexibleSpace: FlexibleSpaceBar(
@@ -38,14 +42,14 @@ class VideoPlayerView extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  Text(
+                  /* Text(
                     video.snippet!.title!,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   Text(
                     video.snippet!.description!,
                     style: Theme.of(context).textTheme.bodyLarge,
-                  ),
+                  ), */
                 ],
               ),
             ),
