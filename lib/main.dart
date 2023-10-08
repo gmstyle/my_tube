@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
+import 'package:my_tube/respositories/mappers/video_mapper.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:provider/provider.dart';
@@ -21,19 +22,26 @@ void main() {
       Provider<AuthProvider>(create: (context) => AuthProvider()),
       Provider(create: (context) => YoutubeProvider()),
     ],
-    child: MultiRepositoryProvider(
-      /// Repositories
+    child: MultiProvider(
       providers: [
-        RepositoryProvider<AuthRepository>(
-          create: (context) =>
-              AuthRepository(authProvider: context.read<AuthProvider>()),
-        ),
-        RepositoryProvider<YoutubeRepository>(
-          create: (context) => YoutubeRepository(
-              youtubeProvider: context.read<YoutubeProvider>()),
-        ),
+        /// Mappers
+        Provider<VideoMapper>(create: (context) => VideoMapper()),
       ],
-      child: const MyApp(),
+      child: MultiRepositoryProvider(
+        /// Repositories
+        providers: [
+          RepositoryProvider<AuthRepository>(
+            create: (context) =>
+                AuthRepository(authProvider: context.read<AuthProvider>()),
+          ),
+          RepositoryProvider<YoutubeRepository>(
+            create: (context) => YoutubeRepository(
+                youtubeProvider: context.read<YoutubeProvider>(),
+                videoMapper: context.read<VideoMapper>()),
+          ),
+        ],
+        child: const MyApp(),
+      ),
     ),
   ));
 }

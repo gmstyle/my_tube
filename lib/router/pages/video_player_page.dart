@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/youtube/v3.dart';
+import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/ui/views/video_player_view/video_player_view.dart';
 
 class VideoPlayerPage extends Page {
@@ -11,7 +12,7 @@ class VideoPlayerPage extends Page {
       required this.streamUrl,
       required this.chewieController});
 
-  final Video? video;
+  final VideoMT? video;
   final SearchResult? result;
   final String streamUrl;
   final ChewieController chewieController;

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:googleapis/youtube/v3.dart';
+import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 
 part 'explore_tab_event.dart';
@@ -25,7 +26,8 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
     try {
       final response = await youtubeRepository.getVideos();
       emit(ExploreTabState.loaded(
-          videos: response.items!, nextPageToken: response.nextPageToken));
+          videos: response['videos'],
+          nextPageToken: response['nextPageToken']));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
     }
@@ -35,16 +37,17 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       GetNextPageVideos event, Emitter<ExploreTabState> emit) async {
     try {
       final nextPageToken = event.nextPageToken;
-      final videos =
-          state.status == YoutubeStatus.loaded ? state.videos : const <Video>[];
+      final videos = state.status == YoutubeStatus.loaded
+          ? state.videos
+          : const <VideoMT>[];
       final response =
           await youtubeRepository.getVideos(nextPageToken: nextPageToken);
 
-      final newVideos = response.items;
+      final newVideos = response['videos'];
       if (videos != null && newVideos != null) {
-        final updatedVideos = [...videos, ...newVideos];
+        final updatedVideos = [...videos, ...newVideos] as List<VideoMT>;
         emit(ExploreTabState.loaded(
-            videos: updatedVideos, nextPageToken: response.nextPageToken));
+            videos: updatedVideos, nextPageToken: response['nextPageToken']));
       }
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));

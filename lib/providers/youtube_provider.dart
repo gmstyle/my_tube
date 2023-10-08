@@ -215,6 +215,25 @@ class YoutubeProvider {
     }
   }
 
+  // Get subscriptions
+  Future<SubscriptionListResponse> getSubscriptions() async {
+    try {
+      final autClient = await _getAuthClient();
+
+      final youtubeApi = YouTubeApi(autClient);
+
+      final subscriptions = await youtubeApi.subscriptions.list(
+        ['snippet'],
+        mine: true,
+      );
+
+      return subscriptions;
+    } catch (error) {
+      log('Error: $error');
+      return Future.error('Error: $error');
+    }
+  }
+
   // Get video categories
   Future<VideoCategoryListResponse> getVideoCategories() async {
     try {

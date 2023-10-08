@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 
 class MiniPlayer extends StatelessWidget {
@@ -14,7 +15,7 @@ class MiniPlayer extends StatelessWidget {
       required this.streamUrl,
       required this.chewieController});
 
-  final Video? video;
+  final VideoMT? video;
   final SearchResult? result;
   final String streamUrl;
   final ChewieController chewieController;
@@ -42,7 +43,7 @@ class MiniPlayer extends StatelessWidget {
                 /// senza che si veda il video in modalità mini player
                 SizedBox(width: 0, child: Chewie(controller: chewieController)),
                 Image.network(video != null
-                    ? video!.snippet!.thumbnails!.medium!.url!
+                    ? video!.thumbnailUrl
                     : result!.snippet!.thumbnails!.medium!.url!),
                 const SizedBox(
                   width: 8,
@@ -57,9 +58,7 @@ class MiniPlayer extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    video != null
-                        ? video!.snippet!.title!
-                        : result!.snippet!.title!,
+                    video != null ? video!.title : result!.snippet!.title!,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

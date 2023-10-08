@@ -12,7 +12,7 @@ class VideoCategoryMT extends Equatable {
   factory VideoCategoryMT.fromJson(Map<String, dynamic> json) {
     return VideoCategoryMT(
       id: json['id'] as String,
-      title: json['snippet']['title'] as String,
+      title: json['title'] as String,
     );
   }
 

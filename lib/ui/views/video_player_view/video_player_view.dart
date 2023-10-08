@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/youtube/v3.dart';
+import 'package:my_tube/models/video_mt.dart';
 
 class VideoPlayerView extends StatelessWidget {
   const VideoPlayerView(
@@ -10,7 +11,7 @@ class VideoPlayerView extends StatelessWidget {
       required this.streamUrl,
       required this.chewieController});
 
-  final Video? video;
+  final VideoMT? video;
   final SearchResult? searchResult;
   final String streamUrl;
   final ChewieController chewieController;
@@ -21,9 +22,8 @@ class VideoPlayerView extends StatelessWidget {
         body: CustomScrollView(
       slivers: [
         SliverAppBar(
-          title: Text(video != null
-              ? video!.snippet!.title!
-              : searchResult!.snippet!.title!),
+          title: Text(
+              video != null ? video!.title : searchResult!.snippet!.title!),
           pinned: true,
           expandedHeight: MediaQuery.of(context).size.height * 0.4,
           flexibleSpace: FlexibleSpaceBar(
