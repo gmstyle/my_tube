@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_mt.dart';
 
 class VideoTile extends StatelessWidget {
@@ -15,7 +14,7 @@ class VideoTile extends StatelessWidget {
         video.title,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      subtitle: Text(video.channelTitle!),
+      subtitle: Text(video.channelTitle),
     );
   }
 }

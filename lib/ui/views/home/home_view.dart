@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
@@ -8,7 +7,6 @@ import 'package:my_tube/ui/views/home/tabs/account_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/explore_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/subscriptions_tab.dart';
 
-import '../../../respositories/youtube_repository.dart';
 import 'package:my_tube/ui/views/common/mt_search_delegate.dart';
 
 class HomeView extends StatefulWidget {
@@ -91,9 +89,9 @@ class _HomeViewState extends State<HomeView> {
         children: [
           /// Mini player
           AnimatedContainer(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 //color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10))),
             duration: const Duration(milliseconds: 500),

@@ -38,8 +38,8 @@ class VideoPlayerView extends StatelessWidget {
         ),
         SliverList(
           delegate: SliverChildListDelegate([
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Column(
                 children: [
                   /* Text(

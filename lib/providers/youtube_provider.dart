@@ -5,7 +5,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart';
 // ignore: depend_on_referenced_packages
 import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
-import 'package:my_tube/models/video_category_mt.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import 'base_provider.dart';

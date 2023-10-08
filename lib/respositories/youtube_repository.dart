@@ -1,6 +1,5 @@
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_category_mt.dart';
-import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
 
