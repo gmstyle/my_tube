@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
+import 'package:my_tube/ui/views/common/video_tile.dart';
 
 import '../../../blocs/home/mini_player_cubit/mini_player_cubit.dart';
 
@@ -51,21 +52,12 @@ class MTSearchDelegate extends SearchDelegate {
                   itemBuilder: (context, index) {
                     final result = state.result![index];
                     return GestureDetector(
-                      onTap: () async {
-                        await miniPlayerCubit
-                            .showMiniPlayer(null, result)
-                            .then((value) => close(context, query));
-                      },
-                      child: ListTile(
-                        title: Text(result.snippet!.title!),
-                        subtitle: Text(
-                          result.snippet!.channelTitle!,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        leading: Image.network(
-                            result.snippet!.thumbnails!.medium!.url!),
-                      ),
-                    );
+                        onTap: () async {
+                          await miniPlayerCubit
+                              .showMiniPlayer(result)
+                              .then((value) => close(context, query));
+                        },
+                        child: VideoTile(video: result));
                   });
             case SearchStatus.failure:
               return Center(child: Text(state.error!));

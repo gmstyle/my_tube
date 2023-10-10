@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
+import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
@@ -26,6 +27,7 @@ void main() {
       providers: [
         /// Mappers
         Provider<VideoMapper>(create: (context) => VideoMapper()),
+        Provider<SearchMapper>(create: (context) => SearchMapper()),
       ],
       child: MultiRepositoryProvider(
         /// Repositories
@@ -37,7 +39,8 @@ void main() {
           RepositoryProvider<YoutubeRepository>(
             create: (context) => YoutubeRepository(
                 youtubeProvider: context.read<YoutubeProvider>(),
-                videoMapper: context.read<VideoMapper>()),
+                videoMapper: context.read<VideoMapper>(),
+                searchMapper: context.read<SearchMapper>()),
           ),
         ],
         child: const MyApp(),

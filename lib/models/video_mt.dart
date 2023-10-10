@@ -32,12 +32,14 @@ class VideoMT extends Equatable {
   final String title;
   final String channelTitle;
   final String thumbnailUrl;
+  final String kind;
 
   const VideoMT({
     required this.id,
     required this.title,
     required this.channelTitle,
     required this.thumbnailUrl,
+    required this.kind,
   });
 
   factory VideoMT.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class VideoMT extends Equatable {
       title: json['title'] as String,
       channelTitle: json['channelTitle'] as String,
       thumbnailUrl: json['thumbnailUrl'] as String,
+      kind: json['kind'] as String,
     );
   }
 
@@ -55,9 +58,10 @@ class VideoMT extends Equatable {
       'title': title,
       'channelTitle': channelTitle,
       'thumbnailUrl': thumbnailUrl,
+      'kind': kind,
     };
   }
 
   @override
-  List<Object?> get props => [id, title, channelTitle, thumbnailUrl];
+  List<Object?> get props => [id, title, channelTitle, thumbnailUrl, kind];
 }

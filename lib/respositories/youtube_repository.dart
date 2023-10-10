@@ -2,13 +2,18 @@ import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
+import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
 
 class YoutubeRepository {
-  YoutubeRepository({required this.youtubeProvider, required this.videoMapper});
+  YoutubeRepository(
+      {required this.youtubeProvider,
+      required this.videoMapper,
+      required this.searchMapper});
 
   final YoutubeProvider youtubeProvider;
   final VideoMapper videoMapper;
+  final SearchMapper searchMapper;
 
   Future<ChannelListResponse> getChannels() async {
     return await youtubeProvider.getChannels();
@@ -47,9 +52,9 @@ class YoutubeRepository {
         .toList();
   }
 
-  Future<List<SearchResult>?> searchContents(String query) async {
+  Future<List<VideoMT>?> searchContents(String query) async {
     final response = await youtubeProvider.searchContents(query);
-    return response.items;
+    return response.items?.map((e) => searchMapper.mapToModel(e)).toList();
   }
 
   //TODO: Implementare gli altri metodi

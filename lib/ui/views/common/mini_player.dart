@@ -11,12 +11,10 @@ class MiniPlayer extends StatelessWidget {
   const MiniPlayer(
       {super.key,
       required this.video,
-      required this.result,
       required this.streamUrl,
       required this.chewieController});
 
   final VideoMT? video;
-  final SearchResult? result;
   final String streamUrl;
   final ChewieController chewieController;
 
@@ -32,7 +30,6 @@ class MiniPlayer extends StatelessWidget {
             onTap: () {
               context.goNamed(AppRoute.videoPlayer.name, extra: {
                 'video': video,
-                'result': result,
                 'streamUrl': streamUrl,
                 'chewieController': chewieController
               });
@@ -42,9 +39,7 @@ class MiniPlayer extends StatelessWidget {
                 /// SzedBox con width 0 per far partire il chewieController
                 /// senza che si veda il video in modalità mini player
                 SizedBox(width: 0, child: Chewie(controller: chewieController)),
-                Image.network(video != null
-                    ? video!.thumbnailUrl
-                    : result!.snippet!.thumbnails!.medium!.url!),
+                Image.network(video!.thumbnailUrl),
                 const SizedBox(
                   width: 8,
                 ),
@@ -58,7 +53,7 @@ class MiniPlayer extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    video != null ? video!.title : result!.snippet!.title!,
+                    video!.title,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

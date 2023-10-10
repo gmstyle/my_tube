@@ -16,20 +16,13 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
 
-  Future<void> showMiniPlayer(VideoMT? video, SearchResult? result) async {
+  Future<void> showMiniPlayer(VideoMT? video) async {
     emit(const MiniPlayerState.loading());
 
     if (video != null) {
       final streamUrl = await youtubeRepository.getStreamUrl(video.id);
       await initPlayer(streamUrl);
-      emit(MiniPlayerState.shown(streamUrl, video, null, chewieController!));
-    }
-
-    if (result != null) {
-      final streamUrl =
-          await youtubeRepository.getStreamUrl(result.id!.videoId!);
-      await initPlayer(streamUrl);
-      emit(MiniPlayerState.shown(streamUrl, null, result, chewieController!));
+      emit(MiniPlayerState.shown(streamUrl, video, chewieController!));
     }
   }
 

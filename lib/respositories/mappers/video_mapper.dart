@@ -11,6 +11,7 @@ class VideoMapper extends BaseMapper<VideoListResponse, VideoResponse> {
               title: e.snippet!.title!,
               channelTitle: e.snippet!.channelTitle!,
               thumbnailUrl: e.snippet!.thumbnails!.medium!.url!,
+              kind: e.kind!,
             ))
         .toList();
     return VideoResponse(

@@ -51,7 +51,7 @@ class ExploreTab extends StatelessWidget {
                           onTap: () async {
                             await context
                                 .read<MiniPlayerCubit>()
-                                .showMiniPlayer(video, null);
+                                .showMiniPlayer(video);
                           },
                           child: VideoTile(video: video!));
                     }
