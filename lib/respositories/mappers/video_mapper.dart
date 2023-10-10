@@ -2,9 +2,9 @@ import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/respositories/mappers/base_mapper.dart';
 import 'package:my_tube/models/video_mt.dart';
 
-class VideoMapper extends BaseMapper<VideoListResponse, VideoResponse> {
+class VideoMapper extends BaseMapper<VideoListResponse, VideoResponseMT> {
   @override
-  VideoResponse mapToModel(VideoListResponse data) {
+  VideoResponseMT mapToModel(VideoListResponse data) {
     final videos = data.items!
         .map((e) => VideoMT(
               id: e.id!,
@@ -12,16 +12,17 @@ class VideoMapper extends BaseMapper<VideoListResponse, VideoResponse> {
               channelTitle: e.snippet!.channelTitle!,
               thumbnailUrl: e.snippet!.thumbnails!.medium!.url!,
               kind: e.kind!,
+              channelId: e.snippet!.channelId!,
             ))
         .toList();
-    return VideoResponse(
+    return VideoResponseMT(
       videos: videos,
       nextPageToken: data.nextPageToken!,
     );
   }
 
   @override
-  VideoListResponse mapToData(VideoResponse model) {
+  VideoListResponse mapToData(VideoResponseMT model) {
     throw UnimplementedError();
   }
 }

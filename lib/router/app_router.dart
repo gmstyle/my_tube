@@ -25,7 +25,6 @@ class AppRouter {
 
               return VideoPlayerPage(
                   video: video,
-                  result: result,
                   streamUrl: streamUrl,
                   chewieController: vlcPlayerController);
             },

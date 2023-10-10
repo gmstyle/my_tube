@@ -27,7 +27,7 @@ class YoutubeRepository {
     return await youtubeProvider.getPlaylistItems(playlistId);
   }
 
-  Future<VideoResponse> getVideos(
+  Future<VideoResponseMT> getVideos(
       {String? nextPageToken, String? categoryId}) async {
     final response = await youtubeProvider.getVideos(
         nextPageToken: nextPageToken, categoryId: categoryId);

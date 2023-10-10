@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+///TODO: da usare per salvare le categorie video
 class VideoCategoryMT extends Equatable {
   final String id;
   final String title;

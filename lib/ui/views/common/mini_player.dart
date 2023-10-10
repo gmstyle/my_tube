@@ -2,7 +2,6 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/router/app_router.dart';
@@ -39,7 +38,13 @@ class MiniPlayer extends StatelessWidget {
                 /// SzedBox con width 0 per far partire il chewieController
                 /// senza che si veda il video in modalità mini player
                 SizedBox(width: 0, child: Chewie(controller: chewieController)),
-                Image.network(video!.thumbnailUrl),
+                video?.thumbnailUrl != null
+                    ? Image.network(
+                        video!.thumbnailUrl!,
+                      )
+                    : const SizedBox(
+                        child: Icon(Icons.video_collection),
+                      ),
                 const SizedBox(
                   width: 8,
                 ),
@@ -53,7 +58,7 @@ class MiniPlayer extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    video!.title,
+                    video?.title ?? '',
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

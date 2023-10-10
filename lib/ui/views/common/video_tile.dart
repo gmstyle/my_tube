@@ -9,12 +9,18 @@ class VideoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Image.network(video.thumbnailUrl),
+      leading: video.thumbnailUrl != null
+          ? Image.network(
+              video.thumbnailUrl!,
+            )
+          : const SizedBox(
+              child: Icon(Icons.video_collection),
+            ),
       title: Text(
-        video.title,
+        video.title ?? '',
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      subtitle: Text(video.channelTitle),
+      subtitle: Text(video.channelTitle ?? ''),
     );
   }
 }

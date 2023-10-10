@@ -52,10 +52,21 @@ class MTSearchDelegate extends SearchDelegate {
                   itemBuilder: (context, index) {
                     final result = state.result![index];
                     return GestureDetector(
-                        onTap: () async {
-                          await miniPlayerCubit
-                              .showMiniPlayer(result)
-                              .then((value) => close(context, query));
+                        onTap: () {
+                          if (result.kind == 'youtube#video') {
+                            miniPlayerCubit
+                                .showMiniPlayer(result)
+                                .then((value) => close(context, query));
+                          }
+
+                          if (result.kind == 'youtube#channel') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Channel: ${result.channelId}'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          }
                         },
                         child: VideoTile(video: result));
                   });

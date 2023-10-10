@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:chewie/chewie.dart';
 import 'package:equatable/equatable.dart';
-import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:video_player/video_player.dart';
@@ -20,7 +19,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.loading());
 
     if (video != null) {
-      final streamUrl = await youtubeRepository.getStreamUrl(video.id);
+      final streamUrl = await youtubeRepository.getStreamUrl(video.id!);
       await initPlayer(streamUrl);
       emit(MiniPlayerState.shown(streamUrl, video, chewieController!));
     }

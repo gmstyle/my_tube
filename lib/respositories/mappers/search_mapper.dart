@@ -6,11 +6,12 @@ class SearchMapper extends BaseMapper<SearchResult, VideoMT> {
   @override
   VideoMT mapToModel(SearchResult data) {
     return VideoMT(
-      id: data.id?.videoId ?? 'a',
-      title: data.snippet?.title ?? 'b',
-      channelTitle: data.snippet?.channelTitle ?? 'c',
-      thumbnailUrl: data.snippet?.thumbnails?.medium?.url ?? 'd',
-      kind: data.id?.kind ?? 'e',
+      id: data.id?.videoId,
+      title: data.snippet?.title,
+      channelTitle: data.snippet?.channelTitle,
+      thumbnailUrl: data.snippet?.thumbnails?.medium?.url,
+      kind: data.id?.kind,
+      channelId: data.snippet?.channelId,
     );
   }
 
