@@ -3,24 +3,22 @@ part of 'explore_tab_bloc.dart';
 enum YoutubeStatus { initial, loading, loaded, error }
 
 class ExploreTabState extends Equatable {
-  const ExploreTabState._(
-      {required this.status, this.error, this.videos, this.nextPageToken});
+  const ExploreTabState._({required this.status, this.error, this.response});
 
   final YoutubeStatus status;
   final String? error;
-  final List<VideoMT>? videos;
-  final String? nextPageToken;
+  final VideoResponse? response;
 
   const ExploreTabState.loading() : this._(status: YoutubeStatus.loading);
   const ExploreTabState.loaded(
-      {required List<VideoMT> videos, String? nextPageToken})
+      {required VideoResponse response, String? nextPageToken})
       : this._(
-            status: YoutubeStatus.loaded,
-            videos: videos,
-            nextPageToken: nextPageToken);
+          status: YoutubeStatus.loaded,
+          response: response,
+        );
   const ExploreTabState.error({required String error})
       : this._(status: YoutubeStatus.error, error: error);
 
   @override
-  List<Object?> get props => [status, error, videos];
+  List<Object?> get props => [status, error, response];
 }

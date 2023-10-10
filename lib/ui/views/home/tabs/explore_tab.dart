@@ -30,23 +30,23 @@ class ExploreTab extends StatelessWidget {
                       scrollInfo.metrics.maxScrollExtent) {
                     /// Sono arrivato alla fine della lista quindi carico altri video
                     /// finchè non arrivo al massimo di 100 video
-                    if (state.videos!.length < 100) {
+                    if (state.response!.videos.length < 100) {
                       exploreTabBloc.add(GetNextPageVideos(
-                          nextPageToken: state.nextPageToken));
+                          nextPageToken: state.response!.nextPageToken));
                     }
                   }
                   return false;
                 },
                 child: ListView.builder(
                   controller: _scrollController,
-                  itemCount: state.videos!.length,
+                  itemCount: state.response!.videos.length,
                   itemBuilder: (context, index) {
-                    if (index >= state.videos!.length) {
+                    if (index >= state.response!.videos.length) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
                     } else {
-                      final video = state.videos?[index];
+                      final video = state.response?.videos[index];
                       return GestureDetector(
                           onTap: () async {
                             await context

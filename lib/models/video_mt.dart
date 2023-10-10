@@ -1,5 +1,32 @@
 import 'package:equatable/equatable.dart';
 
+class VideoResponse extends Equatable {
+  final List<VideoMT> videos;
+  final String nextPageToken;
+
+  const VideoResponse({required this.videos, required this.nextPageToken});
+
+  factory VideoResponse.fromJson(Map<String, dynamic> json) {
+    final videos = (json['videos'] as List)
+        .map((e) => VideoMT.fromJson(e as Map<String, dynamic>))
+        .toList();
+    return VideoResponse(
+      videos: videos,
+      nextPageToken: json['nextPageToken'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'videos': videos,
+      'nextPageToken': nextPageToken,
+    };
+  }
+
+  @override
+  List<Object?> get props => [videos, nextPageToken];
+}
+
 class VideoMT extends Equatable {
   final String id;
   final String title;

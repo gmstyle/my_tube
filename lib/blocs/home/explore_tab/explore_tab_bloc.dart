@@ -24,9 +24,7 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
     emit(const ExploreTabState.loading());
     try {
       final response = await youtubeRepository.getVideos();
-      emit(ExploreTabState.loaded(
-          videos: response['videos'],
-          nextPageToken: response['nextPageToken']));
+      emit(ExploreTabState.loaded(response: response));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
     }
@@ -36,18 +34,18 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       GetNextPageVideos event, Emitter<ExploreTabState> emit) async {
     try {
       final nextPageToken = event.nextPageToken;
-      final videos = state.status == YoutubeStatus.loaded
-          ? state.videos
+      final List<VideoMT> videos = state.status == YoutubeStatus.loaded
+          ? state.response!.videos
           : const <VideoMT>[];
       final response =
           await youtubeRepository.getVideos(nextPageToken: nextPageToken);
 
-      final newVideos = response['videos'];
-      if (videos != null && newVideos != null) {
-        final updatedVideos = [...videos, ...newVideos] as List<VideoMT>;
-        emit(ExploreTabState.loaded(
-            videos: updatedVideos, nextPageToken: response['nextPageToken']));
-      }
+      final newVideos = response.videos;
+
+      final updatedVideos = [...videos, ...newVideos];
+      emit(ExploreTabState.loaded(
+          response: VideoResponse(
+              videos: updatedVideos, nextPageToken: response.nextPageToken)));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
     }

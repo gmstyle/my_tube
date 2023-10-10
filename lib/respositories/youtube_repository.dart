@@ -1,5 +1,6 @@
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_category_mt.dart';
+import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
 
@@ -21,16 +22,11 @@ class YoutubeRepository {
     return await youtubeProvider.getPlaylistItems(playlistId);
   }
 
-  Future<Map<String, dynamic>> getVideos(
+  Future<VideoResponse> getVideos(
       {String? nextPageToken, String? categoryId}) async {
     final response = await youtubeProvider.getVideos(
         nextPageToken: nextPageToken, categoryId: categoryId);
-    final videos =
-        response.items!.map((e) => videoMapper.mapToModel(e)).toList();
-    return {
-      'videos': videos,
-      'nextPageToken': response.nextPageToken,
-    };
+    return videoMapper.mapToModel(response);
   }
 
   Future<VideoListResponse> getTrendigVideos() async {
