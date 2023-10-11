@@ -88,7 +88,7 @@ class YoutubeProvider {
     }
   }
 
-  Future<VideoListResponse> getHomeVideos(
+  Future<VideoListResponse> getFavoriteVideos(
       {String? nextPageToken, String? categoryId}) async {
     try {
       final autClient = await _getAuthClient();
@@ -109,6 +109,8 @@ class YoutubeProvider {
       return Future.error('Error: $error');
     }
   }
+
+  /// get video consigliati
 
   Future<SearchListResponse> getRelatedVideos(String videoId) async {
     try {

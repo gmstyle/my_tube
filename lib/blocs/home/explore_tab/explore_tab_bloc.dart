@@ -34,8 +34,8 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       /// recupero i video della categoria 'Music'
       final musicCategoryId =
           categories.firstWhere((element) => element.title == 'Music').id;
-      final response =
-          await youtubeRepository.getHomeVideos(categoryId: musicCategoryId);
+      final response = await youtubeRepository.getTrendingVideos(
+          categoryId: musicCategoryId);
       emit(ExploreTabState.loaded(response: response));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));

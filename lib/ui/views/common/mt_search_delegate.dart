@@ -60,6 +60,7 @@ class MTSearchDelegate extends SearchDelegate {
                           }
 
                           if (result.kind == 'youtube#channel') {
+                            ///TODO: implementare channel page
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Channel: ${result.channelId}'),

@@ -5,7 +5,7 @@ import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/home/tabs/account_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/explore_tab.dart';
-import 'package:my_tube/ui/views/home/tabs/subscriptions_tab.dart';
+import 'package:my_tube/ui/views/home/tabs/liked_tab.dart';
 
 import 'package:my_tube/ui/views/common/mt_search_delegate.dart';
 
@@ -26,8 +26,8 @@ class _HomeViewState extends State<HomeView> {
       label: 'Explore',
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.subscriptions),
-      label: 'Subscriptions',
+      icon: Icon(Icons.favorite),
+      label: 'Favorites',
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.account_circle),
@@ -35,7 +35,7 @@ class _HomeViewState extends State<HomeView> {
     ),
   ];
 
-  final _tabs = [ExploreTab(), const SubscriptionsTab(), const AccountTab()];
+  final _tabs = [ExploreTab(), const LikedTab(), const AccountTab()];
 
   void _onPageChanged(int index) {
     setState(() {
@@ -85,7 +85,7 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
 
-      /// Bottom navigation bar e mini player
+      /// mini player
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -118,6 +118,8 @@ class _HomeViewState extends State<HomeView> {
               }
             }),
           ),
+
+          /// Bottom navigation bar
           BottomNavigationBar(
             currentIndex: currentIndex,
             items: _navBarItems,

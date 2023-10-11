@@ -34,9 +34,9 @@ class YoutubeRepository {
     return videoMapper.mapToModel(response);
   }
 
-  Future<VideoResponseMT> getHomeVideos(
+  Future<VideoResponseMT> getFavoriteVideos(
       {String? nextPageToken, String? categoryId}) async {
-    final response = await youtubeProvider.getHomeVideos(
+    final response = await youtubeProvider.getFavoriteVideos(
         nextPageToken: nextPageToken, categoryId: categoryId);
     return videoMapper.mapToModel(response);
   }
