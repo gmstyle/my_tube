@@ -66,7 +66,7 @@ class YoutubeProvider {
     }
   }
 
-  Future<VideoListResponse> getVideos(
+  Future<VideoListResponse> getTrendingVideos(
       {String? nextPageToken, String? categoryId}) async {
     try {
       final autClient = await _getAuthClient();
@@ -76,6 +76,28 @@ class YoutubeProvider {
       final videos = await youtubeApi.videos.list(
           ['snippet', 'contentDetails', 'statistics'],
           chart: 'mostPopular',
+          videoCategoryId: categoryId,
+          maxResults: 20,
+          pageToken: nextPageToken,
+          regionCode: 'IT');
+
+      return videos;
+    } catch (error) {
+      log('Error: $error');
+      return Future.error('Error: $error');
+    }
+  }
+
+  Future<VideoListResponse> getHomeVideos(
+      {String? nextPageToken, String? categoryId}) async {
+    try {
+      final autClient = await _getAuthClient();
+
+      final youtubeApi = YouTubeApi(autClient);
+
+      final videos = await youtubeApi.videos.list(
+          ['snippet', 'contentDetails', 'statistics'],
+          myRating: 'like',
           videoCategoryId: categoryId,
           maxResults: 20,
           pageToken: nextPageToken,
@@ -187,27 +209,6 @@ class YoutubeProvider {
       final playlistId = playlists.items!.first.id!;
 
       return await getVideosFromPlaylist(playlistId);
-    } catch (error) {
-      log('Error: $error');
-      return Future.error('Error: $error');
-    }
-  }
-
-  /// Get trending videos
-// TODO: dinamizzare la regione
-  Future<VideoListResponse> getTrendingVideos() async {
-    try {
-      final autClient = await _getAuthClient();
-
-      final youtubeApi = YouTubeApi(autClient);
-
-      final videos = await youtubeApi.videos.list(
-        ['snippet', 'contentDetails', 'statistics'],
-        chart: 'mostPopular',
-        regionCode: 'IT',
-      );
-
-      return videos;
     } catch (error) {
       log('Error: $error');
       return Future.error('Error: $error');

@@ -36,7 +36,7 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       final musicCategoryId =
           categories.firstWhere((element) => element.title == 'Music').id;
       final response =
-          await youtubeRepository.getVideos(categoryId: musicCategoryId);
+          await youtubeRepository.getHomeVideos(categoryId: musicCategoryId);
       emit(ExploreTabState.loaded(response: response));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
@@ -50,8 +50,8 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       final List<VideoMT> videos = state.status == YoutubeStatus.loaded
           ? state.response!.videos
           : const <VideoMT>[];
-      final response =
-          await youtubeRepository.getVideos(nextPageToken: nextPageToken);
+      final response = await youtubeRepository.getTrendingVideos(
+          nextPageToken: nextPageToken);
 
       final newVideos = response.videos;
 
