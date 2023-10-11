@@ -34,6 +34,7 @@ class VideoMT extends Equatable {
   final String? thumbnailUrl;
   final String? kind;
   final String? channelId;
+  final String? streamUrl;
 
   const VideoMT({
     required this.id,
@@ -42,6 +43,7 @@ class VideoMT extends Equatable {
     required this.thumbnailUrl,
     required this.kind,
     required this.channelId,
+    required this.streamUrl,
   });
 
   factory VideoMT.fromJson(Map<String, dynamic> json) {
@@ -52,6 +54,7 @@ class VideoMT extends Equatable {
       thumbnailUrl: json['thumbnailUrl'] as String?,
       kind: json['kind'] as String?,
       channelId: json['channelId'] as String?,
+      streamUrl: json['streamUrl'] as String?,
     );
   }
 
@@ -63,9 +66,31 @@ class VideoMT extends Equatable {
       'thumbnailUrl': thumbnailUrl,
       'kind': kind,
       'channelId': channelId,
+      'streamUrl': streamUrl,
     };
   }
 
+  VideoMT copyWith({
+    String? id,
+    String? title,
+    String? channelTitle,
+    String? thumbnailUrl,
+    String? kind,
+    String? channelId,
+    String? streamUrl,
+  }) {
+    return VideoMT(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      channelTitle: channelTitle ?? this.channelTitle,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      kind: kind ?? this.kind,
+      channelId: channelId ?? this.channelId,
+      streamUrl: streamUrl ?? this.streamUrl,
+    );
+  }
+
   @override
-  List<Object?> get props => [id, title, channelTitle, thumbnailUrl, kind];
+  List<Object?> get props =>
+      [id, title, channelTitle, thumbnailUrl, kind, channelId, streamUrl];
 }

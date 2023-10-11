@@ -5,14 +5,10 @@ import 'package:my_tube/ui/views/video_player_view/video_player_view.dart';
 
 class VideoPlayerPage extends Page {
   const VideoPlayerPage(
-      {Key? key,
-      required this.video,
-      required this.streamUrl,
-      required this.chewieController});
+      {Key? key, required this.video, required this.chewieController});
 
   final VideoMT? video;
 
-  final String streamUrl;
   final ChewieController chewieController;
 
   @override
@@ -22,7 +18,6 @@ class VideoPlayerPage extends Page {
       builder: (BuildContext context) {
         return VideoPlayerView(
           video: video,
-          streamUrl: streamUrl,
           chewieController: chewieController,
         );
       },

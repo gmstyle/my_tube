@@ -1,6 +1,5 @@
 import 'package:chewie/chewie.dart';
 import 'package:go_router/go_router.dart';
-import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/router/pages/dashboard_page.dart';
 import 'package:my_tube/router/pages/video_player_page.dart';
@@ -18,15 +17,11 @@ class AppRouter {
             pageBuilder: (context, state) {
               final extra = state.extra as Map<String, dynamic>;
               final video = extra['video'] as VideoMT?;
-              final result = extra['result'] as SearchResult?;
-              final streamUrl = extra['streamUrl'] as String;
               final vlcPlayerController =
                   extra['chewieController'] as ChewieController;
 
               return VideoPlayerPage(
-                  video: video,
-                  streamUrl: streamUrl,
-                  chewieController: vlcPlayerController);
+                  video: video, chewieController: vlcPlayerController);
             },
           )
         ])

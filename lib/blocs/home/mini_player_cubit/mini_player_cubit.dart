@@ -20,8 +20,10 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
     if (video != null) {
       final streamUrl = await youtubeRepository.getStreamUrl(video.id!);
+      final videoWithStreamUrl = video.copyWith(streamUrl: streamUrl);
       await initPlayer(streamUrl);
-      emit(MiniPlayerState.shown(streamUrl, video, chewieController!));
+      emit(MiniPlayerState.shown(
+          streamUrl, videoWithStreamUrl, chewieController!));
     }
   }
 

@@ -12,6 +12,7 @@ class SearchMapper extends BaseMapper<SearchResult, VideoMT> {
       thumbnailUrl: data.snippet?.thumbnails?.medium?.url,
       kind: data.id?.kind,
       channelId: data.snippet?.channelId,
+      streamUrl: '',
     );
   }
 

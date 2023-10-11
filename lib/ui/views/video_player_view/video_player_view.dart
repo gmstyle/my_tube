@@ -4,13 +4,9 @@ import 'package:my_tube/models/video_mt.dart';
 
 class VideoPlayerView extends StatelessWidget {
   const VideoPlayerView(
-      {super.key,
-      required this.video,
-      required this.streamUrl,
-      required this.chewieController});
+      {super.key, required this.video, required this.chewieController});
 
   final VideoMT? video;
-  final String streamUrl;
   final ChewieController chewieController;
 
   @override

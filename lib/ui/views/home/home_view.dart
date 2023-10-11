@@ -111,7 +111,6 @@ class _HomeViewState extends State<HomeView> {
                 case MiniPlayerStatus.shown:
                   return MiniPlayer(
                     video: state.video,
-                    streamUrl: state.streamUrl!,
                     chewieController: state.chewieController!,
                   );
                 default:

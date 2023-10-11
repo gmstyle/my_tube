@@ -8,13 +8,10 @@ import 'package:my_tube/router/app_router.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer(
-      {super.key,
-      required this.video,
-      required this.streamUrl,
-      required this.chewieController});
+      {super.key, required this.video, required this.chewieController});
 
   final VideoMT? video;
-  final String streamUrl;
+
   final ChewieController chewieController;
 
   @override
@@ -29,7 +26,6 @@ class MiniPlayer extends StatelessWidget {
             onTap: () {
               context.goNamed(AppRoute.videoPlayer.name, extra: {
                 'video': video,
-                'streamUrl': streamUrl,
                 'chewieController': chewieController
               });
             },
