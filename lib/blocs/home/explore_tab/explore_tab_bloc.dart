@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 
@@ -8,6 +12,7 @@ part 'explore_tab_state.dart';
 
 class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
   final YoutubeRepository youtubeRepository;
+  final Box settingsBox = Hive.box('settings');
   ExploreTabBloc({required this.youtubeRepository})
       : super(const ExploreTabState.loading()) {
     on<GetVideos>((event, emit) async {
@@ -23,7 +28,15 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       GetVideos event, Emitter<ExploreTabState> emit) async {
     emit(const ExploreTabState.loading());
     try {
-      final response = await youtubeRepository.getVideos();
+      /// recupero la lista di categorie video di youtube e le salvo in locale
+      final categories = await youtubeRepository.getVideoCategories();
+      settingsBox.put('categories', jsonEncode(categories));
+
+      /// recupero i video della categoria 'Music'
+      final musicCategoryId =
+          categories.firstWhere((element) => element.title == 'Music').id;
+      final response =
+          await youtubeRepository.getVideos(categoryId: musicCategoryId);
       emit(ExploreTabState.loaded(response: response));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));

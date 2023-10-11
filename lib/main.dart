@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
@@ -11,8 +12,10 @@ import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox('settings');
 
   /// Bloc observer
   Bloc.observer = AppBlocObserver();
