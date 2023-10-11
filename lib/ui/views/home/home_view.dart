@@ -84,6 +84,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
+
+      /// Bottom navigation bar e mini player
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -28,12 +28,8 @@ class ExploreTab extends StatelessWidget {
                 onNotification: (scrollInfo) {
                   if (scrollInfo.metrics.pixels ==
                       scrollInfo.metrics.maxScrollExtent) {
-                    /// Sono arrivato alla fine della lista quindi carico altri video
-                    /// finchè non arrivo al massimo di 100 video
-                    if (state.response!.videos.length < 100) {
-                      exploreTabBloc.add(GetNextPageVideos(
-                          nextPageToken: state.response!.nextPageToken));
-                    }
+                    exploreTabBloc.add(GetNextPageVideos(
+                        nextPageToken: state.response!.nextPageToken));
                   }
                   return false;
                 },
