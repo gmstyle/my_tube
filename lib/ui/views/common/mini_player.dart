@@ -47,13 +47,6 @@ class MiniPlayer extends StatelessWidget {
                 const SizedBox(
                   width: 8,
                 ),
-                /* onTap: () {
-                    context.goNamed(AppRoute.videoPlayer.name, extra: {
-                      'video': video,
-                      'streamUrl': streamUrl,
-                      'chewieController': chewieController
-                    });
-                  } */
                 Expanded(
                   flex: 2,
                   child: Text(
