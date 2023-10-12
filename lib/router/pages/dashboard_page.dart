@@ -26,7 +26,7 @@ class DashboardPage extends Page {
             BlocProvider<ExploreTabBloc>(
                 create: (_) =>
                     ExploreTabBloc(youtubeRepository: youtubeRepository)
-                      ..add(const GetVideos())),
+                      ..add(const GetTrendingVideos())),
             BlocProvider<MiniPlayerCubit>(
                 create: (_) =>
                     MiniPlayerCubit(youtubeRepository: youtubeRepository)),

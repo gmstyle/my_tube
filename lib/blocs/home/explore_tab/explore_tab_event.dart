@@ -4,15 +4,15 @@ sealed class ExploreTabEvent extends Equatable {
   const ExploreTabEvent();
 }
 
-class GetVideos extends ExploreTabEvent {
-  const GetVideos();
+class GetTrendingVideos extends ExploreTabEvent {
+  const GetTrendingVideos();
 
   @override
   List<Object?> get props => [];
 }
 
-class GetNextPageVideos extends ExploreTabEvent {
-  const GetNextPageVideos({this.nextPageToken});
+class GetNextPageTrendingVideos extends ExploreTabEvent {
+  const GetNextPageTrendingVideos({this.nextPageToken});
 
   final String? nextPageToken;
   final bool isLoadingNextPage = true;

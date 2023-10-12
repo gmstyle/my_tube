@@ -14,17 +14,17 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
   final Box settingsBox = Hive.box('settings');
   ExploreTabBloc({required this.youtubeRepository})
       : super(const ExploreTabState.loading()) {
-    on<GetVideos>((event, emit) async {
-      await _onGetVideos(event, emit);
+    on<GetTrendingVideos>((event, emit) async {
+      await _onGetTrendingVideos(event, emit);
     });
 
-    on<GetNextPageVideos>((event, emit) async {
-      await _onGetNextPageVideos(event, emit);
+    on<GetNextPageTrendingVideos>((event, emit) async {
+      await _onGetNextPageTrendingVideos(event, emit);
     });
   }
 
-  Future<void> _onGetVideos(
-      GetVideos event, Emitter<ExploreTabState> emit) async {
+  Future<void> _onGetTrendingVideos(
+      GetTrendingVideos event, Emitter<ExploreTabState> emit) async {
     emit(const ExploreTabState.loading());
     try {
       /// recupero la lista di categorie video di youtube e le salvo in locale
@@ -42,8 +42,8 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
     }
   }
 
-  Future<void> _onGetNextPageVideos(
-      GetNextPageVideos event, Emitter<ExploreTabState> emit) async {
+  Future<void> _onGetNextPageTrendingVideos(
+      GetNextPageTrendingVideos event, Emitter<ExploreTabState> emit) async {
     try {
       final nextPageToken = event.nextPageToken;
       final List<VideoMT> videos = state.status == YoutubeStatus.loaded

@@ -22,13 +22,13 @@ class ExploreTab extends StatelessWidget {
           case YoutubeStatus.loaded:
             return RefreshIndicator(
               onRefresh: () async {
-                exploreTabBloc.add(const GetVideos());
+                exploreTabBloc.add(const GetTrendingVideos());
               },
               child: NotificationListener<ScrollNotification>(
                 onNotification: (scrollInfo) {
                   if (scrollInfo.metrics.pixels ==
                       scrollInfo.metrics.maxScrollExtent) {
-                    exploreTabBloc.add(GetNextPageVideos(
+                    exploreTabBloc.add(GetNextPageTrendingVideos(
                         nextPageToken: state.response!.nextPageToken));
                   }
                   return false;
