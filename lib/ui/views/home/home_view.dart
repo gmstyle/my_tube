@@ -57,6 +57,23 @@ class _HomeViewState extends State<HomeView> {
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
     return AdaptiveScaffold(
+      appBar: AppBar(
+        title: const Text('My Tube'),
+        actions: [
+          // Search button
+          IconButton(
+              onPressed: () {
+                showSearch(
+                    context: context,
+                    delegate: MTSearchDelegate(
+                        searchBloc: searchBloc,
+                        miniPlayerCubit: miniPlayerCubit));
+              },
+              icon: const Icon(Icons.search),
+              tooltip: 'Search'),
+        ],
+      ),
+      appBarBreakpoint: Breakpoints.standard,
       destinations: _navBarItems,
       onSelectedIndexChange: _onPageChanged,
       selectedIndex: currentIndex,
