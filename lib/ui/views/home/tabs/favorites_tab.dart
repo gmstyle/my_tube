@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class LikedTab extends StatelessWidget {
-  const LikedTab({super.key});
+class FavoritesTab extends StatelessWidget {
+  const FavoritesTab({super.key});
 
   @override
   Widget build(BuildContext context) {
