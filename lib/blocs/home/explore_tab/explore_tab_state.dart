@@ -10,8 +10,7 @@ class ExploreTabState extends Equatable {
   final VideoResponseMT? response;
 
   const ExploreTabState.loading() : this._(status: YoutubeStatus.loading);
-  const ExploreTabState.loaded(
-      {required VideoResponseMT response, String? nextPageToken})
+  const ExploreTabState.loaded({required VideoResponseMT response})
       : this._(
           status: YoutubeStatus.loaded,
           response: response,

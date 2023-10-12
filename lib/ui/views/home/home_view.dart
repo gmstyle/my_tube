@@ -36,7 +36,7 @@ class _HomeViewState extends State<HomeView> {
     ),
   ];
 
-  final _tabs = [ExploreTab(), const FavoritesTab(), const AccountTab()];
+  final _tabs = [ExploreTab(), FavoritesTab(), const AccountTab()];
 
   void _onPageChanged(int index) {
     setState(() {

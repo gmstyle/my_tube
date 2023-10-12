@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
@@ -27,6 +28,10 @@ class DashboardPage extends Page {
                 create: (_) =>
                     ExploreTabBloc(youtubeRepository: youtubeRepository)
                       ..add(const GetTrendingVideos())),
+            BlocProvider<FavoritesTabBloc>(
+                create: (_) =>
+                    FavoritesTabBloc(youtubeRepository: youtubeRepository)
+                      ..add(const GetFavorites())),
             BlocProvider<MiniPlayerCubit>(
                 create: (_) =>
                     MiniPlayerCubit(youtubeRepository: youtubeRepository)),
