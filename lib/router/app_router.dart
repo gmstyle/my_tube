@@ -1,36 +1,18 @@
-import 'package:chewie/chewie.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/router/pages/dashboard_page.dart';
-import 'package:my_tube/router/pages/video_player_page.dart';
 
 class AppRouter {
   static final router = GoRouter(routes: [
     GoRoute(
-        name: AppRoute.dashboard.name,
-        path: AppRoute.dashboard.path,
-        pageBuilder: (context, state) => const DashboardPage(),
-        routes: [
-          GoRoute(
-            name: AppRoute.videoPlayer.name,
-            path: AppRoute.videoPlayer.path,
-            pageBuilder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>;
-              final video = extra['video'] as VideoMT?;
-              final vlcPlayerController =
-                  extra['chewieController'] as ChewieController;
-
-              return VideoPlayerPage(
-                  video: video, chewieController: vlcPlayerController);
-            },
-          )
-        ])
+      name: AppRoute.dashboard.name,
+      path: AppRoute.dashboard.path,
+      pageBuilder: (context, state) => const DashboardPage(),
+    )
   ]);
 }
 
 enum AppRoute {
-  dashboard('/'),
-  videoPlayer('video-player');
+  dashboard('/');
 
   final String path;
 

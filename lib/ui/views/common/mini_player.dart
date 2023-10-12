@@ -1,10 +1,9 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/video_mt.dart';
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/ui/views/common/video_player_bottom_sheet.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer(
@@ -24,10 +23,14 @@ class MiniPlayer extends StatelessWidget {
           Expanded(
               child: GestureDetector(
             onTap: () {
-              context.goNamed(AppRoute.videoPlayer.name, extra: {
-                'video': video,
-                'chewieController': chewieController
-              });
+              showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (context) => VideoPlayerView(
+                        video: video,
+                        chewieController: chewieController,
+                      ));
             },
             child: Row(
               children: [
