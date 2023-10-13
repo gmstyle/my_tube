@@ -27,10 +27,9 @@ class VideoPlayerView extends StatelessWidget {
                   },
                   icon: const Icon(Icons.close)),
               Expanded(
-                child: Text(
-                  video?.title ?? '',
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: Text(video?.title ?? '',
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall),
               ),
             ],
           ),
