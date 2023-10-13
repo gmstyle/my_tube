@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
+import 'package:my_tube/utils/utils.dart';
 
 part 'favorites_tab_event.dart';
 part 'favorites_tab_state.dart';
@@ -29,9 +29,10 @@ class FavoritesTabBloc extends Bloc<FavoritesTabEvent, FavoritesTabState> {
     emit(const FavoritesTabState.loading());
     try {
       /// recupero i video della categoria 'Music'
-      final musicCategoryId = getMusicVideoCategoryId();
-      final response = await youtubeRepository.getFavoriteVideos(
-          categoryId: musicCategoryId);
+      final musicCategoryId = Utils.getMusicVideoCategoryId(
+          jsonDecode(settingsBox.get('categories')));
+      final response = await youtubeRepository.getVideos(
+          categoryId: musicCategoryId, myRating: 'like');
       emit(FavoritesTabState.loaded(response: response));
     } catch (error) {
       emit(FavoritesTabState.error(error: error.toString()));
@@ -45,8 +46,12 @@ class FavoritesTabBloc extends Bloc<FavoritesTabEvent, FavoritesTabState> {
       final List<VideoMT> videos = state.status == FavoritesStatus.success
           ? state.response!.videos
           : const <VideoMT>[];
-      final response = await youtubeRepository.getFavoriteVideos(
-          nextPageToken: nextPageToken);
+      final musicVideoCategoryId = Utils.getMusicVideoCategoryId(
+          jsonDecode(settingsBox.get('categories')));
+      final response = await youtubeRepository.getVideos(
+          nextPageToken: nextPageToken,
+          categoryId: musicVideoCategoryId,
+          myRating: 'like');
 
       final newVideos = response.videos;
 
@@ -57,13 +62,5 @@ class FavoritesTabBloc extends Bloc<FavoritesTabEvent, FavoritesTabState> {
     } catch (error) {
       emit(FavoritesTabState.error(error: error.toString()));
     }
-  }
-
-  String getMusicVideoCategoryId() {
-    final categories = jsonDecode(settingsBox.get('categories'));
-    final categoriesMT = categories
-        .map((category) => VideoCategoryMT.fromJson(category))
-        .toList();
-    return categoriesMT.firstWhere((element) => element.title == 'Music').id;
   }
 }

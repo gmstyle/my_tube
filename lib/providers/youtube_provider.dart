@@ -66,8 +66,11 @@ class YoutubeProvider {
     }
   }
 
-  Future<VideoListResponse> getTrendingVideos(
-      {String? nextPageToken, String? categoryId}) async {
+  Future<VideoListResponse> getVideos(
+      {String? nextPageToken,
+      String? categoryId,
+      String? chart,
+      String? myRating}) async {
     try {
       final autClient = await _getAuthClient();
 
@@ -75,29 +78,8 @@ class YoutubeProvider {
 
       final videos = await youtubeApi.videos.list(
           ['snippet', 'contentDetails', 'statistics'],
-          chart: 'mostPopular',
-          videoCategoryId: categoryId,
-          maxResults: 20,
-          pageToken: nextPageToken,
-          regionCode: 'IT');
-
-      return videos;
-    } catch (error) {
-      log('Error: $error');
-      return Future.error('Error: $error');
-    }
-  }
-
-  Future<VideoListResponse> getFavoriteVideos(
-      {String? nextPageToken, String? categoryId}) async {
-    try {
-      final autClient = await _getAuthClient();
-
-      final youtubeApi = YouTubeApi(autClient);
-
-      final videos = await youtubeApi.videos.list(
-          ['snippet', 'contentDetails', 'statistics'],
-          myRating: 'like',
+          chart: chart,
+          myRating: myRating,
           videoCategoryId: categoryId,
           maxResults: 20,
           pageToken: nextPageToken,

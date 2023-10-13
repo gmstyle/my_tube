@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
+import 'package:my_tube/utils/utils.dart';
 
 part 'explore_tab_event.dart';
 part 'explore_tab_state.dart';
@@ -34,8 +35,8 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       /// recupero i video della categoria 'Music'
       final musicCategoryId =
           categories.firstWhere((element) => element.title == 'Music').id;
-      final response = await youtubeRepository.getTrendingVideos(
-          categoryId: musicCategoryId);
+      final response = await youtubeRepository.getVideos(
+          categoryId: musicCategoryId, chart: 'mostPopular');
       emit(ExploreTabState.loaded(response: response));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
@@ -49,8 +50,12 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       final List<VideoMT> videos = state.status == YoutubeStatus.loaded
           ? state.response!.videos
           : const <VideoMT>[];
-      final response = await youtubeRepository.getTrendingVideos(
-          nextPageToken: nextPageToken);
+      final musicVideoCategoryId = Utils.getMusicVideoCategoryId(
+          jsonDecode(settingsBox.get('categories')));
+      final response = await youtubeRepository.getVideos(
+          nextPageToken: nextPageToken,
+          categoryId: musicVideoCategoryId,
+          chart: 'mostPopular');
 
       final newVideos = response.videos;
 
