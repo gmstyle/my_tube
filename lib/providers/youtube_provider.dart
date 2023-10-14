@@ -126,7 +126,7 @@ class YoutubeProvider {
         ['snippet'],
         q: query,
         type: ['video', 'channel', 'playlist'],
-        maxResults: 20,
+        maxResults: 100,
         pageToken: nextPageToken,
       );
 
