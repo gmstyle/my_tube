@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
+import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
@@ -24,13 +25,14 @@ void main() async {
     providers: [
       /// Providers
       Provider<AuthProvider>(create: (context) => AuthProvider()),
-      Provider(create: (context) => YoutubeProvider()),
+      Provider<YoutubeProvider>(create: (context) => YoutubeProvider()),
     ],
     child: MultiProvider(
       providers: [
         /// Mappers
         Provider<VideoMapper>(create: (context) => VideoMapper()),
         Provider<SearchMapper>(create: (context) => SearchMapper()),
+        Provider<SubscriptionMapper>(create: (context) => SubscriptionMapper()),
       ],
       child: MultiRepositoryProvider(
         /// Repositories
@@ -43,7 +45,8 @@ void main() async {
             create: (context) => YoutubeRepository(
                 youtubeProvider: context.read<YoutubeProvider>(),
                 videoMapper: context.read<VideoMapper>(),
-                searchMapper: context.read<SearchMapper>()),
+                searchMapper: context.read<SearchMapper>(),
+                activityMapper: context.read<SubscriptionMapper>()),
           ),
         ],
         child: const MyApp(),

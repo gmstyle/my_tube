@@ -12,11 +12,10 @@ class GetTrendingVideos extends ExploreTabEvent {
 }
 
 class GetNextPageTrendingVideos extends ExploreTabEvent {
-  const GetNextPageTrendingVideos({this.nextPageToken});
+  const GetNextPageTrendingVideos({required this.nextPageToken});
 
-  final String? nextPageToken;
-  final bool isLoadingNextPage = true;
+  final String nextPageToken;
 
   @override
-  List<Object?> get props => [nextPageToken, isLoadingNextPage];
+  List<Object> get props => [nextPageToken];
 }

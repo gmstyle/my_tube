@@ -7,19 +7,17 @@ class VideoMapper extends BaseMapper<VideoListResponse, VideoResponseMT> {
   VideoResponseMT mapToModel(VideoListResponse data) {
     final videos = data.items!
         .map((e) => VideoMT(
-              id: e.id!,
-              title: e.snippet!.title!,
-              channelTitle: e.snippet!.channelTitle!,
-              thumbnailUrl: e.snippet!.thumbnails!.medium!.url!,
-              kind: e.kind!,
-              channelId: e.snippet!.channelId!,
+              id: e.id,
+              title: e.snippet?.title,
+              description: e.snippet?.description,
+              channelTitle: e.snippet?.channelTitle,
+              thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
+              kind: e.kind,
+              channelId: e.snippet?.channelId,
               streamUrl: '',
             ))
         .toList();
-    return VideoResponseMT(
-      videos: videos,
-      nextPageToken: data.nextPageToken!,
-    );
+    return VideoResponseMT(videos: videos, nextPageToken: data.nextPageToken);
   }
 
   @override

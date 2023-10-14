@@ -5,6 +5,7 @@ import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
+import 'package:my_tube/blocs/home/subscription_tab/subscription_bloc.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/ui/views/dashboard/dashboard_view.dart';
@@ -24,6 +25,10 @@ class DashboardPage extends Page {
                 create: (context) =>
                     AuthBloc(authRepository: context.read<AuthRepository>())
                       ..add(const CheckIfIsLoggedIn())),
+            BlocProvider<SubscriptionBloc>(
+                create: (_) =>
+                    SubscriptionBloc(youtubeRepository: youtubeRepository)
+                      ..add(const GetSubscriptions())),
             BlocProvider<ExploreTabBloc>(
                 create: (_) =>
                     ExploreTabBloc(youtubeRepository: youtubeRepository)

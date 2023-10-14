@@ -2,30 +2,31 @@ import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/mappers/base_mapper.dart';
 
-class SearchMapper extends BaseMapper<SearchListResponse, VideoResponseMT> {
+class SubscriptionMapper
+    extends BaseMapper<SubscriptionListResponse, VideoResponseMT> {
   @override
-  VideoResponseMT mapToModel(SearchListResponse data) {
-    final videos = data.items!
+  VideoResponseMT mapToModel(SubscriptionListResponse data) {
+    final activities = data.items!
         .map((e) => VideoMT(
-              id: e.id?.videoId,
+              id: e.id,
               title: e.snippet?.title,
               description: e.snippet?.description,
-              channelTitle: e.snippet?.channelTitle,
-              thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
-              kind: e.id?.kind,
+              kind: e.snippet?.resourceId?.kind,
               channelId: e.snippet?.channelId,
+              thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
+              channelTitle: e.snippet?.channelTitle,
               streamUrl: '',
             ))
         .toList();
+
     return VideoResponseMT(
-      videos: videos,
+      videos: activities,
       nextPageToken: data.nextPageToken,
     );
   }
 
   @override
-  SearchListResponse mapToData(VideoResponseMT model) {
-    // TODO: implement mapToData
+  SubscriptionListResponse mapToData(VideoResponseMT model) {
     throw UnimplementedError();
   }
 }

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class VideoResponseMT extends Equatable {
   final List<VideoMT> videos;
-  final String nextPageToken;
+  final String? nextPageToken;
 
   const VideoResponseMT({required this.videos, required this.nextPageToken});
 
@@ -12,7 +12,7 @@ class VideoResponseMT extends Equatable {
         .toList();
     return VideoResponseMT(
       videos: videos,
-      nextPageToken: json['nextPageToken'] as String,
+      nextPageToken: json['nextPageToken'] as String?,
     );
   }
 
@@ -30,6 +30,7 @@ class VideoResponseMT extends Equatable {
 class VideoMT extends Equatable {
   final String? id;
   final String? title;
+  final String? description;
   final String? channelTitle;
   final String? thumbnailUrl;
   final String? kind;
@@ -39,6 +40,7 @@ class VideoMT extends Equatable {
   const VideoMT({
     required this.id,
     required this.title,
+    required this.description,
     required this.channelTitle,
     required this.thumbnailUrl,
     required this.kind,
@@ -50,6 +52,7 @@ class VideoMT extends Equatable {
     return VideoMT(
       id: json['id'] as String?,
       title: json['title'] as String?,
+      description: json['description'] as String?,
       channelTitle: json['channelTitle'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       kind: json['kind'] as String?,
@@ -62,6 +65,7 @@ class VideoMT extends Equatable {
     return {
       'id': id,
       'title': title,
+      'description': description,
       'channelTitle': channelTitle,
       'thumbnailUrl': thumbnailUrl,
       'kind': kind,
@@ -73,6 +77,7 @@ class VideoMT extends Equatable {
   VideoMT copyWith({
     String? id,
     String? title,
+    String? description,
     String? channelTitle,
     String? thumbnailUrl,
     String? kind,
@@ -82,6 +87,7 @@ class VideoMT extends Equatable {
     return VideoMT(
       id: id ?? this.id,
       title: title ?? this.title,
+      description: description ?? this.description,
       channelTitle: channelTitle ?? this.channelTitle,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       kind: kind ?? this.kind,
@@ -91,6 +97,14 @@ class VideoMT extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [id, title, channelTitle, thumbnailUrl, kind, channelId, streamUrl];
+  List<Object?> get props => [
+        id,
+        title,
+        description,
+        channelTitle,
+        thumbnailUrl,
+        kind,
+        channelId,
+        streamUrl
+      ];
 }

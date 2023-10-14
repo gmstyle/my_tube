@@ -48,9 +48,9 @@ class MTSearchDelegate extends SearchDelegate {
               return const Center(child: CircularProgressIndicator());
             case SearchStatus.success:
               return ListView.builder(
-                  itemCount: state.result!.length,
+                  itemCount: state.result!.videos.length,
                   itemBuilder: (context, index) {
-                    final result = state.result![index];
+                    final result = state.result!.videos[index];
                     return GestureDetector(
                         onTap: () {
                           if (result.kind == 'youtube#video') {

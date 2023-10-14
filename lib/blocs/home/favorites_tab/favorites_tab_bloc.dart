@@ -33,6 +33,7 @@ class FavoritesTabBloc extends Bloc<FavoritesTabEvent, FavoritesTabState> {
           jsonDecode(settingsBox.get('categories')));
       final response = await youtubeRepository.getVideos(
           categoryId: musicCategoryId, myRating: 'like');
+
       emit(FavoritesTabState.loaded(response: response));
     } catch (error) {
       emit(FavoritesTabState.error(error: error.toString()));
@@ -42,14 +43,13 @@ class FavoritesTabBloc extends Bloc<FavoritesTabEvent, FavoritesTabState> {
   Future<void> _onGetNextPageTrendingVideos(
       GetNextPageFavorites event, Emitter<FavoritesTabState> emit) async {
     try {
-      final nextPageToken = event.nextPageToken;
       final List<VideoMT> videos = state.status == FavoritesStatus.success
           ? state.response!.videos
           : const <VideoMT>[];
       final musicVideoCategoryId = Utils.getMusicVideoCategoryId(
           jsonDecode(settingsBox.get('categories')));
       final response = await youtubeRepository.getVideos(
-          nextPageToken: nextPageToken,
+          nextPageToken: event.nextPageToken,
           categoryId: musicVideoCategoryId,
           myRating: 'like');
 

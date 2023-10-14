@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
@@ -26,11 +28,14 @@ class ExploreTab extends StatelessWidget {
               },
               child: NotificationListener<ScrollNotification>(
                 onNotification: (scrollInfo) {
-                  if (scrollInfo.metrics.pixels ==
-                      scrollInfo.metrics.maxScrollExtent) {
-                    exploreTabBloc.add(GetNextPageTrendingVideos(
-                        nextPageToken: state.response!.nextPageToken));
+                  if (state.response?.nextPageToken != null) {
+                    if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                      exploreTabBloc.add(GetNextPageTrendingVideos(
+                          nextPageToken: state.response!.nextPageToken!));
+                    }
                   }
+
                   return false;
                 },
                 child: ListView.builder(

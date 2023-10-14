@@ -46,14 +46,13 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
   Future<void> _onGetNextPageTrendingVideos(
       GetNextPageTrendingVideos event, Emitter<ExploreTabState> emit) async {
     try {
-      final nextPageToken = event.nextPageToken;
       final List<VideoMT> videos = state.status == YoutubeStatus.loaded
           ? state.response!.videos
           : const <VideoMT>[];
       final musicVideoCategoryId = Utils.getMusicVideoCategoryId(
           jsonDecode(settingsBox.get('categories')));
       final response = await youtubeRepository.getVideos(
-          nextPageToken: nextPageToken,
+          nextPageToken: event.nextPageToken,
           categoryId: musicVideoCategoryId,
           chart: 'mostPopular');
 

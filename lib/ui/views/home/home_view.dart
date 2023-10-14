@@ -9,6 +9,7 @@ import 'package:my_tube/ui/views/home/tabs/explore_tab.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab.dart';
 
 import 'package:my_tube/ui/views/common/mt_search_delegate.dart';
+import 'package:my_tube/ui/views/home/tabs/subscription_tab.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -31,12 +32,21 @@ class _HomeViewState extends State<HomeView> {
       label: 'Favorites',
     ),
     NavigationDestination(
+      icon: Icon(Icons.subscriptions),
+      label: 'Subscriptions',
+    ),
+    NavigationDestination(
       icon: Icon(Icons.account_circle),
-      label: 'My Account',
+      label: 'Me',
     ),
   ];
 
-  final _tabs = [ExploreTab(), FavoritesTab(), const AccountTab()];
+  final _tabs = [
+    ExploreTab(),
+    FavoritesTab(),
+    SubscriptionTab(),
+    const AccountTab()
+  ];
 
   void _onPageChanged(int index) {
     setState(() {

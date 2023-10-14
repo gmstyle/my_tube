@@ -94,18 +94,21 @@ class YoutubeProvider {
 
   /// get video consigliati
 
-  Future<SearchListResponse> getRelatedVideos(String videoId) async {
+  Future<SubscriptionListResponse> getSubscribedChannels(
+      {String? nextPageToken}) async {
     try {
       final autClient = await _getAuthClient();
+
       final youtubeApi = YouTubeApi(autClient);
 
-      final videos = await youtubeApi.search.list(
-        ['snippet'],
-        relatedToVideoId: videoId,
-        type: ['video'],
+      final response = await youtubeApi.subscriptions.list(
+        ['snippet', 'contentDetails'],
+        mine: true,
+        maxResults: 20,
+        pageToken: nextPageToken,
       );
 
-      return videos;
+      return response;
     } catch (error) {
       log('Error: $error');
       return Future.error('Error: $error');
@@ -118,81 +121,50 @@ class YoutubeProvider {
 
       final youtubeApi = YouTubeApi(autClient);
 
-      final results = await youtubeApi.search.list(
+      final response = await youtubeApi.search.list(
         ['snippet'],
         q: query,
         type: ['video', 'channel', 'playlist'],
         maxResults: 100,
       );
 
-      return results;
+      return response;
     } catch (error) {
       log('Error: $error');
       return Future.error('Error: $error');
     }
   }
 
-  Future<VideoListResponse> getVideosFromPlaylist(String playlistId) async {
+  Future<PlaylistItemListResponse> getVideosFromPlaylist(
+      String playlistId) async {
     try {
       final autClient = await _getAuthClient();
 
       final youtubeApi = YouTubeApi(autClient);
 
-      final playlistItems = await youtubeApi.playlistItems.list(
+      final response = await youtubeApi.playlistItems.list(
         ['snippet', 'contentDetails'],
         playlistId: playlistId,
       );
 
-      final videosId = playlistItems.items!
-          .map((item) => item.contentDetails!.videoId!)
-          .toList();
+      return response;
+    } catch (error) {
+      log('Error: $error');
+      return Future.error('Error: $error');
+    }
+  }
 
-      final videos = await youtubeApi.videos.list(
-        ['snippet', 'contentDetails', 'statistics'],
-        id: videosId,
-      );
+  Future<SearchListResponse> getVideosFromChannel(String channelId) async {
+    try {
+      final autClient = await _getAuthClient();
+
+      final youtubeApi = YouTubeApi(autClient);
+
+      final videos = youtubeApi.search.list(
+          ['snippet', 'contentDetails', 'statistics'],
+          channelId: channelId, maxResults: 100);
 
       return videos;
-    } catch (error) {
-      log('Error: $error');
-      return Future.error('Error: $error');
-    }
-  }
-
-  Future<VideoListResponse> getVideosFromChannel(String channelId) async {
-    try {
-      final autClient = await _getAuthClient();
-
-      final youtubeApi = YouTubeApi(autClient);
-
-      final playlists = await youtubeApi.playlists.list(
-        ['snippet', 'contentDetails'],
-        channelId: channelId,
-      );
-
-      final playlistId = playlists.items!.first.id!;
-
-      return await getVideosFromPlaylist(playlistId);
-    } catch (error) {
-      log('Error: $error');
-      return Future.error('Error: $error');
-    }
-  }
-
-  Future<VideoListResponse> getVideosFromChannelId(String channelId) async {
-    try {
-      final autClient = await _getAuthClient();
-
-      final youtubeApi = YouTubeApi(autClient);
-
-      final playlists = await youtubeApi.playlists.list(
-        ['snippet', 'contentDetails'],
-        channelId: channelId,
-      );
-
-      final playlistId = playlists.items!.first.id!;
-
-      return await getVideosFromPlaylist(playlistId);
     } catch (error) {
       log('Error: $error');
       return Future.error('Error: $error');
