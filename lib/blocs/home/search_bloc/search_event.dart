@@ -15,3 +15,14 @@ class SearchContents extends SearchEvent {
   @override
   List<Object> get props => [query];
 }
+
+class GetNextPageSearchContents extends SearchEvent {
+  const GetNextPageSearchContents(
+      {required this.query, required this.nextPageToken});
+
+  final String query;
+  final String nextPageToken;
+
+  @override
+  List<Object> get props => [query, nextPageToken];
+}

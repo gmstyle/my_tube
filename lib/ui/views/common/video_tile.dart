@@ -9,12 +9,13 @@ class VideoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      trailing: setTrailingIcon(),
       leading: video.thumbnailUrl != null
           ? Image.network(
               video.thumbnailUrl!,
             )
           : const SizedBox(
-              child: Icon(Icons.video_collection),
+              child: Icon(Icons.place),
             ),
       title: Text(
         video.title ?? '',
@@ -22,5 +23,17 @@ class VideoTile extends StatelessWidget {
       ),
       subtitle: Text(video.channelTitle ?? ''),
     );
+  }
+
+  Icon? setTrailingIcon() {
+    switch (video.kind) {
+      case 'youtube#channel':
+        return const Icon(Icons.video_collection);
+      case 'youtube#playlist':
+        return const Icon(Icons.playlist_play);
+
+      default:
+        return null;
+    }
   }
 }

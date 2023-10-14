@@ -115,7 +115,8 @@ class YoutubeProvider {
     }
   }
 
-  Future<SearchListResponse> searchContents(String query) async {
+  Future<SearchListResponse> searchContents(
+      {required String query, String? nextPageToken}) async {
     try {
       final autClient = await _getAuthClient();
 
@@ -125,7 +126,8 @@ class YoutubeProvider {
         ['snippet'],
         q: query,
         type: ['video', 'channel', 'playlist'],
-        maxResults: 100,
+        maxResults: 20,
+        pageToken: nextPageToken,
       );
 
       return response;

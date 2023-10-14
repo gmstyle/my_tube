@@ -10,6 +10,7 @@ class MTSearchDelegate extends SearchDelegate {
 
   final SearchBloc searchBloc;
   final MiniPlayerCubit miniPlayerCubit;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -47,30 +48,43 @@ class MTSearchDelegate extends SearchDelegate {
             case SearchStatus.loading:
               return const Center(child: CircularProgressIndicator());
             case SearchStatus.success:
-              return ListView.builder(
-                  itemCount: state.result!.videos.length,
-                  itemBuilder: (context, index) {
-                    final result = state.result!.videos[index];
-                    return GestureDetector(
-                        onTap: () {
-                          if (result.kind == 'youtube#video') {
-                            miniPlayerCubit
-                                .showMiniPlayer(result)
-                                .then((value) => close(context, query));
-                          }
+              return NotificationListener<ScrollNotification>(
+                onNotification: (scrollInfo) {
+                  if (state.result?.nextPageToken != null) {
+                    if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                      searchBloc.add(GetNextPageSearchContents(
+                          query: query,
+                          nextPageToken: state.result!.nextPageToken!));
+                    }
+                  }
+                  return false;
+                },
+                child: ListView.builder(
+                    itemCount: state.result!.videos.length,
+                    itemBuilder: (context, index) {
+                      final result = state.result!.videos[index];
+                      return GestureDetector(
+                          onTap: () {
+                            if (result.kind == 'youtube#video') {
+                              miniPlayerCubit
+                                  .showMiniPlayer(result)
+                                  .then((value) => close(context, query));
+                            }
 
-                          if (result.kind == 'youtube#channel') {
-                            ///TODO: implementare channel page
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Channel: ${result.channelId}'),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        },
-                        child: VideoTile(video: result));
-                  });
+                            if (result.kind == 'youtube#channel') {
+                              ///TODO: implementare channel page
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Channel: ${result.channelId}'),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          child: VideoTile(video: result));
+                    }),
+              );
             case SearchStatus.failure:
               return Center(child: Text(state.error!));
 

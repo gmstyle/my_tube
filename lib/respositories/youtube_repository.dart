@@ -42,8 +42,10 @@ class YoutubeRepository {
     return videoMapper.mapToModel(response);
   }
 
-  Future<VideoResponseMT> searchContents(String query) async {
-    final response = await youtubeProvider.searchContents(query);
+  Future<VideoResponseMT> searchContents(
+      {required String query, String? nextPageToken}) async {
+    final response = await youtubeProvider.searchContents(
+        query: query, nextPageToken: nextPageToken);
     return searchMapper.mapToModel(response);
   }
 
