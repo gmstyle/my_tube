@@ -1,13 +1,13 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/subscription_tab/subscription_bloc.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
-class SubscriptionTab extends StatelessWidget {
-  SubscriptionTab({super.key});
+class SubscriptionTabView extends StatelessWidget {
+  SubscriptionTabView({super.key});
 
   final ScrollController _scrollController = ScrollController();
   @override
@@ -46,10 +46,9 @@ class SubscriptionTab extends StatelessWidget {
                   } else {
                     final video = state.response!.videos[index];
                     return GestureDetector(
-                        onTap: () async {
-                          await context
-                              .read<MiniPlayerCubit>()
-                              .showMiniPlayer(video);
+                        onTap: () {
+                          context.pushNamed(AppRoute.channel.name,
+                              pathParameters: {'channelId': video.channelId!});
                         },
                         child: VideoTile(video: video));
                   }

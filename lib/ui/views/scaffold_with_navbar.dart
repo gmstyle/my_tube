@@ -1,7 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
+import 'package:my_tube/ui/views/common/mini_player.dart';
+import 'package:my_tube/ui/views/common/mt_search_delegate.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
@@ -34,9 +39,68 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final searchBloc = context.read<SearchBloc>();
+    final miniPlayerCubit = context.read<MiniPlayerCubit>();
+    final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
+    final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
     return Scaffold(
-      appBar: AppBar(),
-      body: navigationShell,
+      appBar: AppBar(
+        title: const Text('My Tube'),
+        actions: [
+          // Search button
+          IconButton(
+              onPressed: () {
+                showSearch(
+                    context: context,
+                    delegate: MTSearchDelegate(
+                        searchBloc: searchBloc,
+                        miniPlayerCubit: miniPlayerCubit));
+              },
+              icon: const Icon(Icons.search),
+              tooltip: 'Search'),
+        ],
+      ),
+      body: Column(
+        children: [
+          /// Tab content
+          Expanded(child: navigationShell),
+
+          /// Mini player
+          AnimatedContainer(
+            decoration: BoxDecoration(
+
+                // TODO: fixare il colore e mettere lo stesso colore della navigation bar non ancora disponibile per bug flutter
+                color: Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withOpacity(0.5),
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10))),
+            duration: const Duration(milliseconds: 500),
+            height: miniplayerStatus == MiniPlayerStatus.shown ||
+                    miniplayerStatus == MiniPlayerStatus.loading
+                ? miniPlayerHeight
+                : 0,
+            child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+                builder: (context, state) {
+              switch (state.status) {
+                case MiniPlayerStatus.loading:
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                case MiniPlayerStatus.shown:
+                  return MiniPlayer(
+                    video: state.video,
+                    chewieController: state.chewieController!,
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            }),
+          ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
           selectedIndex: navigationShell.currentIndex,
           destinations: _navBarItems,

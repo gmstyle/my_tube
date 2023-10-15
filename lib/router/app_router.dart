@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/router/pages/account_tab_page.dart';
+import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/login_page.dart';
@@ -18,10 +19,16 @@ class AppRouter {
       navigatorKey: rootNavigatorKey,
       initialLocation: AppRoute.login.path,
       routes: [
+        GoRoute(
+            parentNavigatorKey: rootNavigatorKey,
+            name: AppRoute.login.name,
+            path: AppRoute.login.path,
+            pageBuilder: (context, state) => const LoginPage()),
         StatefulShellRoute.indexedStack(
             builder: (context, state, navigationShell) =>
                 ScaffoldWithNavbarView(navigationShell: navigationShell),
             branches: [
+              // Tab Explore
               StatefulShellBranch(
                   navigatorKey: exploreTabNavigatorKey,
                   routes: [
@@ -31,6 +38,8 @@ class AppRouter {
                         pageBuilder: (context, state) =>
                             const ExploreTabPage()),
                   ]),
+
+              // Tab Favorites
               StatefulShellBranch(
                   navigatorKey: favoritesTabNavigatorKey,
                   routes: [
@@ -40,6 +49,8 @@ class AppRouter {
                         pageBuilder: (context, state) =>
                             const FavoritesTabPAge()),
                   ]),
+
+              // Tab Subscriptions
               StatefulShellBranch(
                   navigatorKey: subscriptionsTabNavigatorKey,
                   routes: [
@@ -47,8 +58,20 @@ class AppRouter {
                         name: AppRoute.subscriptions.name,
                         path: AppRoute.subscriptions.path,
                         pageBuilder: (context, state) =>
-                            const SubscriptionsTabPAge()),
+                            const SubscriptionsTabPAge(),
+                        routes: [
+                          GoRoute(
+                              name: AppRoute.channel.name,
+                              path: AppRoute.channel.path,
+                              pageBuilder: (context, state) {
+                                final channelId =
+                                    state.pathParameters['channelId'] as String;
+                                return ChannelPage(channelId: channelId);
+                              })
+                        ]),
                   ]),
+
+              // Tab Account
               StatefulShellBranch(
                   navigatorKey: accountTabNavigatorKey,
                   routes: [
@@ -58,21 +81,17 @@ class AppRouter {
                         pageBuilder: (context, state) => const AccountTabPage())
                   ]),
             ]),
-        GoRoute(
-            parentNavigatorKey: rootNavigatorKey,
-            name: AppRoute.login.name,
-            path: AppRoute.login.path,
-            pageBuilder: (context, state) => const LoginPage())
       ]);
 }
 
 enum AppRoute {
-  dashboard('/'),
   login('/login'),
   explore('/explore'),
   favorites('/favorites'),
   subscriptions('/subscriptions'),
-  account('/account');
+  account('/account'),
+  channel('channel/:channelId'),
+  ;
 
   final String path;
 

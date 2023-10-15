@@ -4,8 +4,8 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
-class FavoritesTab extends StatelessWidget {
-  FavoritesTab({super.key});
+class FavoritesTabView extends StatelessWidget {
+  FavoritesTabView({super.key});
 
   final ScrollController _scrollController = ScrollController();
 

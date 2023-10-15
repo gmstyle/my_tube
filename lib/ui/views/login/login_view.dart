@@ -10,32 +10,37 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('LoginView'),
-      ),
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state.status == AuthStatus.authenticated) {
-            context.goNamed(AppRoute.explore.name);
-          }
-        },
-        child: BlocBuilder<AuthBloc, AuthState>(
+    final authStatus = context.watch<AuthBloc>().state.status;
+
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.status == AuthStatus.authenticated) {
+          context.goNamed(AppRoute.explore.name);
+        }
+      },
+      child: Scaffold(
+        appBar: authStatus == AuthStatus.unauthenticated
+            ? AppBar(
+                title: const Text('LoginView'),
+              )
+            : null,
+        body: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state.status == AuthStatus.unknown) {
+              //TODO: Fare un loader migliore
               return const Center(
                 child: CircularProgressIndicator(),
               );
+            } else {
+              return Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(const SignIn());
+                  },
+                  child: const Text('Login'),
+                ),
+              );
             }
-
-            return Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(const SignIn());
-                },
-                child: const Text('Login'),
-              ),
-            );
           },
         ),
       ),
