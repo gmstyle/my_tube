@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
@@ -49,7 +50,13 @@ void main() async {
                 activityMapper: context.read<SubscriptionMapper>()),
           ),
         ],
-        child: const MyApp(),
+        child: MultiBlocProvider(providers: [
+          BlocProvider<AuthBloc>(
+            create: (context) =>
+                AuthBloc(authRepository: context.read<AuthRepository>())
+                  ..add(const CheckIfIsLoggedIn()),
+          )
+        ], child: const MyApp()),
       ),
     ),
   ));
