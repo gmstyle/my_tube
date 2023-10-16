@@ -5,6 +5,7 @@ import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/login_page.dart';
+import 'package:my_tube/router/pages/splash_page.dart';
 import 'package:my_tube/router/pages/subscriptions_tab_page.dart';
 import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
@@ -17,8 +18,13 @@ class AppRouter {
 
   static final router = GoRouter(
       navigatorKey: rootNavigatorKey,
-      initialLocation: AppRoute.login.path,
+      initialLocation: AppRoute.splash.path,
       routes: [
+        GoRoute(
+            parentNavigatorKey: rootNavigatorKey,
+            name: AppRoute.splash.name,
+            path: AppRoute.splash.path,
+            pageBuilder: (context, state) => const SplashPage()),
         GoRoute(
             parentNavigatorKey: rootNavigatorKey,
             name: AppRoute.login.name,
@@ -85,6 +91,7 @@ class AppRouter {
 }
 
 enum AppRoute {
+  splash('/'),
   login('/login'),
   explore('/explore'),
   favorites('/favorites'),

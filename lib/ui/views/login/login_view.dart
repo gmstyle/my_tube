@@ -10,8 +10,6 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authStatus = context.watch<AuthBloc>().state.status;
-
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated) {
@@ -19,11 +17,9 @@ class LoginView extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: authStatus == AuthStatus.unauthenticated
-            ? AppBar(
-                title: const Text('LoginView'),
-              )
-            : null,
+        appBar: AppBar(
+          title: const Text('LoginView'),
+        ),
         body: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             if (state.status == AuthStatus.unknown) {
