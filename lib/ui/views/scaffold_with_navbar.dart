@@ -22,6 +22,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       label: 'Favorites',
     ),
     NavigationDestination(
+      icon: Icon(Icons.search),
+      label: 'Search',
+    ),
+    NavigationDestination(
       icon: Icon(Icons.subscriptions),
       label: 'Subscriptions',
     ),
@@ -44,7 +48,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
     return Scaffold(
-      appBar: AppBar(
+      /* appBar: AppBar(
         title: const Text('My Tube'),
         actions: [
           // Search button
@@ -59,47 +63,49 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               icon: const Icon(Icons.search),
               tooltip: 'Search'),
         ],
-      ),
-      body: Column(
-        children: [
-          /// Tab content
-          Expanded(child: navigationShell),
+      ), */
+      body: SafeArea(
+        child: Column(
+          children: [
+            /// Tab content
+            Expanded(child: navigationShell),
 
-          /// Mini player
-          AnimatedContainer(
-            decoration: BoxDecoration(
+            /// Mini player
+            AnimatedContainer(
+              decoration: BoxDecoration(
 
-                // TODO: fixare il colore e mettere lo stesso colore della navigation bar non ancora disponibile per bug flutter
-                color: Theme.of(context)
-                    .colorScheme
-                    .primaryContainer
-                    .withOpacity(0.5),
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10))),
-            duration: const Duration(milliseconds: 500),
-            height: miniplayerStatus == MiniPlayerStatus.shown ||
-                    miniplayerStatus == MiniPlayerStatus.loading
-                ? miniPlayerHeight
-                : 0,
-            child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
-                builder: (context, state) {
-              switch (state.status) {
-                case MiniPlayerStatus.loading:
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                case MiniPlayerStatus.shown:
-                  return MiniPlayer(
-                    video: state.video,
-                    chewieController: state.chewieController!,
-                  );
-                default:
-                  return const SizedBox.shrink();
-              }
-            }),
-          ),
-        ],
+                  // TODO: fixare il colore e mettere lo stesso colore della navigation bar non ancora disponibile per bug flutter
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primaryContainer
+                      .withOpacity(0.5),
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              duration: const Duration(milliseconds: 500),
+              height: miniplayerStatus == MiniPlayerStatus.shown ||
+                      miniplayerStatus == MiniPlayerStatus.loading
+                  ? miniPlayerHeight
+                  : 0,
+              child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+                  builder: (context, state) {
+                switch (state.status) {
+                  case MiniPlayerStatus.loading:
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  case MiniPlayerStatus.shown:
+                    return MiniPlayer(
+                      video: state.video,
+                      chewieController: state.chewieController!,
+                    );
+                  default:
+                    return const SizedBox.shrink();
+                }
+              }),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
           selectedIndex: navigationShell.currentIndex,

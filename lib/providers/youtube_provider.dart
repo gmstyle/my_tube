@@ -81,7 +81,7 @@ class YoutubeProvider {
           chart: chart,
           myRating: myRating,
           videoCategoryId: categoryId,
-          maxResults: 20,
+          maxResults: 50,
           pageToken: nextPageToken,
           regionCode: 'IT');
 
@@ -104,7 +104,7 @@ class YoutubeProvider {
       final response = await youtubeApi.subscriptions.list(
         ['snippet', 'contentDetails'],
         mine: true,
-        maxResults: 20,
+        maxResults: 50,
         pageToken: nextPageToken,
       );
 

@@ -5,6 +5,7 @@ import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/login_page.dart';
+import 'package:my_tube/router/pages/search_page.dart';
 import 'package:my_tube/router/pages/splash_page.dart';
 import 'package:my_tube/router/pages/subscriptions_tab_page.dart';
 import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
@@ -13,6 +14,7 @@ class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final exploreTabNavigatorKey = GlobalKey<NavigatorState>();
   static final favoritesTabNavigatorKey = GlobalKey<NavigatorState>();
+  static final searchTabNavigatorKey = GlobalKey<NavigatorState>();
   static final subscriptionsTabNavigatorKey = GlobalKey<NavigatorState>();
   static final accountTabNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -56,6 +58,26 @@ class AppRouter {
                             const FavoritesTabPAge()),
                   ]),
 
+              // Tab Search
+              StatefulShellBranch(navigatorKey: searchTabNavigatorKey, routes: [
+                GoRoute(
+                  name: AppRoute.search.name,
+                  path: AppRoute.search.path,
+                  pageBuilder: (context, state) => const SearchPage(),
+                  /* routes: [
+                      GoRoute(
+                          parentNavigatorKey: searchTabNavigatorKey,
+                          name: AppRoute.channel.name,
+                          path: AppRoute.channel.path,
+                          pageBuilder: (context, state) {
+                            final channelId =
+                                state.pathParameters['channelId'] as String;
+                            return ChannelPage(channelId: channelId);
+                          })
+                    ] */
+                ),
+              ]),
+
               // Tab Subscriptions
               StatefulShellBranch(
                   navigatorKey: subscriptionsTabNavigatorKey,
@@ -67,6 +89,7 @@ class AppRouter {
                             const SubscriptionsTabPAge(),
                         routes: [
                           GoRoute(
+                              parentNavigatorKey: subscriptionsTabNavigatorKey,
                               name: AppRoute.channel.name,
                               path: AppRoute.channel.path,
                               pageBuilder: (context, state) {
@@ -95,10 +118,10 @@ enum AppRoute {
   login('/login'),
   explore('/explore'),
   favorites('/favorites'),
+  search('/search'),
   subscriptions('/subscriptions'),
   account('/account'),
-  channel('channel/:channelId'),
-  ;
+  channel('channel/:channelId');
 
   final String path;
 
