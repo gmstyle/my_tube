@@ -12,23 +12,6 @@ import 'base_provider.dart';
 class YoutubeProvider {
   final GoogleSignIn googleSignIn = BaseProvider.googleSignIn;
   final YoutubeExplode youtubeExplode = BaseProvider.youtubeExplode;
-  Future<ChannelListResponse> getChannels() async {
-    try {
-      final autClient = await _getAuthClient();
-
-      final youtubeApi = YouTubeApi(autClient);
-
-      final channels = await youtubeApi.channels.list(
-        ['snippet', 'contentDetails', 'statistics'],
-        mine: true,
-      );
-
-      return channels;
-    } catch (error) {
-      log('Error: $error');
-      return Future.error('Error: $error');
-    }
-  }
 
   Future<PlaylistListResponse> getPlaylists(String channelId) async {
     try {

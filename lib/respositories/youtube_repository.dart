@@ -55,10 +55,6 @@ class YoutubeRepository {
     return activityMapper.mapToModel(response);
   }
 
-  Future<ChannelListResponse> getChannels() async {
-    return await youtubeProvider.getChannels();
-  }
-
   Future<PlaylistListResponse> getPlaylists(String channelId) async {
     return await youtubeProvider.getPlaylists(channelId);
   }
