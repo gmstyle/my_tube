@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
-import 'package:my_tube/ui/views/common/mt_search_delegate.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
@@ -43,27 +41,9 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final searchBloc = context.read<SearchBloc>();
-    final miniPlayerCubit = context.read<MiniPlayerCubit>();
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
     return Scaffold(
-      /* appBar: AppBar(
-        title: const Text('My Tube'),
-        actions: [
-          // Search button
-          IconButton(
-              onPressed: () {
-                showSearch(
-                    context: context,
-                    delegate: MTSearchDelegate(
-                        searchBloc: searchBloc,
-                        miniPlayerCubit: miniPlayerCubit));
-              },
-              icon: const Icon(Icons.search),
-              tooltip: 'Search'),
-        ],
-      ), */
       body: SafeArea(
         child: Column(
           children: [

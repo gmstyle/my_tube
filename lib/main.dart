@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
@@ -61,9 +60,6 @@ void main() async {
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
                   youtubeRepository: context.read<YoutubeRepository>())),
-          BlocProvider<SearchBloc>(
-              create: (context) => SearchBloc(
-                  youtubeRepository: context.read<YoutubeRepository>()))
         ], child: const MyApp()),
       ),
     ),
