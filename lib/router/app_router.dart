@@ -61,21 +61,19 @@ class AppRouter {
               // Tab Search
               StatefulShellBranch(navigatorKey: searchTabNavigatorKey, routes: [
                 GoRoute(
-                  name: AppRoute.search.name,
-                  path: AppRoute.search.path,
-                  pageBuilder: (context, state) => const SearchPage(),
-                  /* routes: [
+                    name: AppRoute.search.name,
+                    path: AppRoute.search.path,
+                    pageBuilder: (context, state) => const SearchPage(),
+                    routes: [
                       GoRoute(
                           parentNavigatorKey: searchTabNavigatorKey,
-                          name: AppRoute.channel.name,
                           path: AppRoute.channel.path,
                           pageBuilder: (context, state) {
-                            final channelId =
-                                state.pathParameters['channelId'] as String;
+                            final extra = state.extra as Map<String, dynamic>;
+                            final channelId = extra['channelId'] as String;
                             return ChannelPage(channelId: channelId);
                           })
-                    ] */
-                ),
+                    ]),
               ]),
 
               // Tab Subscriptions
@@ -93,8 +91,9 @@ class AppRouter {
                               name: AppRoute.channel.name,
                               path: AppRoute.channel.path,
                               pageBuilder: (context, state) {
-                                final channelId =
-                                    state.pathParameters['channelId'] as String;
+                                final extra =
+                                    state.extra as Map<String, dynamic>;
+                                final channelId = extra['channelId'] as String;
                                 return ChannelPage(channelId: channelId);
                               })
                         ]),
@@ -121,7 +120,7 @@ enum AppRoute {
   search('/search'),
   subscriptions('/subscriptions'),
   account('/account'),
-  channel('channel/:channelId');
+  channel('channel');
 
   final String path;
 

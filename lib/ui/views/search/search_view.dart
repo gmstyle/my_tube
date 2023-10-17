@@ -91,10 +91,9 @@ class SearchView extends StatelessWidget {
                               }
 
                               if (result.kind == 'youtube#channel') {
-                                context.goNamed(AppRoute.channel.name,
-                                    pathParameters: {
-                                      'channelId': result.channelId!
-                                    });
+                                context.go(
+                                    '${AppRoute.search.path}/${AppRoute.channel.path}',
+                                    extra: {'channelId': result.channelId!});
                               }
                             },
                             child: VideoTile(video: result));

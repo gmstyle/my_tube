@@ -8,8 +8,22 @@ class ChannelView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('Channel: $channelId'),
+      body: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(Icons.arrow_back)),
+              const Text('Channel'),
+            ],
+          ),
+          Center(
+            child: Text('Channel: $channelId'),
+          ),
+        ],
       ),
     );
   }

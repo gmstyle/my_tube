@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -47,8 +46,9 @@ class SubscriptionTabView extends StatelessWidget {
                     final video = state.response!.videos[index];
                     return GestureDetector(
                         onTap: () {
-                          context.pushNamed(AppRoute.channel.name,
-                              pathParameters: {'channelId': video.channelId!});
+                          context.go(
+                              '${AppRoute.subscriptions.path}/${AppRoute.channel.path}',
+                              extra: {'channelId': video.channelId!});
                         },
                         child: VideoTile(video: video));
                   }

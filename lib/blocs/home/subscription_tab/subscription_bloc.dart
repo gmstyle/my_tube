@@ -29,7 +29,6 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     emit(const SubscriptionState.loading());
     try {
       final response = await youtubeRepository.getSubscribedChannels();
-      log('1 nextPageToken: ${response.nextPageToken}');
       emit(SubscriptionState.loaded(response: response));
     } catch (error) {
       emit(SubscriptionState.error(error: error.toString()));
