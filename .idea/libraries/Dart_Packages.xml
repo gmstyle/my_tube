@@ -208,7 +208,7 @@
         <entry key="go_router">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-10.2.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-11.1.4/lib" />
             </list>
           </value>
         </entry>
@@ -668,7 +668,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_lints-2.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/freezed_annotation-2.4.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/glob-2.1.2/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-10.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/go_router-11.1.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_identity_services_web-0.2.1+1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in-6.1.5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in_android-6.1.20/lib" />

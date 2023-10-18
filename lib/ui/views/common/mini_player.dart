@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,10 +64,13 @@ class MiniPlayer extends StatelessWidget {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             StatefulBuilder(builder: (context, setState) {
+              final isPlaying =
+                  chewieController.videoPlayerController.value.isPlaying;
+
               return IconButton(
                   onPressed: () {
                     setState(() {
-                      if (chewieController.isPlaying) {
+                      if (isPlaying) {
                         miniPlayerCubit.pauseMiniPlayer();
                         setState(() {});
                       } else {
@@ -74,9 +79,7 @@ class MiniPlayer extends StatelessWidget {
                       }
                     });
                   },
-                  icon: Icon(chewieController.isPlaying
-                      ? Icons.pause
-                      : Icons.play_arrow));
+                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow));
             }),
             IconButton(
                 onPressed: () {
