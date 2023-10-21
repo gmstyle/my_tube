@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/blocs/home/cubit/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
+// ignore: must_be_immutable
 class SearchView extends StatelessWidget {
   SearchView({super.key});
 
-  final TextEditingController searchController = TextEditingController()
-    ..text = '';
+  TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -21,41 +22,118 @@ class SearchView extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: StatefulBuilder(builder: (context, setState) {
-          // Ascolto searchController per aggiornare la UI quando cambia il testo
-          searchController.addListener(() {
-            setState(() {});
-          });
-
+          final searchSuggestionCubit = context.read<SearchSuggestionCubit>();
+          final suggestions = searchSuggestionCubit.state.suggestions;
           return Row(
             children: [
-              // Campo di ricerca
+              // Barra di ricerca
+
               Flexible(
-                child: TextField(
-                  controller: searchController,
-                  textInputAction: TextInputAction.search,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search, color: Colors.grey),
-                    hintText: 'Search',
-                    border: InputBorder.none,
-                  ),
-                  onSubmitted: (query) => context
-                      .read<SearchBloc>()
-                      .add(SearchContents(query: query)),
-                ),
-              ),
+                  child: Autocomplete<String>(
+                // builder del contenuto dei suggerimenti di ricerca
+                optionsBuilder: (value) {
+                  if (value.text.isEmpty) {
+                    // Se il campo di ricerca è vuoto, mostro la cronologia delle ricerche
+                    searchSuggestionCubit.getQueryHistory();
+                    return searchSuggestionCubit.state.suggestions;
+                  } else {
+                    // Altrimenti mostro i suggerimenti di ricerca chiamando l'api
+                    searchSuggestionCubit.getSuggestions(value.text);
+                    return suggestions.where((element) => element
+                        .toLowerCase()
+                        .contains(value.text.toLowerCase()));
+                  }
+                },
+
+                // Visualizzazione dei suggerimenti di ricerca
+                optionsViewBuilder: (_, onSelected, __) {
+                  final state = context.watch<SearchSuggestionCubit>().state;
+                  final options = state.suggestions;
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: options.length,
+                          itemBuilder: (context, index) {
+                            final option = options.elementAt(index);
+                            return ListTile(
+                              leading: Icon(state.isQueryHistory
+                                  ? Icons.history
+                                  : Icons.search),
+                              title: Text(option),
+                              trailing: state.isQueryHistory
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        searchSuggestionCubit
+                                            .deleteQueryFromHistory(option);
+                                      },
+                                    )
+                                  : null,
+                              onTap: () {
+                                onSelected(option);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
+
+                // Builder del campo di ricerca
+                fieldViewBuilder:
+                    (context, controller, focusNode, onFieldSubmitted) {
+                  searchController = controller;
+
+                  // Ascolto i cambiamenti del campo di ricerca per aggiornare la UI all'Icona di clear
+                  searchController.addListener(() {
+                    setState(() {});
+                  });
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      controller: searchController,
+                      focusNode: focusNode,
+                      onEditingComplete: onFieldSubmitted,
+                      textInputAction: TextInputAction.search,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        hintText: 'Search',
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (query) => context
+                          .read<SearchBloc>()
+                          .add(SearchContents(query: query)),
+                    ),
+                  );
+                },
+                onSelected: (selected) {
+                  _onSelected(suggestions, selected, context);
+                },
+              )),
 
               // Clear button
               IconButton(
-                color: searchController.text.isNotEmpty
-                    ? Theme.of(context).iconTheme.color
-                    : Colors.grey,
                 icon: const Icon(Icons.clear),
-                onPressed: () {
-                  setState(() {
-                    searchController.clear();
-                    FocusScope.of(context).unfocus();
-                  });
-                },
+                onPressed: searchController.text.isNotEmpty
+                    ? () {
+                        setState(() {
+                          searchController.clear();
+                          FocusScope.of(context).unfocus();
+                        });
+                      }
+                    : null,
               ),
             ],
           );
@@ -104,9 +182,17 @@ class SearchView extends StatelessWidget {
             return Center(child: Text(state.error!));
 
           default:
-            return const SizedBox.shrink();
+            return const Center(child: Text('Todo widget here'));
         }
       }))
     ]);
+  }
+
+  void _onSelected(
+      List<String> suggestions, String selected, BuildContext context) {
+    searchController.text = selected;
+    context.read<SearchBloc>().add(SearchContents(query: selected));
+
+    FocusScope.of(context).unfocus();
   }
 }

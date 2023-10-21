@@ -1,6 +1,5 @@
-import 'dart:developer';
 
-import 'package:chewie/chewie.dart';
+import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
@@ -9,11 +8,11 @@ import 'package:my_tube/ui/views/common/video_player_bottom_sheet.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer(
-      {super.key, required this.video, required this.chewieController});
+      {super.key, required this.video, required this.flickManager});
 
   final VideoMT? video;
 
-  final ChewieController chewieController;
+  final FlickManager flickManager;
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +30,16 @@ class MiniPlayer extends StatelessWidget {
                   useSafeArea: true,
                   builder: (context) => VideoPlayerView(
                         video: video,
-                        chewieController: chewieController,
+                        flickManager: flickManager,
                       ));
             },
             child: Row(
               children: [
-                /// SzedBox con width 0 per far partire il chewieController
+                /// SzedBox con width 0 per far partire il video
                 /// senza che si veda il video in modalità mini player
-                SizedBox(width: 0, child: Chewie(controller: chewieController)),
+                SizedBox(
+                    width: 0,
+                    child: FlickVideoPlayer(flickManager: flickManager)),
                 video?.thumbnailUrl != null
                     ? Image.network(
                         video!.thumbnailUrl!,
@@ -65,7 +66,7 @@ class MiniPlayer extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             StatefulBuilder(builder: (context, setState) {
               final isPlaying =
-                  chewieController.videoPlayerController.value.isPlaying;
+                  flickManager.flickVideoManager?.isPlaying ?? false;
 
               return IconButton(
                   onPressed: () {

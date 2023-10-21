@@ -44,6 +44,9 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('MyTube'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -77,7 +80,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                   case MiniPlayerStatus.shown:
                     return MiniPlayer(
                       video: state.video,
-                      chewieController: state.chewieController!,
+                      flickManager: state.flickManager!,
                     );
                   default:
                     return const SizedBox.shrink();

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 
@@ -8,6 +11,7 @@ part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final YoutubeRepository youtubeRepository;
+  final settingsBox = Hive.box('settings');
   SearchBloc({required this.youtubeRepository})
       : super(const SearchState.initial()) {
     on<SearchContents>((event, emit) async {
@@ -24,6 +28,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit(const SearchState.loading());
     try {
       final result = await youtubeRepository.searchContents(query: event.query);
+
+      _saveQueryHistory(event);
       emit(SearchState.success(result));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
@@ -47,6 +53,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           videos: updatedVideos, nextPageToken: result.nextPageToken)));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
+    }
+  }
+
+  void _saveQueryHistory(SearchContents event) {
+    if (settingsBox.containsKey('queryHistory')) {
+      final oldHistory =
+          jsonDecode(settingsBox.get('queryHistory')) as List<dynamic>;
+      if (!oldHistory.contains(event.query)) {
+        oldHistory.add(event.query);
+      }
+      settingsBox.put('queryHistory', jsonEncode(oldHistory));
+    } else {
+      settingsBox.put('queryHistory', jsonEncode([event.query]));
     }
   }
 }

@@ -1,10 +1,12 @@
 import 'package:googleapis/youtube/v3.dart';
+import 'package:my_tube/models/suggestion_response_mt.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
+import 'package:xml/xml.dart' as xml;
 
 class YoutubeRepository {
   YoutubeRepository(
@@ -65,6 +67,20 @@ class YoutubeRepository {
 
   Future<String> getStreamUrl(String videoId) async {
     return await youtubeProvider.getStreamUrl(videoId);
+  }
+
+  Future<SuggestionResponseMT> getSearchSuggestions(String query) async {
+    final response = await youtubeProvider.getSearchSuggestions(query);
+    final xmlResponse = xml.XmlDocument.parse(response);
+    final suggestions = xmlResponse
+        .findAllElements('suggestion')
+        .map((e) => e.getAttribute('data')!)
+        .toList();
+    final suggestionMap = {
+      'query': query,
+      'suggestions': suggestions,
+    };
+    return SuggestionResponseMT.fromJson(suggestionMap);
   }
 
   //TODO: Implementare gli altri metodi

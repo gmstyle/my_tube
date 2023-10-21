@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:chewie/chewie.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flick_video_player/flick_video_player.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:video_player/video_player.dart';
@@ -12,8 +12,8 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   MiniPlayerCubit({required this.youtubeRepository})
       : super(const MiniPlayerState.hidden());
 
-  VideoPlayerController? videoPlayerController;
-  ChewieController? chewieController;
+  late VideoPlayerController videoPlayerController;
+  late FlickManager flickManager;
 
   Future<void> showMiniPlayer(VideoMT? video) async {
     emit(const MiniPlayerState.loading());
@@ -22,36 +22,34 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       final streamUrl = await youtubeRepository.getStreamUrl(video.id!);
       final videoWithStreamUrl = video.copyWith(streamUrl: streamUrl);
       await initPlayer(streamUrl);
-      emit(MiniPlayerState.shown(
-          streamUrl, videoWithStreamUrl, chewieController!));
+      playMiniPlayer();
+      emit(MiniPlayerState.shown(streamUrl, videoWithStreamUrl, flickManager));
     }
   }
 
   void hideMiniPlayer() {
-    videoPlayerController?.dispose();
-    chewieController?.dispose();
+    videoPlayerController.dispose();
+    flickManager.dispose();
     emit(const MiniPlayerState.hidden());
   }
 
   void pauseMiniPlayer() {
-    videoPlayerController?.pause();
+    flickManager.flickControlManager?.pause();
   }
 
   void playMiniPlayer() {
-    videoPlayerController?.play();
+    flickManager.flickControlManager?.play();
   }
 
   Future<void> initPlayer(String streamUrl) async {
     videoPlayerController =
         VideoPlayerController.networkUrl(Uri.parse(streamUrl));
-    await videoPlayerController!.initialize();
-    chewieController = ChewieController(
-      videoPlayerController: videoPlayerController!,
-      autoPlay: true,
-      hideControlsTimer: const Duration(seconds: 1),
-      /* additionalOptions: (context) {
-        return [OptionItem(onTap: () {}, iconData: Icons.abc, title: 'Prova')];
-      }, */
-    );
+    await videoPlayerController.initialize();
+
+    flickManager = FlickManager(
+        videoPlayerController: videoPlayerController,
+        onVideoEnd: () {
+          //TODO: implementare la riproduzione del video successivo
+        });
   }
 }

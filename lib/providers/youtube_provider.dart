@@ -6,6 +6,7 @@ import 'package:googleapis/youtube/v3.dart';
 // ignore: depend_on_referenced_packages
 import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:http/http.dart' as http;
 
 import 'base_provider.dart';
 
@@ -208,5 +209,16 @@ class YoutubeProvider {
       return Future.error('Error: autClient is null');
     }
     return autClient;
+  }
+
+  Future<String> getSearchSuggestions(String query) async {
+    final url = Uri.parse(
+        'http://suggestqueries.google.com/complete/search?output=toolbar&ds=yt&q=$query');
+    final response = await http.get(url);
+    if (response.statusCode != 200) {
+      return Future.error('Error: failed to retrieve ${response.statusCode}');
+    }
+
+    return response.body;
   }
 }

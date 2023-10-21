@@ -1,14 +1,14 @@
-import 'package:chewie/chewie.dart';
+import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/video_mt.dart';
 
 class VideoPlayerView extends StatelessWidget {
   const VideoPlayerView(
-      {super.key, required this.video, required this.chewieController});
+      {super.key, required this.video, required this.flickManager});
 
   final VideoMT? video;
-  final ChewieController chewieController;
+  final FlickManager flickManager;
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +34,10 @@ class VideoPlayerView extends StatelessWidget {
             ],
           ),
           AspectRatio(
-            aspectRatio:
-                chewieController.videoPlayerController.value.aspectRatio,
-            child: Chewie(
-              controller: chewieController,
-            ),
-          ),
+              aspectRatio: flickManager
+                      .flickVideoManager?.videoPlayerValue?.aspectRatio ??
+                  1,
+              child: FlickVideoPlayer(flickManager: flickManager)),
         ],
       ),
     );
