@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:chewie/chewie.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flick_video_player/flick_video_player.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:video_player/video_player.dart';
@@ -13,7 +13,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       : super(const MiniPlayerState.hidden());
 
   late VideoPlayerController videoPlayerController;
-  late FlickManager flickManager;
+  late ChewieController chewieController;
 
   Future<void> showMiniPlayer(VideoMT? video) async {
     emit(const MiniPlayerState.loading());
@@ -22,23 +22,23 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       final streamUrl = await youtubeRepository.getStreamUrl(video.id!);
       final videoWithStreamUrl = video.copyWith(streamUrl: streamUrl);
       await initPlayer(streamUrl);
-      playMiniPlayer();
-      emit(MiniPlayerState.shown(streamUrl, videoWithStreamUrl, flickManager));
+      emit(MiniPlayerState.shown(
+          streamUrl, videoWithStreamUrl, chewieController));
     }
   }
 
   void hideMiniPlayer() {
     videoPlayerController.dispose();
-    flickManager.dispose();
+    chewieController.dispose();
     emit(const MiniPlayerState.hidden());
   }
 
   void pauseMiniPlayer() {
-    flickManager.flickControlManager?.pause();
+    chewieController.pause();
   }
 
   void playMiniPlayer() {
-    flickManager.flickControlManager?.play();
+    chewieController.play();
   }
 
   Future<void> initPlayer(String streamUrl) async {
@@ -46,10 +46,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
         VideoPlayerController.networkUrl(Uri.parse(streamUrl));
     await videoPlayerController.initialize();
 
-    flickManager = FlickManager(
-        videoPlayerController: videoPlayerController,
-        onVideoEnd: () {
-          //TODO: implementare la riproduzione del video successivo
-        });
+    chewieController = ChewieController(
+      videoPlayerController: videoPlayerController,
+      autoPlay: true,
+    );
   }
 }

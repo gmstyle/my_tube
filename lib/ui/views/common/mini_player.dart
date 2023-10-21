@@ -1,5 +1,4 @@
-
-import 'package:flick_video_player/flick_video_player.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
@@ -8,11 +7,11 @@ import 'package:my_tube/ui/views/common/video_player_bottom_sheet.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer(
-      {super.key, required this.video, required this.flickManager});
+      {super.key, required this.video, required this.chewieController});
 
   final VideoMT? video;
 
-  final FlickManager flickManager;
+  final ChewieController chewieController;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class MiniPlayer extends StatelessWidget {
                   useSafeArea: true,
                   builder: (context) => VideoPlayerView(
                         video: video,
-                        flickManager: flickManager,
+                        chewieController: chewieController,
                       ));
             },
             child: Row(
@@ -39,7 +38,9 @@ class MiniPlayer extends StatelessWidget {
                 /// senza che si veda il video in modalità mini player
                 SizedBox(
                     width: 0,
-                    child: FlickVideoPlayer(flickManager: flickManager)),
+                    child: Chewie(
+                      controller: chewieController,
+                    )),
                 video?.thumbnailUrl != null
                     ? Image.network(
                         video!.thumbnailUrl!,
@@ -65,8 +66,7 @@ class MiniPlayer extends StatelessWidget {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             StatefulBuilder(builder: (context, setState) {
-              final isPlaying =
-                  flickManager.flickVideoManager?.isPlaying ?? false;
+              final isPlaying = chewieController.isPlaying;
 
               return IconButton(
                   onPressed: () {

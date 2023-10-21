@@ -9,12 +9,12 @@ class MiniPlayerState extends Equatable {
   final MiniPlayerStatus status;
   final String? streamUrl;
   final VideoMT? video;
-  final FlickManager? flickManager;
+  final ChewieController? flickManager;
 
   const MiniPlayerState.loading() : this._(status: MiniPlayerStatus.loading);
   const MiniPlayerState.hidden() : this._(status: MiniPlayerStatus.hidden);
   const MiniPlayerState.shown(
-      String streamUrl, VideoMT video, FlickManager flickManager)
+      String streamUrl, VideoMT video, ChewieController flickManager)
       : this._(
             status: MiniPlayerStatus.shown,
             streamUrl: streamUrl,
