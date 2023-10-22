@@ -43,10 +43,11 @@ class ScaffoldWithNavbarView extends StatelessWidget {
   Widget build(BuildContext context) {
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
+
     return Scaffold(
-      appBar: AppBar(
+      /* appBar: AppBar(
         title: const Text('MyTube'),
-      ),
+      ), */
       body: SafeArea(
         child: Column(
           children: [

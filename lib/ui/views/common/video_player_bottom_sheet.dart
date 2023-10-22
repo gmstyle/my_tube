@@ -1,10 +1,9 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/video_mt.dart';
 
-class VideoPlayerView extends StatelessWidget {
-  const VideoPlayerView(
+class VideoPlayerBottomSheet extends StatelessWidget {
+  const VideoPlayerBottomSheet(
       {super.key, required this.video, required this.chewieController});
 
   final VideoMT? video;
@@ -13,32 +12,34 @@ class VideoPlayerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomSheet(
+      enableDrag: false,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16), topRight: Radius.circular(16))),
       onClosing: () {},
-      builder: (_) => Column(
-        children: [
-          Row(
-            children: [
-              IconButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  icon: const Icon(Icons.close)),
-              Expanded(
-                child: Text(video?.title ?? '',
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall),
+      builder: (_) => Scaffold(
+        appBar: AppBar(
+          title: Text(video?.title ?? ''),
+        ),
+        body: Column(
+          children: [
+            AspectRatio(
+                aspectRatio:
+                    chewieController.videoPlayerController.value.aspectRatio,
+                child: Chewie(controller: chewieController)),
+            const SizedBox(
+              height: 8,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(video?.description ?? ''),
+                ),
               ),
-            ],
-          ),
-          AspectRatio(
-              aspectRatio:
-                  chewieController.videoPlayerController.value.aspectRatio,
-              child: Chewie(controller: chewieController)),
-          // Build a progress video indicator
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

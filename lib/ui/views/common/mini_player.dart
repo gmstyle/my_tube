@@ -21,50 +21,75 @@ class MiniPlayer extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-              child: GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  useSafeArea: true,
-                  builder: (context) => VideoPlayerView(
-                        video: video,
-                        chewieController: chewieController,
-                      ));
-            },
-            child: Row(
-              children: [
-                /// SzedBox con width 0 per far partire il video
-                /// senza che si veda il video in modalità mini player
-                SizedBox(
-                    width: 0,
-                    child: Chewie(
-                      controller: chewieController,
-                    )),
-                video?.thumbnailUrl != null
-                    ? Image.network(
+              child: Row(
+            children: [
+              /// SzedBox con width 0 per far partire il video
+              /// senza che si veda il video in modalità mini player
+              SizedBox(
+                  width: 0,
+                  child: Chewie(
+                    controller: chewieController,
+                  )),
+
+              // Thumbnail
+              video?.thumbnailUrl != null
+                  ? Expanded(
+                      child: Image.network(
                         video!.thumbnailUrl!,
-                      )
-                    : const SizedBox(
-                        child: Icon(Icons.video_collection),
                       ),
-                const SizedBox(
-                  width: 8,
+                    )
+                  :
+                  //TODO: adeguare placeholder
+                  const Expanded(
+                      child: SizedBox(
+                        child: FlutterLogo(),
+                      ),
+                    ),
+              const SizedBox(
+                width: 8,
+              ),
+
+              // Title
+              Expanded(
+                flex: 2,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            video?.title ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 2,
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            video?.channelTitle ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    video?.title ?? '',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           )),
           const SizedBox(
             width: 8,
           ),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            //Play/pause button
             StatefulBuilder(builder: (context, setState) {
               final isPlaying =
                   chewieController.videoPlayerController.value.isPlaying;
@@ -87,6 +112,22 @@ class MiniPlayer extends StatelessWidget {
                   },
                   icon: Icon(icon));
             }),
+
+            // button
+            IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      useSafeArea: true,
+                      builder: (context) => VideoPlayerBottomSheet(
+                            video: video,
+                            chewieController: chewieController,
+                          ));
+                },
+                icon: const Icon(Icons.slideshow)),
+
+            //Close button
             IconButton(
                 onPressed: () {
                   miniPlayerCubit.hideMiniPlayer();
