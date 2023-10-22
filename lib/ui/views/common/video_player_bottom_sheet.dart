@@ -37,6 +37,7 @@ class VideoPlayerView extends StatelessWidget {
               aspectRatio:
                   chewieController.videoPlayerController.value.aspectRatio,
               child: Chewie(controller: chewieController)),
+          // Build a progress video indicator
         ],
       ),
     );

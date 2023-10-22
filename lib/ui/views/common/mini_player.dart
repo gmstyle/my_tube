@@ -66,21 +66,26 @@ class MiniPlayer extends StatelessWidget {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             StatefulBuilder(builder: (context, setState) {
-              final isPlaying = chewieController.isPlaying;
+              final isPlaying =
+                  chewieController.videoPlayerController.value.isPlaying;
+              IconData icon = isPlaying ? Icons.pause : Icons.play_arrow;
+              chewieController.videoPlayerController.addListener(() {
+                setState(() {
+                  icon = isPlaying ? Icons.pause : Icons.play_arrow;
+                });
+              });
 
               return IconButton(
                   onPressed: () {
                     setState(() {
                       if (isPlaying) {
                         miniPlayerCubit.pauseMiniPlayer();
-                        setState(() {});
                       } else {
                         miniPlayerCubit.playMiniPlayer();
-                        setState(() {});
                       }
                     });
                   },
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow));
+                  icon: Icon(icon));
             }),
             IconButton(
                 onPressed: () {

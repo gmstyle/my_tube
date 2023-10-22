@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:chewie/chewie.dart';
 import 'package:equatable/equatable.dart';
@@ -50,5 +52,13 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       videoPlayerController: videoPlayerController,
       autoPlay: true,
     );
+
+    videoPlayerController.addListener(() {
+      if (videoPlayerController.value.position ==
+          videoPlayerController.value.duration) {
+        // TODO: implementare la riproduzione del video successivo
+        log('MiniPlayerCubit: video ended');
+      }
+    });
   }
 }
