@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/providers/youtube_provider.dart';
 
 class ChannelView extends StatelessWidget {
   const ChannelView({super.key, required this.channelId});
@@ -8,7 +7,6 @@ class ChannelView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    YoutubeProvider().getChannelDetails(channelId);
     return Scaffold(
       body: Column(
         children: [

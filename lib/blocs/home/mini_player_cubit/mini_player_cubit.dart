@@ -5,6 +5,7 @@ import 'package:chewie/chewie.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
+import 'package:my_tube/utils/notification_controller.dart';
 import 'package:video_player/video_player.dart';
 
 part 'mini_player_state.dart';
@@ -26,6 +27,8 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       await initPlayer(streamUrl);
       emit(MiniPlayerState.shown(
           streamUrl, videoWithStreamUrl, chewieController));
+      NotificationController.show(
+          video.title!, video.channelTitle!, video.thumbnailUrl!);
     }
   }
 
@@ -33,6 +36,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     videoPlayerController.dispose();
     chewieController.dispose();
     emit(const MiniPlayerState.hidden());
+    NotificationController.cancel();
   }
 
   void pauseMiniPlayer() {

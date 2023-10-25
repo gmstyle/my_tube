@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -11,6 +12,7 @@ import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/utils/notification_controller.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';
@@ -19,6 +21,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('settings');
+
+  await NotificationController.init();
+  await NotificationController.interceptInitialCallActionRequest();
 
   /// Bloc observer
   Bloc.observer = AppBlocObserver();
@@ -59,7 +64,8 @@ void main() async {
           ),
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
-                  youtubeRepository: context.read<YoutubeRepository>())),
+                    youtubeRepository: context.read<YoutubeRepository>(),
+                  )),
         ], child: const MyApp()),
       ),
     ),
