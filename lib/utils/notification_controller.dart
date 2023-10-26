@@ -5,6 +5,11 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 class NotificationController {
   static ReceivedAction? initialCallAction;
 
+  // reuest permission
+  static Future<void> requestPermission() async {
+    AwesomeNotifications().shouldShowRationaleToRequest();
+  }
+
   // init
   static Future<void> init() async {
     AwesomeNotifications().initialize(null, [

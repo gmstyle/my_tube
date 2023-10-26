@@ -22,6 +22,7 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('settings');
 
+  await NotificationController.requestPermission();
   await NotificationController.init();
   await NotificationController.interceptInitialCallActionRequest();
 
