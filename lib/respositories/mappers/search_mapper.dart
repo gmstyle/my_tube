@@ -1,13 +1,12 @@
 import 'package:googleapis/youtube/v3.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/mappers/base_mapper.dart';
-import 'package:my_tube/utils/utils.dart';
 
-class SearchMapper extends BaseMapper<SearchListResponse, VideoResponseMT> {
+class SearchMapper extends BaseMapper<SearchListResponse, ResponseMT> {
   @override
-  VideoResponseMT mapToModel(SearchListResponse data) {
+  ResponseMT mapToModel(SearchListResponse data) {
     final videos = data.items!
-        .map((e) => VideoMT(
+        .map((e) => ResourceMT(
               id: e.id?.videoId,
               title: e.snippet?.title,
               description: e.snippet?.description,
@@ -19,14 +18,14 @@ class SearchMapper extends BaseMapper<SearchListResponse, VideoResponseMT> {
               duration: 0,
             ))
         .toList();
-    return VideoResponseMT(
-      videos: videos,
+    return ResponseMT(
+      resources: videos,
       nextPageToken: data.nextPageToken,
     );
   }
 
   @override
-  SearchListResponse mapToData(VideoResponseMT model) {
+  SearchListResponse mapToData(ResponseMT model) {
     // TODO: implement mapToData
     throw UnimplementedError();
   }

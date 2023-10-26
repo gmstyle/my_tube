@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/utils/utils.dart';
 
@@ -46,9 +46,9 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
   Future<void> _onGetNextPageTrendingVideos(
       GetNextPageTrendingVideos event, Emitter<ExploreTabState> emit) async {
     try {
-      final List<VideoMT> videos = state.status == YoutubeStatus.loaded
-          ? state.response!.videos
-          : const <VideoMT>[];
+      final List<ResourceMT> videos = state.status == YoutubeStatus.loaded
+          ? state.response!.resources
+          : const <ResourceMT>[];
       final musicVideoCategoryId = Utils.getMusicVideoCategoryId(
           jsonDecode(settingsBox.get('categories')));
       final response = await youtubeRepository.getVideos(
@@ -56,12 +56,13 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
           categoryId: musicVideoCategoryId,
           chart: 'mostPopular');
 
-      final newVideos = response.videos;
+      final newVideos = response.resources;
 
       final updatedVideos = [...videos, ...newVideos];
       emit(ExploreTabState.loaded(
-          response: VideoResponseMT(
-              videos: updatedVideos, nextPageToken: response.nextPageToken)));
+          response: ResponseMT(
+              resources: updatedVideos,
+              nextPageToken: response.nextPageToken)));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
     }

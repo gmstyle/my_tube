@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/ui/views/common/resource_tile.dart';
 
 class ExploreTabView extends StatelessWidget {
   ExploreTabView({super.key});
@@ -38,21 +38,21 @@ class ExploreTabView extends StatelessWidget {
                 },
                 child: ListView.builder(
                   controller: _scrollController,
-                  itemCount: state.response!.videos.length,
+                  itemCount: state.response!.resources.length,
                   itemBuilder: (context, index) {
-                    if (index >= state.response!.videos.length) {
+                    if (index >= state.response!.resources.length) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
                     } else {
-                      final video = state.response?.videos[index];
+                      final video = state.response?.resources[index];
                       return GestureDetector(
                           onTap: () async {
                             await context
                                 .read<MiniPlayerCubit>()
                                 .showMiniPlayer(video.id!);
                           },
-                          child: VideoTile(video: video!));
+                          child: ResourceTile(resource: video!));
                     }
                   },
                 ),

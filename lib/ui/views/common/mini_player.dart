@@ -2,14 +2,14 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/common/video_player_bottom_sheet.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer(
       {super.key, required this.video, required this.chewieController});
 
-  final VideoMT? video;
+  final ResourceMT? video;
 
   final ChewieController chewieController;
 

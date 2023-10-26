@@ -1,7 +1,7 @@
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/suggestion_response_mt.dart';
 import 'package:my_tube/models/video_category_mt.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
@@ -30,7 +30,7 @@ class YoutubeRepository {
         .toList();
   }
 
-  Future<VideoResponseMT> getVideos(
+  Future<ResponseMT> getVideos(
       {String? nextPageToken,
       String? categoryId,
       String? chart,
@@ -46,14 +46,14 @@ class YoutubeRepository {
     return videoMapper.mapToModel(response);
   }
 
-  Future<VideoResponseMT> searchContents(
+  Future<ResponseMT> searchContents(
       {required String query, String? nextPageToken}) async {
     final response = await youtubeProvider.searchContents(
         query: query, nextPageToken: nextPageToken);
     return searchMapper.mapToModel(response);
   }
 
-  Future<VideoResponseMT> getSubscribedChannels({String? nextPageToken}) async {
+  Future<ResponseMT> getSubscribedChannels({String? nextPageToken}) async {
     final response = await youtubeProvider.getSubscribedChannels(
         nextPageToken: nextPageToken);
     return activityMapper.mapToModel(response);

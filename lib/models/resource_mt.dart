@@ -1,33 +1,33 @@
 import 'package:equatable/equatable.dart';
 
-class VideoResponseMT extends Equatable {
-  final List<VideoMT> videos;
+class ResponseMT extends Equatable {
+  final List<ResourceMT> resources;
   final String? nextPageToken;
 
-  const VideoResponseMT({required this.videos, required this.nextPageToken});
+  const ResponseMT({required this.resources, required this.nextPageToken});
 
-  factory VideoResponseMT.fromJson(Map<String, dynamic> json) {
+  factory ResponseMT.fromJson(Map<String, dynamic> json) {
     final videos = (json['videos'] as List)
-        .map((e) => VideoMT.fromJson(e as Map<String, dynamic>))
+        .map((e) => ResourceMT.fromJson(e as Map<String, dynamic>))
         .toList();
-    return VideoResponseMT(
-      videos: videos,
+    return ResponseMT(
+      resources: videos,
       nextPageToken: json['nextPageToken'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'videos': videos,
+      'videos': resources,
       'nextPageToken': nextPageToken,
     };
   }
 
   @override
-  List<Object?> get props => [videos, nextPageToken];
+  List<Object?> get props => [resources, nextPageToken];
 }
 
-class VideoMT extends Equatable {
+class ResourceMT extends Equatable {
   final String? id;
   final String? title;
   final String? description;
@@ -38,7 +38,7 @@ class VideoMT extends Equatable {
   final String? streamUrl;
   final int? duration;
 
-  const VideoMT({
+  const ResourceMT({
     required this.id,
     required this.title,
     required this.description,
@@ -50,8 +50,8 @@ class VideoMT extends Equatable {
     required this.duration,
   });
 
-  factory VideoMT.fromJson(Map<String, dynamic> json) {
-    return VideoMT(
+  factory ResourceMT.fromJson(Map<String, dynamic> json) {
+    return ResourceMT(
       id: json['id'] as String?,
       title: json['title'] as String?,
       description: json['description'] as String?,
@@ -78,7 +78,7 @@ class VideoMT extends Equatable {
     };
   }
 
-  VideoMT copyWith({
+  ResourceMT copyWith({
     String? id,
     String? title,
     String? description,
@@ -89,7 +89,7 @@ class VideoMT extends Equatable {
     String? streamUrl,
     int? duration,
   }) {
-    return VideoMT(
+    return ResourceMT(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,

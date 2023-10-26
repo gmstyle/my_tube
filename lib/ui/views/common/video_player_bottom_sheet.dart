@@ -1,12 +1,12 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 
 class VideoPlayerBottomSheet extends StatelessWidget {
   const VideoPlayerBottomSheet(
       {super.key, required this.video, required this.chewieController});
 
-  final VideoMT? video;
+  final ResourceMT? video;
   final ChewieController chewieController;
 
   @override

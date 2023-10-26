@@ -7,11 +7,11 @@ class SubscriptionState extends Equatable {
 
   final SubscriptionStatus status;
   final String? error;
-  final VideoResponseMT? response;
+  final ResponseMT? response;
 
   const SubscriptionState.loading()
       : this._(status: SubscriptionStatus.loading);
-  const SubscriptionState.loaded({required VideoResponseMT response})
+  const SubscriptionState.loaded({required ResponseMT response})
       : this._(
           status: SubscriptionStatus.loaded,
           response: response,

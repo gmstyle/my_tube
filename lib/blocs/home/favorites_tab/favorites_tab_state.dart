@@ -11,10 +11,10 @@ class FavoritesTabState extends Equatable {
 
   final FavoritesStatus status;
   final String? error;
-  final VideoResponseMT? response;
+  final ResponseMT? response;
 
   const FavoritesTabState.loading() : this._(status: FavoritesStatus.loading);
-  const FavoritesTabState.loaded({required VideoResponseMT response})
+  const FavoritesTabState.loaded({required ResponseMT response})
       : this._(
           status: FavoritesStatus.success,
           response: response,

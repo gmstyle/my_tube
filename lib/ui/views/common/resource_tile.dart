@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 
-class VideoTile extends StatelessWidget {
-  const VideoTile({super.key, required this.video});
+class ResourceTile extends StatelessWidget {
+  const ResourceTile({super.key, required this.resource});
 
-  final VideoMT video;
+  final ResourceMT resource;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       trailing: setTrailingIcon(),
-      leading: video.thumbnailUrl != null
+      leading: resource.thumbnailUrl != null
           ? Image.network(
-              video.thumbnailUrl!,
+              resource.thumbnailUrl!,
             )
           : const SizedBox(
               child: Icon(Icons.place),
             ),
       title: Text(
-        video.title ?? '',
+        resource.title ?? '',
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      subtitle: Text(video.channelTitle ?? ''),
+      subtitle: Text(resource.channelTitle ?? ''),
     );
   }
 
   Icon? setTrailingIcon() {
-    switch (video.kind) {
+    switch (resource.kind) {
       case 'youtube#channel':
         return const Icon(Icons.video_collection);
       case 'youtube#playlist':

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 
 part 'search_event.dart';
@@ -39,18 +39,18 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   Future<void> _onGetNextPageSearchContents(
       GetNextPageSearchContents event, Emitter<SearchState> emit) async {
     try {
-      final List<VideoMT> videos = state.status == SearchStatus.success
-          ? state.result!.videos
-          : const <VideoMT>[];
+      final List<ResourceMT> videos = state.status == SearchStatus.success
+          ? state.result!.resources
+          : const <ResourceMT>[];
 
       final result = await youtubeRepository.searchContents(
           query: event.query, nextPageToken: event.nextPageToken);
 
-      final newVideos = result.videos;
+      final newVideos = result.resources;
 
       final updatedVideos = [...videos, ...newVideos];
-      emit(SearchState.success(VideoResponseMT(
-          videos: updatedVideos, nextPageToken: result.nextPageToken)));
+      emit(SearchState.success(ResponseMT(
+          resources: updatedVideos, nextPageToken: result.nextPageToken)));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
     }

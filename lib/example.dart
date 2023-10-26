@@ -208,8 +208,9 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
 
     AudioProcessingState _processingState() {
       if (videoPlayerController == null) return AudioProcessingState.idle;
-      if (videoPlayerController.value.isInitialized)
+      if (videoPlayerController.value.isInitialized) {
         return AudioProcessingState.ready;
+      }
       return AudioProcessingState.idle;
     }
 

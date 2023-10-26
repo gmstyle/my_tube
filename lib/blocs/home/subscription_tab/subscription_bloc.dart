@@ -1,8 +1,7 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 
 part 'subscription_event.dart';
@@ -37,18 +36,19 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
   Future<void> _onGetNextPageSubscriptions(
       GetNextPageSubscriptions event, Emitter<SubscriptionState> emit) async {
     try {
-      final List<VideoMT> videos = state.status == SubscriptionStatus.loaded
-          ? state.response!.videos
-          : const <VideoMT>[];
+      final List<ResourceMT> videos = state.status == SubscriptionStatus.loaded
+          ? state.response!.resources
+          : const <ResourceMT>[];
       final response = await youtubeRepository.getSubscribedChannels(
           nextPageToken: event.nextPageToken);
 
-      final newVideos = response.videos;
+      final newVideos = response.resources;
 
       final updatedVideos = [...videos, ...newVideos];
       emit(SubscriptionState.loaded(
-          response: VideoResponseMT(
-              videos: updatedVideos, nextPageToken: response.nextPageToken)));
+          response: ResponseMT(
+              resources: updatedVideos,
+              nextPageToken: response.nextPageToken)));
     } catch (error) {
       emit(SubscriptionState.error(error: error.toString()));
     }

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/subscription_tab/subscription_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/ui/views/common/resource_tile.dart';
 
 class SubscriptionTabView extends StatelessWidget {
   SubscriptionTabView({super.key});
@@ -36,21 +36,21 @@ class SubscriptionTabView extends StatelessWidget {
               },
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: state.response!.videos.length,
+                itemCount: state.response!.resources.length,
                 itemBuilder: (context, index) {
-                  if (index >= state.response!.videos.length) {
+                  if (index >= state.response!.resources.length) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
                   } else {
-                    final video = state.response!.videos[index];
+                    final video = state.response!.resources[index];
                     return GestureDetector(
                         onTap: () {
                           context.go(
                               '${AppRoute.subscriptions.path}/${AppRoute.channel.path}',
                               extra: {'channelId': video.channelId!});
                         },
-                        child: VideoTile(video: video));
+                        child: ResourceTile(resource: video));
                   }
                 },
               ),

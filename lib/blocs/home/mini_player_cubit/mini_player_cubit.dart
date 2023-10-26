@@ -1,10 +1,9 @@
-import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:chewie/chewie.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:video_player/video_player.dart';
@@ -25,9 +24,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.loading());
 
     final streamUrl = await youtubeRepository.getStreamUrl(videoId);
-    final videoresponse = await youtubeRepository.getVideos(videoId: videoId);
+    final response = await youtubeRepository.getVideos(videoId: videoId);
     final videoWithStreamUrl =
-        videoresponse.videos.first.copyWith(streamUrl: streamUrl);
+        response.resources.first.copyWith(streamUrl: streamUrl);
     await initPlayer(videoWithStreamUrl);
     emit(MiniPlayerState.shown(
         streamUrl, videoWithStreamUrl, chewieController, mtPlayerHandler));
@@ -48,9 +47,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     chewieController.play();
   }
 
-  Future<void> initPlayer(VideoMT videoMT) async {
+  Future<void> initPlayer(ResourceMT video) async {
     videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(videoMT.streamUrl!),
+        Uri.parse(video.streamUrl!),
         videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
     await videoPlayerController.initialize();
 
@@ -65,20 +64,12 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       chewieController.pause();
     },
         MediaItem(
-            id: videoMT.id!,
-            title: videoMT.title!,
-            album: videoMT.channelTitle!,
-            artUri: Uri.parse(videoMT.thumbnailUrl!)));
+            id: video.id!,
+            title: video.title!,
+            album: video.channelTitle!,
+            artUri: Uri.parse(video.thumbnailUrl!)));
     mtPlayerHandler.initializeStreamController(chewieController);
     mtPlayerHandler.playbackState
         .addStream(mtPlayerHandler.streamController.stream);
-
-    /*  videoPlayerController.addListener(() {
-      if (videoPlayerController.value.position ==
-          videoPlayerController.value.duration) {
-        // TODO: implementare la riproduzione del video successivo
-        log('MiniPlayerCubit: video ended');
-      }
-    }); */
   }
 }

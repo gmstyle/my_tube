@@ -1,13 +1,13 @@
 import 'package:googleapis/youtube/v3.dart';
-import 'package:my_tube/models/video_mt.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/mappers/base_mapper.dart';
 
 class SubscriptionMapper
-    extends BaseMapper<SubscriptionListResponse, VideoResponseMT> {
+    extends BaseMapper<SubscriptionListResponse, ResponseMT> {
   @override
-  VideoResponseMT mapToModel(SubscriptionListResponse data) {
+  ResponseMT mapToModel(SubscriptionListResponse data) {
     final activities = data.items!
-        .map((e) => VideoMT(
+        .map((e) => ResourceMT(
               id: e.id,
               title: e.snippet?.title,
               description: e.snippet?.description,
@@ -20,14 +20,14 @@ class SubscriptionMapper
             ))
         .toList();
 
-    return VideoResponseMT(
-      videos: activities,
+    return ResponseMT(
+      resources: activities,
       nextPageToken: data.nextPageToken,
     );
   }
 
   @override
-  SubscriptionListResponse mapToData(VideoResponseMT model) {
+  SubscriptionListResponse mapToData(ResponseMT model) {
     throw UnimplementedError();
   }
 }

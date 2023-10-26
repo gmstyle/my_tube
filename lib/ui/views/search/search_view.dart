@@ -5,7 +5,7 @@ import 'package:my_tube/blocs/home/cubit/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/ui/views/common/resource_tile.dart';
 
 // ignore: must_be_immutable
 class SearchView extends StatelessWidget {
@@ -157,11 +157,11 @@ class SearchView extends StatelessWidget {
                 }
                 return false;
               },
-              child: state.result!.videos.isNotEmpty
+              child: state.result!.resources.isNotEmpty
                   ? ListView.builder(
-                      itemCount: state.result!.videos.length,
+                      itemCount: state.result!.resources.length,
                       itemBuilder: (context, index) {
-                        final result = state.result!.videos[index];
+                        final result = state.result!.resources[index];
                         return GestureDetector(
                             onTap: () {
                               if (result.kind == 'youtube#video') {
@@ -174,7 +174,7 @@ class SearchView extends StatelessWidget {
                                     extra: {'channelId': result.channelId!});
                               }
                             },
-                            child: VideoTile(video: result));
+                            child: ResourceTile(resource: result));
                       })
                   : const Center(child: Text('No results found')),
             );
