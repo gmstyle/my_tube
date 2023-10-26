@@ -16,6 +16,7 @@ class SubscriptionMapper
               thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
               channelTitle: e.snippet?.channelTitle,
               streamUrl: '',
+              duration: 0,
             ))
         .toList();
 

@@ -48,7 +48,7 @@ class FavoritesTabView extends StatelessWidget {
                         onTap: () async {
                           await context
                               .read<MiniPlayerCubit>()
-                              .showMiniPlayer(video);
+                              .showMiniPlayer(video.id!);
                         },
                         child: VideoTile(video: video!));
                   }

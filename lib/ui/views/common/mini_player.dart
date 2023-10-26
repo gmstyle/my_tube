@@ -90,7 +90,23 @@ class MiniPlayer extends StatelessWidget {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             //Play/pause button
-            StatefulBuilder(builder: (context, setState) {
+            StreamBuilder(
+                stream: miniPlayerCubit.mtPlayerHandler.playbackState
+                    .map((playbackState) => playbackState.playing)
+                    .distinct(),
+                builder: (context, snapshot) {
+                  final isPlaying = snapshot.data ?? false;
+                  return IconButton(
+                      onPressed: () {
+                        if (isPlaying) {
+                          miniPlayerCubit.pauseMiniPlayer();
+                        } else {
+                          miniPlayerCubit.playMiniPlayer();
+                        }
+                      },
+                      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow));
+                }),
+            /* StatefulBuilder(builder: (context, setState) {
               final isPlaying =
                   chewieController.videoPlayerController.value.isPlaying;
               IconData icon = isPlaying ? Icons.pause : Icons.play_arrow;
@@ -112,7 +128,7 @@ class MiniPlayer extends StatelessWidget {
                   },
                   icon: Icon(icon));
             }),
-
+ */
             // button
             IconButton(
                 onPressed: () {

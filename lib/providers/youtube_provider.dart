@@ -54,7 +54,8 @@ class YoutubeProvider {
       {String? nextPageToken,
       String? categoryId,
       String? chart,
-      String? myRating}) async {
+      String? myRating,
+      String? videoId}) async {
     try {
       final autClient = await _getAuthClient();
 
@@ -62,6 +63,7 @@ class YoutubeProvider {
 
       final videos = await youtubeApi.videos.list(
           ['snippet', 'contentDetails', 'statistics'],
+          id: videoId != null ? [videoId] : null,
           chart: chart,
           myRating: myRating,
           videoCategoryId: categoryId,

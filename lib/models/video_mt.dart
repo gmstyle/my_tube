@@ -36,6 +36,7 @@ class VideoMT extends Equatable {
   final String? kind;
   final String? channelId;
   final String? streamUrl;
+  final int? duration;
 
   const VideoMT({
     required this.id,
@@ -46,6 +47,7 @@ class VideoMT extends Equatable {
     required this.kind,
     required this.channelId,
     required this.streamUrl,
+    required this.duration,
   });
 
   factory VideoMT.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class VideoMT extends Equatable {
       kind: json['kind'] as String?,
       channelId: json['channelId'] as String?,
       streamUrl: json['streamUrl'] as String?,
+      duration: json['duration'] as int?,
     );
   }
 
@@ -71,6 +74,7 @@ class VideoMT extends Equatable {
       'kind': kind,
       'channelId': channelId,
       'streamUrl': streamUrl,
+      'duration': duration,
     };
   }
 
@@ -83,6 +87,7 @@ class VideoMT extends Equatable {
     String? kind,
     String? channelId,
     String? streamUrl,
+    int? duration,
   }) {
     return VideoMT(
       id: id ?? this.id,
@@ -93,6 +98,7 @@ class VideoMT extends Equatable {
       kind: kind ?? this.kind,
       channelId: channelId ?? this.channelId,
       streamUrl: streamUrl ?? this.streamUrl,
+      duration: duration ?? this.duration,
     );
   }
 
@@ -105,6 +111,7 @@ class VideoMT extends Equatable {
         thumbnailUrl,
         kind,
         channelId,
-        streamUrl
+        streamUrl,
+        duration,
       ];
 }

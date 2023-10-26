@@ -1,4 +1,4 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -12,7 +12,7 @@ import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/utils/notification_controller.dart';
+import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';
@@ -21,10 +21,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('settings');
-
-  await NotificationController.requestPermission();
-  await NotificationController.init();
-  await NotificationController.interceptInitialCallActionRequest();
+  final mtPlayerHandler = await AudioService.init(
+      builder: () => MtPlayerHandler(),
+      config: const AudioServiceConfig(
+          //androidNotificationChannelId: 'mytube_channel',
+          //androidNotificationChannelName: 'MyTube',
+          androidNotificationOngoing: true));
 
   /// Bloc observer
   Bloc.observer = AppBlocObserver();
@@ -34,6 +36,7 @@ void main() async {
       /// Providers
       Provider<AuthProvider>(create: (context) => AuthProvider()),
       Provider<YoutubeProvider>(create: (context) => YoutubeProvider()),
+      Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler),
     ],
     child: MultiProvider(
       providers: [
@@ -66,6 +69,7 @@ void main() async {
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
                     youtubeRepository: context.read<YoutubeRepository>(),
+                    mtPlayerHandler: context.read<MtPlayerHandler>(),
                   )),
         ], child: const MyApp()),
       ),

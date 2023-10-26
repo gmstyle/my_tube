@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
@@ -51,7 +50,7 @@ class ExploreTabView extends StatelessWidget {
                           onTap: () async {
                             await context
                                 .read<MiniPlayerCubit>()
-                                .showMiniPlayer(video);
+                                .showMiniPlayer(video.id!);
                           },
                           child: VideoTile(video: video!));
                     }

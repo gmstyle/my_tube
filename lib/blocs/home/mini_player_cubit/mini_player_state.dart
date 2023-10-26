@@ -7,22 +7,25 @@ class MiniPlayerState extends Equatable {
       {required this.status,
       this.streamUrl,
       this.video,
-      this.chewieController});
+      this.chewieController,
+      this.mtPlayerHandler});
 
   final MiniPlayerStatus status;
   final String? streamUrl;
   final VideoMT? video;
   final ChewieController? chewieController;
+  final MtPlayerHandler? mtPlayerHandler;
 
   const MiniPlayerState.loading() : this._(status: MiniPlayerStatus.loading);
   const MiniPlayerState.hidden() : this._(status: MiniPlayerStatus.hidden);
-  const MiniPlayerState.shown(
-      String streamUrl, VideoMT video, ChewieController flickManager)
+  const MiniPlayerState.shown(String streamUrl, VideoMT video,
+      ChewieController chewieController, MtPlayerHandler mtPlayerHandler)
       : this._(
             status: MiniPlayerStatus.shown,
             streamUrl: streamUrl,
             video: video,
-            chewieController: flickManager);
+            chewieController: chewieController,
+            mtPlayerHandler: mtPlayerHandler);
 
   @override
   List<Object?> get props => [status, streamUrl];

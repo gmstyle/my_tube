@@ -1,6 +1,7 @@
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/video_mt.dart';
 import 'package:my_tube/respositories/mappers/base_mapper.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class SearchMapper extends BaseMapper<SearchListResponse, VideoResponseMT> {
   @override
@@ -15,6 +16,7 @@ class SearchMapper extends BaseMapper<SearchListResponse, VideoResponseMT> {
               kind: e.id?.kind,
               channelId: e.snippet?.channelId,
               streamUrl: '',
+              duration: 0,
             ))
         .toList();
     return VideoResponseMT(
