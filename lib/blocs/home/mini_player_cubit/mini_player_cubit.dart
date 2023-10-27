@@ -16,9 +16,6 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       {required this.youtubeRepository, required this.mtPlayerHandler})
       : super(const MiniPlayerState.hidden());
 
-  late VideoPlayerController videoPlayerController;
-  late ChewieController chewieController;
-
   Future<void> showMiniPlayer(String videoId) async {
     emit(const MiniPlayerState.loading());
 
@@ -27,44 +24,25 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     final videoWithStreamUrl =
         response.resources.first.copyWith(streamUrl: streamUrl);
     await initPlayer(videoWithStreamUrl);
-    emit(MiniPlayerState.shown(
-        streamUrl, videoWithStreamUrl, chewieController, mtPlayerHandler));
+    emit(MiniPlayerState.shown(streamUrl, videoWithStreamUrl,
+        mtPlayerHandler.chewieController, mtPlayerHandler));
   }
 
   void hideMiniPlayer() {
-    mtPlayerHandler.streamController.close();
-    videoPlayerController.dispose();
-    chewieController.dispose();
+    mtPlayerHandler.chewieController.dispose();
+    mtPlayerHandler.videoPlayerController.dispose();
     emit(const MiniPlayerState.hidden());
   }
 
   void pauseMiniPlayer() {
-    chewieController.pause();
+    mtPlayerHandler.chewieController.pause();
   }
 
   void playMiniPlayer() {
-    chewieController.play();
+    mtPlayerHandler.chewieController.play();
   }
 
   Future<void> initPlayer(ResourceMT video) async {
-    videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(video.streamUrl!),
-        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
-    await videoPlayerController.initialize();
-
-    chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
-      autoPlay: true,
-    );
-    mtPlayerHandler.setVideoFunctions(
-        chewieController.play, chewieController.pause, chewieController.seekTo,
-        () {
-      chewieController.seekTo(Duration.zero);
-      chewieController.pause();
-    });
-    mtPlayerHandler.setMediaItem(video);
-    mtPlayerHandler.initializeStreamController(chewieController);
-    mtPlayerHandler.playbackState
-        .addStream(mtPlayerHandler.streamController.stream);
+    await mtPlayerHandler.setMediaItem(video);
   }
 }

@@ -3,37 +3,41 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/utils/utils.dart';
+import 'package:video_player/video_player.dart';
 
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
-  late StreamController<PlaybackState> streamController;
-
-  Function? _videoPlay;
-  Function? _videoPause;
-  Function? _videoStop;
-  Function? _videoSeek;
+  late VideoPlayerController videoPlayerController;
+  late ChewieController chewieController;
 
   @override
-  Future<void> play() {
-    return _videoPlay!();
+  Future<void> play() async {
+    await chewieController.play();
   }
 
   @override
-  Future<void> pause() {
-    return _videoPause!();
+  Future<void> pause() async {
+    await chewieController.pause();
   }
 
   @override
-  Future<void> stop() {
-    return _videoStop!();
+  Future<void> stop() async {
+    await chewieController.pause();
   }
 
   @override
-  Future<void> seek(Duration position) {
-    return _videoSeek!(position);
+  Future<void> seek(Duration position) async {
+    await chewieController.seekTo(position);
   }
 
-  void setMediaItem(ResourceMT video) {
+  Future<void> setMediaItem(ResourceMT video) async {
+    videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(video.streamUrl!),
+        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
+    await videoPlayerController.initialize();
+    chewieController = ChewieController(
+      videoPlayerController: videoPlayerController,
+      autoPlay: true,
+    );
     final item = MediaItem(
         id: video.id!,
         title: video.title!,
@@ -41,17 +45,12 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         artUri: Uri.parse(video.thumbnailUrl!),
         duration: Duration(milliseconds: video.duration!));
     mediaItem.add(item);
+
+    // propagate all events from the video player controller to AudioService clients
+    chewieController.addListener(broadcastState);
   }
 
-  void setVideoFunctions(Function videoPlay, Function videoPause,
-      Function videoStop, Function seek) {
-    _videoPlay = videoPlay;
-    _videoPause = videoPause;
-    _videoStop = videoStop;
-    _videoSeek = seek;
-  }
-
-  void initializeStreamController(ChewieController chewieController) {
+  void broadcastState() {
     bool isPlaying() => chewieController.videoPlayerController.value.isPlaying;
 
     AudioProcessingState audioProcessingState() {
@@ -61,54 +60,23 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       return AudioProcessingState.idle;
     }
 
-    Duration bufferedPosition() {
-      final cachedValue = chewieController.videoPlayerController.value;
-      if (cachedValue.isInitialized) {
-        return cachedValue.buffered.isEmpty
-            ? Duration.zero
-            : cachedValue.buffered.last.end;
-      }
-      return Duration.zero;
-    }
-
-    void addVideoEvent() {
-      streamController.add(PlaybackState(
-          controls: [
-            MediaControl.rewind,
-            if (isPlaying()) MediaControl.pause else MediaControl.play,
-            MediaControl.stop,
-            MediaControl.fastForward
-          ],
-          systemActions: {
-            MediaAction.seek,
-            MediaAction.seekForward,
-            MediaAction.seekBackward
-          },
-          androidCompactActionIndices: [
-            0,
-            1,
-            3
-          ],
-          processingState: audioProcessingState(),
-          playing: isPlaying(),
-          updatePosition: chewieController.videoPlayerController.value.position,
-          bufferedPosition: bufferedPosition(),
-          speed: chewieController.videoPlayerController.value.playbackSpeed));
-    }
-
-    void startStream() {
-      chewieController.videoPlayerController.addListener(addVideoEvent);
-    }
-
-    void stopStream() {
-      chewieController.videoPlayerController.removeListener(addVideoEvent);
-      streamController.close();
-    }
-
-    streamController = StreamController<PlaybackState>(
-        onListen: startStream,
-        onPause: stopStream,
-        onResume: startStream,
-        onCancel: stopStream);
+    playbackState.add(playbackState.value.copyWith(
+      controls: [
+        MediaControl.skipToPrevious,
+        if (playbackState.value.playing)
+          MediaControl.pause
+        else
+          MediaControl.play,
+        MediaControl.skipToNext,
+      ],
+      systemActions: const {
+        MediaAction.seek,
+      },
+      androidCompactActionIndices: const [0, 1, 2],
+      processingState: audioProcessingState(),
+      playing: isPlaying(),
+      updatePosition: chewieController.videoPlayerController.value.position,
+      speed: chewieController.videoPlayerController.value.playbackSpeed,
+    ));
   }
 }
