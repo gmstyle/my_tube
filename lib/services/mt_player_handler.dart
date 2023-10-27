@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:video_player/video_player.dart';
 
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
@@ -33,7 +34,12 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   void setVideoFunctions(Function videoPlay, Function videoPause,
-      Function videoStop, Function seek, MediaItem item) {
+      Function videoStop, Function seek, ResourceMT video) {
+    final item = MediaItem(
+        id: video.id!,
+        title: video.title!,
+        album: video.channelTitle!,
+        artUri: Uri.parse(video.thumbnailUrl!));
     _videoPlay = videoPlay;
     _videoPause = videoPause;
     _videoStop = videoStop;
@@ -52,19 +58,13 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
 
     Duration _bufferedPosition() {
-      DurationRange? currentBufferedRange = chewieController
-          .videoPlayerController.value.buffered
-          .firstWhere((durationRange) {
-        Duration position =
-            chewieController.videoPlayerController.value.position;
-        bool isCurrentBufferedRange =
-            durationRange.start < position && durationRange.end > position;
-        return isCurrentBufferedRange;
-      });
-      if (currentBufferedRange == null) {
-        return Duration.zero;
+      final cachedValue = chewieController.videoPlayerController.value;
+      if (cachedValue.isInitialized) {
+        return cachedValue.buffered.isEmpty
+            ? Duration.zero
+            : cachedValue.buffered.last.end;
       }
-      return currentBufferedRange.end;
+      return Duration.zero;
     }
 
     void _addVideoEvent() {

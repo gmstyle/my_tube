@@ -1,4 +1,3 @@
-
 import 'package:audio_service/audio_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:chewie/chewie.dart';
@@ -62,12 +61,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
         () {
       chewieController.seekTo(Duration.zero);
       chewieController.pause();
-    },
-        MediaItem(
-            id: video.id!,
-            title: video.title!,
-            album: video.channelTitle!,
-            artUri: Uri.parse(video.thumbnailUrl!)));
+    }, video);
     mtPlayerHandler.initializeStreamController(chewieController);
     mtPlayerHandler.playbackState
         .addStream(mtPlayerHandler.streamController.stream);
