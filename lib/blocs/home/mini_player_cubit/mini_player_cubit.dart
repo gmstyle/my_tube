@@ -61,7 +61,8 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
         () {
       chewieController.seekTo(Duration.zero);
       chewieController.pause();
-    }, video);
+    });
+    mtPlayerHandler.setMediaItem(video);
     mtPlayerHandler.initializeStreamController(chewieController);
     mtPlayerHandler.playbackState
         .addStream(mtPlayerHandler.streamController.stream);

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:video_player/video_player.dart';
 
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   late StreamController<PlaybackState> streamController;
@@ -33,31 +32,34 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     return _videoSeek!(position);
   }
 
-  void setVideoFunctions(Function videoPlay, Function videoPause,
-      Function videoStop, Function seek, ResourceMT video) {
+  void setMediaItem(ResourceMT video) {
     final item = MediaItem(
         id: video.id!,
         title: video.title!,
         album: video.channelTitle!,
         artUri: Uri.parse(video.thumbnailUrl!));
+    mediaItem.add(item);
+  }
+
+  void setVideoFunctions(Function videoPlay, Function videoPause,
+      Function videoStop, Function seek) {
     _videoPlay = videoPlay;
     _videoPause = videoPause;
     _videoStop = videoStop;
     _videoSeek = seek;
-    mediaItem.add(item);
   }
 
   void initializeStreamController(ChewieController chewieController) {
-    bool _isPlaying() => chewieController.videoPlayerController.value.isPlaying;
+    bool isPlaying() => chewieController.videoPlayerController.value.isPlaying;
 
-    AudioProcessingState _audioProcessingState() {
+    AudioProcessingState audioProcessingState() {
       if (chewieController.videoPlayerController.value.isInitialized) {
         return AudioProcessingState.ready;
       }
       return AudioProcessingState.idle;
     }
 
-    Duration _bufferedPosition() {
+    Duration bufferedPosition() {
       final cachedValue = chewieController.videoPlayerController.value;
       if (cachedValue.isInitialized) {
         return cachedValue.buffered.isEmpty
@@ -67,11 +69,11 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       return Duration.zero;
     }
 
-    void _addVideoEvent() {
+    void addVideoEvent() {
       streamController.add(PlaybackState(
           controls: [
             MediaControl.rewind,
-            if (_isPlaying()) MediaControl.pause else MediaControl.play,
+            if (isPlaying()) MediaControl.pause else MediaControl.play,
             MediaControl.stop,
             MediaControl.fastForward
           ],
@@ -85,19 +87,19 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
             1,
             3
           ],
-          processingState: _audioProcessingState(),
-          playing: _isPlaying(),
+          processingState: audioProcessingState(),
+          playing: isPlaying(),
           updatePosition: chewieController.videoPlayerController.value.position,
-          bufferedPosition: _bufferedPosition(),
+          bufferedPosition: bufferedPosition(),
           speed: chewieController.videoPlayerController.value.playbackSpeed));
     }
 
     void startStream() {
-      chewieController.videoPlayerController.addListener(_addVideoEvent);
+      chewieController.videoPlayerController.addListener(addVideoEvent);
     }
 
     void stopStream() {
-      chewieController.videoPlayerController.removeListener(_addVideoEvent);
+      chewieController.videoPlayerController.removeListener(addVideoEvent);
       streamController.close();
     }
 
