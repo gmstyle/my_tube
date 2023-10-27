@@ -11,22 +11,23 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   @override
   Future<void> play() async {
-    await chewieController.play();
+    await chewieController.videoPlayerController.play();
   }
 
   @override
   Future<void> pause() async {
-    await chewieController.pause();
+    await chewieController.videoPlayerController.pause();
   }
 
   @override
   Future<void> stop() async {
-    await chewieController.pause();
+    await chewieController.videoPlayerController.pause();
+    await chewieController.videoPlayerController.seekTo(Duration.zero);
   }
 
   @override
   Future<void> seek(Duration position) async {
-    await chewieController.seekTo(position);
+    await chewieController.videoPlayerController.seekTo(position);
   }
 
   Future<void> startPlaying(ResourceMT video) async {
@@ -74,6 +75,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         else
           MediaControl.play,
         MediaControl.skipToNext,
+        MediaControl.stop,
       ],
       systemActions: const {
         MediaAction.seek,
