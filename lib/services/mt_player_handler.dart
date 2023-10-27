@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   late StreamController<PlaybackState> streamController;
@@ -37,7 +38,8 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         id: video.id!,
         title: video.title!,
         album: video.channelTitle!,
-        artUri: Uri.parse(video.thumbnailUrl!));
+        artUri: Uri.parse(video.thumbnailUrl!),
+        duration: Duration(milliseconds: video.duration!));
     mediaItem.add(item);
   }
 
