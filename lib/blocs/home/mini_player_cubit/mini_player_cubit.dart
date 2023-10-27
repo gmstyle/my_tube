@@ -43,6 +43,6 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   }
 
   Future<void> initPlayer(ResourceMT video) async {
-    await mtPlayerHandler.setMediaItem(video);
+    await mtPlayerHandler.startPlaying(video);
   }
 }

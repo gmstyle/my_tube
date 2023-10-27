@@ -21,69 +21,74 @@ class MiniPlayer extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-              child: Row(
-            children: [
-              /// SzedBox con width 0 per far partire il video
-              /// senza che si veda il video in modalità mini player
-              SizedBox(
-                  width: 0,
-                  child: Chewie(
-                    controller: chewieController,
-                  )),
+              child: GestureDetector(
+            child: Row(
+              children: [
+                /// SzedBox con width 0 per far partire il video
+                /// senza che si veda il video in modalità mini player
+                SizedBox(
+                    width: 0,
+                    child: Chewie(
+                      controller: chewieController,
+                    )),
 
-              // Thumbnail
-              video?.thumbnailUrl != null
-                  ? Expanded(
-                      child: Image.network(
-                        video!.thumbnailUrl!,
-                      ),
-                    )
-                  :
-                  //TODO: adeguare placeholder
-                  const Expanded(
-                      child: SizedBox(
-                        child: FlutterLogo(),
-                      ),
-                    ),
-              const SizedBox(
-                width: 8,
-              ),
-
-              // Title
-              Expanded(
-                flex: 2,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            video?.title ?? '',
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
+                // Thumbnail
+                video?.thumbnailUrl != null
+                    ? Expanded(
+                        child: Image.network(
+                          video!.thumbnailUrl!,
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 2,
-                    ),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            video?.channelTitle ?? '',
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
+                      )
+                    :
+                    //TODO: adeguare placeholder
+                    const Expanded(
+                        child: SizedBox(
+                          child: FlutterLogo(),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                const SizedBox(
+                  width: 8,
                 ),
-              ),
-            ],
+
+                // Title
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              video?.title ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 2,
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              video?.channelTitle ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            onTap: () {
+              showVideoPlayerBottomSheet(context);
+            },
           )),
           const SizedBox(
             width: 8,
@@ -106,52 +111,34 @@ class MiniPlayer extends StatelessWidget {
                       },
                       icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow));
                 }),
-            /* StatefulBuilder(builder: (context, setState) {
-              final isPlaying =
-                  chewieController.videoPlayerController.value.isPlaying;
-              IconData icon = isPlaying ? Icons.pause : Icons.play_arrow;
-              chewieController.videoPlayerController.addListener(() {
-                setState(() {
-                  icon = isPlaying ? Icons.pause : Icons.play_arrow;
-                });
-              });
-
-              return IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (isPlaying) {
-                        miniPlayerCubit.pauseMiniPlayer();
-                      } else {
-                        miniPlayerCubit.playMiniPlayer();
-                      }
-                    });
-                  },
-                  icon: Icon(icon));
-            }),
- */
-            // button
-            IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      useSafeArea: true,
-                      builder: (context) => VideoPlayerBottomSheet(
-                            video: video,
-                            chewieController: chewieController,
-                          ));
-                },
-                icon: const Icon(Icons.slideshow)),
 
             //Close button
             IconButton(
                 onPressed: () {
                   miniPlayerCubit.hideMiniPlayer();
                 },
-                icon: const Icon(Icons.close)),
+                icon: const Icon(Icons.stop)),
+
+            // button
+            IconButton(
+                onPressed: () {
+                  showVideoPlayerBottomSheet(context);
+                },
+                icon: const Icon(Icons.expand_less)),
           ]),
         ],
       ),
     );
+  }
+
+  void showVideoPlayerBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (context) => VideoPlayerBottomSheet(
+              video: video,
+              chewieController: chewieController,
+            ));
   }
 }

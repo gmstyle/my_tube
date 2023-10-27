@@ -29,15 +29,20 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     await chewieController.seekTo(position);
   }
 
-  Future<void> setMediaItem(ResourceMT video) async {
+  Future<void> startPlaying(ResourceMT video) async {
+    // inizializza il video player controller da passare a chewie
     videoPlayerController = VideoPlayerController.networkUrl(
         Uri.parse(video.streamUrl!),
         videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
     await videoPlayerController.initialize();
+
+    // inizializza il chewie controller per la riproduzione del video
     chewieController = ChewieController(
       videoPlayerController: videoPlayerController,
       autoPlay: true,
     );
+
+    // inizializza la coda di riproduzione
     final item = MediaItem(
         id: video.id!,
         title: video.title!,
@@ -46,10 +51,11 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         duration: Duration(milliseconds: video.duration!));
     mediaItem.add(item);
 
-    // propagate all events from the video player controller to AudioService clients
-    chewieController.addListener(broadcastState);
+    // propaga lo stato del player ad audio_service e a tutti i listeners
+    chewieController.videoPlayerController.addListener(broadcastState);
   }
 
+  // prepara lo stato del player per la riproduzione
   void broadcastState() {
     bool isPlaying() => chewieController.videoPlayerController.value.isPlaying;
 
