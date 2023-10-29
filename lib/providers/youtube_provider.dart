@@ -55,7 +55,7 @@ class YoutubeProvider {
       String? categoryId,
       String? chart,
       String? myRating,
-      String? videoId}) async {
+      List<String>? videoIds}) async {
     try {
       final autClient = await _getAuthClient();
 
@@ -63,7 +63,7 @@ class YoutubeProvider {
 
       final videos = await youtubeApi.videos.list(
           ['snippet', 'contentDetails', 'statistics'],
-          id: videoId != null ? [videoId] : null,
+          id: videoIds,
           chart: chart,
           myRating: myRating,
           videoCategoryId: categoryId,

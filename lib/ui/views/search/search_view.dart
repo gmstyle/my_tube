@@ -165,7 +165,7 @@ class SearchView extends StatelessWidget {
                         return GestureDetector(
                             onTap: () {
                               if (result.kind == 'youtube#video') {
-                                miniPlayerCubit.showMiniPlayer(result.id!);
+                                miniPlayerCubit.startPlaying(result.id!);
                               }
 
                               if (result.kind == 'youtube#channel') {

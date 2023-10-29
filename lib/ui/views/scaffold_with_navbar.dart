@@ -81,7 +81,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                   case MiniPlayerStatus.shown:
                     return MiniPlayer(
                       video: state.video,
-                      chewieController: state.chewieController!,
+                      chewieController: state.mtPlayerHandler!.chewieController,
                     );
                   default:
                     return const SizedBox.shrink();

@@ -35,13 +35,13 @@ class YoutubeRepository {
       String? categoryId,
       String? chart,
       String? myRating,
-      String? videoId}) async {
+      List<String>? videoIds}) async {
     final response = await youtubeProvider.getVideos(
       nextPageToken: nextPageToken,
       categoryId: categoryId,
       chart: chart,
       myRating: myRating,
-      videoId: videoId,
+      videoIds: videoIds,
     );
     return videoMapper.mapToModel(response);
   }

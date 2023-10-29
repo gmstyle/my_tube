@@ -50,7 +50,7 @@ class ExploreTabView extends StatelessWidget {
                           onTap: () async {
                             await context
                                 .read<MiniPlayerCubit>()
-                                .showMiniPlayer(video.id!);
+                                .startPlaying(video.id!);
                           },
                           child: ResourceTile(resource: video!));
                     }

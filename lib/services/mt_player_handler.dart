@@ -8,6 +8,8 @@ import 'package:video_player/video_player.dart';
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
+  int currentIndex = 0;
+  List<MediaItem> playlist = [];
 
   @override
   Future<void> play() async {
@@ -30,10 +32,37 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     await chewieController.videoPlayerController.seekTo(position);
   }
 
+  Future<void> playNext() async {
+    if (currentIndex < playlist.length - 1) {
+      currentIndex++;
+      //TODO: implementare la riproduzione del prossimo video
+    }
+  }
+
+  Future<void> playPrevious() async {
+    if (currentIndex > 0) {
+      currentIndex--;
+      //TODO: implementare la riproduzione del video precedente
+    }
+  }
+
+  // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(ResourceMT video) async {
+    // inizializza il media item da passare riprodurre
+    final item = MediaItem(
+        id: video.id!,
+        title: video.title!,
+        album: video.channelTitle!,
+        artUri: Uri.parse(video.thumbnailUrl!),
+        duration: Duration(milliseconds: video.duration!),
+        extras: {
+          'streamUrl': video.streamUrl!,
+        });
+    mediaItem.add(item);
+
     // inizializza il video player controller da passare a chewie
     videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(video.streamUrl!),
+        Uri.parse(item.extras!['streamUrl']),
         videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
     await videoPlayerController.initialize();
 
@@ -43,14 +72,47 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       autoPlay: true,
     );
 
-    // inizializza la coda di riproduzione
-    final item = MediaItem(
-        id: video.id!,
-        title: video.title!,
-        album: video.channelTitle!,
-        artUri: Uri.parse(video.thumbnailUrl!),
-        duration: Duration(milliseconds: video.duration!));
-    mediaItem.add(item);
+    // propaga lo stato del player ad audio_service e a tutti i listeners
+    chewieController.videoPlayerController.addListener(broadcastState);
+  }
+
+  // Inizializza il player per la riproduzione di una coda di video
+  Future<void> startPlayingQueue(List<ResourceMT> videos) async {
+    // inizializza la playlist ed il primo brano
+    playlist = videos
+        .map((video) => MediaItem(
+                id: video.id!,
+                title: video.title!,
+                album: video.channelTitle!,
+                artUri: Uri.parse(video.thumbnailUrl!),
+                duration: Duration(milliseconds: video.duration!),
+                extras: {
+                  'streamUrl': video.streamUrl!,
+                }))
+        .toList();
+
+    currentIndex = 0;
+
+    await _playCurrentTrack();
+  }
+
+  Future<void> _playCurrentTrack() async {
+    final currentTrack = playlist[currentIndex];
+
+    // inizializza il video player controller da passare a chewie
+    videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(currentTrack.extras!['streamUrl']),
+        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
+    await videoPlayerController.initialize();
+
+    // inizializza il chewie controller per la riproduzione del video
+    chewieController = ChewieController(
+      videoPlayerController: videoPlayerController,
+      autoPlay: true,
+    );
+
+    // aggiungi il brano alla coda
+    queue.add(playlist);
 
     // propaga lo stato del player ad audio_service e a tutti i listeners
     chewieController.videoPlayerController.addListener(broadcastState);
