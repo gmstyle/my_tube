@@ -24,6 +24,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   @override
   Future<void> stop() async {
+    currentIndex = 0;
     await chewieController.videoPlayerController.pause();
     await chewieController.videoPlayerController.seekTo(Duration.zero);
   }
@@ -138,7 +139,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         if (currentIndex < playlist.length - 1) {
           skipToNext();
         } else {
-          currentIndex = 0;
           stop();
         }
       }
@@ -157,23 +157,27 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
 
     playbackState.add(playbackState.value.copyWith(
-      controls: [
-        if (currentIndex > 0) MediaControl.skipToPrevious,
-        if (playbackState.value.playing)
-          MediaControl.pause
-        else
-          MediaControl.play,
-        if (currentIndex < playlist.length - 1) MediaControl.skipToNext,
-        MediaControl.stop,
-      ],
-      systemActions: const {
-        MediaAction.seek,
-      },
-      androidCompactActionIndices: const [0, 1, 2],
-      processingState: audioProcessingState(),
-      playing: isPlaying(),
-      updatePosition: chewieController.videoPlayerController.value.position,
-      speed: chewieController.videoPlayerController.value.playbackSpeed,
-    ));
+        controls: [
+          if (currentIndex > 0) MediaControl.skipToPrevious,
+          if (playbackState.value.playing)
+            MediaControl.pause
+          else
+            MediaControl.play,
+          if (currentIndex < playlist.length - 1) MediaControl.skipToNext,
+          MediaControl.stop,
+        ],
+        systemActions: const {
+          MediaAction.seek,
+        },
+        androidCompactActionIndices: const [
+          0,
+          1,
+          2
+        ],
+        processingState: audioProcessingState(),
+        playing: isPlaying(),
+        updatePosition: chewieController.videoPlayerController.value.position,
+        speed: chewieController.videoPlayerController.value.playbackSpeed,
+        queueIndex: currentIndex));
   }
 }

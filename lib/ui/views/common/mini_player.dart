@@ -51,6 +51,10 @@ class MiniPlayer extends StatelessWidget {
                             );
                     }),
 
+                const SizedBox(
+                  width: 8,
+                ),
+
                 // Title
                 StreamBuilder(
                     stream: mtPlayerHandler.mediaItem,
