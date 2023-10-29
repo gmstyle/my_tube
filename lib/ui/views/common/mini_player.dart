@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/video_player_bottom_sheet.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer(
-      {super.key, required this.video, required this.chewieController});
+      {super.key, required this.video, required this.mtPlayerHandler});
 
   final ResourceMT? video;
 
-  final ChewieController chewieController;
+  final MtPlayerHandler mtPlayerHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -29,61 +30,68 @@ class MiniPlayer extends StatelessWidget {
                 SizedBox(
                     width: 0,
                     child: Chewie(
-                      controller: chewieController,
+                      controller: mtPlayerHandler.chewieController,
                     )),
 
                 // Thumbnail
-                video?.thumbnailUrl != null
-                    ? Expanded(
-                        child: Image.network(
-                          video!.thumbnailUrl!,
-                        ),
-                      )
-                    :
-                    //TODO: adeguare placeholder
-                    const Expanded(
-                        child: SizedBox(
-                          child: FlutterLogo(),
-                        ),
-                      ),
-                const SizedBox(
-                  width: 8,
-                ),
+                StreamBuilder(
+                    stream: mtPlayerHandler.mediaItem,
+                    builder: (context, snapshot) {
+                      final mediaItem = snapshot.data;
+                      return mediaItem?.artUri != null
+                          ? Expanded(
+                              child: Image.network(
+                                mediaItem!.artUri.toString(),
+                              ),
+                            )
+                          : const Expanded(
+                              child: SizedBox(
+                                child: FlutterLogo(),
+                              ),
+                            );
+                    }),
 
                 // Title
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              video?.title ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodyLarge,
+                StreamBuilder(
+                    stream: mtPlayerHandler.mediaItem,
+                    builder: (context, snapshot) {
+                      final mediaItem = snapshot.data;
+                      return Expanded(
+                        flex: 2,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    mediaItem?.title ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              video?.channelTitle ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall,
+                            const SizedBox(
+                              height: 2,
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    mediaItem?.album ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    })
               ],
             ),
             onTap: () {
@@ -138,7 +146,7 @@ class MiniPlayer extends StatelessWidget {
         useSafeArea: true,
         builder: (context) => VideoPlayerBottomSheet(
               video: video,
-              chewieController: chewieController,
+              mtPlayerHandler: mtPlayerHandler,
             ));
   }
 }

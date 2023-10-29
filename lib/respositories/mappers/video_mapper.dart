@@ -15,6 +15,7 @@ class VideoMapper extends BaseMapper<VideoListResponse, ResponseMT> {
             thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
             kind: e.kind,
             channelId: e.snippet?.channelId,
+            playlistId: '',
             streamUrl: '',
             duration: Utils.parseDurationStringToMilliseconds(
                 e.contentDetails?.duration)))

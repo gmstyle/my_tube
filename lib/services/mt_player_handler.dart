@@ -9,6 +9,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
   int currentIndex = 0;
+  late MediaItem currentTrack;
   List<MediaItem> playlist = [];
 
   @override
@@ -32,17 +33,20 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     await chewieController.videoPlayerController.seekTo(position);
   }
 
-  Future<void> playNext() async {
+  @override
+  Future<void> skipToNext() async {
     if (currentIndex < playlist.length - 1) {
       currentIndex++;
-      //TODO: implementare la riproduzione del prossimo video
+      await _playCurrentTrack();
     }
   }
 
-  Future<void> playPrevious() async {
+  @override
+  Future<void> skipToPrevious() async {
     if (currentIndex > 0) {
       currentIndex--;
-      //TODO: implementare la riproduzione del video precedente
+
+      await _playCurrentTrack();
     }
   }
 
@@ -77,7 +81,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Inizializza il player per la riproduzione di una coda di video
-  Future<void> startPlayingQueue(List<ResourceMT> videos) async {
+  Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
     // inizializza la playlist ed il primo brano
     playlist = videos
         .map((video) => MediaItem(
@@ -97,7 +101,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> _playCurrentTrack() async {
-    final currentTrack = playlist[currentIndex];
+    currentTrack = playlist[currentIndex];
 
     // inizializza il video player controller da passare a chewie
     videoPlayerController = VideoPlayerController.networkUrl(
@@ -111,11 +115,34 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       autoPlay: true,
     );
 
+    final item = MediaItem(
+        id: currentTrack.id,
+        title: currentTrack.title,
+        album: currentTrack.album,
+        artUri: currentTrack.artUri,
+        duration: currentTrack.duration,
+        extras: currentTrack.extras);
+
     // aggiungi il brano alla coda
-    queue.add(playlist);
+    mediaItem.add(item);
 
     // propaga lo stato del player ad audio_service e a tutti i listeners
     chewieController.videoPlayerController.addListener(broadcastState);
+
+    // passa al brano successivo quando il video è finito fino a che non ci sono più brani
+    chewieController.videoPlayerController.addListener(() {
+      // verifica che il video sia finito
+      if (chewieController.videoPlayerController.value.duration ==
+          chewieController.videoPlayerController.value.position) {
+        // verifica che ci siano altri brani nella coda
+        if (currentIndex < playlist.length - 1) {
+          skipToNext();
+        } else {
+          currentIndex = 0;
+          stop();
+        }
+      }
+    });
   }
 
   // prepara lo stato del player per la riproduzione
@@ -131,12 +158,12 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     playbackState.add(playbackState.value.copyWith(
       controls: [
-        MediaControl.skipToPrevious,
+        if (currentIndex > 0) MediaControl.skipToPrevious,
         if (playbackState.value.playing)
           MediaControl.pause
         else
           MediaControl.play,
-        MediaControl.skipToNext,
+        if (currentIndex < playlist.length - 1) MediaControl.skipToNext,
         MediaControl.stop,
       ],
       systemActions: const {

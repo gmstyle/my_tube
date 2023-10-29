@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/cubit/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
 
@@ -164,15 +165,8 @@ class SearchView extends StatelessWidget {
                         final result = state.result!.resources[index];
                         return GestureDetector(
                             onTap: () {
-                              if (result.kind == 'youtube#video') {
-                                miniPlayerCubit.startPlaying(result.id!);
-                              }
-
-                              if (result.kind == 'youtube#channel') {
-                                context.go(
-                                    '${AppRoute.search.path}/${AppRoute.channel.path}',
-                                    extra: {'channelId': result.channelId!});
-                              }
+                              _playOrNavigateTo(
+                                  result, miniPlayerCubit, context);
                             },
                             child: ResourceTile(resource: result));
                       })
@@ -186,6 +180,25 @@ class SearchView extends StatelessWidget {
         }
       }))
     ]);
+  }
+
+  void _playOrNavigateTo(ResourceMT result, MiniPlayerCubit miniPlayerCubit,
+      BuildContext context) {
+    if (result.kind == 'youtube#video') {
+      miniPlayerCubit.startPlaying(result.id!);
+    }
+
+    if (result.kind == 'youtube#channel') {
+      context.go('${AppRoute.search.path}/${AppRoute.channel.path}',
+          extra: {'channelId': result.channelId!});
+    }
+
+    if (result.kind == 'youtube#playlist') {
+      context.go('${AppRoute.search.path}/${AppRoute.playlist.path}', extra: {
+        'playlistTitle': result.title!,
+        'playlistId': result.playlistId!
+      });
+    }
   }
 
   void _onSelected(

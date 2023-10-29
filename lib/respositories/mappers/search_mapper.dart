@@ -14,6 +14,7 @@ class SearchMapper extends BaseMapper<SearchListResponse, ResponseMT> {
               thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
               kind: e.id?.kind,
               channelId: e.snippet?.channelId,
+              playlistId: e.id?.playlistId,
               streamUrl: '',
               duration: 0,
             ))

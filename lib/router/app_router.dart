@@ -5,6 +5,7 @@ import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/login_page.dart';
+import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
 import 'package:my_tube/router/pages/splash_page.dart';
 import 'package:my_tube/router/pages/subscriptions_tab_page.dart';
@@ -72,6 +73,19 @@ class AppRouter {
                             final extra = state.extra as Map<String, dynamic>;
                             final channelId = extra['channelId'] as String;
                             return ChannelPage(channelId: channelId);
+                          }),
+                      GoRoute(
+                          parentNavigatorKey: searchTabNavigatorKey,
+                          name: AppRoute.playlist.name,
+                          path: AppRoute.playlist.path,
+                          pageBuilder: (context, state) {
+                            final extra = state.extra as Map<String, dynamic>;
+                            final playlistTitle =
+                                extra['playlistTitle'] as String;
+                            final playlistId = extra['playlistId'] as String;
+                            return PlaylistPage(
+                                playlistTitle: playlistTitle,
+                                playlistId: playlistId);
                           })
                     ]),
               ]),
@@ -95,7 +109,7 @@ class AppRouter {
                                     state.extra as Map<String, dynamic>;
                                 final channelId = extra['channelId'] as String;
                                 return ChannelPage(channelId: channelId);
-                              })
+                              }),
                         ]),
                   ]),
 
@@ -120,7 +134,8 @@ enum AppRoute {
   search('/search'),
   subscriptions('/subscriptions'),
   account('/account'),
-  channel('channel');
+  channel('channel'),
+  playlist('playlist');
 
   final String path;
 

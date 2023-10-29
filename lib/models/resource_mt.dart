@@ -35,6 +35,7 @@ class ResourceMT extends Equatable {
   final String? thumbnailUrl;
   final String? kind;
   final String? channelId;
+  final String? playlistId;
   final String? streamUrl;
   final int? duration;
 
@@ -46,6 +47,7 @@ class ResourceMT extends Equatable {
     required this.thumbnailUrl,
     required this.kind,
     required this.channelId,
+    required this.playlistId,
     required this.streamUrl,
     required this.duration,
   });
@@ -59,6 +61,7 @@ class ResourceMT extends Equatable {
       thumbnailUrl: json['thumbnailUrl'] as String?,
       kind: json['kind'] as String?,
       channelId: json['channelId'] as String?,
+      playlistId: json['playlistId'] as String?,
       streamUrl: json['streamUrl'] as String?,
       duration: json['duration'] as int?,
     );
@@ -73,6 +76,7 @@ class ResourceMT extends Equatable {
       'thumbnailUrl': thumbnailUrl,
       'kind': kind,
       'channelId': channelId,
+      'playlistId': playlistId,
       'streamUrl': streamUrl,
       'duration': duration,
     };
@@ -86,6 +90,7 @@ class ResourceMT extends Equatable {
     String? thumbnailUrl,
     String? kind,
     String? channelId,
+    String? playlistId,
     String? streamUrl,
     int? duration,
   }) {
@@ -97,6 +102,7 @@ class ResourceMT extends Equatable {
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       kind: kind ?? this.kind,
       channelId: channelId ?? this.channelId,
+      playlistId: playlistId ?? this.playlistId,
       streamUrl: streamUrl ?? this.streamUrl,
       duration: duration ?? this.duration,
     );
@@ -111,6 +117,7 @@ class ResourceMT extends Equatable {
         thumbnailUrl,
         kind,
         channelId,
+        playlistId,
         streamUrl,
         duration,
       ];

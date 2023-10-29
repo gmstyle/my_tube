@@ -63,8 +63,14 @@ class YoutubeRepository {
     return await youtubeProvider.getPlaylists(channelId);
   }
 
-  Future<PlaylistItemListResponse> getPlaylistItems(String playlistId) async {
-    return await youtubeProvider.getPlaylistItems(playlistId);
+  Future<ResponseMT> getPlaylistItems(
+      {required String playlistId, String? nextPageToken}) async {
+    final response = await youtubeProvider.getPlaylistItems(
+        playlistId: playlistId, nextPageToken: nextPageToken);
+    final videoIds =
+        response.items?.map((e) => e.snippet!.resourceId!.videoId!).toList();
+    final videosResponse = await getVideos(videoIds: videoIds);
+    return videosResponse;
   }
 
   Future<String> getStreamUrl(String videoId) async {

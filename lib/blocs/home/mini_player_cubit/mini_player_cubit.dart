@@ -34,6 +34,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
       final streamUrl = await youtubeRepository.getStreamUrl(video.id!);
       videosWithStreamUrl.add(video.copyWith(streamUrl: streamUrl));
     }
+
     await _startPlayingPlaylist(videosWithStreamUrl);
     emit(MiniPlayerState.shown(videosWithStreamUrl.first, mtPlayerHandler));
   }
@@ -59,6 +60,6 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   }
 
   Future<void> _startPlayingPlaylist(List<ResourceMT> videos) async {
-    await mtPlayerHandler.startPlayingQueue(videos);
+    await mtPlayerHandler.startPlayingPlaylist(videos);
   }
 }

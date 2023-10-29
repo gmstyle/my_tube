@@ -32,18 +32,21 @@ class YoutubeProvider {
     }
   }
 
-  Future<PlaylistItemListResponse> getPlaylistItems(String playlistId) async {
+  Future<PlaylistItemListResponse> getPlaylistItems(
+      {required String playlistId, String? nextPageToken}) async {
     try {
       final autClient = await _getAuthClient();
 
       final youtubeApi = YouTubeApi(autClient);
 
-      final playlistItems = await youtubeApi.playlistItems.list(
+      final response = await youtubeApi.playlistItems.list(
         ['snippet', 'contentDetails'],
         playlistId: playlistId,
+        maxResults: 50,
+        pageToken: nextPageToken,
       );
 
-      return playlistItems;
+      return response;
     } catch (error) {
       log('Error: $error');
       return Future.error('Error: $error');

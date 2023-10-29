@@ -40,7 +40,7 @@ class ExploreTabView extends StatelessWidget {
                   controller: _scrollController,
                   itemCount: state.response!.resources.length,
                   itemBuilder: (context, index) {
-                    if (index >= state.response!.resources.length) {
+                    /* if (index >= state.response!.resources.length) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
@@ -53,7 +53,15 @@ class ExploreTabView extends StatelessWidget {
                                 .startPlaying(video.id!);
                           },
                           child: ResourceTile(resource: video!));
-                    }
+                    } */
+                    final video = state.response?.resources[index];
+                    return GestureDetector(
+                        onTap: () async {
+                          await context
+                              .read<MiniPlayerCubit>()
+                              .startPlaying(video.id!);
+                        },
+                        child: ResourceTile(resource: video!));
                   },
                 ),
               ),

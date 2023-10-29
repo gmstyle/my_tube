@@ -15,6 +15,7 @@ class SubscriptionMapper
               channelId: e.snippet?.resourceId?.channelId,
               thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
               channelTitle: e.snippet?.channelTitle,
+              playlistId: '',
               streamUrl: '',
               duration: 0,
             ))
