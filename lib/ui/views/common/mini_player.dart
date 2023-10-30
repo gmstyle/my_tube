@@ -18,126 +18,169 @@ class MiniPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
-              child: GestureDetector(
+            flex: 2,
             child: Row(
               children: [
-                /// SzedBox con width 0 per far partire il video
-                /// senza che si veda il video in modalità mini player
-                SizedBox(
-                    width: 0,
-                    child: Chewie(
-                      controller: mtPlayerHandler.chewieController,
-                    )),
+                Expanded(
+                    child: GestureDetector(
+                  child: Row(
+                    children: [
+                      /// SzedBox con width 0 per far partire il video
+                      /// senza che si veda il video in modalità mini player
+                      SizedBox(
+                          width: 0,
+                          child: Chewie(
+                            controller: mtPlayerHandler.chewieController,
+                          )),
 
-                // Thumbnail
-                StreamBuilder(
-                    stream: mtPlayerHandler.mediaItem,
-                    builder: (context, snapshot) {
-                      final mediaItem = snapshot.data;
-                      return mediaItem?.artUri != null
-                          ? Expanded(
-                              child: Image.network(
-                                mediaItem!.artUri.toString(),
-                              ),
-                            )
-                          : const Expanded(
-                              child: SizedBox(
-                                child: FlutterLogo(),
+                      // Thumbnail
+                      StreamBuilder(
+                          stream: mtPlayerHandler.mediaItem,
+                          builder: (context, snapshot) {
+                            final mediaItem = snapshot.data;
+                            return mediaItem?.artUri != null
+                                ? Expanded(
+                                    child: Image.network(
+                                      mediaItem!.artUri.toString(),
+                                    ),
+                                  )
+                                : const Expanded(
+                                    child: SizedBox(
+                                      child: FlutterLogo(),
+                                    ),
+                                  );
+                          }),
+
+                      const SizedBox(
+                        width: 8,
+                      ),
+
+                      // Title
+                      StreamBuilder(
+                          stream: mtPlayerHandler.mediaItem,
+                          builder: (context, snapshot) {
+                            final mediaItem = snapshot.data;
+                            return Expanded(
+                              flex: 2,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          mediaItem?.title ?? '',
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 2,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          mediaItem?.album ?? '',
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             );
-                    }),
-
-                const SizedBox(
-                  width: 8,
-                ),
-
-                // Title
-                StreamBuilder(
-                    stream: mtPlayerHandler.mediaItem,
-                    builder: (context, snapshot) {
-                      final mediaItem = snapshot.data;
-                      return Expanded(
-                        flex: 2,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    mediaItem?.title ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 2,
-                            ),
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    mediaItem?.album ?? '',
-                                    overflow: TextOverflow.ellipsis,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    })
+                          })
+                    ],
+                  ),
+                  onTap: () {
+                    showVideoPlayerBottomSheet(context);
+                  },
+                )),
               ],
             ),
-            onTap: () {
-              showVideoPlayerBottomSheet(context);
-            },
-          )),
-          const SizedBox(
-            width: 8,
           ),
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            //Play/pause button
-            StreamBuilder(
-                stream: miniPlayerCubit.mtPlayerHandler.playbackState
-                    .map((playbackState) => playbackState.playing)
-                    .distinct(),
-                builder: (context, snapshot) {
-                  final isPlaying = snapshot.data ?? false;
-                  return IconButton(
-                      onPressed: () {
-                        if (isPlaying) {
-                          miniPlayerCubit.pauseMiniPlayer();
-                        } else {
-                          miniPlayerCubit.playMiniPlayer();
-                        }
-                      },
-                      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow));
-                }),
 
-            //Close button
-            IconButton(
-                onPressed: () {
-                  miniPlayerCubit.hideMiniPlayer();
-                },
-                icon: const Icon(Icons.stop)),
+          // Controls
+          Row(
+            children: [
+              // Progress bar
+              Flexible(
+                child: StreamBuilder(
+                    stream: mtPlayerHandler.playbackState
+                        .map((playbackState) => playbackState.position)
+                        .distinct(),
+                    builder: (context, snapshot) {
+                      final position = snapshot.data ?? Duration.zero;
+                      return StreamBuilder(
+                          stream: mtPlayerHandler.mediaItem
+                              .map((mediaItem) => mediaItem?.duration)
+                              .distinct(),
+                          builder: (context, snapshot) {
+                            final duration = snapshot.data ?? Duration.zero;
+                            return Slider(
+                              value: position.inMilliseconds.toDouble(),
+                              max: duration.inMilliseconds.toDouble(),
+                              onChanged: (value) {
+                                mtPlayerHandler.seek(Duration(
+                                    milliseconds: value.toInt(),
+                                    microseconds: 0,
+                                    seconds: 0));
+                              },
+                            );
+                          });
+                    }),
+              ),
 
-            // button
-            IconButton(
-                onPressed: () {
-                  showVideoPlayerBottomSheet(context);
-                },
-                icon: const Icon(Icons.expand_less)),
-          ]),
+              //
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                //Play/pause button
+                StreamBuilder(
+                    stream: miniPlayerCubit.mtPlayerHandler.playbackState
+                        .map((playbackState) => playbackState.playing)
+                        .distinct(),
+                    builder: (context, snapshot) {
+                      final isPlaying = snapshot.data ?? false;
+                      return IconButton(
+                          onPressed: () {
+                            if (isPlaying) {
+                              miniPlayerCubit.pauseMiniPlayer();
+                            } else {
+                              miniPlayerCubit.playMiniPlayer();
+                            }
+                          },
+                          icon:
+                              Icon(isPlaying ? Icons.pause : Icons.play_arrow));
+                    }),
+
+                //Close button
+                IconButton(
+                    onPressed: () {
+                      miniPlayerCubit.hideMiniPlayer();
+                    },
+                    icon: const Icon(Icons.stop)),
+
+                // button
+                IconButton(
+                    onPressed: () {
+                      showVideoPlayerBottomSheet(context);
+                    },
+                    icon: const Icon(Icons.expand_less)),
+              ]),
+            ],
+          ),
         ],
       ),
     );

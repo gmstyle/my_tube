@@ -41,7 +41,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniPlayerHeight = MediaQuery.of(context).size.height * 0.1;
+    final miniPlayerHeight = MediaQuery.of(context).size.height * 0.15;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
     return Scaffold(
