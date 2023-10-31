@@ -38,13 +38,10 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(MiniPlayerState.shown(videosWithStreamUrl.first, mtPlayerHandler));
   }
 
-  void hideMiniPlayer() {
-    mtPlayerHandler.chewieController.dispose();
-    mtPlayerHandler.videoPlayerController.dispose();
-    mtPlayerHandler.videoPlayerController
-        .removeListener(mtPlayerHandler.broadcastState);
+  /* void hideMiniPlayer() {
+    mtPlayerHandler.stop();
     emit(const MiniPlayerState.hidden());
-  }
+  } */
 
   void pauseMiniPlayer() {
     mtPlayerHandler.chewieController.pause();

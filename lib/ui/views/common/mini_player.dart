@@ -168,7 +168,7 @@ class MiniPlayer extends StatelessWidget {
                 //Close button
                 IconButton(
                     onPressed: () {
-                      miniPlayerCubit.hideMiniPlayer();
+                      miniPlayerCubit.mtPlayerHandler.stop();
                     },
                     icon: const Icon(Icons.stop)),
 
