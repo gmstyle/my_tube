@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/blocs/channel_page/bloc/channel_page_bloc.dart';
+import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/ui/views/channel/channel_view.dart';
 
 class ChannelPage extends Page {
@@ -10,7 +13,12 @@ class ChannelPage extends Page {
   Route createRoute(BuildContext context) {
     return MaterialPageRoute(
       settings: this,
-      builder: (BuildContext context) => ChannelView(channelId: channelId),
+      builder: (BuildContext context) => MultiBlocProvider(providers: [
+        BlocProvider<ChannelPageBloc>(
+            create: (context) => ChannelPageBloc(
+                youtubeRepository: context.read<YoutubeRepository>())
+              ..add(GetChannelDetails(channelId: channelId)))
+      ], child: ChannelView(channelId: channelId)),
     );
   }
 }

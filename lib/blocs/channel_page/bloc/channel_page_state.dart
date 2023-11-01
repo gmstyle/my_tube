@@ -1,10 +1,21 @@
 part of 'channel_page_bloc.dart';
 
-sealed class ChannelPageState extends Equatable {
-  const ChannelPageState();
-  
-  @override
-  List<Object> get props => [];
-}
+enum ChannelPageStatus { initial, loading, loaded, failure }
 
-final class ChannelPageInitial extends ChannelPageState {}
+class ChannelPageState extends Equatable {
+  const ChannelPageState._({required this.status, this.channel, this.error});
+
+  final ChannelPageStatus status;
+  final ChannelMT? channel;
+  final String? error;
+
+  const ChannelPageState.initial() : this._(status: ChannelPageStatus.initial);
+  const ChannelPageState.loading() : this._(status: ChannelPageStatus.loading);
+  const ChannelPageState.loaded(ChannelMT channel)
+      : this._(status: ChannelPageStatus.loaded, channel: channel);
+  const ChannelPageState.failure({required String error})
+      : this._(status: ChannelPageStatus.failure, error: error);
+
+  @override
+  List<Object?> get props => [status, channel, error];
+}

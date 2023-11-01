@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_tube/blocs/channel_page/bloc/channel_page_bloc.dart';
 
 class ChannelView extends StatelessWidget {
   const ChannelView({super.key, required this.channelId});
@@ -14,14 +17,19 @@ class ChannelView extends StatelessWidget {
             children: [
               IconButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    context.pop();
                   },
                   icon: const Icon(Icons.arrow_back)),
               const Text('Channel'),
             ],
           ),
-          Center(
-            child: Text('Channel: $channelId'),
+          BlocBuilder<ChannelPageBloc, ChannelPageState>(
+            builder: (context, state) {
+              return Center(
+                child: Text(
+                    'Channel: ${state.channel?.videos?.first.id ?? 'No videos'}'),
+              );
+            },
           ),
         ],
       ),

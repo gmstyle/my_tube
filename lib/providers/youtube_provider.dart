@@ -181,6 +181,25 @@ class YoutubeProvider {
     }
   }
 
+  // Get channel details
+  Future<ChannelListResponse> getChannelDetails(String channelId) async {
+    try {
+      final autClient = await _getAuthClient();
+
+      final youtubeApi = YouTubeApi(autClient);
+
+      final channelDetails = await youtubeApi.channels.list(
+        ['snippet', 'contentDetails', 'statistics'],
+        id: [channelId],
+      );
+
+      return channelDetails;
+    } catch (error) {
+      log('Error: $error');
+      return Future.error('Error: $error');
+    }
+  }
+
   // Get video categories
   Future<VideoCategoryListResponse> getVideoCategories() async {
     try {

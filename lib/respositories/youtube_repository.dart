@@ -1,4 +1,5 @@
 import 'package:googleapis/youtube/v3.dart';
+import 'package:my_tube/models/channel_mt.dart';
 import 'package:my_tube/models/suggestion_response_mt.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -89,5 +90,24 @@ class YoutubeRepository {
       'suggestions': suggestions,
     };
     return SuggestionResponseMT.fromJson(suggestionMap);
+  }
+
+  Future<ChannelMT> getChannelDetails(String channelId) async {
+    final channelResponse = await youtubeProvider.getChannelDetails(channelId);
+    final channel = channelResponse.items?.first;
+    final playlistId = channel?.contentDetails?.relatedPlaylists?.uploads;
+    final playlistItems = await getPlaylistItems(playlistId: playlistId!);
+    final channelVideos = playlistItems.resources;
+
+    return ChannelMT(
+      id: channel?.id,
+      title: channel?.snippet?.title,
+      description: channel?.snippet?.description,
+      thumbnailUrl: channel?.snippet?.thumbnails?.high?.url,
+      videoCount: channel?.statistics?.videoCount,
+      subscriberCount: channel?.statistics?.subscriberCount,
+      viewCount: channel?.statistics?.viewCount,
+      videos: channelVideos,
+    );
   }
 }
