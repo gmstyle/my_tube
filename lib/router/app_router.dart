@@ -41,10 +41,7 @@ class AppRouter {
             name: AppRoute.song.name,
             path: AppRoute.song.path,
             pageBuilder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>;
-              final video = extra['video'] as ResourceMT;
-
-              return SongPage(video: video);
+              return const SongPage();
             }),
         StatefulShellRoute.indexedStack(
             builder: (context, state, navigationShell) =>

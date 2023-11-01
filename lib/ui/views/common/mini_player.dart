@@ -109,8 +109,7 @@ class MiniPlayer extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                    context
-                        .pushNamed(AppRoute.song.name, extra: {'video': video});
+                    context.pushNamed(AppRoute.song.name);
                   },
                 )),
               ],
@@ -121,7 +120,7 @@ class MiniPlayer extends StatelessWidget {
           Row(
             children: [
               // Progress bar
-              const SeekBar(),
+              const Flexible(child: SeekBar()),
               //
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 //Play/pause button
@@ -153,8 +152,7 @@ class MiniPlayer extends StatelessWidget {
                 // button
                 IconButton(
                     onPressed: () {
-                      context.pushNamed(AppRoute.song.name,
-                          extra: {'video': video});
+                      context.pushNamed(AppRoute.song.name);
                     },
                     icon: const Icon(Icons.expand_less)),
               ]),
