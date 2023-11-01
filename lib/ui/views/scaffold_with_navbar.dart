@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
@@ -44,12 +45,23 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.15;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
-    return Scaffold(
-      /* appBar: AppBar(
-        title: const Text('MyTube'),
-      ), */
-      body: SafeArea(
-        child: Column(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.secondary,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Scaffold(
+        appBar: const CustomAppbar(
+          title: 'My Tube',
+        ),
+        backgroundColor: Colors.transparent,
+        body: Column(
           children: [
             /// Tab content
             Expanded(child: navigationShell),
@@ -59,10 +71,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               decoration: BoxDecoration(
 
                   // TODO: fixare il colore e mettere lo stesso colore della navigation bar non ancora disponibile per bug flutter
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primaryContainer
-                      .withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10))),
@@ -79,10 +88,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                       child: CircularProgressIndicator(),
                     );
                   case MiniPlayerStatus.shown:
-                    return MiniPlayer(
-                      video: state.video,
-                      mtPlayerHandler: state.mtPlayerHandler!,
-                    );
+                    return MiniPlayer(video: state.video);
                   default:
                     return const SizedBox.shrink();
                 }
@@ -90,12 +96,14 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             ),
           ],
         ),
+        bottomNavigationBar: NavigationBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            selectedIndex: navigationShell.currentIndex,
+            destinations: _navBarItems,
+            onDestinationSelected: onDestinationSelected,
+            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected),
       ),
-      bottomNavigationBar: NavigationBar(
-          selectedIndex: navigationShell.currentIndex,
-          destinations: _navBarItems,
-          onDestinationSelected: onDestinationSelected,
-          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected),
     );
   }
 }

@@ -25,118 +25,117 @@ class SearchView extends StatelessWidget {
         child: StatefulBuilder(builder: (context, setState) {
           final searchSuggestionCubit = context.read<SearchSuggestionCubit>();
           final suggestions = searchSuggestionCubit.state.suggestions;
-          return Row(
-            children: [
-              // Barra di ricerca
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              children: [
+                // Barra di ricerca
 
-              Flexible(
-                  child: Autocomplete<String>(
-                // builder del contenuto dei suggerimenti di ricerca
-                optionsBuilder: (value) {
-                  if (value.text.isEmpty) {
-                    // Se il campo di ricerca è vuoto, mostro la cronologia delle ricerche
-                    searchSuggestionCubit.getQueryHistory();
-                    return searchSuggestionCubit.state.suggestions;
-                  } else {
-                    // Altrimenti mostro i suggerimenti di ricerca chiamando l'api
-                    searchSuggestionCubit.getSuggestions(value.text);
-                    return suggestions.where((element) => element
-                        .toLowerCase()
-                        .contains(value.text.toLowerCase()));
-                  }
-                },
+                Flexible(
+                    child: Autocomplete<String>(
+                  // builder del contenuto dei suggerimenti di ricerca
+                  optionsBuilder: (value) {
+                    if (value.text.isEmpty) {
+                      // Se il campo di ricerca è vuoto, mostro la cronologia delle ricerche
+                      searchSuggestionCubit.getQueryHistory();
+                      return searchSuggestionCubit.state.suggestions;
+                    } else {
+                      // Altrimenti mostro i suggerimenti di ricerca chiamando l'api
+                      searchSuggestionCubit.getSuggestions(value.text);
+                      return suggestions.where((element) => element
+                          .toLowerCase()
+                          .contains(value.text.toLowerCase()));
+                    }
+                  },
 
-                // Visualizzazione dei suggerimenti di ricerca
-                optionsViewBuilder: (_, onSelected, __) {
-                  final state = context.watch<SearchSuggestionCubit>().state;
-                  final options = state.suggestions;
-                  return Align(
-                    alignment: Alignment.topLeft,
-                    child: Material(
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        child: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          itemCount: options.length,
-                          itemBuilder: (context, index) {
-                            final option = options.elementAt(index);
-                            return ListTile(
-                              leading: Icon(state.isQueryHistory
-                                  ? Icons.history
-                                  : Icons.search),
-                              title: Text(option),
-                              trailing: state.isQueryHistory
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        searchSuggestionCubit
-                                            .deleteQueryFromHistory(option);
-                                      },
-                                    )
-                                  : null,
-                              onTap: () {
-                                onSelected(option);
-                              },
-                            );
-                          },
+                  // Visualizzazione dei suggerimenti di ricerca
+                  optionsViewBuilder: (_, onSelected, __) {
+                    final state = context.watch<SearchSuggestionCubit>().state;
+                    final options = state.suggestions;
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: options.length,
+                            itemBuilder: (context, index) {
+                              final option = options.elementAt(index);
+                              return ListTile(
+                                leading: Icon(state.isQueryHistory
+                                    ? Icons.history
+                                    : Icons.search),
+                                title: Text(option),
+                                trailing: state.isQueryHistory
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          searchSuggestionCubit
+                                              .deleteQueryFromHistory(option);
+                                        },
+                                      )
+                                    : null,
+                                onTap: () {
+                                  onSelected(option);
+                                },
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
 
-                // Builder del campo di ricerca
-                fieldViewBuilder:
-                    (context, controller, focusNode, onFieldSubmitted) {
-                  searchController = controller;
+                  // Builder del campo di ricerca
+                  fieldViewBuilder:
+                      (context, controller, focusNode, onFieldSubmitted) {
+                    searchController = controller;
 
-                  // Ascolto i cambiamenti del campo di ricerca per aggiornare la UI all'Icona di clear
-                  searchController.addListener(() {
-                    setState(() {});
-                  });
+                    // Ascolto i cambiamenti del campo di ricerca per aggiornare la UI all'Icona di clear
+                    searchController.addListener(() {
+                      setState(() {});
+                    });
 
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primaryContainer
-                          .withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: TextField(
+                    return TextField(
                       controller: searchController,
                       focusNode: focusNode,
                       onEditingComplete: onFieldSubmitted,
                       textInputAction: TextInputAction.search,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.search),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        filled: true,
+                        fillColor: Colors.white,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: searchController.text.isNotEmpty
+                              ? () {
+                                  setState(() {
+                                    searchController.clear();
+                                    FocusScope.of(context).unfocus();
+                                  });
+                                }
+                              : null,
+                        ),
                         hintText: 'Search',
-                        border: InputBorder.none,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none),
                       ),
                       onSubmitted: (query) => context
                           .read<SearchBloc>()
                           .add(SearchContents(query: query)),
-                    ),
-                  );
-                },
-                onSelected: (selected) {
-                  _onSelected(suggestions, selected, context);
-                },
-              )),
+                    );
+                  },
+                  onSelected: (selected) {
+                    _onSelected(suggestions, selected, context);
+                  },
+                )),
 
-              // Clear button
-              IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: searchController.text.isNotEmpty
-                    ? () {
-                        setState(() {
-                          searchController.clear();
-                          FocusScope.of(context).unfocus();
-                        });
-                      }
-                    : null,
-              ),
-            ],
+                // Clear button
+              ],
+            ),
           );
         }),
       ),
@@ -160,6 +159,7 @@ class SearchView extends StatelessWidget {
               },
               child: state.result!.resources.isNotEmpty
                   ? ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 16),
                       itemCount: state.result!.resources.length,
                       itemBuilder: (context, index) {
                         final result = state.result!.resources[index];

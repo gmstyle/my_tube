@@ -1,27 +1,34 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/ui/views/common/custom_appbar.dart';
+import 'package:my_tube/ui/views/common/seek_bar.dart';
 
-class VideoPlayerBottomSheet extends StatelessWidget {
-  const VideoPlayerBottomSheet(
-      {super.key, required this.video, required this.mtPlayerHandler});
+class SongView extends StatelessWidget {
+  const SongView({super.key, required this.video});
 
   final ResourceMT? video;
-  final MtPlayerHandler mtPlayerHandler;
 
   @override
   Widget build(BuildContext context) {
-    return BottomSheet(
-      enableDrag: false,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16), topRight: Radius.circular(16))),
-      onClosing: () {},
-      builder: (_) => Scaffold(
-        appBar: AppBar(
-          title: Text(video?.title ?? ''),
+    final mtPlayerHandler = context.read<MtPlayerHandler>();
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.secondary,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: CustomAppbar(title: video?.title ?? ''),
         body: Column(
           children: [
             AspectRatio(

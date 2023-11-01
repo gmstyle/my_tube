@@ -1,22 +1,25 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
-import 'package:my_tube/ui/views/common/video_player_bottom_sheet.dart';
+import 'package:my_tube/ui/views/common/seek_bar.dart';
 
 class MiniPlayer extends StatelessWidget {
-  const MiniPlayer(
-      {super.key, required this.video, required this.mtPlayerHandler});
+  const MiniPlayer({
+    super.key,
+    required this.video,
+  });
 
   final ResourceMT? video;
-
-  final MtPlayerHandler mtPlayerHandler;
 
   @override
   Widget build(BuildContext context) {
     final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
+    final MtPlayerHandler mtPlayerHandler = context.read<MtPlayerHandler>();
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -106,7 +109,8 @@ class MiniPlayer extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                    showVideoPlayerBottomSheet(context);
+                    context
+                        .pushNamed(AppRoute.song.name, extra: {'video': video});
                   },
                 )),
               ],
@@ -117,33 +121,7 @@ class MiniPlayer extends StatelessWidget {
           Row(
             children: [
               // Progress bar
-              Flexible(
-                child: StreamBuilder(
-                    stream: mtPlayerHandler.playbackState
-                        .map((playbackState) => playbackState.position)
-                        .distinct(),
-                    builder: (context, snapshot) {
-                      final position = snapshot.data ?? Duration.zero;
-                      return StreamBuilder(
-                          stream: mtPlayerHandler.mediaItem
-                              .map((mediaItem) => mediaItem?.duration)
-                              .distinct(),
-                          builder: (context, snapshot) {
-                            final duration = snapshot.data ?? Duration.zero;
-                            return Slider(
-                              value: position.inMilliseconds.toDouble(),
-                              max: duration.inMilliseconds.toDouble(),
-                              onChanged: (value) {
-                                mtPlayerHandler.seek(Duration(
-                                    milliseconds: value.toInt(),
-                                    microseconds: 0,
-                                    seconds: 0));
-                              },
-                            );
-                          });
-                    }),
-              ),
-
+              const SeekBar(),
               //
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 //Play/pause button
@@ -175,7 +153,8 @@ class MiniPlayer extends StatelessWidget {
                 // button
                 IconButton(
                     onPressed: () {
-                      showVideoPlayerBottomSheet(context);
+                      context.pushNamed(AppRoute.song.name,
+                          extra: {'video': video});
                     },
                     icon: const Icon(Icons.expand_less)),
               ]),
@@ -184,16 +163,5 @@ class MiniPlayer extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void showVideoPlayerBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        builder: (context) => VideoPlayerBottomSheet(
-              video: video,
-              mtPlayerHandler: mtPlayerHandler,
-            ));
   }
 }

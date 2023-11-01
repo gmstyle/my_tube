@@ -37,6 +37,7 @@ class ExploreTabView extends StatelessWidget {
                   return false;
                 },
                 child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 16),
                   controller: _scrollController,
                   itemCount: state.response!.resources.length,
                   itemBuilder: (context, index) {

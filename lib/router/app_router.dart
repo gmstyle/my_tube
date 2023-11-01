@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/pages/account_tab_page.dart';
 import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
@@ -7,8 +8,10 @@ import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/login_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
+import 'package:my_tube/router/pages/song_page.dart';
 import 'package:my_tube/router/pages/splash_page.dart';
 import 'package:my_tube/router/pages/subscriptions_tab_page.dart';
+import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
 class AppRouter {
@@ -33,6 +36,16 @@ class AppRouter {
             name: AppRoute.login.name,
             path: AppRoute.login.path,
             pageBuilder: (context, state) => const LoginPage()),
+        GoRoute(
+            parentNavigatorKey: rootNavigatorKey,
+            name: AppRoute.song.name,
+            path: AppRoute.song.path,
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              final video = extra['video'] as ResourceMT;
+
+              return SongPage(video: video);
+            }),
         StatefulShellRoute.indexedStack(
             builder: (context, state, navigationShell) =>
                 ScaffoldWithNavbarView(navigationShell: navigationShell),
@@ -135,7 +148,9 @@ enum AppRoute {
   subscriptions('/subscriptions'),
   account('/account'),
   channel('channel'),
-  playlist('playlist');
+  playlist('playlist'),
+  song('/song'),
+  ;
 
   final String path;
 
