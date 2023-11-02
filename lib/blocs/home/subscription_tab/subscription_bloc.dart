@@ -47,9 +47,9 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
       final updatedVideos = [...videos, ...newVideos];
       emit(SubscriptionState.loaded(
           response: ResponseMT(
-              resources: updatedVideos,
-              nextPageToken: response.nextPageToken,
-              playlist: null)));
+        resources: updatedVideos,
+        nextPageToken: response.nextPageToken,
+      )));
     } catch (error) {
       emit(SubscriptionState.error(error: error.toString()));
     }

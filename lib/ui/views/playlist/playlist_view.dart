@@ -30,7 +30,7 @@ class PlaylistView extends StatelessWidget {
                   child: ListView.builder(
                       itemCount: playlist?.videos!.length,
                       itemBuilder: (context, index) {
-                        final video = state.response?.resources[index];
+                        final video = state.response?.playlist!.videos![index];
                         return GestureDetector(
                           onTap: () async {
                             await context
@@ -69,6 +69,24 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                context.pop();
+              },
+              icon: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              ),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.more_vert, color: Colors.white),
+            ),
+          ],
+        ),
         ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.network(playlist?.thumbnailUrl ?? '',

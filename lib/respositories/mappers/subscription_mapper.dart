@@ -24,7 +24,6 @@ class SubscriptionMapper
     return ResponseMT(
       resources: activities,
       nextPageToken: data.nextPageToken,
-      playlist: null,
     );
   }
 

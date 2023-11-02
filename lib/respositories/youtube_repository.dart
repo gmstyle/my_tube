@@ -65,7 +65,7 @@ class YoutubeRepository {
     return await youtubeProvider.getPlaylists(channelId: channelId);
   }
 
-  Future<ResponseMT> getPlaylistItems(
+  Future<PlaylistResponseMT> getPlaylistItems(
       {required String playlistId, String? nextPageToken}) async {
     final response = await youtubeProvider.getPlaylistItems(
         playlistId: playlistId, nextPageToken: nextPageToken);
@@ -84,8 +84,10 @@ class YoutubeRepository {
       itemCount: playlist?.contentDetails?.itemCount,
       videos: videosResponse.resources,
     );
-    final a = videosResponse.copyWith(playlist: playlistMT);
-    return a;
+    return PlaylistResponseMT(
+      playlist: playlistMT,
+      nextPageToken: response.nextPageToken,
+    );
   }
 
   Future<String> getStreamUrl(String videoId) async {
@@ -111,7 +113,7 @@ class YoutubeRepository {
     final channel = channelResponse.items?.first;
     final playlistId = channel?.contentDetails?.relatedPlaylists?.uploads;
     final playlistItems = await getPlaylistItems(playlistId: playlistId!);
-    final channelVideos = playlistItems.resources;
+    final channelVideos = playlistItems.playlist?.videos;
 
     return ChannelMT(
       id: channel?.id,

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 
@@ -23,8 +24,8 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
       final response = await youtubeRepository.getPlaylistItems(
         playlistId: event.playlistId,
       );
-      final videoIds = response.resources.map((e) => e.id!).toList();
-      emit(PlaylistState.success(response, videoIds));
+      final videoIds = response.playlist?.videos?.map((e) => e.id!).toList();
+      emit(PlaylistState.success(response, videoIds!));
     } catch (e) {
       emit(PlaylistState.failure(e.toString()));
     }

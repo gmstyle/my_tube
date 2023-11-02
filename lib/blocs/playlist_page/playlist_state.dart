@@ -11,13 +11,14 @@ class PlaylistState extends Equatable {
   });
 
   final PlaylistStatus status;
-  final ResponseMT? response;
+  final PlaylistResponseMT? response;
   final List<String>? videoIds;
   final String? error;
 
   const PlaylistState.initial() : this._(status: PlaylistStatus.initial);
   const PlaylistState.loading() : this._(status: PlaylistStatus.loading);
-  const PlaylistState.success(ResponseMT response, List<String> videoIds)
+  const PlaylistState.success(
+      PlaylistResponseMT response, List<String> videoIds)
       : this._(
           status: PlaylistStatus.loaded,
           response: response,

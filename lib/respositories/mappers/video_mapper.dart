@@ -21,7 +21,9 @@ class VideoMapper extends BaseMapper<VideoListResponse, ResponseMT> {
                 e.contentDetails?.duration)))
         .toList();
     return ResponseMT(
-        resources: videos, nextPageToken: data.nextPageToken, playlist: null);
+      resources: videos,
+      nextPageToken: data.nextPageToken,
+    );
   }
 
   @override
