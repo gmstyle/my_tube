@@ -62,7 +62,8 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
       emit(ExploreTabState.loaded(
           response: ResponseMT(
               resources: updatedVideos,
-              nextPageToken: response.nextPageToken)));
+              nextPageToken: response.nextPageToken,
+              playlist: null)));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
     }

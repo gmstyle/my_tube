@@ -50,7 +50,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
       final updatedVideos = [...videos, ...newVideos];
       emit(SearchState.success(ResponseMT(
-          resources: updatedVideos, nextPageToken: result.nextPageToken)));
+          resources: updatedVideos,
+          nextPageToken: result.nextPageToken,
+          playlist: null)));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
     }

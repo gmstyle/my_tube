@@ -194,10 +194,8 @@ class SearchView extends StatelessWidget {
     }
 
     if (result.kind == 'youtube#playlist') {
-      context.go('${AppRoute.search.path}/${AppRoute.playlist.path}', extra: {
-        'playlistTitle': result.title!,
-        'playlistId': result.playlistId!
-      });
+      context.go('${AppRoute.search.path}/${AppRoute.playlist.path}',
+          extra: {'playlist': result.title!, 'playlistId': result.playlistId!});
     }
   }
 

@@ -59,7 +59,8 @@ class FavoritesTabBloc extends Bloc<FavoritesTabEvent, FavoritesTabState> {
       emit(FavoritesTabState.loaded(
           response: ResponseMT(
               resources: updatedVideos,
-              nextPageToken: response.nextPageToken)));
+              nextPageToken: response.nextPageToken,
+              playlist: null)));
     } catch (error) {
       emit(FavoritesTabState.error(error: error.toString()));
     }

@@ -22,6 +22,7 @@ class SearchMapper extends BaseMapper<SearchListResponse, ResponseMT> {
     return ResponseMT(
       resources: videos,
       nextPageToken: data.nextPageToken,
+      playlist: null,
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:googleapis/youtube/v3.dart';
 import 'package:my_tube/models/channel_mt.dart';
+import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/models/suggestion_response_mt.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -61,7 +62,7 @@ class YoutubeRepository {
   }
 
   Future<PlaylistListResponse> getPlaylists(String channelId) async {
-    return await youtubeProvider.getPlaylists(channelId);
+    return await youtubeProvider.getPlaylists(channelId: channelId);
   }
 
   Future<ResponseMT> getPlaylistItems(
@@ -70,8 +71,21 @@ class YoutubeRepository {
         playlistId: playlistId, nextPageToken: nextPageToken);
     final videoIds =
         response.items?.map((e) => e.snippet!.resourceId!.videoId!).toList();
+    final playlistResponse =
+        await youtubeProvider.getPlaylists(id: [playlistId]);
     final videosResponse = await getVideos(videoIds: videoIds);
-    return videosResponse;
+    final playlist = playlistResponse.items?.first;
+    final playlistMT = PlaylistMT(
+      id: playlist?.id,
+      channelId: playlist?.snippet?.channelId,
+      title: playlist?.snippet?.title,
+      description: playlist?.snippet?.description,
+      thumbnailUrl: playlist?.snippet?.thumbnails?.high?.url,
+      itemCount: playlist?.contentDetails?.itemCount,
+      videos: videosResponse.resources,
+    );
+    final a = videosResponse.copyWith(playlist: playlistMT);
+    return a;
   }
 
   Future<String> getStreamUrl(String videoId) async {

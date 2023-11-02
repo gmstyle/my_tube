@@ -14,7 +14,8 @@ class YoutubeProvider {
   final GoogleSignIn googleSignIn = BaseProvider.googleSignIn;
   final YoutubeExplode youtubeExplode = BaseProvider.youtubeExplode;
 
-  Future<PlaylistListResponse> getPlaylists(String channelId) async {
+  Future<PlaylistListResponse> getPlaylists(
+      {List<String>? id, String? channelId, String? nextPageToken}) async {
     try {
       final autClient = await _getAuthClient();
 
@@ -22,7 +23,9 @@ class YoutubeProvider {
 
       final playlists = await youtubeApi.playlists.list(
         ['snippet', 'contentDetails'],
+        id: id,
         channelId: channelId,
+        pageToken: nextPageToken,
       );
 
       return playlists;

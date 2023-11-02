@@ -90,12 +90,9 @@ class AppRouter {
                           path: AppRoute.playlist.path,
                           pageBuilder: (context, state) {
                             final extra = state.extra as Map<String, dynamic>;
-                            final playlistTitle =
-                                extra['playlistTitle'] as String;
+
                             final playlistId = extra['playlistId'] as String;
-                            return PlaylistPage(
-                                playlistTitle: playlistTitle,
-                                playlistId: playlistId);
+                            return PlaylistPage(playlistId: playlistId);
                           })
                     ]),
               ]),

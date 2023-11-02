@@ -1,10 +1,15 @@
 import 'package:equatable/equatable.dart';
+import 'package:my_tube/models/playlist_mt.dart';
 
 class ResponseMT extends Equatable {
   final List<ResourceMT> resources;
   final String? nextPageToken;
+  final PlaylistMT? playlist;
 
-  const ResponseMT({required this.resources, required this.nextPageToken});
+  const ResponseMT(
+      {required this.resources,
+      required this.nextPageToken,
+      required this.playlist});
 
   factory ResponseMT.fromJson(Map<String, dynamic> json) {
     final videos = (json['videos'] as List)
@@ -13,6 +18,9 @@ class ResponseMT extends Equatable {
     return ResponseMT(
       resources: videos,
       nextPageToken: json['nextPageToken'] as String?,
+      playlist: json['playlist'] != null
+          ? PlaylistMT.fromJson(json['playlist'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -20,11 +28,24 @@ class ResponseMT extends Equatable {
     return {
       'videos': resources,
       'nextPageToken': nextPageToken,
+      'playlist': playlist,
     };
   }
 
+  ResponseMT copyWith({
+    List<ResourceMT>? resources,
+    String? nextPageToken,
+    PlaylistMT? playlist,
+  }) {
+    return ResponseMT(
+      resources: resources ?? this.resources,
+      nextPageToken: nextPageToken ?? this.nextPageToken,
+      playlist: playlist ?? this.playlist,
+    );
+  }
+
   @override
-  List<Object?> get props => [resources, nextPageToken];
+  List<Object?> get props => [resources, nextPageToken, playlist];
 }
 
 class ResourceMT extends Equatable {
