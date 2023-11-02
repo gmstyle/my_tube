@@ -85,7 +85,7 @@ class MyApp extends StatelessWidget {
     final router = AppRouter.router;
 
     return MaterialApp.router(
-      title: 'Flutter Demo',
+      title: 'My Tube',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,

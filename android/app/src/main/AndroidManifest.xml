@@ -2,7 +2,7 @@
    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application
-        android:label="my_tube"
+        android:label="My Tube"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
