@@ -15,12 +15,12 @@ class YoutubeRepository {
       {required this.youtubeProvider,
       required this.videoMapper,
       required this.searchMapper,
-      required this.activityMapper});
+      required this.subscriptionMapper});
 
   final YoutubeProvider youtubeProvider;
   final VideoMapper videoMapper;
   final SearchMapper searchMapper;
-  final SubscriptionMapper activityMapper;
+  final SubscriptionMapper subscriptionMapper;
 
   Future<List<VideoCategoryMT>> getVideoCategories() async {
     final response = await youtubeProvider.getVideoCategories();
@@ -58,7 +58,7 @@ class YoutubeRepository {
   Future<ResponseMT> getSubscribedChannels({String? nextPageToken}) async {
     final response = await youtubeProvider.getSubscribedChannels(
         nextPageToken: nextPageToken);
-    return activityMapper.mapToModel(response);
+    return subscriptionMapper.mapToModel(response);
   }
 
   Future<PlaylistListResponse> getPlaylists(String channelId) async {

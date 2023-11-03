@@ -57,7 +57,7 @@ void main() async {
                 youtubeProvider: context.read<YoutubeProvider>(),
                 videoMapper: context.read<VideoMapper>(),
                 searchMapper: context.read<SearchMapper>(),
-                activityMapper: context.read<SubscriptionMapper>()),
+                subscriptionMapper: context.read<SubscriptionMapper>()),
           ),
         ],
         child: MultiBlocProvider(providers: [

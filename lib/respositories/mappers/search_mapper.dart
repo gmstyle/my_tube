@@ -5,7 +5,7 @@ import 'package:my_tube/respositories/mappers/base_mapper.dart';
 class SearchMapper extends BaseMapper<SearchListResponse, ResponseMT> {
   @override
   ResponseMT mapToModel(SearchListResponse data) {
-    final videos = data.items!
+    final resources = data.items!
         .map((e) => ResourceMT(
               id: e.id?.videoId,
               title: e.snippet?.title,
@@ -20,7 +20,7 @@ class SearchMapper extends BaseMapper<SearchListResponse, ResponseMT> {
             ))
         .toList();
     return ResponseMT(
-      resources: videos,
+      resources: resources,
       nextPageToken: data.nextPageToken,
     );
   }

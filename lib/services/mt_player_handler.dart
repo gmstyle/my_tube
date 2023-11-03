@@ -73,9 +73,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     // inizializza il chewie controller per la riproduzione del video
     chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
-      autoPlay: true,
-    );
+        videoPlayerController: videoPlayerController,
+        autoPlay: true,
+        showOptions: false);
 
     // propaga lo stato del player ad audio_service e a tutti i listeners
     chewieController.videoPlayerController.addListener(broadcastState);

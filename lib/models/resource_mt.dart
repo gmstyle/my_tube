@@ -11,7 +11,7 @@ class ResponseMT extends Equatable {
   });
 
   factory ResponseMT.fromJson(Map<String, dynamic> json) {
-    final videos = (json['videos'] as List)
+    final videos = (json['resources'] as List)
         .map((e) => ResourceMT.fromJson(e as Map<String, dynamic>))
         .toList();
     return ResponseMT(
@@ -22,7 +22,7 @@ class ResponseMT extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'videos': resources,
+      'resources': resources,
       'nextPageToken': nextPageToken,
     };
   }

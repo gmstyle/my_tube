@@ -6,7 +6,7 @@ class SubscriptionMapper
     extends BaseMapper<SubscriptionListResponse, ResponseMT> {
   @override
   ResponseMT mapToModel(SubscriptionListResponse data) {
-    final activities = data.items!
+    final resources = data.items!
         .map((e) => ResourceMT(
               id: e.id,
               title: e.snippet?.title,
@@ -22,7 +22,7 @@ class SubscriptionMapper
         .toList();
 
     return ResponseMT(
-      resources: activities,
+      resources: resources,
       nextPageToken: data.nextPageToken,
     );
   }
