@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/models/playlist_mt.dart';
+import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
 
@@ -14,7 +15,6 @@ class PlaylistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final playlistState = context.watch<PlaylistBloc>().state;
     return BlocBuilder<PlaylistBloc, PlaylistState>(
       builder: ((context, state) {
         switch (state.status) {
@@ -23,25 +23,32 @@ class PlaylistView extends StatelessWidget {
 
           case PlaylistStatus.loaded:
             final playlist = state.response?.playlist;
-            return Column(
-              children: [
-                Header(playlist: playlist),
-                Expanded(
-                  child: ListView.builder(
-                      itemCount: playlist?.videos!.length,
-                      itemBuilder: (context, index) {
-                        final video = state.response?.playlist!.videos![index];
-                        return GestureDetector(
-                          onTap: () async {
-                            await context
-                                .read<MiniPlayerCubit>()
-                                .startPlaying(video.id!);
-                          },
-                          child: ResourceTile(resource: video!),
-                        );
-                      }),
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  children: [
+                    Header(playlist: playlist),
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: playlist?.videos!.length,
+                        itemBuilder: (context, index) {
+                          final video =
+                              state.response?.playlist!.videos![index];
+                          return GestureDetector(
+                            onTap: () async {
+                              await context
+                                  .read<MiniPlayerCubit>()
+                                  .startPlaying(video.id!);
+                            },
+                            child: ResourceTile(resource: video!),
+                          );
+                        }),
+                  ],
                 ),
-              ],
+              ),
             );
 
           case PlaylistStatus.failure:
@@ -67,6 +74,8 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final miniplayerCubit = context.watch<MiniPlayerCubit>();
+    final playlistState = context.read<PlaylistBloc>().state;
     return Column(
       children: [
         Row(
@@ -90,12 +99,13 @@ class Header extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.network(playlist?.thumbnailUrl ?? '',
-              height: MediaQuery.of(context).size.height * 0.3,
-              width: MediaQuery.of(context).size.width * 0.3,
+              height: MediaQuery.of(context).size.height * 0.2,
+              width: MediaQuery.of(context).size.width * 0.8,
               fit: BoxFit.cover),
         ),
         const SizedBox(height: 8),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Flexible(
               child: Text(
@@ -105,6 +115,16 @@ class Header extends StatelessWidget {
                     ),
               ),
             ),
+            IconButton(
+                iconSize: MediaQuery.of(context).size.width * 0.15,
+                color: Colors.white,
+                onPressed: playlistState.status == PlaylistStatus.loaded
+                    ? () {
+                        miniplayerCubit
+                            .startPlayingPlaylist(playlistState.videoIds!);
+                      }
+                    : null,
+                icon: const Icon(Icons.playlist_play))
           ],
         ),
       ],

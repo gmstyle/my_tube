@@ -81,10 +81,11 @@ class ResourceTile extends StatelessWidget {
         icon = Icons.playlist_play;
 
       default:
-        icon = Icons.play_arrow;
+        icon = Icons.audiotrack_rounded;
     }
 
     return CircleAvatar(
+        radius: 16,
         backgroundColor: Colors.white,
         child: Icon(icon, color: Theme.of(context).colorScheme.primary));
   }

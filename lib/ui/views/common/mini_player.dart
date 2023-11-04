@@ -125,7 +125,7 @@ class MiniPlayer extends StatelessWidget {
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                 //Play/pause button
                 StreamBuilder(
-                    stream: miniPlayerCubit.mtPlayerHandler.playbackState
+                    stream: mtPlayerHandler.playbackState
                         .map((playbackState) => playbackState.playing)
                         .distinct(),
                     builder: (context, snapshot) {
@@ -133,9 +133,9 @@ class MiniPlayer extends StatelessWidget {
                       return IconButton(
                           onPressed: () {
                             if (isPlaying) {
-                              miniPlayerCubit.pauseMiniPlayer();
+                              mtPlayerHandler.pause();
                             } else {
-                              miniPlayerCubit.playMiniPlayer();
+                              mtPlayerHandler.play();
                             }
                           },
                           icon:
@@ -150,11 +150,11 @@ class MiniPlayer extends StatelessWidget {
                     icon: const Icon(Icons.stop)),
 
                 // button
-                IconButton(
+                /* IconButton(
                     onPressed: () {
                       context.pushNamed(AppRoute.song.name);
                     },
-                    icon: const Icon(Icons.expand_less)),
+                    icon: const Icon(Icons.expand_less)), */
               ]),
             ],
           ),
