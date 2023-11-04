@@ -1,4 +1,3 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,7 +55,7 @@ class MiniPlayer extends StatelessWidget {
                                   )
                                 : ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child: FlutterLogo(),
+                                    child: const FlutterLogo(),
                                   );
                           }),
 
@@ -150,6 +149,7 @@ class MiniPlayer extends StatelessWidget {
                     builder: (context, snapshot) {
                       final isPlaying = snapshot.data ?? false;
                       return IconButton(
+                          iconSize: MediaQuery.of(context).size.width * 0.1,
                           onPressed: () {
                             if (isPlaying) {
                               mtPlayerHandler.pause();
@@ -162,12 +162,12 @@ class MiniPlayer extends StatelessWidget {
                     }),
 
                 //Stop button
-                IconButton(
+                /*  IconButton(
                     onPressed: () {
                       miniPlayerCubit.mtPlayerHandler.stop();
                     },
                     icon: const Icon(Icons.stop)),
-
+ */
                 // skip next button
                 StreamBuilder(
                     stream: mtPlayerHandler.queue,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
-import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/ui/views/playlist/playlist_view.dart';
 
 class PlaylistPage extends Page {

@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
-import 'package:my_tube/ui/views/common/seek_bar.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});

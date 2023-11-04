@@ -24,7 +24,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   @override
   Future<void> stop() async {
-    currentIndex = 0;
     await chewieController.videoPlayerController.pause();
     await chewieController.videoPlayerController.seekTo(Duration.zero);
   }

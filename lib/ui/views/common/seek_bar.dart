@@ -40,7 +40,7 @@ class SeekBar extends StatelessWidget {
             }),
 
         // Seek bar
-        Flexible(
+        Expanded(
           child: StreamBuilder(
               stream: mtPlayerHandler.playbackState
                   .map((playbackState) => playbackState.position)

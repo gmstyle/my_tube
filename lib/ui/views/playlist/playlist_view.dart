@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/models/playlist_mt.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
-import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
 
 class PlaylistView extends StatelessWidget {
@@ -132,6 +130,10 @@ class Header extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
+                const Icon(
+                  Icons.music_note_rounded,
+                  color: Colors.white,
+                ),
                 Text(
                   'Tracks: ${playlist!.itemCount}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

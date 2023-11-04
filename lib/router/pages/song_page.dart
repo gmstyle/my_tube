@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/song_view/song_view.dart';
 
 class SongPage extends Page {
@@ -12,7 +11,7 @@ class SongPage extends Page {
     return MaterialPageRoute(
         settings: this,
         builder: (BuildContext context) {
-          return SongView();
+          return const SongView();
         });
   }
 }
