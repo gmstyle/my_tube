@@ -22,7 +22,7 @@ class SongView extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.secondary,
+            Theme.of(context).colorScheme.tertiary,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

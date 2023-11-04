@@ -104,27 +104,55 @@ class Header extends StatelessWidget {
               fit: BoxFit.cover),
         ),
         const SizedBox(height: 8),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        Column(
           children: [
-            Flexible(
-              child: Text(
-                playlist?.title ?? '',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
-                    ),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    playlist?.title ?? '',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                ),
+                FloatingActionButton.small(
+                    elevation: 0,
+                    backgroundColor: Colors.white,
+                    onPressed: playlistState.status == PlaylistStatus.loaded
+                        ? () {
+                            miniplayerCubit
+                                .startPlayingPlaylist(playlistState.videoIds!);
+                          }
+                        : null,
+                    child: const Icon(Icons.playlist_play))
+              ],
             ),
-            IconButton(
-                iconSize: MediaQuery.of(context).size.width * 0.15,
-                color: Colors.white,
-                onPressed: playlistState.status == PlaylistStatus.loaded
-                    ? () {
-                        miniplayerCubit
-                            .startPlayingPlaylist(playlistState.videoIds!);
-                      }
-                    : null,
-                icon: const Icon(Icons.playlist_play))
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Tracks: ${playlist!.itemCount}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    '${playlist!.description}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ],

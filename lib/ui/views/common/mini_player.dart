@@ -47,7 +47,8 @@ class MiniPlayer extends StatelessWidget {
                           builder: (context, snapshot) {
                             final mediaItem = snapshot.data;
                             return mediaItem?.artUri != null
-                                ? Expanded(
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
                                     child: Image.network(
                                       mediaItem!.artUri.toString(),
                                     ),
@@ -123,6 +124,25 @@ class MiniPlayer extends StatelessWidget {
               const Flexible(child: SeekBar()),
               //
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                // skip previous button
+                StreamBuilder(
+                    stream: mtPlayerHandler.queue,
+                    builder: ((context, snapshot) {
+                      final queue = snapshot.data ?? [];
+                      final index =
+                          queue.indexOf(mtPlayerHandler.mediaItem.value!);
+                      return IconButton(
+                        icon: const Icon(
+                          Icons.skip_previous,
+                        ),
+                        onPressed: index > 0
+                            ? () {
+                                mtPlayerHandler.skipToPrevious();
+                              }
+                            : null,
+                      );
+                    })),
+
                 //Play/pause button
                 StreamBuilder(
                     stream: mtPlayerHandler.playbackState
@@ -142,12 +162,31 @@ class MiniPlayer extends StatelessWidget {
                               Icon(isPlaying ? Icons.pause : Icons.play_arrow));
                     }),
 
-                //Close button
-                IconButton(
+                //Stop button
+                /* IconButton(
                     onPressed: () {
                       miniPlayerCubit.mtPlayerHandler.stop();
                     },
-                    icon: const Icon(Icons.stop)),
+                    icon: const Icon(Icons.stop)), */
+
+                // skip next button
+                StreamBuilder(
+                    stream: mtPlayerHandler.queue,
+                    builder: ((context, snapshot) {
+                      final queue = snapshot.data ?? [];
+                      final index =
+                          queue.indexOf(mtPlayerHandler.mediaItem.value!);
+                      return IconButton(
+                        icon: const Icon(
+                          Icons.skip_next,
+                        ),
+                        onPressed: index < queue.length - 1
+                            ? () {
+                                mtPlayerHandler.skipToNext();
+                              }
+                            : null,
+                      );
+                    })),
 
                 // button
                 /* IconButton(
