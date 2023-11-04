@@ -48,8 +48,9 @@ class SeekBar extends StatelessWidget {
               builder: (context, snapshot) {
                 final position = snapshot.data ?? Duration.zero;
                 return StreamBuilder(
-                    stream: mtPlayerHandler.mediaItem
-                        .map((mediaItem) => mediaItem?.duration)
+                    stream: mtPlayerHandler.queue
+                        .map((queue) =>
+                            queue[mtPlayerHandler.currentIndex].duration)
                         .distinct(),
                     builder: (context, snapshot) {
                       final duration = snapshot.data ?? Duration.zero;
@@ -102,8 +103,9 @@ class SeekBar extends StatelessWidget {
             builder: (context, snapshot) {
               final position = snapshot.data ?? Duration.zero;
               return StreamBuilder(
-                  stream: mtPlayerHandler.mediaItem
-                      .map((mediaItem) => mediaItem?.duration)
+                  stream: mtPlayerHandler.queue
+                      .map((queue) =>
+                          queue[mtPlayerHandler.currentIndex].duration)
                       .distinct(),
                   builder: (context, snapshot) {
                     final duration = snapshot.data ?? Duration.zero;

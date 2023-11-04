@@ -35,10 +35,15 @@ class SongView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
-              AspectRatio(
-                  aspectRatio: mtPlayerHandler
-                      .chewieController.videoPlayerController.value.aspectRatio,
-                  child: Chewie(controller: mtPlayerHandler.chewieController)),
+              StreamBuilder(
+                  stream: mtPlayerHandler.mediaItem,
+                  builder: (context, snapshot) {
+                    return AspectRatio(
+                        aspectRatio: mtPlayerHandler.chewieController
+                            .videoPlayerController.value.aspectRatio,
+                        child: Chewie(
+                            controller: mtPlayerHandler.chewieController));
+                  }),
               const SizedBox(
                 height: 8,
               ),
@@ -75,21 +80,22 @@ class SongView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // TODO: Previous
+                  // Skip previous
                   StreamBuilder(
                       stream: mtPlayerHandler.queue,
                       builder: ((context, snapshot) {
                         final queue = snapshot.data ?? [];
                         final index =
                             queue.indexOf(mtPlayerHandler.mediaItem.value!);
+                        bool isEnabled = index > 0;
                         return IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.skip_previous,
-                            color: Colors.white,
+                            color: isEnabled ? Colors.white : null,
                           ),
-                          onPressed: index > 0
-                              ? () {
-                                  mtPlayerHandler.skipToPrevious();
+                          onPressed: isEnabled
+                              ? () async {
+                                  await mtPlayerHandler.skipToPrevious();
                                 }
                               : null,
                         );
@@ -118,21 +124,22 @@ class SongView extends StatelessWidget {
                         );
                       }),
 
-                  // TODO: Next
+                  // Skip next
                   StreamBuilder(
                       stream: mtPlayerHandler.queue,
                       builder: ((context, snapshot) {
                         final queue = snapshot.data ?? [];
                         final index =
                             queue.indexOf(mtPlayerHandler.mediaItem.value!);
+                        bool isEnable = index < queue.length - 1;
                         return IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.skip_next,
-                            color: Colors.white,
+                            color: isEnable ? Colors.white : null,
                           ),
-                          onPressed: index < queue.length - 1
-                              ? () {
-                                  mtPlayerHandler.skipToNext();
+                          onPressed: isEnable
+                              ? () async {
+                                  await mtPlayerHandler.skipToNext();
                                 }
                               : null,
                         );

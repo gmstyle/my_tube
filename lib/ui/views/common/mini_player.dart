@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,10 +54,9 @@ class MiniPlayer extends StatelessWidget {
                                       mediaItem!.artUri.toString(),
                                     ),
                                   )
-                                : const Expanded(
-                                    child: SizedBox(
-                                      child: FlutterLogo(),
-                                    ),
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: FlutterLogo(),
                                   );
                           }),
 
@@ -129,15 +129,14 @@ class MiniPlayer extends StatelessWidget {
                     stream: mtPlayerHandler.queue,
                     builder: ((context, snapshot) {
                       final queue = snapshot.data ?? [];
-                      final index =
-                          queue.indexOf(mtPlayerHandler.mediaItem.value!);
+                      final index = queue.indexOf(mtPlayerHandler.currentTrack);
                       return IconButton(
                         icon: const Icon(
                           Icons.skip_previous,
                         ),
                         onPressed: index > 0
-                            ? () {
-                                mtPlayerHandler.skipToPrevious();
+                            ? () async {
+                                await mtPlayerHandler.skipToPrevious();
                               }
                             : null,
                       );
@@ -163,37 +162,29 @@ class MiniPlayer extends StatelessWidget {
                     }),
 
                 //Stop button
-                /* IconButton(
+                IconButton(
                     onPressed: () {
                       miniPlayerCubit.mtPlayerHandler.stop();
                     },
-                    icon: const Icon(Icons.stop)), */
+                    icon: const Icon(Icons.stop)),
 
                 // skip next button
                 StreamBuilder(
                     stream: mtPlayerHandler.queue,
                     builder: ((context, snapshot) {
                       final queue = snapshot.data ?? [];
-                      final index =
-                          queue.indexOf(mtPlayerHandler.mediaItem.value!);
+                      final index = queue.indexOf(mtPlayerHandler.currentTrack);
                       return IconButton(
                         icon: const Icon(
                           Icons.skip_next,
                         ),
                         onPressed: index < queue.length - 1
-                            ? () {
-                                mtPlayerHandler.skipToNext();
+                            ? () async {
+                                await mtPlayerHandler.skipToNext();
                               }
                             : null,
                       );
                     })),
-
-                // button
-                /* IconButton(
-                    onPressed: () {
-                      context.pushNamed(AppRoute.song.name);
-                    },
-                    icon: const Icon(Icons.expand_less)), */
               ]),
             ],
           ),

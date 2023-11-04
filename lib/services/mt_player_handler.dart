@@ -39,6 +39,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     if (currentIndex < playlist.length - 1) {
       currentIndex++;
       await _playCurrentTrack();
+      await chewieController.videoPlayerController.seekTo(Duration.zero);
     }
   }
 
@@ -46,8 +47,8 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> skipToPrevious() async {
     if (currentIndex > 0) {
       currentIndex--;
-
       await _playCurrentTrack();
+      await chewieController.videoPlayerController.seekTo(Duration.zero);
     }
   }
 
@@ -63,40 +64,13 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         extras: {
           'streamUrl': video.streamUrl!,
         });
-    mediaItem.add(item);
 
-    // inizializza il video player controller da passare a chewie
-    videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(item.extras!['streamUrl']),
-        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
-    await videoPlayerController.initialize();
+    // aggiungi il brano alla coda se non è già presente
+    if (!playlist.contains(item)) {
+      playlist.add(item);
+    }
 
-    // inizializza il chewie controller per la riproduzione del video
-    chewieController = ChewieController(
-        videoPlayerController: videoPlayerController,
-        autoPlay: true,
-        showOptions: false);
-
-    // propaga lo stato del player ad audio_service e a tutti i listeners
-    chewieController.videoPlayerController.addListener(broadcastState);
-  }
-
-  // Inizializza il player per la riproduzione di una coda di video
-  Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
-    // inizializza la playlist ed il primo brano
-    playlist = videos
-        .map((video) => MediaItem(
-                id: video.id!,
-                title: video.title!,
-                album: video.channelTitle!,
-                artUri: Uri.parse(video.thumbnailUrl!),
-                duration: Duration(milliseconds: video.duration!),
-                extras: {
-                  'streamUrl': video.streamUrl!,
-                }))
-        .toList();
-
-    currentIndex = 0;
+    currentIndex = playlist.indexOf(item);
 
     await _playCurrentTrack();
   }
@@ -112,25 +86,18 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     // inizializza il chewie controller per la riproduzione del video
     chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
-      autoPlay: true,
-    );
-
-    final item = MediaItem(
-        id: currentTrack.id,
-        title: currentTrack.title,
-        album: currentTrack.album,
-        artUri: currentTrack.artUri,
-        duration: currentTrack.duration,
-        extras: currentTrack.extras);
+        videoPlayerController: videoPlayerController,
+        autoPlay: true,
+        showOptions: false);
 
     // aggiungi il brano alla coda
-    mediaItem.add(item);
+    queue.add(playlist);
+    // aggiungi il brano al media item per la notifica
+    mediaItem.add(currentTrack);
 
     // propaga lo stato del player ad audio_service e a tutti i listeners
     chewieController.videoPlayerController.addListener(broadcastState);
 
-    // passa al brano successivo quando il video è finito fino a che non ci sono più brani
     chewieController.videoPlayerController.addListener(() {
       // verifica che il video sia finito
       if (chewieController.videoPlayerController.value.duration ==
@@ -143,6 +110,33 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         }
       }
     });
+  }
+
+  // Inizializza il player per la riproduzione di una coda di video
+  Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
+    // inizializza la playlist ed il primo brano
+    final list = videos
+        .map((video) => MediaItem(
+                id: video.id!,
+                title: video.title!,
+                album: video.channelTitle!,
+                artUri: Uri.parse(video.thumbnailUrl!),
+                duration: Duration(milliseconds: video.duration!),
+                extras: {
+                  'streamUrl': video.streamUrl!,
+                }))
+        .toList();
+
+    for (final item in list) {
+      // aggiungi il brano alla coda se non è già presente
+      if (!playlist.contains(item)) {
+        playlist.add(item);
+      }
+    }
+
+    currentIndex = playlist.indexOf(list.first);
+
+    await _playCurrentTrack();
   }
 
   // prepara lo stato del player per la riproduzione

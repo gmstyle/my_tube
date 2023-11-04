@@ -107,18 +107,18 @@ class Header extends StatelessWidget {
         Column(
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Flexible(
                   child: Text(
                     playlist?.title ?? '',
+                    maxLines: 2,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                         ),
                   ),
                 ),
                 FloatingActionButton.small(
-                    elevation: 0,
                     backgroundColor: Colors.white,
                     onPressed: playlistState.status == PlaylistStatus.loaded
                         ? () {

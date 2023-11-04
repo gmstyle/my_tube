@@ -11,12 +11,12 @@ class MiniPlayerState extends Equatable {
 
   const MiniPlayerState.loading() : this._(status: MiniPlayerStatus.loading);
   const MiniPlayerState.hidden() : this._(status: MiniPlayerStatus.hidden);
-  const MiniPlayerState.shown(ResourceMT video, MtPlayerHandler mtPlayerHandler)
+  const MiniPlayerState.shown(ResourceMT? video)
       : this._(
           status: MiniPlayerStatus.shown,
           video: video,
         );
 
   @override
-  List<Object?> get props => [status];
+  List<Object?> get props => [status, video];
 }
