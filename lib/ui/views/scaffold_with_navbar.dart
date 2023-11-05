@@ -69,8 +69,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             /// Mini player
             AnimatedContainer(
               decoration: BoxDecoration(
-
-                  // TODO: fixare il colore e mettere lo stesso colore della navigation bar non ancora disponibile per bug flutter
                   color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10),

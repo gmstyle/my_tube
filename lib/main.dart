@@ -84,10 +84,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final router = AppRouter.router;
 
+    const mainColor = Color.fromARGB(255, 66, 24, 150);
+
     return MaterialApp.router(
       title: 'My Tube',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        colorScheme: ColorScheme.fromSeed(seedColor: mainColor),
         useMaterial3: true,
       ),
       routerConfig: router,
