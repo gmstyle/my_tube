@@ -13,7 +13,7 @@ class SubscriptionMapper
               description: e.snippet?.description,
               kind: e.snippet?.resourceId?.kind,
               channelId: e.snippet?.resourceId?.channelId,
-              thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
+              thumbnailUrl: e.snippet?.thumbnails?.high?.url,
               channelTitle: e.snippet?.channelTitle,
               playlistId: '',
               streamUrl: '',

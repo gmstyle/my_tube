@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/channel_page/bloc/channel_page_bloc.dart';
+import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 
 class ChannelView extends StatelessWidget {
   const ChannelView({super.key, required this.channelId});

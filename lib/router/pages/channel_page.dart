@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/channel_page/bloc/channel_page_bloc.dart';
+import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/ui/views/channel/channel_view.dart';
 

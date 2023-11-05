@@ -11,7 +11,7 @@ class SearchMapper extends BaseMapper<SearchListResponse, ResponseMT> {
               title: e.snippet?.title,
               description: e.snippet?.description,
               channelTitle: e.snippet?.channelTitle,
-              thumbnailUrl: e.snippet?.thumbnails?.medium?.url,
+              thumbnailUrl: e.snippet?.thumbnails?.high?.url,
               kind: e.id?.kind,
               channelId: e.snippet?.channelId,
               playlistId: e.id?.playlistId,
