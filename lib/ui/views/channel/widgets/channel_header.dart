@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
-import 'package:my_tube/models/playlist_mt.dart';
+import 'package:my_tube/models/channel_mt.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
+import 'package:my_tube/utils/utils.dart';
 
-class PlaylistHeader extends StatelessWidget {
-  const PlaylistHeader({
-    super.key,
-    required this.playlist,
-  });
+class ChannelHeader extends StatelessWidget {
+  const ChannelHeader({super.key, required this.channel});
 
-  final PlaylistMT? playlist;
+  final ChannelMT? channel;
 
   @override
   Widget build(BuildContext context) {
     final miniplayerCubit = context.read<MiniPlayerCubit>();
-    final playlistState = context.watch<PlaylistBloc>().state;
+    final channelState = context.watch<ChannelPageBloc>().state;
     return Column(
       children: [
+        // Actions
         Row(
           children: [
             IconButton(
@@ -38,17 +37,19 @@ class PlaylistHeader extends StatelessWidget {
             ),
           ],
         ),
+
+        // Channel info
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.3,
           child: Stack(
             fit: StackFit.expand,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(playlist?.thumbnailUrl ?? '',
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    fit: BoxFit.cover),
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  channel!.thumbnailUrl!,
+                  fit: BoxFit.cover,
+                ),
               ),
               Container(
                 decoration: BoxDecoration(
@@ -71,22 +72,33 @@ class PlaylistHeader extends StatelessWidget {
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Text(
-                            playlist?.title ?? '',
-                            maxLines: 2,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  color: Colors.white,
-                                ),
-                          ),
+                          child: Text(channel!.title!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  )),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    if (channel!.customUrl != null)
+                      Row(
+                        children: [
+                          Text(
+                            '${channel!.customUrl}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
                         const Icon(
@@ -94,11 +106,21 @@ class PlaylistHeader extends StatelessWidget {
                           color: Colors.white,
                         ),
                         Text(
-                          ' Tracks: ${playlist!.itemCount}',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.white,
-                                  ),
+                          ' Tracks: ${channel!.videos?.length}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 4),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.remove_red_eye,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          ' Views: ${Utils.formatNumber(int.parse(channel!.viewCount!))}',
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
@@ -110,19 +132,21 @@ class PlaylistHeader extends StatelessWidget {
                   bottom: 16,
                   child: FloatingActionButton.small(
                       backgroundColor: Colors.white,
-                      onPressed: playlistState.status == PlaylistStatus.loaded
+                      onPressed: channelState.status == ChannelPageStatus.loaded
                           ? () {
                               miniplayerCubit.startPlayingPlaylist(
-                                  playlistState.videoIds!);
+                                  channelState.channel!.videoIds!);
                             }
                           : null,
                       child: const Icon(Icons.playlist_play)))
             ],
           ),
         ),
-        if (playlist!.description != null) ...[
+
+        // Description
+        if (channel!.description != null) ...[
           const SizedBox(height: 8),
-          ExpandableText(text: playlist!.description ?? '')
+          ExpandableText(text: channel!.description ?? '')
         ],
       ],
     );

@@ -7,6 +7,8 @@ class VideoMapper extends BaseMapper<VideoListResponse, ResponseMT> {
   @override
   ResponseMT mapToModel(VideoListResponse data) {
     final videos = data.items!
+        // escludo i video live che non stanno trasmettendo prima di mappare
+        .where((e) => e.snippet?.liveBroadcastContent != 'upcoming')
         .map((e) => ResourceMT(
             id: e.id,
             title: e.snippet?.title,
@@ -20,6 +22,7 @@ class VideoMapper extends BaseMapper<VideoListResponse, ResponseMT> {
             duration: Utils.parseDurationStringToMilliseconds(
                 e.contentDetails?.duration)))
         .toList();
+
     return ResponseMT(
       resources: videos,
       nextPageToken: data.nextPageToken,

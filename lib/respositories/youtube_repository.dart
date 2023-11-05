@@ -114,16 +114,19 @@ class YoutubeRepository {
     final playlistId = channel?.contentDetails?.relatedPlaylists?.uploads;
     final playlistItems = await getPlaylistItems(playlistId: playlistId!);
     final channelVideos = playlistItems.playlist?.videos;
+    final videoIds = channelVideos?.map((e) => e.id!).toList();
 
     return ChannelMT(
       id: channel?.id,
       title: channel?.snippet?.title,
+      customUrl: channel?.snippet?.customUrl,
       description: channel?.snippet?.description,
       thumbnailUrl: channel?.snippet?.thumbnails?.high?.url,
       videoCount: channel?.statistics?.videoCount,
       subscriberCount: channel?.statistics?.subscriberCount,
       viewCount: channel?.statistics?.viewCount,
       videos: channelVideos,
+      videoIds: videoIds,
     );
   }
 }

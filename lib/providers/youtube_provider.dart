@@ -224,10 +224,15 @@ class YoutubeProvider {
 
   // get the youtube stream url
   Future<String> getStreamUrl(String videoId) async {
-    final manifest =
-        await youtubeExplode.videos.streamsClient.getManifest(videoId);
-    final streams = manifest.muxed.bestQuality;
-    return streams.url.toString();
+    try {
+      final manifest =
+          await youtubeExplode.videos.streamsClient.getManifest(videoId);
+      final streams = manifest.muxed.bestQuality;
+      return streams.url.toString();
+    } on Exception catch (e) {
+      log('Error: $e');
+      return Future.error('Error: $e');
+    }
   }
 
   Future<auth.AuthClient> _getAuthClient() async {

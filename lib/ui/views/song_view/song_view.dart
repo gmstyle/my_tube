@@ -34,11 +34,15 @@ class SongView extends StatelessWidget {
               StreamBuilder(
                   stream: mtPlayerHandler.mediaItem,
                   builder: (context, snapshot) {
-                    return AspectRatio(
-                        aspectRatio: mtPlayerHandler.chewieController
-                            .videoPlayerController.value.aspectRatio,
-                        child: Chewie(
-                            controller: mtPlayerHandler.chewieController));
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      width: MediaQuery.of(context).size.width,
+                      child: AspectRatio(
+                          aspectRatio: mtPlayerHandler.chewieController
+                              .videoPlayerController.value.aspectRatio,
+                          child: Chewie(
+                              controller: mtPlayerHandler.chewieController)),
+                    );
                   }),
               const SizedBox(
                 height: 8,
