@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class SongView extends StatelessWidget {
   const SongView({
@@ -13,6 +14,12 @@ class SongView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mtPlayerHandler = context.read<MtPlayerHandler>();
+
+    mtPlayerHandler.chewieController.videoPlayerController.addListener(() {
+      WakelockPlus.toggle(
+          enable: mtPlayerHandler.chewieController.isFullScreen);
+    });
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
