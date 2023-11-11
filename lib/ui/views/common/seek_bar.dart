@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class SeekBar extends StatelessWidget {
   const SeekBar({super.key, this.darkBackground = false});
 
   final bool darkBackground;
 
-  String _fornmatDuration(Duration? duration) {
-    if (duration == null) {
-      return '--:--';
-    }
-
-    final minutes = duration.inMinutes.toString().padLeft(2, '0');
-    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
-  }
+// format duration to hh:mm:ss
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +23,7 @@ class SeekBar extends StatelessWidget {
             builder: (context, snapshot) {
               final position = snapshot.data ?? Duration.zero;
               return Text(
-                _fornmatDuration(position),
+                Utils.fornmatDuration(position),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: darkBackground
                           ? Colors.white
@@ -110,7 +103,7 @@ class SeekBar extends StatelessWidget {
                   builder: (context, snapshot) {
                     final duration = snapshot.data ?? Duration.zero;
                     return Text(
-                      _fornmatDuration(duration - position),
+                      Utils.fornmatDuration(duration - position),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: darkBackground
                                 ? Colors.white

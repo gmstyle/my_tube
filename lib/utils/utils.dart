@@ -43,4 +43,24 @@ class Utils {
       return '${(number / 1000000000).toStringAsFixed(1)}B';
     }
   }
+
+  static String fornmatDuration(Duration? duration) {
+    if (duration == null) {
+      return '--:--';
+    }
+
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    final hours = duration.inHours;
+
+    final minutesStr = minutes.toString().padLeft(2, '0');
+    final secondsStr = seconds.toString().padLeft(2, '0');
+    final hoursStr = hours.toString().padLeft(2, '0');
+
+    if (hours == 0) {
+      return '$minutesStr:$secondsStr';
+    }
+
+    return '$hoursStr:$minutesStr:$secondsStr';
+  }
 }
