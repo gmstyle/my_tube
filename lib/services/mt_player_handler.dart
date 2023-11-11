@@ -11,6 +11,12 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   int currentIndex = 0;
   late MediaItem currentTrack;
   List<MediaItem> playlist = [];
+  bool get hasNextVideo => currentIndex < playlist.length - 1;
+
+  // Stream per notificare il cambio di brano
+  final StreamController<void> skipController =
+      StreamController<void>.broadcast();
+  Stream<void> get onSkip => skipController.stream;
 
   @override
   Future<void> play() async {
@@ -39,6 +45,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       currentIndex++;
       await _playCurrentTrack();
       await chewieController.videoPlayerController.seekTo(Duration.zero);
+      skipController.add(null);
     }
   }
 
@@ -48,6 +55,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       currentIndex--;
       await _playCurrentTrack();
       await chewieController.videoPlayerController.seekTo(Duration.zero);
+      skipController.add(null);
     }
   }
 
@@ -85,9 +93,10 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     // inizializza il chewie controller per la riproduzione del video
     chewieController = ChewieController(
-        videoPlayerController: videoPlayerController,
-        autoPlay: true,
-        showOptions: false);
+      videoPlayerController: videoPlayerController,
+      autoPlay: true,
+      showOptions: false,
+    );
 
     // aggiungi il brano alla coda
     queue.add(playlist);
@@ -102,7 +111,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       if (chewieController.videoPlayerController.value.duration ==
           chewieController.videoPlayerController.value.position) {
         // verifica che ci siano altri brani nella coda
-        if (currentIndex < playlist.length - 1) {
+        if (hasNextVideo) {
           skipToNext();
         } else {
           stop();

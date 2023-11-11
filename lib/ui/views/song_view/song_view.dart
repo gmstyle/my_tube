@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:my_tube/ui/views/song_view/full_screen_dialog.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class SongView extends StatelessWidget {
@@ -151,6 +152,18 @@ class SongView extends StatelessWidget {
                               : null,
                         );
                       })),
+
+                  // full screen
+                  IconButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return FullScreenVideoDialog(
+                                  mtPlayerHandler: mtPlayerHandler);
+                            });
+                      },
+                      icon: const Icon(Icons.fullscreen)),
                 ],
               ),
             ],
