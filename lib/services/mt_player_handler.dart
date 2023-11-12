@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/ui/views/song_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
@@ -96,6 +98,13 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       videoPlayerController: videoPlayerController,
       autoPlay: true,
       showOptions: false,
+      routePageBuilder: (context, animation, __, ___) {
+        // uso un widget per il full screen personalizzato
+        // per poter gestire il cambio di brano anche in full screen
+        return FullScreenVideoView(
+          mtPlayerHandler: this,
+        );
+      },
     );
 
     // aggiungi il brano alla coda

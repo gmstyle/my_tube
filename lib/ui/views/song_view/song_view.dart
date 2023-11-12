@@ -1,10 +1,12 @@
+import 'dart:developer';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
-import 'package:my_tube/ui/views/song_view/full_screen_dialog.dart';
+import 'package:my_tube/ui/views/song_view/widget/full_screen_video_view.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class SongView extends StatelessWidget {
@@ -154,16 +156,6 @@ class SongView extends StatelessWidget {
                       })),
 
                   // full screen
-                  IconButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return FullScreenVideoDialog(
-                                  mtPlayerHandler: mtPlayerHandler);
-                            });
-                      },
-                      icon: const Icon(Icons.fullscreen)),
                 ],
               ),
             ],
