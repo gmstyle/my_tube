@@ -2,6 +2,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:googleapis/pubsub/v1.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
@@ -20,7 +21,162 @@ class MiniPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
     final MtPlayerHandler mtPlayerHandler = context.read<MtPlayerHandler>();
-    return Padding(
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+      child: GestureDetector(
+        onTap: () => context.pushNamed(AppRoute.song.name),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Image
+            StreamBuilder(
+                stream: mtPlayerHandler.mediaItem,
+                builder: (context, snapshot) {
+                  final mediaItem = snapshot.data;
+                  return mediaItem?.artUri != null
+                      ? Image.network(
+                          fit: BoxFit.cover,
+                          mediaItem!.artUri.toString(),
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: const FlutterLogo(),
+                        );
+                }),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7),
+                    Colors.black.withOpacity(0.9),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+
+            // Video Info
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    // Video Title
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            video?.title ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            video?.channelTitle ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // skip previous button
+                    StreamBuilder(
+                        stream: mtPlayerHandler.queue,
+                        builder: ((context, snapshot) {
+                          final queue = snapshot.data ?? [];
+                          final index =
+                              queue.indexOf(mtPlayerHandler.currentTrack);
+                          return IconButton(
+                            icon: Icon(
+                              Icons.skip_previous,
+                              color: index > 0 ? Colors.white : Colors.grey,
+                            ),
+                            onPressed: index > 0
+                                ? () async {
+                                    await mtPlayerHandler.skipToPrevious();
+                                  }
+                                : null,
+                          );
+                        })),
+
+                    // Play/Pause Button
+                    StreamBuilder(
+                        stream: mtPlayerHandler.playbackState
+                            .map((playbackState) => playbackState.playing)
+                            .distinct(),
+                        builder: (context, snapshot) {
+                          final isPlaying = snapshot.data ?? false;
+                          return IconButton(
+                              iconSize: MediaQuery.of(context).size.width * 0.1,
+                              onPressed: () {
+                                if (isPlaying) {
+                                  mtPlayerHandler.pause();
+                                } else {
+                                  mtPlayerHandler.play();
+                                }
+                              },
+                              icon: Icon(
+                                isPlaying ? Icons.pause : Icons.play_arrow,
+                                color: Colors.white,
+                              ));
+                        }),
+
+                    // skip next button
+                    StreamBuilder(
+                        stream: mtPlayerHandler.queue,
+                        builder: ((context, snapshot) {
+                          final queue = snapshot.data ?? [];
+                          final index =
+                              queue.indexOf(mtPlayerHandler.currentTrack);
+                          final hasNext = index < queue.length - 1;
+                          return IconButton(
+                            icon: Icon(
+                              Icons.skip_next,
+                              color: hasNext ? Colors.white : Colors.grey,
+                            ),
+                            onPressed: hasNext
+                                ? () async {
+                                    await mtPlayerHandler.skipToNext();
+                                  }
+                                : null,
+                          );
+                        })),
+                  ],
+                ),
+              ),
+            ),
+
+            // SeekBar
+            const Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: SeekBar(
+                darkBackground: true,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    /* return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -190,6 +346,6 @@ class MiniPlayer extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ); */
   }
 }
