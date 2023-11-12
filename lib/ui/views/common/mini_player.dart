@@ -1,9 +1,6 @@
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:googleapis/pubsub/v1.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
@@ -19,7 +16,6 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
     final MtPlayerHandler mtPlayerHandler = context.read<MtPlayerHandler>();
     return ClipRRect(
       borderRadius: const BorderRadius.only(

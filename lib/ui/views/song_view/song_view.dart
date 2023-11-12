@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
-import 'package:my_tube/ui/views/song_view/widget/full_screen_video_view.dart';
+import 'package:my_tube/ui/views/song_view/widget/controls.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class SongView extends StatelessWidget {
@@ -39,126 +38,85 @@ class SongView extends StatelessWidget {
         appBar: const CustomAppbar(),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            children: [
-              StreamBuilder(
-                  stream: mtPlayerHandler.mediaItem,
-                  builder: (context, snapshot) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      width: MediaQuery.of(context).size.width,
-                      child: AspectRatio(
-                          aspectRatio: mtPlayerHandler.chewieController
-                              .videoPlayerController.value.aspectRatio,
-                          child: Chewie(
-                              controller: mtPlayerHandler.chewieController)),
-                    );
-                  }),
-              const SizedBox(
-                height: 8,
-              ),
-              StreamBuilder(
-                  stream: mtPlayerHandler.mediaItem,
-                  builder: (context, snapshot) {
-                    final mediaItem = snapshot.data;
-                    return Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            mediaItem?.title ?? '',
-                            maxLines: 2,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
+          child: SingleChildScrollView(
+            child: StreamBuilder(
+                stream: mtPlayerHandler.mediaItem,
+                builder: (context, snapshot) {
+                  final mediaItem = snapshot.data;
+                  return Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                            aspectRatio: mtPlayerHandler.chewieController
+                                .videoPlayerController.value.aspectRatio,
+                            child: Chewie(
+                                controller: mtPlayerHandler.chewieController)),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              mediaItem?.title ?? '',
+                              maxLines: 2,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(mediaItem?.album ?? '',
+                                maxLines: 2,
+                                style: const TextStyle(
                                   color: Colors.white,
-                                ),
+                                )),
                           ),
-                        ),
-                      ],
-                    );
-                  }),
-              const SizedBox(
-                height: 8,
-              ),
-
-              // Seek bar
-              const SeekBar(
-                darkBackground: true,
-              ),
-              // controls
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Skip previous
-                  StreamBuilder(
-                      stream: mtPlayerHandler.queue,
-                      builder: ((context, snapshot) {
-                        final queue = snapshot.data ?? [];
-                        final index =
-                            queue.indexOf(mtPlayerHandler.mediaItem.value!);
-                        bool isEnabled = index > 0;
-                        return IconButton(
-                          icon: Icon(
-                            Icons.skip_previous,
-                            color: isEnabled ? Colors.white : null,
-                          ),
-                          onPressed: isEnabled
-                              ? () async {
-                                  await mtPlayerHandler.skipToPrevious();
-                                }
-                              : null,
-                        );
-                      })),
-
-                  // Play/Pause
-                  StreamBuilder(
-                      stream: mtPlayerHandler.playbackState
-                          .map((state) => state.playing)
-                          .distinct(),
-                      builder: (context, snapshot) {
-                        final playing = snapshot.data ?? false;
-                        return IconButton(
-                          iconSize: MediaQuery.of(context).size.width * 0.15,
-                          icon: Icon(
-                            playing ? Icons.pause_circle : Icons.play_circle,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            if (playing) {
-                              mtPlayerHandler.pause();
-                            } else {
-                              mtPlayerHandler.play();
-                            }
-                          },
-                        );
-                      }),
-
-                  // Skip next
-                  StreamBuilder(
-                      stream: mtPlayerHandler.queue,
-                      builder: ((context, snapshot) {
-                        final queue = snapshot.data ?? [];
-                        final index =
-                            queue.indexOf(mtPlayerHandler.mediaItem.value!);
-                        bool isEnable = index < queue.length - 1;
-                        return IconButton(
-                          icon: Icon(
-                            Icons.skip_next,
-                            color: isEnable ? Colors.white : null,
-                          ),
-                          onPressed: isEnable
-                              ? () async {
-                                  await mtPlayerHandler.skipToNext();
-                                }
-                              : null,
-                        );
-                      })),
-
-                  // full screen
-                ],
-              ),
-            ],
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      // Seek bar
+                      const SeekBar(
+                        darkBackground: true,
+                      ),
+                      // controls
+                      Controls(mtPlayerHandler: mtPlayerHandler),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      //
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              mediaItem?.extras!['description'] ?? '',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  );
+                }),
           ),
         ),
       ),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ExpandableText extends StatefulWidget {
-  const ExpandableText({super.key, required this.text});
+  const ExpandableText({super.key, required this.text, this.style});
 
   final String text;
+  final TextStyle? style;
 
   @override
   State<ExpandableText> createState() => _ExpandableTextState();
@@ -22,9 +23,10 @@ class _ExpandableTextState extends State<ExpandableText> {
             maxLines:
                 isExpanded ? null : 2, // Mostra solo 2 righe se non è espansa
 
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
-                ),
+            style: widget.style ??
+                Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.white,
+                    ),
           ),
         ),
         if (widget.text.split('\n').length > 2)
@@ -36,9 +38,10 @@ class _ExpandableTextState extends State<ExpandableText> {
             },
             child: Text(
               isExpanded ? 'Show less' : 'Show more',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
-                  ),
+              style: widget.style ??
+                  Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white,
+                      ),
             ),
           ),
       ],

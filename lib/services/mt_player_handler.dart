@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
-import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/song_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
@@ -19,6 +18,12 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   final StreamController<void> skipController =
       StreamController<void>.broadcast();
   Stream<void> get onSkip => skipController.stream;
+
+  @override
+  Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) {
+    return chewieController.videoPlayerController
+        .setLooping(repeatMode == AudioServiceRepeatMode.one);
+  }
 
   @override
   Future<void> play() async {
@@ -42,9 +47,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   @override
-  Future<void> skipToNext() async {
-    if (currentIndex < playlist.length - 1) {
-      currentIndex++;
+  Future<void> skipToPrevious() async {
+    if (currentIndex > 0) {
+      currentIndex--;
       await _playCurrentTrack();
       await chewieController.videoPlayerController.seekTo(Duration.zero);
       skipController.add(null);
@@ -52,9 +57,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   @override
-  Future<void> skipToPrevious() async {
-    if (currentIndex > 0) {
-      currentIndex--;
+  Future<void> skipToNext() async {
+    if (currentIndex < playlist.length - 1) {
+      currentIndex++;
       await _playCurrentTrack();
       await chewieController.videoPlayerController.seekTo(Duration.zero);
       skipController.add(null);
@@ -72,6 +77,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         duration: Duration(milliseconds: video.duration!),
         extras: {
           'streamUrl': video.streamUrl!,
+          'description': video.description,
         });
 
     // aggiungi il brano alla coda se non è già presente
