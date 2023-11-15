@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 
@@ -99,6 +100,34 @@ class Controls extends StatelessWidget {
                     const Duration(seconds: 10));
           },
         ),
+
+        // repeat
+        StreamBuilder(
+            stream: mtPlayerHandler.playbackState
+                .map((state) => state.repeatMode)
+                .distinct(),
+            builder: (context, snapshot) {
+              final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
+              const icons = [
+                Icon(Icons.repeat, color: Colors.white),
+                Icon(Icons.repeat, color: Colors.green),
+                Icon(Icons.repeat_one, color: Colors.white),
+              ];
+              const cycleModes = [
+                AudioServiceRepeatMode.none,
+                AudioServiceRepeatMode.all,
+                AudioServiceRepeatMode.one,
+              ];
+              final index = cycleModes.indexOf(repeatMode);
+              return IconButton(
+                icon: icons[index],
+                onPressed: () {
+                  mtPlayerHandler.setRepeatMode(cycleModes[
+                      (cycleModes.indexOf(repeatMode) + 1) %
+                          cycleModes.length]);
+                },
+              );
+            }),
       ],
     );
   }

@@ -20,9 +20,8 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Stream<void> get onSkip => skipController.stream;
 
   @override
-  Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) {
-    return chewieController.videoPlayerController
-        .setLooping(repeatMode == AudioServiceRepeatMode.one);
+  Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
+    await _setRepeatMode(repeatMode);
   }
 
   @override
@@ -90,51 +89,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     await _playCurrentTrack();
   }
 
-  Future<void> _playCurrentTrack() async {
-    currentTrack = playlist[currentIndex];
-
-    // inizializza il video player controller da passare a chewie
-    videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(currentTrack.extras!['streamUrl']),
-        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
-    await videoPlayerController.initialize();
-
-    // inizializza il chewie controller per la riproduzione del video
-    chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
-      autoPlay: true,
-      showOptions: false,
-      routePageBuilder: (context, animation, __, ___) {
-        // uso un widget per il full screen personalizzato
-        // per poter gestire il cambio di brano anche in full screen
-        return FullScreenVideoView(
-          mtPlayerHandler: this,
-        );
-      },
-    );
-
-    // aggiungi il brano alla coda
-    queue.add(playlist);
-    // aggiungi il brano al media item per la notifica
-    mediaItem.add(currentTrack);
-
-    // propaga lo stato del player ad audio_service e a tutti i listeners
-    chewieController.videoPlayerController.addListener(broadcastState);
-
-    chewieController.videoPlayerController.addListener(() {
-      // verifica che il video sia finito
-      if (chewieController.videoPlayerController.value.duration ==
-          chewieController.videoPlayerController.value.position) {
-        // verifica che ci siano altri brani nella coda
-        if (hasNextVideo) {
-          skipToNext();
-        } else {
-          stop();
-        }
-      }
-    });
-  }
-
   // Inizializza il player per la riproduzione di una coda di video
   Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
     // inizializza la playlist ed il primo brano
@@ -196,5 +150,69 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         updatePosition: chewieController.videoPlayerController.value.position,
         speed: chewieController.videoPlayerController.value.playbackSpeed,
         queueIndex: currentIndex));
+  }
+
+  Future<void> _playCurrentTrack() async {
+    currentTrack = playlist[currentIndex];
+
+    // inizializza il video player controller da passare a chewie
+    videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(currentTrack.extras!['streamUrl']),
+        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
+    await videoPlayerController.initialize();
+
+    // inizializza il chewie controller per la riproduzione del video
+    chewieController = ChewieController(
+      videoPlayerController: videoPlayerController,
+      autoPlay: true,
+      showOptions: false,
+      routePageBuilder: (context, animation, __, ___) {
+        // uso un widget per il full screen personalizzato
+        // per poter gestire il cambio di brano anche in full screen
+        return FullScreenVideoView(
+          mtPlayerHandler: this,
+        );
+      },
+    );
+
+    // aggiungi il brano alla coda
+    queue.add(playlist);
+    // aggiungi il brano al media item per la notifica
+    mediaItem.add(currentTrack);
+
+    // propaga lo stato del player ad audio_service e a tutti i listeners
+    chewieController.videoPlayerController.addListener(broadcastState);
+
+    chewieController.videoPlayerController.addListener(() {
+      // verifica che il video sia finito
+      if (chewieController.videoPlayerController.value.duration ==
+          chewieController.videoPlayerController.value.position) {
+        // verifica che ci siano altri brani nella coda
+        if (hasNextVideo) {
+          skipToNext();
+        } else {
+          stop();
+        }
+      }
+    });
+  }
+
+  Future<void> _setRepeatMode(AudioServiceRepeatMode repeatMode) async {
+    switch (repeatMode) {
+      case AudioServiceRepeatMode.none:
+        setRepeatMode(AudioServiceRepeatMode.one);
+        break;
+      case AudioServiceRepeatMode.one:
+        await chewieController.videoPlayerController
+            .setLooping(repeatMode == AudioServiceRepeatMode.one);
+        break;
+      case AudioServiceRepeatMode.all:
+        // TODO
+        break;
+      case AudioServiceRepeatMode.group:
+      // TODO: Handle this case.
+    }
+
+    playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
   }
 }
