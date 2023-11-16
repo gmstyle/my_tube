@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
+import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
@@ -45,17 +46,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.15;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.tertiary,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+    return MainGradient(
       child: Scaffold(
         appBar: const CustomAppbar(
           title: 'My Tube',

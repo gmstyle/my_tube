@@ -198,21 +198,11 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> _setRepeatMode(AudioServiceRepeatMode repeatMode) async {
-    switch (repeatMode) {
-      case AudioServiceRepeatMode.none:
-        setRepeatMode(AudioServiceRepeatMode.one);
-        break;
-      case AudioServiceRepeatMode.one:
-        await chewieController.videoPlayerController
-            .setLooping(repeatMode == AudioServiceRepeatMode.one);
-        break;
-      case AudioServiceRepeatMode.all:
-        // TODO
-        break;
-      case AudioServiceRepeatMode.group:
-      // TODO: Handle this case.
+    if (repeatMode == AudioServiceRepeatMode.none) {
+      await chewieController.videoPlayerController.setLooping(false);
+    } else {
+      await chewieController.videoPlayerController.setLooping(true);
     }
-
     playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
   }
 }

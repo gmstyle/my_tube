@@ -10,7 +10,7 @@ class Controls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // seek backward
         IconButton(
@@ -110,12 +110,10 @@ class Controls extends StatelessWidget {
               final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
               const icons = [
                 Icon(Icons.repeat, color: Colors.white),
-                Icon(Icons.repeat, color: Colors.green),
                 Icon(Icons.repeat_one, color: Colors.white),
               ];
               const cycleModes = [
                 AudioServiceRepeatMode.none,
-                AudioServiceRepeatMode.all,
                 AudioServiceRepeatMode.one,
               ];
               final index = cycleModes.indexOf(repeatMode);

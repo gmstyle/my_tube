@@ -8,22 +8,7 @@ class ResourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return /* ListTile(
-      trailing: setTrailingIcon(),
-      leading: resource.thumbnailUrl != null
-          ? Image.network(
-              resource.thumbnailUrl!,
-            )
-          : const SizedBox(
-              child: Icon(Icons.place),
-            ),
-      title: Text(
-        resource.title ?? '',
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Text(resource.channelTitle ?? ''),
-    ); */
-        Container(
+    return Container(
       height: MediaQuery.of(context).size.height * 0.1,
       margin: const EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(
