@@ -77,7 +77,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                       child: CircularProgressIndicator(),
                     );
                   case MiniPlayerStatus.shown:
-                    return MiniPlayer(video: state.video);
+                    return const MiniPlayer();
                   default:
                     return const SizedBox.shrink();
                 }

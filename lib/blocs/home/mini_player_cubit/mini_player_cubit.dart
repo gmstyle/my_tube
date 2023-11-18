@@ -21,7 +21,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     final videoWithStreamUrl =
         response.resources.first.copyWith(streamUrl: streamUrl);
     await _startPlaying(videoWithStreamUrl);
-    emit(MiniPlayerState.shown(videoWithStreamUrl));
+    emit(const MiniPlayerState.shown());
   }
 
   Future<void> startPlayingPlaylist(List<String> videoIds) async {
@@ -35,7 +35,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     }
 
     await _startPlayingPlaylist(videosWithStreamUrl);
-    emit(MiniPlayerState.shown(videosWithStreamUrl.first));
+    emit(const MiniPlayerState.shown());
   }
 
   /* Future<void> showMiniPlayer() async {

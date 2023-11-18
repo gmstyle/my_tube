@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
@@ -9,10 +8,7 @@ import 'package:my_tube/ui/views/common/seek_bar.dart';
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({
     super.key,
-    required this.video,
   });
-
-  final ResourceMT? video;
 
   @override
   Widget build(BuildContext context) {
