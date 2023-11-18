@@ -5,12 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
+import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
@@ -25,7 +27,9 @@ void main() async {
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
   await Hive.initFlutter();
+  Hive.registerAdapter(ResourceMTAdapter());
   await Hive.openBox('settings');
+  await Hive.openBox<ResourceMT>('queue');
   final mtPlayerHandler = await AudioService.init(
       builder: () => MtPlayerHandler(),
       config: const AudioServiceConfig(
@@ -64,6 +68,8 @@ void main() async {
                 searchMapper: context.read<SearchMapper>(),
                 subscriptionMapper: context.read<SubscriptionMapper>()),
           ),
+          RepositoryProvider<QueueRepository>(
+              create: (context) => QueueRepository())
         ],
         child: MultiBlocProvider(providers: [
           BlocProvider<AuthBloc>(
@@ -74,6 +80,7 @@ void main() async {
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
                     youtubeRepository: context.read<YoutubeRepository>(),
+                    queueRepository: context.read<QueueRepository>(),
                     mtPlayerHandler: context.read<MtPlayerHandler>(),
                   )),
         ], child: const MyApp()),

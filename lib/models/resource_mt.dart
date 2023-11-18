@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/playlist_mt.dart';
+part 'resource_mt.g.dart';
 
 class ResponseMT extends Equatable {
   final List<ResourceMT> resources;
@@ -42,19 +44,42 @@ class ResponseMT extends Equatable {
   List<Object?> get props => [resources, nextPageToken];
 }
 
-class ResourceMT extends Equatable {
+@HiveType(typeId: 1)
+class ResourceMT extends Equatable with HiveObjectMixin {
+  @HiveField(0)
   final String? id;
+
+  @HiveField(1)
   final String? title;
+
+  @HiveField(2)
   final String? description;
+
+  @HiveField(3)
   final String? channelTitle;
+
+  @HiveField(4)
   final String? thumbnailUrl;
+
+  @HiveField(5)
   final String? kind;
+
+  @HiveField(6)
   final String? channelId;
+
+  @HiveField(7)
   final String? playlistId;
+
+  @HiveField(8)
   final String? streamUrl;
+
+  @HiveField(9)
   final int? duration;
 
-  const ResourceMT({
+  @HiveField(10)
+  final DateTime? addedAt;
+
+  ResourceMT({
     required this.id,
     required this.title,
     required this.description,
@@ -65,6 +90,7 @@ class ResourceMT extends Equatable {
     required this.playlistId,
     required this.streamUrl,
     required this.duration,
+    this.addedAt,
   });
 
   factory ResourceMT.fromJson(Map<String, dynamic> json) {
@@ -79,6 +105,9 @@ class ResourceMT extends Equatable {
       playlistId: json['playlistId'] as String?,
       streamUrl: json['streamUrl'] as String?,
       duration: json['duration'] as int?,
+      addedAt: json['addedAt'] == null
+          ? null
+          : DateTime.parse(json['addedAt'] as String),
     );
   }
 
@@ -94,6 +123,7 @@ class ResourceMT extends Equatable {
       'playlistId': playlistId,
       'streamUrl': streamUrl,
       'duration': duration,
+      'addedAt': addedAt?.toIso8601String(),
     };
   }
 
@@ -108,6 +138,7 @@ class ResourceMT extends Equatable {
     String? playlistId,
     String? streamUrl,
     int? duration,
+    DateTime? addedAt,
   }) {
     return ResourceMT(
       id: id ?? this.id,
@@ -120,6 +151,7 @@ class ResourceMT extends Equatable {
       playlistId: playlistId ?? this.playlistId,
       streamUrl: streamUrl ?? this.streamUrl,
       duration: duration ?? this.duration,
+      addedAt: addedAt ?? this.addedAt,
     );
   }
 
@@ -135,5 +167,6 @@ class ResourceMT extends Equatable {
         playlistId,
         streamUrl,
         duration,
+        addedAt,
       ];
 }
