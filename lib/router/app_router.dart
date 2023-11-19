@@ -6,6 +6,7 @@ import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/login_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
+import 'package:my_tube/router/pages/queue_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
 import 'package:my_tube/router/pages/song_page.dart';
 import 'package:my_tube/router/pages/splash_page.dart';
@@ -18,7 +19,7 @@ class AppRouter {
   static final favoritesTabNavigatorKey = GlobalKey<NavigatorState>();
   static final searchTabNavigatorKey = GlobalKey<NavigatorState>();
   static final subscriptionsTabNavigatorKey = GlobalKey<NavigatorState>();
-  static final accountTabNavigatorKey = GlobalKey<NavigatorState>();
+  static final queueTabNavigatorKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(
       navigatorKey: rootNavigatorKey,
@@ -123,15 +124,13 @@ class AppRouter {
                         ]),
                   ]),
 
-              /*  // Tab Account
-              StatefulShellBranch(
-                  navigatorKey: accountTabNavigatorKey,
-                  routes: [
-                    GoRoute(
-                        name: AppRoute.account.name,
-                        path: AppRoute.account.path,
-                        pageBuilder: (context, state) => const AccountTabPage())
-                  ]), */
+              // Tab Queue
+              StatefulShellBranch(navigatorKey: queueTabNavigatorKey, routes: [
+                GoRoute(
+                    name: AppRoute.queue.name,
+                    path: AppRoute.queue.path,
+                    pageBuilder: (context, state) => const QueueTabPage())
+              ]),
             ]),
       ]);
 }
@@ -147,6 +146,7 @@ enum AppRoute {
   channel('channel'),
   playlist('playlist'),
   song('/song'),
+  queue('/queue'),
   ;
 
   final String path;

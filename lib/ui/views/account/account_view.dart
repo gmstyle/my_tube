@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:googleapis/playcustomapp/v1.dart';
 import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/blocs/home/my_account_tab/my_account_bloc.dart';
+import 'package:my_tube/blocs/my_account/my_account_bloc.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';

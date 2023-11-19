@@ -19,7 +19,6 @@ class SongView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mtPlayerHandler = context.read<MtPlayerHandler>();
-    final queueRepository = context.read<QueueRepository>();
 
     mtPlayerHandler.chewieController.videoPlayerController.addListener(() {
       WakelockPlus.toggle(
@@ -36,108 +35,79 @@ class SongView extends StatelessWidget {
               stream: mtPlayerHandler.mediaItem,
               builder: (context, snapshot) {
                 final mediaItem = snapshot.data;
-                return Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AspectRatio(
-                          aspectRatio: mtPlayerHandler.chewieController
-                              .videoPlayerController.value.aspectRatio,
-                          child: Chewie(
-                              controller: mtPlayerHandler.chewieController)),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            mediaItem?.title ?? '',
-                            maxLines: 2,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  color: Colors.white,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(mediaItem?.album ?? '',
+                return SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                            aspectRatio: mtPlayerHandler.chewieController
+                                .videoPlayerController.value.aspectRatio,
+                            child: Chewie(
+                                controller: mtPlayerHandler.chewieController)),
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              mediaItem?.title ?? '',
                               maxLines: 2,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              )),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    // Seek bar
-                    const SeekBar(
-                      darkBackground: true,
-                    ),
-                    // controls
-                    Controls(mtPlayerHandler: mtPlayerHandler),
-
-                    // description
-
-                    /* Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            mediaItem?.extras!['description'] ?? '',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(
-                                  color: Colors.white,
-                                ),
-                          ),
-                        )
-                      ],
-                    ) */
-
-                    // Queue
-                    ValueListenableBuilder(
-                        valueListenable: queueRepository.queueListenable,
-                        builder: (context, box, _) {
-                          final queue = box.values.toList();
-
-                          if (queue.isEmpty) {
-                            return const Center(
-                              child: Text('No videos in queue'),
-                            );
-                          }
-
-                          return Expanded(
-                            child: ListView.builder(
-                              itemCount: queue.length,
-                              itemBuilder: (context, index) {
-                                queue.sort(
-                                    (b, a) => a.addedAt!.compareTo(b.addedAt!));
-                                final video = queue[index];
-                                return GestureDetector(
-                                    onTap: () async {
-                                      await context
-                                          .read<MiniPlayerCubit>()
-                                          .startPlaying(video.id!);
-                                    },
-                                    child: ResourceTile(resource: video));
-                              },
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
                             ),
-                          );
-                        })
-                  ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(mediaItem?.album ?? '',
+                                maxLines: 2,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                )),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      // Seek bar
+                      const SeekBar(
+                        darkBackground: true,
+                      ),
+                      // controls
+                      Controls(mtPlayerHandler: mtPlayerHandler),
+
+                      // description
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              mediaItem?.extras!['description'] ?? '',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 );
               }),
         ),

@@ -30,10 +30,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       icon: Icon(Icons.subscriptions),
       label: 'Subscriptions',
     ),
-    /* NavigationDestination(
-      icon: Icon(Icons.account_circle),
-      label: 'Me',
-    ), */
+    NavigationDestination(
+      icon: Icon(Icons.queue_music),
+      label: 'Queue',
+    ),
   ];
 
   void onDestinationSelected(int index) {
