@@ -4,10 +4,13 @@ import 'package:my_tube/models/resource_mt.dart';
 
 class QueueRepository {
   final queueBox = Hive.box<ResourceMT>('queue');
+  final queueSettingsBox = Hive.box('queueSettings');
 
   List<ResourceMT> get queue => queueBox.values.toList();
 
+  List<String> get videoIds => queue.map((e) => e.id!).toList();
   ValueListenable<Box<ResourceMT>> get queueListenable => queueBox.listenable();
+  int get currentIndex => queueSettingsBox.get('currentIndex', defaultValue: 0);
 
   Future<void> save(ResourceMT video) async {
     final videoWithAddedAt = video.copyWith(addedAt: DateTime.now());
@@ -29,5 +32,9 @@ class QueueRepository {
 
   Future<bool> contains(String? id) async {
     return queueBox.keys.contains(id);
+  }
+
+  Future<void> saveCurrentIndex(int index) async {
+    await queueSettingsBox.put('currentIndex', index);
   }
 }

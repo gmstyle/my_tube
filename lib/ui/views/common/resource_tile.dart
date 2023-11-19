@@ -87,13 +87,13 @@ class ResourceTile extends StatelessWidget {
               itemBuilder: (context) {
                 return [
                   ///TODO: Add functionality to remove from queue and add to playlist
-                  PopupMenuItem(
-                    child: Text('Remove from queue'),
+                  const PopupMenuItem(
                     value: 'remove',
+                    child: Text('Remove from queue'),
                   ),
-                  PopupMenuItem(
-                    child: Text('Add to playlist'),
+                  const PopupMenuItem(
                     value: 'add',
+                    child: Text('Add to playlist'),
                   ),
                 ];
               },

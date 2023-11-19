@@ -5,7 +5,7 @@ import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
 
 class SplashView extends StatelessWidget {
-  const SplashView({Key? key}) : super(key: key);
+  const SplashView({super.key});
 
   @override
   Widget build(BuildContext context) {

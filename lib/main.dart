@@ -30,6 +30,7 @@ void main() async {
   Hive.registerAdapter(ResourceMTAdapter());
   await Hive.openBox('settings');
   await Hive.openBox<ResourceMT>('queue');
+  await Hive.openBox('queueSettings');
   final mtPlayerHandler = await AudioService.init(
       builder: () => MtPlayerHandler(),
       config: const AudioServiceConfig(
@@ -45,7 +46,7 @@ void main() async {
       /// Providers
       Provider<AuthProvider>(create: (context) => AuthProvider()),
       Provider<YoutubeProvider>(create: (context) => YoutubeProvider()),
-      Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler),
+      Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler..init()),
     ],
     child: MultiProvider(
       providers: [

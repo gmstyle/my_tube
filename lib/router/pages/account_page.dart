@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/my_account/my_account_bloc.dart';
-import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/ui/views/account/account_view.dart';
 

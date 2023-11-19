@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -44,7 +42,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.shown());
   }
 
-/*   Future<void> showMiniPlayer() async {
+  /* Future<void> showMiniPlayer() async {
     emit(const MiniPlayerState.shown());
   }
 

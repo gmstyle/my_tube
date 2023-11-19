@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
@@ -9,32 +9,66 @@ class QueueTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final miniplayerCubit = context.read<MiniPlayerCubit>();
     final queueRepository = context.read<QueueRepository>();
 
     return ValueListenableBuilder(
         valueListenable: queueRepository.queueListenable,
         builder: (context, box, _) {
           final queue = box.values.toList();
-
-          if (queue.isEmpty) {
-            return const Center(
-              child: Text('No videos in queue'),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: queue.length,
-            itemBuilder: (context, index) {
-              queue.sort((b, a) => a.addedAt!.compareTo(b.addedAt!));
-              final video = queue[index];
-              return GestureDetector(
-                  onTap: () async {
-                    await context
-                        .read<MiniPlayerCubit>()
-                        .startPlaying(video.id!);
-                  },
-                  child: ResourceTile(resource: video));
-            },
+          final queueSortedByAddedAt = queue
+            ..sort((a, b) => b.addedAt!.compareTo(a.addedAt!));
+          final videoIds = queueSortedByAddedAt.map((e) => e.id!).toList();
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: [
+                    Text(
+                      'Your queue',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white,
+                          ),
+                    ),
+                    const Spacer(),
+                    /* IconButton(
+                        color: Colors.white,
+                        onPressed: queue.isNotEmpty
+                            ? () {
+                                miniplayerCubit.startPlayingPlaylist(videoIds);
+                              }
+                            : null,
+                        icon: const Icon(Icons.playlist_play)), */
+                    IconButton(
+                        color: Colors.white,
+                        onPressed: queue.isNotEmpty
+                            ? () async {
+                                await queueRepository.clear();
+                              }
+                            : null,
+                        icon: const Icon(Icons.clear_all_rounded))
+                  ],
+                ),
+              ),
+              Expanded(
+                child: queue.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: queueSortedByAddedAt.length,
+                        itemBuilder: (context, index) {
+                          final video = queueSortedByAddedAt[index];
+                          return GestureDetector(
+                              onTap: () async {
+                                await context
+                                    .read<MiniPlayerCubit>()
+                                    .startPlaying(video.id!);
+                              },
+                              child: ResourceTile(resource: video));
+                        },
+                      )
+                    : const Center(child: Text('Queue is empty')),
+              ),
+            ],
           );
         });
   }
