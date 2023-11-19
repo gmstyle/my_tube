@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
@@ -6,7 +7,10 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/song_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 
+import '../respositories/queue_repository.dart';
+
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
+  final QueueRepository queueRepository = QueueRepository();
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
   int currentIndex = 0;
@@ -84,6 +88,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       playlist.add(item);
     }
 
+    // salva il brano nella coda locale
+    await queueRepository.save(video);
+
     currentIndex = playlist.indexOf(item);
 
     await _playCurrentTrack();
@@ -110,6 +117,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         playlist.add(item);
       }
     }
+
+    // salva la coda nella coda locale
+    await queueRepository.saveAll(videos);
 
     currentIndex = playlist.indexOf(list.first);
 
