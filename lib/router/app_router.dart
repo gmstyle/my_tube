@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/router/pages/account_tab_page.dart';
+import 'package:my_tube/router/pages/account_page.dart';
 import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
@@ -41,6 +41,11 @@ class AppRouter {
             pageBuilder: (context, state) {
               return const SongPage();
             }),
+        GoRoute(
+            parentNavigatorKey: rootNavigatorKey,
+            name: AppRoute.account.name,
+            path: AppRoute.account.path,
+            pageBuilder: (context, state) => const AccountPage()),
         StatefulShellRoute.indexedStack(
             builder: (context, state, navigationShell) =>
                 ScaffoldWithNavbarView(navigationShell: navigationShell),
@@ -118,7 +123,7 @@ class AppRouter {
                         ]),
                   ]),
 
-              // Tab Account
+              /*  // Tab Account
               StatefulShellBranch(
                   navigatorKey: accountTabNavigatorKey,
                   routes: [
@@ -126,7 +131,7 @@ class AppRouter {
                         name: AppRoute.account.name,
                         path: AppRoute.account.path,
                         pageBuilder: (context, state) => const AccountTabPage())
-                  ]),
+                  ]), */
             ]),
       ]);
 }

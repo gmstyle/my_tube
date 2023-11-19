@@ -80,7 +80,6 @@ void main() async {
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
                     youtubeRepository: context.read<YoutubeRepository>(),
-                    queueRepository: context.read<QueueRepository>(),
                     mtPlayerHandler: context.read<MtPlayerHandler>(),
                   )),
         ], child: const MyApp()),

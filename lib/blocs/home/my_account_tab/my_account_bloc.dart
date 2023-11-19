@@ -10,17 +10,10 @@ part 'my_account_state.dart';
 
 class MyAccountBloc extends Bloc<MyAccountEvent, MyAccountState> {
   final YoutubeRepository youtubeRepository;
-  final QueueRepository queueRepository;
 
   MyAccountBloc({
     required this.youtubeRepository,
-    required this.queueRepository,
   }) : super(const MyAccountState.initial()) {
-    on<GetQueue>((event, emit) async {
-      await _onGetQueue(event, emit);
-    });
+    on<MyAccountEvent>((event, emit) async {});
   }
-
-  Future<void> _onGetQueue(
-      GetQueue event, Emitter<MyAccountState> emit) async {}
 }

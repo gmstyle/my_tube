@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/my_account_tab/my_account_bloc.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
-import 'package:my_tube/ui/views/home/tabs/account_tab_view.dart';
+import 'package:my_tube/ui/views/account/account_view.dart';
 
-class AccountTabPage extends Page {
-  const AccountTabPage({super.key});
+class AccountPage extends Page {
+  const AccountPage({super.key});
 
   @override
   Route createRoute(BuildContext context) {
@@ -16,10 +16,9 @@ class AccountTabPage extends Page {
           return MultiBlocProvider(providers: [
             BlocProvider<MyAccountBloc>(
                 create: (context) => MyAccountBloc(
-                    youtubeRepository: context.read<YoutubeRepository>(),
-                    queueRepository: context.read<QueueRepository>())
-                  ..add(GetQueue()))
-          ], child: const AccountTabView());
+                      youtubeRepository: context.read<YoutubeRepository>(),
+                    ))
+          ], child: const AccountView());
         });
   }
 }

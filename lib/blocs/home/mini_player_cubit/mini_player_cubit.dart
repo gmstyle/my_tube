@@ -2,9 +2,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 
@@ -12,13 +10,11 @@ part 'mini_player_state.dart';
 
 class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   final YoutubeRepository youtubeRepository;
-  final QueueRepository queueRepository;
+
   final MtPlayerHandler mtPlayerHandler;
 
   MiniPlayerCubit(
-      {required this.youtubeRepository,
-      required this.queueRepository,
-      required this.mtPlayerHandler})
+      {required this.youtubeRepository, required this.mtPlayerHandler})
       : super(const MiniPlayerState.hidden());
 
   Future<void> startPlaying(String videoId) async {
@@ -29,9 +25,6 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     final videoWithStreamUrl =
         response.resources.first.copyWith(streamUrl: streamUrl);
     await _startPlaying(videoWithStreamUrl);
-    //await queueRepository.clear();
-
-    await queueRepository.save(videoWithStreamUrl);
 
     emit(const MiniPlayerState.shown());
   }
@@ -48,20 +41,17 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
     await _startPlayingPlaylist(videosWithStreamUrl);
 
-    // Aggiungo i video alla coda di riproduzione se non sono già presenti
-    await queueRepository.saveAll(videosWithStreamUrl);
-
     emit(const MiniPlayerState.shown());
   }
 
-  /* Future<void> showMiniPlayer() async {
-    emit(const MiniPlayerState.shown(null));
+/*   Future<void> showMiniPlayer() async {
+    emit(const MiniPlayerState.shown());
   }
 
   void hideMiniPlayer() {
     emit(const MiniPlayerState.hidden());
-  }
- */
+  } */
+
   Future<void> _startPlaying(ResourceMT video) async {
     await mtPlayerHandler.startPlaying(video);
   }

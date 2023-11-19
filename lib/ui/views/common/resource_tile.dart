@@ -16,23 +16,52 @@ class ResourceTile extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: resource.thumbnailUrl != null
-                ? Image.network(
-                    resource.thumbnailUrl!,
-                    height: MediaQuery.of(context).size.height * 0.09,
-                    width: MediaQuery.of(context).size.width * 0.2,
-                    fit: BoxFit.cover,
-                  )
-                : const SizedBox(
-                    child: Icon(Icons.place),
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                resource.thumbnailUrl != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          resource.thumbnailUrl!,
+                          height: MediaQuery.of(context).size.height * 0.09,
+                          width: MediaQuery.of(context).size.width * 0.2,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: const SizedBox(
+                          child: FlutterLogo(),
+                        ),
+                      ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.4),
+                        Colors.black.withOpacity(0.9),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
+                ),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: setTypeIcon(context) ?? const SizedBox(),
+                )
+              ],
+            ),
           ),
           const SizedBox(
             width: 16,
           ),
           Expanded(
+            flex: 2,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,27 +80,41 @@ class ResourceTile extends StatelessWidget {
               ],
             ),
           ),
-          setTrailingIcon(context) ?? const SizedBox(),
+
+          //Menu
+          PopupMenuButton(
+              iconColor: Colors.white,
+              itemBuilder: (context) {
+                return [
+                  ///TODO: Add functionality to remove from queue and add to playlist
+                  PopupMenuItem(
+                    child: Text('Remove from queue'),
+                    value: 'remove',
+                  ),
+                  PopupMenuItem(
+                    child: Text('Add to playlist'),
+                    value: 'add',
+                  ),
+                ];
+              },
+              icon: const Icon(Icons.more_vert_rounded))
         ],
       ),
     );
   }
 
-  Widget? setTrailingIcon(BuildContext context) {
+  Widget? setTypeIcon(BuildContext context) {
     IconData icon;
     switch (resource.kind) {
       case 'youtube#channel':
-        icon = Icons.monitor;
+        icon = Icons.monitor_rounded;
       case 'youtube#playlist':
-        icon = Icons.playlist_play;
+        icon = Icons.queue_music_rounded;
 
       default:
         icon = Icons.audiotrack_rounded;
     }
 
-    return CircleAvatar(
-        radius: 16,
-        backgroundColor: Colors.white,
-        child: Icon(icon, color: Theme.of(context).colorScheme.primary));
+    return Icon(icon, color: Colors.white);
   }
 }

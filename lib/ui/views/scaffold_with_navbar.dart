@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
@@ -29,10 +30,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       icon: Icon(Icons.subscriptions),
       label: 'Subscriptions',
     ),
-    NavigationDestination(
+    /* NavigationDestination(
       icon: Icon(Icons.account_circle),
       label: 'Me',
-    ),
+    ), */
   ];
 
   void onDestinationSelected(int index) {
@@ -48,8 +49,13 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
     return MainGradient(
       child: Scaffold(
-        appBar: const CustomAppbar(
+        appBar: CustomAppbar(
           title: 'My Tube',
+          actions: [
+            IconButton(
+                onPressed: () => context.pushNamed(AppRoute.account.name),
+                icon: const Icon(Icons.account_circle))
+          ],
         ),
         backgroundColor: Colors.transparent,
         body: Column(

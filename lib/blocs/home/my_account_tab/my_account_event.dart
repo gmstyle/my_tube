@@ -6,5 +6,3 @@ sealed class MyAccountEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
-
-class GetQueue extends MyAccountEvent {}
