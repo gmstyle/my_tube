@@ -17,44 +17,44 @@ class ResourceTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                resource.thumbnailUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  resource.thumbnailUrl != null
+                      ? Image.network(
                           resource.thumbnailUrl!,
                           height: MediaQuery.of(context).size.height * 0.09,
                           width: MediaQuery.of(context).size.width * 0.2,
                           fit: BoxFit.cover,
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: const SizedBox(
+                            child: FlutterLogo(),
+                          ),
                         ),
-                      )
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: const SizedBox(
-                          child: FlutterLogo(),
-                        ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.4),
+                          Colors.black.withOpacity(0.9),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.4),
-                        Colors.black.withOpacity(0.9),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
                     ),
                   ),
-                ),
-                Positioned(
-                  bottom: 4,
-                  right: 4,
-                  child: setTypeIcon(context) ?? const SizedBox(),
-                )
-              ],
+                  Positioned(
+                    bottom: 4,
+                    right: 4,
+                    child: setTypeIcon(context) ?? const SizedBox(),
+                  )
+                ],
+              ),
             ),
           ),
           const SizedBox(

@@ -41,105 +41,106 @@ class ChannelHeader extends StatelessWidget {
         // Channel info
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.3,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(
                   channel!.thumbnailUrl!,
                   fit: BoxFit.cover,
                 ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.8),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 8,
-                right: 8,
-                bottom: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Text(channel!.title!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                        ),
-                      ],
-                    ),
-                    if (channel!.customUrl != null)
+                Positioned(
+                  left: 8,
+                  right: 8,
+                  bottom: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            '${channel!.customUrl}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(color: Colors.white),
+                          Flexible(
+                            child: Text(channel!.title!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    )),
                           ),
                         ],
                       ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.music_note_rounded,
-                          color: Colors.white,
+                      if (channel!.customUrl != null)
+                        Row(
+                          children: [
+                            Text(
+                              '${channel!.customUrl}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(color: Colors.white),
+                            ),
+                          ],
                         ),
-                        Text(
-                          ' Tracks: ${channel!.videos?.length}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.remove_red_eye,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          ' Views: ${Utils.formatNumber(int.parse(channel!.viewCount!))}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.music_note_rounded,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            ' Tracks: ${channel!.videos?.length}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.remove_red_eye,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            ' Views: ${Utils.formatNumber(int.parse(channel!.viewCount!))}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: FloatingActionButton.small(
-                      backgroundColor: Colors.white,
-                      onPressed: channelState.status == ChannelPageStatus.loaded
-                          ? () {
-                              miniplayerCubit.startPlayingPlaylist(
-                                  channelState.channel!.videoIds!);
-                            }
-                          : null,
-                      child: const Icon(Icons.playlist_play)))
-            ],
+                Positioned(
+                    right: 16,
+                    bottom: 16,
+                    child: FloatingActionButton.small(
+                        backgroundColor: Colors.white,
+                        onPressed:
+                            channelState.status == ChannelPageStatus.loaded
+                                ? () {
+                                    miniplayerCubit.startPlayingPlaylist(
+                                        channelState.channel!.videoIds!);
+                                  }
+                                : null,
+                        child: const Icon(Icons.playlist_play)))
+              ],
+            ),
           ),
         ),
 

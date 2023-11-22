@@ -40,84 +40,84 @@ class PlaylistHeader extends StatelessWidget {
         ),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.3,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(playlist?.thumbnailUrl ?? '',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(playlist?.thumbnailUrl ?? '',
                     height: MediaQuery.of(context).size.height * 0.2,
                     width: MediaQuery.of(context).size.width * 0.8,
                     fit: BoxFit.cover),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.8),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 8,
-                right: 8,
-                bottom: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            playlist?.title ?? '',
-                            maxLines: 2,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  color: Colors.white,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.music_note_rounded,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          ' Tracks: ${playlist!.itemCount}',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                Positioned(
+                  left: 8,
+                  right: 8,
+                  bottom: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              playlist?.title ?? '',
+                              maxLines: 2,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
                                     color: Colors.white,
                                   ),
-                        ),
-                      ],
-                    ),
-                  ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.music_note_rounded,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            ' Tracks: ${playlist!.itemCount}',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: FloatingActionButton.small(
-                      backgroundColor: Colors.white,
-                      onPressed: playlistState.status == PlaylistStatus.loaded
-                          ? () {
-                              miniplayerCubit.startPlayingPlaylist(
-                                  playlistState.videoIds!);
-                            }
-                          : null,
-                      child: const Icon(Icons.playlist_play)))
-            ],
+                Positioned(
+                    right: 16,
+                    bottom: 16,
+                    child: FloatingActionButton.small(
+                        backgroundColor: Colors.white,
+                        onPressed: playlistState.status == PlaylistStatus.loaded
+                            ? () {
+                                miniplayerCubit.startPlayingPlaylist(
+                                    playlistState.videoIds!);
+                              }
+                            : null,
+                        child: const Icon(Icons.playlist_play)))
+              ],
+            ),
           ),
         ),
         if (playlist!.description != null) ...[
