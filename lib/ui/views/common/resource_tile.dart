@@ -1,5 +1,9 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
+import 'package:provider/provider.dart';
 
 class ResourceTile extends StatelessWidget {
   const ResourceTile({super.key, required this.resource});
@@ -8,6 +12,7 @@ class ResourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mtPlayerHandler = context.read<MtPlayerHandler>();
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
       margin: const EdgeInsets.only(bottom: 16),
@@ -50,8 +55,40 @@ class ResourceTile extends StatelessWidget {
                   ),
                   Positioned(
                     bottom: 4,
-                    right: 4,
-                    child: setTypeIcon(context) ?? const SizedBox(),
+                    left: 8,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // show an animated that the video is playing
+                        StreamBuilder(
+                            stream: mtPlayerHandler.mediaItem,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final currentVideoId = snapshot.data!.id;
+                                if (currentVideoId == resource.id) {
+                                  return StreamBuilder(
+                                      stream: mtPlayerHandler.playbackState
+                                          .map((playbackState) =>
+                                              playbackState.playing)
+                                          .distinct(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          final isPlaying =
+                                              snapshot.data ?? false;
+                                          if (isPlaying) {
+                                            return const AudioSpectrumIcon();
+                                          }
+                                        }
+                                        return const SizedBox();
+                                      });
+                                }
+                              }
+                              return const SizedBox();
+                            }),
+                        setTypeIcon(context) ?? const SizedBox(),
+                      ],
+                    ),
                   )
                 ],
               ),
