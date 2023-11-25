@@ -15,10 +15,10 @@ class QueueTabView extends StatelessWidget {
     return ValueListenableBuilder(
         valueListenable: queueRepository.queueListenable,
         builder: (context, box, _) {
-          final queue = box.values.toList();
-          final queueSortedByAddedAt = queue
-            ..sort((a, b) => b.addedAt!.compareTo(a.addedAt!));
-          final videoIds = queueSortedByAddedAt.map((e) => e.id!).toList();
+          final queue = box.values.toList().reversed.toList();
+
+          final videoIds = queue.map((e) => e.id!).toList();
+
           return Column(
             children: [
               Padding(
@@ -54,9 +54,9 @@ class QueueTabView extends StatelessWidget {
               Expanded(
                 child: queue.isNotEmpty
                     ? ListView.builder(
-                        itemCount: queueSortedByAddedAt.length,
+                        itemCount: queue.length,
                         itemBuilder: (context, index) {
-                          final video = queueSortedByAddedAt[index];
+                          final video = queue[index];
                           return GestureDetector(
                               onTap: () async {
                                 await context

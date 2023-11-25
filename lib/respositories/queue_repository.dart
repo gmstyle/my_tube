@@ -14,12 +14,11 @@ class QueueRepository {
 
   Future<void> save(ResourceMT video) async {
     final videoWithAddedAt = video.copyWith(addedAt: DateTime.now());
-    await queueBox.put(video.id, videoWithAddedAt);
+    await queueBox.add(videoWithAddedAt);
   }
 
   Future<void> saveAll(List<ResourceMT> videos) async {
-    await queueBox.putAll(
-        {for (var e in videos) e.id: e.copyWith(addedAt: DateTime.now())});
+    await queueBox.addAll(videos);
   }
 
   Future<void> remove(ResourceMT video) async {

@@ -136,10 +136,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
       playlist.add(item);
+      // salva il brano nella coda locale
+      await queueRepository.save(video);
     }
-
-    // salva il brano nella coda locale
-    await queueRepository.save(video);
 
     currentIndex = playlist.indexOf(item);
     queueRepository.saveCurrentIndex(currentIndex);
@@ -166,11 +165,10 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       // aggiungi il brano alla coda se non è già presente
       if (!playlist.contains(item)) {
         playlist.add(item);
+        // salva il brano nella coda locale
+        await queueRepository.save(videos[list.indexOf(item)]);
       }
     }
-
-    // salva la coda nella coda locale
-    await queueRepository.saveAll(videos);
 
     currentIndex = playlist.indexOf(list.first);
     queueRepository.saveCurrentIndex(currentIndex);
@@ -179,7 +177,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // prepara lo stato del player per la riproduzione
-  void broadcastState() {
+  void _broadcastState() {
     bool isPlaying() => chewieController.videoPlayerController.value.isPlaying;
 
     AudioProcessingState audioProcessingState() {
@@ -243,7 +241,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     mediaItem.add(currentTrack);
 
     // propaga lo stato del player ad audio_service e a tutti i listeners
-    chewieController.videoPlayerController.addListener(broadcastState);
+    chewieController.videoPlayerController.addListener(_broadcastState);
 
     chewieController.videoPlayerController.addListener(() {
       // verifica che il video sia finito
