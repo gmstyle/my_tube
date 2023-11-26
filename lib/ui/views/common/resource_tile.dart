@@ -1,6 +1,8 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:my_tube/blocs/home/queue_tab/queue_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +14,7 @@ class ResourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mtPlayerHandler = context.read<MtPlayerHandler>();
+    final queueCubit = context.read<QueueCubit>();
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
       margin: const EdgeInsets.only(bottom: 16),
@@ -62,13 +64,14 @@ class ResourceTile extends StatelessWidget {
                       children: [
                         // show an animated that the video is playing
                         StreamBuilder(
-                            stream: mtPlayerHandler.mediaItem,
+                            stream: queueCubit.mtPlayerHandler.mediaItem,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 final currentVideoId = snapshot.data!.id;
                                 if (currentVideoId == resource.id) {
                                   return StreamBuilder(
-                                      stream: mtPlayerHandler.playbackState
+                                      stream: queueCubit
+                                          .mtPlayerHandler.playbackState
                                           .map((playbackState) =>
                                               playbackState.playing)
                                           .distinct(),
@@ -119,22 +122,33 @@ class ResourceTile extends StatelessWidget {
           ),
 
           //Menu
-          PopupMenuButton(
-              iconColor: Colors.white,
-              itemBuilder: (context) {
-                return [
-                  ///TODO: Add functionality to remove from queue and add to playlist
-                  const PopupMenuItem(
-                    value: 'remove',
-                    child: Text('Remove from queue'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'add',
-                    child: Text('Add to playlist'),
-                  ),
-                ];
-              },
-              icon: const Icon(Icons.more_vert_rounded))
+          if (resource.kind != 'youtube#channel')
+            PopupMenuButton(
+                iconColor: Colors.white,
+                itemBuilder: (context) {
+                  return [
+                    // show the option to remove the video from the queue if it is in the queue
+                    if (queueCubit.queueRepository.videoIds
+                        .contains(resource.id))
+                      PopupMenuItem(
+                        value: 'remove',
+                        child: const Text('Remove from queue'),
+                        onTap: () async =>
+                            await queueCubit.removeFromQueue(resource),
+                      ),
+
+                    // show the option to add the video to the queue if it is not in the queue
+                    if (!queueCubit.queueRepository.videoIds
+                        .contains(resource.id))
+                      PopupMenuItem(
+                        value: 'add',
+                        child: const Text('Add to queue'),
+                        onTap: () async =>
+                            await queueCubit.addToQueue(resource),
+                      ),
+                  ];
+                },
+                icon: const Icon(Icons.more_vert_rounded))
         ],
       ),
     );

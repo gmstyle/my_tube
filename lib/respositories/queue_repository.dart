@@ -10,7 +10,6 @@ class QueueRepository {
 
   List<String> get videoIds => queue.map((e) => e.id!).toList();
   ValueListenable<Box<ResourceMT>> get queueListenable => queueBox.listenable();
-  int get currentIndex => queueSettingsBox.get('currentIndex', defaultValue: 0);
 
   Future<void> save(ResourceMT video) async {
     final videoWithAddedAt = video.copyWith(addedAt: DateTime.now());
@@ -22,7 +21,8 @@ class QueueRepository {
   }
 
   Future<void> remove(ResourceMT video) async {
-    await queueBox.delete(video.id);
+    final index = queue.indexWhere((element) => element.id == video.id);
+    await queueBox.deleteAt(index);
   }
 
   Future<void> clear() async {
@@ -31,9 +31,5 @@ class QueueRepository {
 
   Future<bool> contains(String? id) async {
     return queueBox.keys.contains(id);
-  }
-
-  Future<void> saveCurrentIndex(int index) async {
-    await queueSettingsBox.put('currentIndex', index);
   }
 }

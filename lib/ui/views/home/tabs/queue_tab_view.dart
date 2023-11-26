@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
+import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
 
 class QueueTabView extends StatelessWidget {
@@ -15,7 +16,7 @@ class QueueTabView extends StatelessWidget {
     return ValueListenableBuilder(
         valueListenable: queueRepository.queueListenable,
         builder: (context, box, _) {
-          final queue = box.values.toList().reversed.toList();
+          final queue = box.values.toList();
 
           final videoIds = queue.map((e) => e.id!).toList();
 
@@ -44,7 +45,8 @@ class QueueTabView extends StatelessWidget {
                         color: Colors.white,
                         onPressed: queue.isNotEmpty
                             ? () async {
-                                await queueRepository.clear();
+                                await miniplayerCubit.mtPlayerHandler
+                                    .clearQueue();
                               }
                             : null,
                         icon: const Icon(Icons.clear_all_rounded))

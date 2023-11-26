@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
@@ -16,6 +17,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   late MediaItem currentTrack;
   List<MediaItem> playlist = [];
   bool get hasNextVideo => currentIndex < playlist.length - 1;
+  bool shuffleEnabled = false;
 
   // Stream per notificare il cambio di brano
   final StreamController<void> skipController =
@@ -52,9 +54,8 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> skipToPrevious() async {
     if (currentIndex > 0) {
       currentIndex--;
-      await _playCurrentTrack();
       await chewieController.videoPlayerController.seekTo(Duration.zero);
-      queueRepository.saveCurrentIndex(currentIndex);
+      await _playCurrentTrack();
       skipController.add(null);
     }
   }
@@ -63,9 +64,8 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> skipToNext() async {
     if (currentIndex < playlist.length - 1) {
       currentIndex++;
-      await _playCurrentTrack();
       await chewieController.videoPlayerController.seekTo(Duration.zero);
-      queueRepository.saveCurrentIndex(currentIndex);
+      await _playCurrentTrack();
       skipController.add(null);
     }
   }
@@ -73,7 +73,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   // Inizializza currentIndex, playlist e currentTrack da hive
   Future<void> init() async {
     //queueRepository.clear();
-    currentIndex = queueRepository.currentIndex;
+    //currentIndex = queueRepository.currentIndex;
     final localQueue = queueRepository.queue;
 
     for (final video in localQueue) {
@@ -141,7 +141,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
 
     currentIndex = playlist.indexOf(item);
-    queueRepository.saveCurrentIndex(currentIndex);
 
     await _playCurrentTrack();
   }
@@ -171,7 +170,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
 
     currentIndex = playlist.indexOf(list.first);
-    queueRepository.saveCurrentIndex(currentIndex);
 
     await _playCurrentTrack();
   }
@@ -217,8 +215,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     // inizializza il video player controller da passare a chewie
     videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(currentTrack.extras!['streamUrl']),
-        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
+      Uri.parse(currentTrack.extras!['streamUrl']),
+      videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
+    );
     await videoPlayerController.initialize();
 
     // inizializza il chewie controller per la riproduzione del video
@@ -264,5 +263,109 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       await chewieController.videoPlayerController.setLooping(true);
     }
     playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
+  }
+
+  Future<void> addToQueue(ResourceMT video) async {
+    final item = MediaItem(
+        id: video.id!,
+        title: video.title!,
+        album: video.channelTitle!,
+        artUri: Uri.parse(video.thumbnailUrl!),
+        duration: Duration(milliseconds: video.duration!),
+        extras: {
+          'streamUrl': video.streamUrl!,
+          'description': video.description,
+        });
+
+    // aggiungi il brano alla coda se non è già presente
+    if (!playlist.contains(item)) {
+      playlist.add(item);
+      // salva il brano nella coda locale
+      await queueRepository.save(video);
+    }
+    queue.add(playlist);
+
+    if (currentIndex == -1) {
+      currentIndex = playlist.indexOf(item);
+      await _playCurrentTrack();
+    }
+  }
+
+  Future<void> removeFromQueue(ResourceMT video) async {
+    final index = playlist.indexOf(MediaItem(
+        id: video.id!,
+        title: video.title!,
+        album: video.channelTitle!,
+        artUri: Uri.parse(video.thumbnailUrl!),
+        duration: Duration(milliseconds: video.duration!),
+        extras: {
+          'streamUrl': video.streamUrl!,
+        }));
+    await queueRepository.remove(video);
+    playlist.removeAt(index);
+    queue.add(playlist);
+
+    if (index < currentIndex) {
+      currentIndex--;
+    } else if (index == currentIndex) {
+      if (hasNextVideo) {
+        skipToNext();
+      } else {
+        stop();
+      }
+    } else {
+      currentIndex = playlist.indexOf(currentTrack);
+    }
+  }
+
+  Future<void> clearQueue() async {
+    stop();
+    await queueRepository.clear();
+    playlist.clear();
+    queue.add(playlist);
+  }
+
+  Future<void> toggleShuffle() async {
+    shuffleEnabled = !shuffleEnabled;
+    if (shuffleEnabled) {
+      _shufflePlaylist();
+    } else {
+      // ripristina la playlist originale
+      playlist = queueRepository.queue.map((e) {
+        return MediaItem(
+            id: e.id!,
+            title: e.title!,
+            album: e.channelTitle!,
+            artUri: Uri.parse(e.thumbnailUrl!),
+            duration: Duration(milliseconds: e.duration!),
+            extras: {
+              'streamUrl': e.streamUrl!,
+              'description': e.description,
+            });
+      }).toList();
+      currentIndex = playlist.indexOf(currentTrack);
+      await _playCurrentTrack();
+    }
+  }
+
+  Future<void> _shufflePlaylist() async {
+    final random = Random();
+    final List<MediaItem> shuffledPlaylist = List.from(playlist);
+
+    // Usa l'algoritmo di Fisher-Yates per mescolare la playlist
+    for (int i = shuffledPlaylist.length - 1; i > 0; i--) {
+      final int j = random.nextInt(i + 1);
+      final MediaItem temp = shuffledPlaylist[i];
+      shuffledPlaylist[i] = shuffledPlaylist[j];
+      shuffledPlaylist[j] = temp;
+    }
+
+    // Aggiorna la playlist e riproduci la prima traccia mescolata
+    playlist = shuffledPlaylist;
+    currentIndex = 0;
+
+    await chewieController.videoPlayerController.seekTo(Duration.zero);
+    await _playCurrentTrack();
+    skipController.add(null);
   }
 }

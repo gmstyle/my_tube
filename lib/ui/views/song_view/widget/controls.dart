@@ -12,6 +12,20 @@ class Controls extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // Shuffle
+        IconButton(
+          icon: Icon(
+            Icons.shuffle,
+            color: mtPlayerHandler.shuffleEnabled
+                ? Theme.of(context).colorScheme.onPrimary
+                : Colors.white.withOpacity(0.5),
+          ),
+          onPressed: () async {
+            await mtPlayerHandler
+                .toggleShuffle(); // Aggiungi questa funzione nel tuo MtPlayerHandler
+          },
+        ),
+
         // seek backward
         IconButton(
           icon: const Icon(

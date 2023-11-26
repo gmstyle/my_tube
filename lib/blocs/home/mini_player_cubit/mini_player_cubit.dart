@@ -25,6 +25,12 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     await _startPlaying(videoWithStreamUrl);
 
     emit(const MiniPlayerState.shown());
+
+    mtPlayerHandler.queue.listen((value) {
+      if (value.isEmpty) {
+        emit(const MiniPlayerState.hidden());
+      }
+    });
   }
 
   Future<void> startPlayingPlaylist(List<String> videoIds) async {
