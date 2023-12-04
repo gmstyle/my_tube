@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
@@ -12,7 +13,7 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MtPlayerHandler mtPlayerHandler = context.read<MtPlayerHandler>();
+    final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
@@ -23,7 +24,7 @@ class MiniPlayer extends StatelessWidget {
           children: [
             // Image
             StreamBuilder(
-                stream: mtPlayerHandler.mediaItem,
+                stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
                 builder: (context, snapshot) {
                   final mediaItem = snapshot.data;
                   return mediaItem?.artUri != null
@@ -63,7 +64,7 @@ class MiniPlayer extends StatelessWidget {
                     // Video Title and Album
                     Expanded(
                       child: StreamBuilder(
-                          stream: mtPlayerHandler.mediaItem,
+                          stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
                           builder: (context, snapshot) {
                             final mediaItem = snapshot.data;
                             return Column(
@@ -95,11 +96,11 @@ class MiniPlayer extends StatelessWidget {
 
                     // skip previous button
                     StreamBuilder(
-                        stream: mtPlayerHandler.queue,
+                        stream: miniPlayerCubit.mtPlayerHandler.queue,
                         builder: ((context, snapshot) {
                           final queue = snapshot.data ?? [];
-                          final index =
-                              queue.indexOf(mtPlayerHandler.currentTrack);
+                          final index = queue.indexOf(
+                              miniPlayerCubit.mtPlayerHandler.currentTrack);
                           return IconButton(
                             icon: Icon(
                               Icons.skip_previous,
@@ -107,7 +108,7 @@ class MiniPlayer extends StatelessWidget {
                             ),
                             onPressed: index > 0
                                 ? () async {
-                                    await mtPlayerHandler.skipToPrevious();
+                                    await miniPlayerCubit.skipToPrevious();
                                   }
                                 : null,
                           );
@@ -115,7 +116,7 @@ class MiniPlayer extends StatelessWidget {
 
                     // Play/Pause Button
                     StreamBuilder(
-                        stream: mtPlayerHandler.playbackState
+                        stream: miniPlayerCubit.mtPlayerHandler.playbackState
                             .map((playbackState) => playbackState.playing)
                             .distinct(),
                         builder: (context, snapshot) {
@@ -124,9 +125,9 @@ class MiniPlayer extends StatelessWidget {
                               iconSize: MediaQuery.of(context).size.width * 0.1,
                               onPressed: () {
                                 if (isPlaying) {
-                                  mtPlayerHandler.pause();
+                                  miniPlayerCubit.mtPlayerHandler.pause();
                                 } else {
-                                  mtPlayerHandler.play();
+                                  miniPlayerCubit.mtPlayerHandler.play();
                                 }
                               },
                               icon: Icon(
@@ -137,11 +138,11 @@ class MiniPlayer extends StatelessWidget {
 
                     // skip next button
                     StreamBuilder(
-                        stream: mtPlayerHandler.queue,
+                        stream: miniPlayerCubit.mtPlayerHandler.queue,
                         builder: ((context, snapshot) {
                           final queue = snapshot.data ?? [];
-                          final index =
-                              queue.indexOf(mtPlayerHandler.currentTrack);
+                          final index = queue.indexOf(
+                              miniPlayerCubit.mtPlayerHandler.currentTrack);
                           final hasNext = index < queue.length - 1;
                           return IconButton(
                             icon: Icon(
@@ -150,7 +151,7 @@ class MiniPlayer extends StatelessWidget {
                             ),
                             onPressed: hasNext
                                 ? () async {
-                                    await mtPlayerHandler.skipToNext();
+                                    await miniPlayerCubit.skipToNext();
                                   }
                                 : null,
                           );

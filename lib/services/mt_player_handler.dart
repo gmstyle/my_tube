@@ -218,7 +218,9 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       Uri.parse(currentTrack.extras!['streamUrl']),
       videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
     );
-    await videoPlayerController.initialize();
+    if (!videoPlayerController.value.isInitialized) {
+      await videoPlayerController.initialize();
+    }
 
     // inizializza il chewie controller per la riproduzione del video
     chewieController = ChewieController(
