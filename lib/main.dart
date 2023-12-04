@@ -12,7 +12,6 @@ import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
-import 'package:my_tube/respositories/mappers/video_mapper.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
@@ -52,7 +51,7 @@ void main() async {
     child: MultiProvider(
       providers: [
         /// Mappers
-        Provider<VideoMapper>(create: (context) => VideoMapper()),
+
         Provider<SearchMapper>(create: (context) => SearchMapper()),
         Provider<SubscriptionMapper>(create: (context) => SubscriptionMapper()),
       ],
@@ -66,7 +65,6 @@ void main() async {
           RepositoryProvider<YoutubeRepository>(
             create: (context) => YoutubeRepository(
                 youtubeProvider: context.read<YoutubeProvider>(),
-                videoMapper: context.read<VideoMapper>(),
                 searchMapper: context.read<SearchMapper>(),
                 subscriptionMapper: context.read<SubscriptionMapper>()),
           ),

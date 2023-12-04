@@ -19,7 +19,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   bool get hasNextVideo => currentIndex < playlist.length - 1;
   bool shuffleEnabled = false;
 
-  // Stream per notificare il cambio di brano
+  // Stream per notificare il cambio di brano alla UI FullScreenView
   final StreamController<void> skipController =
       StreamController<void>.broadcast();
   Stream<void> get onSkip => skipController.stream;

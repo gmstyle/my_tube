@@ -7,19 +7,16 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
-import 'package:my_tube/respositories/mappers/video_mapper.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:xml/xml.dart' as xml;
 
 class YoutubeRepository {
   YoutubeRepository(
       {required this.youtubeProvider,
-      required this.videoMapper,
       required this.searchMapper,
       required this.subscriptionMapper});
 
   final YoutubeProvider youtubeProvider;
-  final VideoMapper videoMapper;
   final SearchMapper searchMapper;
   final SubscriptionMapper subscriptionMapper;
 
@@ -33,22 +30,6 @@ class YoutubeRepository {
         .toList();
   }
 
-  /* Future<ResponseMT> getVideos(
-      {String? nextPageToken,
-      String? categoryId,
-      String? chart,
-      String? myRating,
-      List<String>? videoIds}) async {
-    final response = await youtubeProvider.getVideos(
-      nextPageToken: nextPageToken,
-      categoryId: categoryId,
-      chart: chart,
-      myRating: myRating,
-      videoIds: videoIds,
-    );
-    return videoMapper.mapToModel(response);
-  }
- */
   Future<ResponseMT> getVideos(
       {String? nextPageToken,
       String? categoryId,
