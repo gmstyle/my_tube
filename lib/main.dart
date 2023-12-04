@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/blocs/home/queue_tab/queue_cubit.dart';
+import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
@@ -82,10 +82,9 @@ void main() async {
                     youtubeRepository: context.read<YoutubeRepository>(),
                     mtPlayerHandler: context.read<MtPlayerHandler>(),
                   )),
-          BlocProvider<QueueCubit>(
-              create: (context) => QueueCubit(
+          BlocProvider<QueueBloc>(
+              create: (context) => QueueBloc(
                   queueRepository: context.read<QueueRepository>(),
-                  youtubeRepository: context.read<YoutubeRepository>(),
                   mtPlayerHandler: context.read<MtPlayerHandler>()))
         ], child: const MyApp()),
       ),

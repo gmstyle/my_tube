@@ -1,9 +1,6 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tube/blocs/home/queue_tab/queue_cubit.dart';
+import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/queue_repository.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +11,7 @@ class ResourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final queueCubit = context.read<QueueCubit>();
+    final queueCubit = context.read<QueueBloc>();
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
       margin: const EdgeInsets.only(bottom: 16),
@@ -131,21 +128,18 @@ class ResourceTile extends StatelessWidget {
                     if (queueCubit.queueRepository.videoIds
                         .contains(resource.id))
                       PopupMenuItem(
-                        value: 'remove',
-                        child: const Text('Remove from queue'),
-                        onTap: () async =>
-                            await queueCubit.removeFromQueue(resource),
-                      ),
+                          value: 'remove',
+                          child: const Text('Remove from queue'),
+                          onTap: () =>
+                              queueCubit.add(RemoveFromQueue(resource))),
 
                     // show the option to add the video to the queue if it is not in the queue
                     if (!queueCubit.queueRepository.videoIds
                         .contains(resource.id))
                       PopupMenuItem(
-                        value: 'add',
-                        child: const Text('Add to queue'),
-                        onTap: () async =>
-                            await queueCubit.addToQueue(resource),
-                      ),
+                          value: 'add',
+                          child: const Text('Add to queue'),
+                          onTap: () => queueCubit.add(AddToQueue(resource))),
                   ];
                 },
                 icon: const Icon(Icons.more_vert_rounded))
