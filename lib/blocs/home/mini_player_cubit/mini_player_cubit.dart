@@ -18,11 +18,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   Future<void> startPlaying(String videoId) async {
     emit(const MiniPlayerState.loading());
 
-    final streamUrl = await youtubeRepository.getStreamUrl(videoId);
     final response = await youtubeRepository.getVideos(videoIds: [videoId]);
-    final videoWithStreamUrl =
-        response.resources.first.copyWith(streamUrl: streamUrl);
-    await _startPlaying(videoWithStreamUrl);
+
+    await _startPlaying(response.resources.first);
 
     emit(const MiniPlayerState.shown());
 
@@ -37,13 +35,8 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.loading());
 
     final response = await youtubeRepository.getVideos(videoIds: videoIds);
-    final videosWithStreamUrl = <ResourceMT>[];
-    for (ResourceMT video in response.resources) {
-      final streamUrl = await youtubeRepository.getStreamUrl(video.id!);
-      videosWithStreamUrl.add(video.copyWith(streamUrl: streamUrl));
-    }
 
-    await _startPlayingPlaylist(videosWithStreamUrl);
+    await _startPlayingPlaylist(response.resources);
 
     emit(const MiniPlayerState.shown());
   }

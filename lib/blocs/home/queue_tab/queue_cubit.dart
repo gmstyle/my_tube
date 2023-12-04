@@ -18,9 +18,7 @@ class QueueCubit extends Cubit<void> {
       : super(QueueInitial());
 
   Future<void> addToQueue(ResourceMT video) async {
-    final streamUrl = await youtubeRepository.getStreamUrl(video.id!);
-    final videoWithStreamUrl = video.copyWith(streamUrl: streamUrl);
-    await mtPlayerHandler.addToQueue(videoWithStreamUrl);
+    await mtPlayerHandler.addToQueue(video);
   }
 
   Future<void> removeFromQueue(ResourceMT video) async {

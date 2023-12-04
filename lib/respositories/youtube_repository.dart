@@ -8,6 +8,7 @@ import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/mappers/video_mapper.dart';
+import 'package:my_tube/utils/utils.dart';
 import 'package:xml/xml.dart' as xml;
 
 class YoutubeRepository {
@@ -32,7 +33,7 @@ class YoutubeRepository {
         .toList();
   }
 
-  Future<ResponseMT> getVideos(
+  /* Future<ResponseMT> getVideos(
       {String? nextPageToken,
       String? categoryId,
       String? chart,
@@ -46,6 +47,47 @@ class YoutubeRepository {
       videoIds: videoIds,
     );
     return videoMapper.mapToModel(response);
+  }
+ */
+  Future<ResponseMT> getVideos(
+      {String? nextPageToken,
+      String? categoryId,
+      String? chart,
+      String? myRating,
+      List<String>? videoIds}) async {
+    final response = await youtubeProvider.getVideos(
+      nextPageToken: nextPageToken,
+      categoryId: categoryId,
+      chart: chart,
+      myRating: myRating,
+      videoIds: videoIds,
+    );
+
+    final videos = response.items!
+        // escludo i video live che non stanno trasmettendo prima di mappare
+        .where((e) => e.snippet?.liveBroadcastContent != 'upcoming')
+        .toList();
+    // calcola la lista di resourceMT a partire dalla lista di video ottenendo lo streamUrl
+    final resources = await Future.wait(videos.map((e) async {
+      final streamUrl = await getStreamUrl(e.id!);
+      return ResourceMT(
+          id: e.id,
+          title: e.snippet?.title,
+          description: e.snippet?.description,
+          channelTitle: e.snippet?.channelTitle,
+          thumbnailUrl: e.snippet?.thumbnails?.high?.url,
+          kind: e.kind,
+          channelId: e.snippet?.channelId,
+          playlistId: '',
+          streamUrl: streamUrl,
+          duration: Utils.parseDurationStringToMilliseconds(
+              e.contentDetails?.duration));
+    }));
+
+    return ResponseMT(
+      resources: resources,
+      nextPageToken: response.nextPageToken,
+    );
   }
 
   Future<ResponseMT> searchContents(
