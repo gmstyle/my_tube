@@ -53,6 +53,9 @@ dependencies:
   audio_service: ^0.18.12
   wakelock_plus: ^1.1.4
   hive_generator: ^2.0.1
+  innertube_dart:
+    git:
+      url: https://github.com/gmstyle/innertube_dart.git
 
 dev_dependencies:
   flutter_test:
