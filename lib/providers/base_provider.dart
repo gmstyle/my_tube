@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/youtube/v3.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -14,10 +16,11 @@ class BaseProvider {
 
   static YoutubeExplode youtubeExplode = YoutubeExplode();
 
-  static Future<String?> getIpAdress() async {
+  Future<String> getCountryCode() async {
     try {
-      final response = await http.get(Uri.parse('https://api.ipify.org'));
-      return response.body;
+      final response = await http.get(Uri.parse('https://api.country.is'));
+      final json = jsonDecode(response.body);
+      return json['country'];
     } catch (error) {
       return Future.error('Error: $error');
     }

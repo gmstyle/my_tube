@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 
 class Utils {
@@ -62,5 +63,9 @@ class Utils {
     }
 
     return '$hoursStr:$minutesStr:$secondsStr';
+  }
+
+  static Locale getLocaleFromCountryCode(String countryCode) {
+    return Locale.fromSubtags(countryCode: countryCode);
   }
 }
