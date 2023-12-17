@@ -2,14 +2,17 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:googleapis/artifactregistry/v1.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/auth_provider.dart';
+import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/auth_repository.dart';
+import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
@@ -46,6 +49,7 @@ void main() async {
       /// Providers
       Provider<AuthProvider>(create: (context) => AuthProvider()),
       Provider<YoutubeProvider>(create: (context) => YoutubeProvider()),
+      Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler..init()),
     ],
     child: MultiProvider(
@@ -68,6 +72,9 @@ void main() async {
                 searchMapper: context.read<SearchMapper>(),
                 subscriptionMapper: context.read<SubscriptionMapper>()),
           ),
+          RepositoryProvider<InnertubeRepository>(
+              create: (context) => InnertubeRepository(
+                  innertubeProvider: context.read<InnertubeProvider>())),
           RepositoryProvider<QueueRepository>(
               create: (context) => QueueRepository())
         ],
@@ -80,6 +87,7 @@ void main() async {
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
                     youtubeRepository: context.read<YoutubeRepository>(),
+                    innertubeRepository: context.read<InnertubeRepository>(),
                     mtPlayerHandler: context.read<MtPlayerHandler>(),
                   )),
           BlocProvider<QueueBloc>(

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 
@@ -8,11 +9,14 @@ part 'mini_player_state.dart';
 
 class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   final YoutubeRepository youtubeRepository;
+  final InnertubeRepository innertubeRepository;
 
   final MtPlayerHandler mtPlayerHandler;
 
   MiniPlayerCubit(
-      {required this.youtubeRepository, required this.mtPlayerHandler})
+      {required this.youtubeRepository,
+      required this.innertubeRepository,
+      required this.mtPlayerHandler})
       : super(const MiniPlayerState.hidden());
 
   init() {
@@ -27,8 +31,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.loading());
 
     final response = await youtubeRepository.getVideos(videoIds: [video.id!]);
+    final response2 = await innertubeRepository.getVideo(video.id!);
 
-    await _startPlaying(response.resources.first);
+    await _startPlaying(response2);
 
     emit(const MiniPlayerState.shown());
   }
