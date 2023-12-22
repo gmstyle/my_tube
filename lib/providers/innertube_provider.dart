@@ -1,5 +1,6 @@
 import 'package:innertube_dart/enums/enums.dart';
 import 'package:innertube_dart/innertube.dart';
+import 'package:innertube_dart/models/responses/playlist.dart';
 import 'package:innertube_dart/models/responses/trending_response.dart';
 import 'package:innertube_dart/models/responses/video.dart';
 import 'package:my_tube/providers/base_provider.dart';
@@ -12,10 +13,17 @@ class InnertubeProvider extends BaseProvider {
     return video;
   }
 
-  Future<TrendingResponse> getTrendingMusic() async {
+  Future<Playlist> getPlaylist(String playlistId) async {
+    final innertube = await _getClient();
+    final playlist = await innertube.getPlaylist(playlistId: playlistId);
+    return playlist;
+  }
+
+  Future<TrendingResponse> getTrending(
+      TrendingCategory trendingCategory) async {
     final innertube = await _getClient();
     final response =
-        await innertube.getTrending(trendingCategory: TrendingCategory.music);
+        await innertube.getTrending(trendingCategory: trendingCategory);
     return response;
   }
 

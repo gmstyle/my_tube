@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_tube/models/playlist_mt.dart';
 part 'resource_mt.g.dart';
 
 class ResponseMT extends Equatable {
@@ -32,7 +31,6 @@ class ResponseMT extends Equatable {
   ResponseMT copyWith({
     List<ResourceMT>? resources,
     String? nextPageToken,
-    PlaylistMT? playlist,
   }) {
     return ResponseMT(
       resources: resources ?? this.resources,

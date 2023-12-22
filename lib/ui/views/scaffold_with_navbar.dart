@@ -9,10 +9,16 @@ import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 
-class ScaffoldWithNavbarView extends StatelessWidget {
-  const ScaffoldWithNavbarView({super.key, required this.navigationShell});
-  final StatefulNavigationShell navigationShell;
+class ScaffoldWithNavbarView extends StatefulWidget {
+  const ScaffoldWithNavbarView({super.key, required this.child});
+  final Widget child;
 
+  @override
+  State<ScaffoldWithNavbarView> createState() => _ScaffoldWithNavbarViewState();
+}
+
+class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
+  int currentIndex = 0;
   final _navBarItems = const [
     NavigationDestination(
       icon: Icon(Icons.explore),
@@ -37,9 +43,29 @@ class ScaffoldWithNavbarView extends StatelessWidget {
   ];
 
   void onDestinationSelected(int index) {
-    navigationShell.goBranch(index,
-        initialLocation: index == navigationShell.currentIndex);
-    log('onDestinationSelected: $index');
+    switch (index) {
+      case 0:
+        context.goNamed(AppRoute.explore.name);
+        break;
+      case 1:
+        context.goNamed(AppRoute.favorites.name);
+        break;
+      case 2:
+        context.goNamed(AppRoute.search.name);
+        break;
+      case 3:
+        context.goNamed(AppRoute.subscriptions.name);
+        break;
+      case 4:
+        context.goNamed(AppRoute.queue.name);
+        break;
+      default:
+        break;
+    }
+
+    setState(() {
+      currentIndex = index;
+    });
   }
 
   @override
@@ -52,16 +78,14 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         appBar: CustomAppbar(
           title: 'My Tube',
           actions: [
-            IconButton(
-                onPressed: () => context.pushNamed(AppRoute.account.name),
-                icon: const Icon(Icons.account_circle))
+            IconButton(onPressed: () {}, icon: const Icon(Icons.search))
           ],
         ),
         backgroundColor: Colors.transparent,
         body: Column(
           children: [
             /// Tab content
-            Expanded(child: navigationShell),
+            Expanded(child: widget.child),
 
             /// Mini player
             AnimatedContainer(
@@ -94,7 +118,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         bottomNavigationBar: NavigationBar(
             elevation: 0,
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            selectedIndex: navigationShell.currentIndex,
+            selectedIndex: currentIndex,
             destinations: _navBarItems,
             onDestinationSelected: onDestinationSelected,
             labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected),

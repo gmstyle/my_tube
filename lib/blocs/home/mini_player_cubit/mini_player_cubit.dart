@@ -8,15 +8,12 @@ import 'package:my_tube/services/mt_player_handler.dart';
 part 'mini_player_state.dart';
 
 class MiniPlayerCubit extends Cubit<MiniPlayerState> {
-  final YoutubeRepository youtubeRepository;
   final InnertubeRepository innertubeRepository;
 
   final MtPlayerHandler mtPlayerHandler;
 
   MiniPlayerCubit(
-      {required this.youtubeRepository,
-      required this.innertubeRepository,
-      required this.mtPlayerHandler})
+      {required this.innertubeRepository, required this.mtPlayerHandler})
       : super(const MiniPlayerState.hidden());
 
   init() {
@@ -30,10 +27,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   Future<void> startPlaying(ResourceMT video) async {
     emit(const MiniPlayerState.loading());
 
-    final response = await youtubeRepository.getVideos(videoIds: [video.id!]);
-    final response2 = await innertubeRepository.getVideo(video.id!);
+    final response = await innertubeRepository.getVideo(video.id!);
 
-    await _startPlaying(response2);
+    await _startPlaying(response);
 
     emit(const MiniPlayerState.shown());
   }
@@ -41,9 +37,9 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   Future<void> startPlayingPlaylist(List<String> videoIds) async {
     emit(const MiniPlayerState.loading());
 
-    final response = await youtubeRepository.getVideos(videoIds: videoIds);
+    //final response = await youtubeRepository.getVideos(videoIds: videoIds);
 
-    await _startPlayingPlaylist(response.resources);
+    //await _startPlayingPlaylist(response.resources);
 
     emit(const MiniPlayerState.shown());
   }

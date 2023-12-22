@@ -1,144 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/router/pages/account_page.dart';
 import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
-import 'package:my_tube/router/pages/login_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/queue_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
 import 'package:my_tube/router/pages/song_page.dart';
-import 'package:my_tube/router/pages/splash_page.dart';
 import 'package:my_tube/router/pages/subscriptions_tab_page.dart';
 import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final exploreTabNavigatorKey = GlobalKey<NavigatorState>();
-  static final favoritesTabNavigatorKey = GlobalKey<NavigatorState>();
-  static final searchTabNavigatorKey = GlobalKey<NavigatorState>();
-  static final subscriptionsTabNavigatorKey = GlobalKey<NavigatorState>();
-  static final queueTabNavigatorKey = GlobalKey<NavigatorState>();
+  static final shellNavigatorKey = GlobalKey<NavigatorState>();
 
-  static final router = GoRouter(
-      navigatorKey: rootNavigatorKey,
-      initialLocation: AppRoute.splash.path,
-      routes: [
-        GoRoute(
-            parentNavigatorKey: rootNavigatorKey,
-            name: AppRoute.splash.name,
-            path: AppRoute.splash.path,
-            pageBuilder: (context, state) => const SplashPage()),
-        GoRoute(
-            parentNavigatorKey: rootNavigatorKey,
-            name: AppRoute.login.name,
-            path: AppRoute.login.path,
-            pageBuilder: (context, state) => const LoginPage()),
-        GoRoute(
-            parentNavigatorKey: rootNavigatorKey,
-            name: AppRoute.song.name,
-            path: AppRoute.song.path,
-            pageBuilder: (context, state) {
-              return const SongPage();
-            }),
-        GoRoute(
-            parentNavigatorKey: rootNavigatorKey,
-            name: AppRoute.account.name,
-            path: AppRoute.account.path,
-            pageBuilder: (context, state) => const AccountPage()),
-        StatefulShellRoute.indexedStack(
-            builder: (context, state, navigationShell) =>
-                ScaffoldWithNavbarView(navigationShell: navigationShell),
-            branches: [
-              // Tab Explore
-              StatefulShellBranch(
-                  navigatorKey: exploreTabNavigatorKey,
-                  routes: [
-                    GoRoute(
-                        name: AppRoute.explore.name,
-                        path: AppRoute.explore.path,
-                        pageBuilder: (context, state) =>
-                            const ExploreTabPage()),
-                  ]),
+  static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
+    GoRoute(
+        parentNavigatorKey: rootNavigatorKey,
+        name: AppRoute.song.name,
+        path: AppRoute.song.path,
+        pageBuilder: (context, state) {
+          return const SongPage();
+        }),
+    ShellRoute(
+        navigatorKey: shellNavigatorKey,
+        builder: (context, state, child) =>
+            ScaffoldWithNavbarView(child: child),
+        routes: [
+          // Tab Explore
+          GoRoute(
+              parentNavigatorKey: shellNavigatorKey,
+              name: AppRoute.explore.name,
+              path: AppRoute.explore.path,
+              pageBuilder: (context, state) => const ExploreTabPage()),
 
-              // Tab Favorites
-              StatefulShellBranch(
-                  navigatorKey: favoritesTabNavigatorKey,
-                  routes: [
-                    GoRoute(
-                        name: AppRoute.favorites.name,
-                        path: AppRoute.favorites.path,
-                        pageBuilder: (context, state) =>
-                            const FavoritesTabPAge()),
-                  ]),
+          // Tab Favorites
+          GoRoute(
+              parentNavigatorKey: shellNavigatorKey,
+              name: AppRoute.favorites.name,
+              path: AppRoute.favorites.path,
+              pageBuilder: (context, state) => const FavoritesTabPAge()),
 
-              // Tab Search
-              StatefulShellBranch(navigatorKey: searchTabNavigatorKey, routes: [
+          // Tab Search
+          GoRoute(
+              parentNavigatorKey: shellNavigatorKey,
+              name: AppRoute.search.name,
+              path: AppRoute.search.path,
+              pageBuilder: (context, state) => const SearchPage(),
+              routes: [
                 GoRoute(
-                    name: AppRoute.search.name,
-                    path: AppRoute.search.path,
-                    pageBuilder: (context, state) => const SearchPage(),
-                    routes: [
-                      GoRoute(
-                          parentNavigatorKey: searchTabNavigatorKey,
-                          path: AppRoute.channel.path,
-                          pageBuilder: (context, state) {
-                            final extra = state.extra as Map<String, dynamic>;
-                            final channelId = extra['channelId'] as String;
-                            return ChannelPage(channelId: channelId);
-                          }),
-                      GoRoute(
-                          parentNavigatorKey: searchTabNavigatorKey,
-                          name: AppRoute.playlist.name,
-                          path: AppRoute.playlist.path,
-                          pageBuilder: (context, state) {
-                            final extra = state.extra as Map<String, dynamic>;
+                    parentNavigatorKey: shellNavigatorKey,
+                    path: AppRoute.channel.path,
+                    pageBuilder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>;
+                      final channelId = extra['channelId'] as String;
+                      return ChannelPage(channelId: channelId);
+                    }),
+                GoRoute(
+                    parentNavigatorKey: shellNavigatorKey,
+                    name: AppRoute.playlist.name,
+                    path: AppRoute.playlist.path,
+                    pageBuilder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>;
 
-                            final playlistId = extra['playlistId'] as String;
-                            return PlaylistPage(playlistId: playlistId);
-                          })
-                    ]),
+                      final playlistId = extra['playlistId'] as String;
+                      return PlaylistPage(playlistId: playlistId);
+                    })
               ]),
 
-              // Tab Subscriptions
-              StatefulShellBranch(
-                  navigatorKey: subscriptionsTabNavigatorKey,
-                  routes: [
-                    GoRoute(
-                        name: AppRoute.subscriptions.name,
-                        path: AppRoute.subscriptions.path,
-                        pageBuilder: (context, state) =>
-                            const SubscriptionsTabPAge(),
-                        routes: [
-                          GoRoute(
-                              parentNavigatorKey: subscriptionsTabNavigatorKey,
-                              name: AppRoute.channel.name,
-                              path: AppRoute.channel.path,
-                              pageBuilder: (context, state) {
-                                final extra =
-                                    state.extra as Map<String, dynamic>;
-                                final channelId = extra['channelId'] as String;
-                                return ChannelPage(channelId: channelId);
-                              }),
-                        ]),
-                  ]),
-
-              // Tab Queue
-              StatefulShellBranch(navigatorKey: queueTabNavigatorKey, routes: [
+          // Tab Subscriptions
+          GoRoute(
+              name: AppRoute.subscriptions.name,
+              path: AppRoute.subscriptions.path,
+              pageBuilder: (context, state) => const SubscriptionsTabPAge(),
+              routes: [
                 GoRoute(
-                    name: AppRoute.queue.name,
-                    path: AppRoute.queue.path,
-                    pageBuilder: (context, state) => const QueueTabPage())
+                    parentNavigatorKey: shellNavigatorKey,
+                    name: AppRoute.channel.name,
+                    path: AppRoute.channel.path,
+                    pageBuilder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>;
+                      final channelId = extra['channelId'] as String;
+                      return ChannelPage(channelId: channelId);
+                    }),
               ]),
-            ]),
-      ]);
+
+          // Tab Queue
+          GoRoute(
+              parentNavigatorKey: shellNavigatorKey,
+              name: AppRoute.queue.name,
+              path: AppRoute.queue.path,
+              pageBuilder: (context, state) => const QueueTabPage())
+        ]),
+  ]);
 }
 
 enum AppRoute {
-  splash('/'),
-  login('/login'),
-  explore('/explore'),
+  explore('/'),
   favorites('/favorites'),
   search('/search'),
   subscriptions('/subscriptions'),

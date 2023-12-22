@@ -2,16 +2,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:googleapis/artifactregistry/v1.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_tube/blocs/auth/auth_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/providers/auth_provider.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
-import 'package:my_tube/respositories/auth_repository.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
@@ -47,7 +43,7 @@ void main() async {
   runApp(MultiProvider(
     providers: [
       /// Providers
-      Provider<AuthProvider>(create: (context) => AuthProvider()),
+
       Provider<YoutubeProvider>(create: (context) => YoutubeProvider()),
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler..init()),
@@ -62,10 +58,6 @@ void main() async {
       child: MultiRepositoryProvider(
         /// Repositories
         providers: [
-          RepositoryProvider<AuthRepository>(
-            create: (context) =>
-                AuthRepository(authProvider: context.read<AuthProvider>()),
-          ),
           RepositoryProvider<YoutubeRepository>(
             create: (context) => YoutubeRepository(
                 youtubeProvider: context.read<YoutubeProvider>(),
@@ -79,14 +71,8 @@ void main() async {
               create: (context) => QueueRepository())
         ],
         child: MultiBlocProvider(providers: [
-          BlocProvider<AuthBloc>(
-            create: (context) =>
-                AuthBloc(authRepository: context.read<AuthRepository>())
-                  ..add(const CheckIfIsLoggedIn()),
-          ),
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
-                    youtubeRepository: context.read<YoutubeRepository>(),
                     innertubeRepository: context.read<InnertubeRepository>(),
                     mtPlayerHandler: context.read<MtPlayerHandler>(),
                   )),

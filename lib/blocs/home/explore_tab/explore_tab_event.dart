@@ -5,10 +5,11 @@ sealed class ExploreTabEvent extends Equatable {
 }
 
 class GetTrendingVideos extends ExploreTabEvent {
-  const GetTrendingVideos();
+  final String category;
+  const GetTrendingVideos({required this.category});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [category];
 }
 
 class GetNextPageTrendingVideos extends ExploreTabEvent {

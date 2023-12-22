@@ -1,3 +1,5 @@
+import 'package:innertube_dart/enums/enums.dart';
+import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
 
@@ -20,5 +22,58 @@ class InnertubeRepository {
       streamUrl: video.muxedStreamingUrl,
       duration: video.durationMs != null ? int.parse(video.durationMs!) : null,
     );
+  }
+
+  Future<ResponseMT> getTrending(TrendingCategory trendingCategory) async {
+    final response = await innertubeProvider.getTrending(trendingCategory);
+    if (response.videos != null) {
+      final resources = response.videos!
+          .map((video) => ResourceMT(
+                id: video.videoId,
+                title: video.title,
+                description: video.description,
+                channelTitle: video.author,
+                thumbnailUrl: video.thumbnails?.first.url,
+                kind: null,
+                channelId: video.channelId,
+                playlistId: '',
+                streamUrl: video.muxedStreamingUrl,
+                duration: video.durationMs != null
+                    ? int.parse(video.durationMs!)
+                    : null,
+              ))
+          .toList();
+      return ResponseMT(resources: resources, nextPageToken: null);
+    } else {
+      return const ResponseMT(resources: [], nextPageToken: null);
+    }
+  }
+
+  Future<PlaylistMT> getPlaylist(String playlistId) async {
+    final playlist = await innertubeProvider.getPlaylist(playlistId);
+    final resources = playlist.videos!
+        .map((video) => ResourceMT(
+              id: video.videoId,
+              title: video.title,
+              description: video.description,
+              channelTitle: video.author,
+              thumbnailUrl: video.thumbnails?.first.url,
+              kind: null,
+              channelId: video.channelId,
+              playlistId: '',
+              streamUrl: video.muxedStreamingUrl,
+              duration: video.durationMs != null
+                  ? int.parse(video.durationMs!)
+                  : null,
+            ))
+        .toList();
+    return PlaylistMT(
+        id: playlist.playlistId,
+        channelId: null,
+        title: playlist.title,
+        description: playlist.description,
+        thumbnailUrl: playlist.thumbnails?.last.url,
+        itemCount: resources.length,
+        videos: resources);
   }
 }
