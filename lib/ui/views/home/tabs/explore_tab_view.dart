@@ -66,13 +66,13 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                     },
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (scrollInfo) {
-                        if (state.response?.nextPageToken != null) {
+                        /* if (state.response?.nextPageToken != null) {
                           if (scrollInfo.metrics.pixels ==
                               scrollInfo.metrics.maxScrollExtent) {
                             exploreTabBloc.add(GetNextPageTrendingVideos(
                                 nextPageToken: state.response!.nextPageToken!));
                           }
-                        }
+                        } */
 
                         return false;
                       },
@@ -81,20 +81,6 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                         controller: _scrollController,
                         itemCount: state.response!.resources.length,
                         itemBuilder: (context, index) {
-                          /* if (index >= state.response!.resources.length) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else {
-                            final video = state.response?.resources[index];
-                            return GestureDetector(
-                                onTap: () async {
-                                  await context
-                                      .read<MiniPlayerCubit>()
-                                      .startPlaying(video.id!);
-                                },
-                                child: ResourceTile(resource: video!));
-                          } */
                           final video = state.response?.resources[index];
                           return GestureDetector(
                               onTap: () async {

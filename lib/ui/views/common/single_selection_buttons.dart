@@ -34,6 +34,7 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
               });
             },
             icon: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (widget.icons != null)
                   Icon(

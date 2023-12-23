@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +24,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
     ),
     NavigationDestination(
       icon: Icon(Icons.music_note),
-      label: 'Favorites',
+      label: 'Music',
     ),
     NavigationDestination(
       icon: Icon(Icons.search),

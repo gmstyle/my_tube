@@ -54,7 +54,7 @@ dependencies:
   hive_generator: ^2.0.1
   innertube_dart:
     path: ../innertube_dart
-  carousel_slider: ^4.2.1
+  flutter_carousel_widget: ^2.2.0
 
 dev_dependencies:
   flutter_test:

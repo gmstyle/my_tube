@@ -47,46 +47,56 @@ class ResourceTile extends StatelessWidget {
                           Colors.black.withOpacity(0.4),
                           Colors.black.withOpacity(0.9),
                         ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                        begin: Alignment.centerRight,
+                        end: Alignment.centerLeft,
                       ),
                     ),
                   ),
                   Positioned(
+                    top: 4,
                     bottom: 4,
-                    left: 8,
+                    left: 4,
                     right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
                       children: [
-                        // show an animated that the video is playing
-                        StreamBuilder(
-                            stream: queueCubit.mtPlayerHandler.mediaItem,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final currentVideoId = snapshot.data!.id;
-                                if (currentVideoId == resource.id) {
-                                  return StreamBuilder(
-                                      stream: queueCubit
-                                          .mtPlayerHandler.playbackState
-                                          .map((playbackState) =>
-                                              playbackState.playing)
-                                          .distinct(),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          final isPlaying =
-                                              snapshot.data ?? false;
-                                          if (isPlaying) {
-                                            return const AudioSpectrumIcon();
-                                          }
-                                        }
-                                        return const SizedBox();
-                                      });
-                                }
-                              }
-                              return const SizedBox();
-                            }),
-                        setTypeIcon(context) ?? const SizedBox(),
+                        Row(
+                          children: [
+                            setTypeIcon(context) ?? const SizedBox(),
+                          ],
+                        ),
+                        const Spacer(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // show an animated that the video is playing
+                            StreamBuilder(
+                                stream: queueCubit.mtPlayerHandler.mediaItem,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    final currentVideoId = snapshot.data!.id;
+                                    if (currentVideoId == resource.id) {
+                                      return StreamBuilder(
+                                          stream: queueCubit
+                                              .mtPlayerHandler.playbackState
+                                              .map((playbackState) =>
+                                                  playbackState.playing)
+                                              .distinct(),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasData) {
+                                              final isPlaying =
+                                                  snapshot.data ?? false;
+                                              if (isPlaying) {
+                                                return const AudioSpectrumIcon();
+                                              }
+                                            }
+                                            return const SizedBox();
+                                          });
+                                    }
+                                  }
+                                  return const SizedBox();
+                                }),
+                          ],
+                        ),
                       ],
                     ),
                   )
@@ -154,12 +164,15 @@ class ResourceTile extends StatelessWidget {
       case 'youtube#channel':
         icon = Icons.monitor_rounded;
       case 'youtube#playlist':
-        icon = Icons.queue_music_rounded;
+        icon = Icons.album_rounded;
 
       default:
         icon = Icons.audiotrack_rounded;
     }
 
-    return Icon(icon, color: Colors.white);
+    return Icon(
+      icon,
+      color: Colors.white,
+    );
   }
 }
