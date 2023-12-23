@@ -1,40 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_tab_bloc.dart';
+import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
 
-class FavoritesTabView extends StatelessWidget {
-  FavoritesTabView({super.key});
+class MusicTabView extends StatelessWidget {
+  MusicTabView({super.key});
 
   final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    final favoritesTabBloc = context.read<FavoritesTabBloc>();
-    return BlocBuilder<FavoritesTabBloc, FavoritesTabState>(
-        builder: (context, state) {
+    final favoritesTabBloc = context.read<MusicTabBloc>();
+    return BlocBuilder<MusicTabBloc, MusicTabState>(builder: (context, state) {
       switch (state.status) {
         case FavoritesStatus.loading:
           return const Center(child: CircularProgressIndicator());
 
         case FavoritesStatus.success:
           return RefreshIndicator(
-            onRefresh: () async {
-              favoritesTabBloc.add(const GetFavorites());
-            },
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (scrollInfo) {
-                if (state.response?.nextPageToken != null) {
+              onRefresh: () async {
+                favoritesTabBloc.add(const GetMusicHome());
+              },
+              child: NotificationListener<ScrollNotification>(
+                  onNotification: (scrollInfo) {
+                    /* if (state.response?.nextPageToken != null) {
                   if (scrollInfo.metrics.pixels ==
                       scrollInfo.metrics.maxScrollExtent) {
                     favoritesTabBloc.add(GetNextPageFavorites(
                         nextPageToken: state.response!.nextPageToken!));
                   }
-                }
-                return false;
-              },
-              child: ListView.builder(
+                }*/
+                    return false;
+                  },
+                  child: /* ListView.builder(
                 controller: _scrollController,
                 itemCount: state.response!.resources.length,
                 itemBuilder: (context, index) {
@@ -53,9 +52,15 @@ class FavoritesTabView extends StatelessWidget {
                         child: ResourceTile(resource: video!));
                   }
                 },
-              ),
-            ),
-          );
+              ), */
+                      Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.1,
+                        child: Text('Slider'),
+                      )
+                    ],
+                  )));
         case FavoritesStatus.error:
           return Center(
             child: Text(state.error!),

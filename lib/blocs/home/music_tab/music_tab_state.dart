@@ -1,9 +1,9 @@
-part of 'favorites_tab_bloc.dart';
+part of 'music_tab_bloc.dart';
 
 enum FavoritesStatus { initial, loading, success, error }
 
-class FavoritesTabState extends Equatable {
-  const FavoritesTabState._({
+class MusicTabState extends Equatable {
+  const MusicTabState._({
     required this.status,
     this.error,
     this.response,
@@ -11,15 +11,15 @@ class FavoritesTabState extends Equatable {
 
   final FavoritesStatus status;
   final String? error;
-  final ResponseMT? response;
+  final MusicHomeMT? response;
 
-  const FavoritesTabState.loading() : this._(status: FavoritesStatus.loading);
-  const FavoritesTabState.loaded({required ResponseMT response})
+  const MusicTabState.loading() : this._(status: FavoritesStatus.loading);
+  const MusicTabState.loaded({required MusicHomeMT response})
       : this._(
           status: FavoritesStatus.success,
           response: response,
         );
-  const FavoritesTabState.error({required String error})
+  const MusicTabState.error({required String error})
       : this._(status: FavoritesStatus.error, error: error);
 
   @override

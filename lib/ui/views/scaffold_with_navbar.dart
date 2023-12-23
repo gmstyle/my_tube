@@ -25,7 +25,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
       label: 'Explore',
     ),
     NavigationDestination(
-      icon: Icon(Icons.favorite),
+      icon: Icon(Icons.music_note),
       label: 'Favorites',
     ),
     NavigationDestination(
@@ -48,7 +48,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
         context.goNamed(AppRoute.explore.name);
         break;
       case 1:
-        context.goNamed(AppRoute.favorites.name);
+        context.goNamed(AppRoute.music.name);
         break;
       case 2:
         context.goNamed(AppRoute.search.name);

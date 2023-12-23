@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
-import 'package:my_tube/router/pages/favorites_tab_page.dart';
+import 'package:my_tube/router/pages/musci_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/queue_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
@@ -37,9 +37,9 @@ class AppRouter {
           // Tab Favorites
           GoRoute(
               parentNavigatorKey: shellNavigatorKey,
-              name: AppRoute.favorites.name,
-              path: AppRoute.favorites.path,
-              pageBuilder: (context, state) => const FavoritesTabPAge()),
+              name: AppRoute.music.name,
+              path: AppRoute.music.path,
+              pageBuilder: (context, state) => const MusicTabPAge()),
 
           // Tab Search
           GoRoute(
@@ -97,7 +97,7 @@ class AppRouter {
 
 enum AppRoute {
   explore('/'),
-  favorites('/favorites'),
+  music('/music'),
   search('/search'),
   subscriptions('/subscriptions'),
   account('/account'),
