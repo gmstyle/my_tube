@@ -68,6 +68,6 @@ class Utils {
   static Locale getLocaleFromCountryCode(String countryCode) {
     //return Locale.fromSubtags(countryCode: countryCode);
     //TODO: fix this
-    return Locale('it', 'IT');
+    return const Locale('it', 'IT');
   }
 }

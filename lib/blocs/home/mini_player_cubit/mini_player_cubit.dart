@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 
 part 'mini_player_state.dart';

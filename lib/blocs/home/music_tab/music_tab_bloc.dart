@@ -1,13 +1,9 @@
-import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/music_home_mt.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/youtube_repository.dart';
-import 'package:my_tube/utils/utils.dart';
 
 part 'musci_tab_event.dart';
 part 'music_tab_state.dart';

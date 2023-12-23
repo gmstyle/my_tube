@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/ui/views/common/resource_tile.dart';
 
 class MusicTabView extends StatelessWidget {
   MusicTabView({super.key});
@@ -57,7 +55,7 @@ class MusicTabView extends StatelessWidget {
                     children: [
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.1,
-                        child: Text('Slider'),
+                        child: const Text('Slider'),
                       )
                     ],
                   )));
