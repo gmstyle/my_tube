@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
@@ -39,7 +40,7 @@ class ResourceTile extends StatelessWidget {
                             child: FlutterLogo(),
                           ),
                         ),
-                  Container(
+                  /* Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -51,7 +52,7 @@ class ResourceTile extends StatelessWidget {
                         end: Alignment.centerLeft,
                       ),
                     ),
-                  ),
+                  ), */
                   Positioned(
                     top: 4,
                     bottom: 4,
@@ -59,11 +60,11 @@ class ResourceTile extends StatelessWidget {
                     right: 0,
                     child: Column(
                       children: [
-                        Row(
+                        /* Row(
                           children: [
                             setTypeIcon(context) ?? const SizedBox(),
                           ],
-                        ),
+                        ), */
                         const Spacer(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,7 +130,7 @@ class ResourceTile extends StatelessWidget {
           ),
 
           //Menu
-          if (resource.kind != 'youtube#channel')
+          if (resource.kind != 'channel')
             PopupMenuButton(
                 iconColor: Colors.white,
                 itemBuilder: (context) {
@@ -161,13 +162,13 @@ class ResourceTile extends StatelessWidget {
   Widget? setTypeIcon(BuildContext context) {
     IconData icon;
     switch (resource.kind) {
-      case 'youtube#channel':
+      case 'channel':
         icon = Icons.monitor_rounded;
-      case 'youtube#playlist':
+      case 'playlist':
         icon = Icons.album_rounded;
 
       default:
-        icon = Icons.audiotrack_rounded;
+        icon = MdiIcons.play;
     }
 
     return Icon(

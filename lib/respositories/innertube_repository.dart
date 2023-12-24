@@ -17,7 +17,7 @@ class InnertubeRepository {
       description: video.description,
       channelTitle: video.author,
       thumbnailUrl: video.thumbnails?.last.url,
-      kind: null,
+      kind: 'video',
       channelId: video.channelId,
       playlistId: '',
       streamUrl: video.muxedStreamingUrl,
@@ -35,7 +35,7 @@ class InnertubeRepository {
                 description: video.description,
                 channelTitle: video.author,
                 thumbnailUrl: video.thumbnails?.first.url,
-                kind: null,
+                kind: 'video',
                 channelId: video.channelId,
                 playlistId: '',
                 streamUrl: video.muxedStreamingUrl,
@@ -59,7 +59,7 @@ class InnertubeRepository {
               description: video.description,
               channelTitle: video.author,
               thumbnailUrl: video.thumbnails?.last.url,
-              kind: null,
+              kind: 'video',
               channelId: video.channelId,
               playlistId: null,
               streamUrl: video.muxedStreamingUrl,
@@ -103,7 +103,7 @@ class InnertubeRepository {
                                 description: video.description,
                                 channelTitle: video.author,
                                 thumbnailUrl: video.thumbnails?.last.url,
-                                kind: null,
+                                kind: 'playlist',
                                 channelId: video.channelId,
                                 playlistId: '',
                                 streamUrl: video.muxedStreamingUrl,
@@ -132,7 +132,7 @@ class InnertubeRepository {
               description: video.description,
               channelTitle: video.author,
               thumbnailUrl: video.thumbnails?.first.url,
-              kind: null,
+              kind: 'video',
               channelId: video.channelId,
               playlistId: '',
               streamUrl: video.muxedStreamingUrl,
@@ -149,5 +149,75 @@ class InnertubeRepository {
         thumbnailUrl: playlist.thumbnails?.last.url,
         itemCount: resources.length,
         videos: resources);
+  }
+
+  Future<List<String>> getSearchSuggestions(String query) async {
+    final suggestions = await innertubeProvider.getSearchSuggestions(query);
+    return suggestions ?? [];
+  }
+
+  Future<ResponseMT> searchContents(
+      {required String query, String? nextPageToken}) async {
+    final response = await innertubeProvider.searchContents(
+        query: query, nextPageToken: nextPageToken);
+    final resources = <ResourceMT>[];
+    if (response.videos != null) {
+      final videos = response.videos!
+          .map((video) => ResourceMT(
+                id: video.videoId,
+                title: video.title,
+                description: video.description,
+                channelTitle: video.author,
+                thumbnailUrl: video.thumbnails?.last.url,
+                kind: 'video',
+                channelId: video.channelId,
+                playlistId: null,
+                streamUrl: video.muxedStreamingUrl,
+                duration: video.durationMs != null
+                    ? int.parse(video.durationMs!)
+                    : null,
+              ))
+          .toList();
+      resources.addAll(videos);
+    }
+
+    if (response.channels != null) {
+      final channels = response.channels!
+          .map((channel) => ResourceMT(
+                id: channel.channelId,
+                title: channel.title,
+                description: channel.description,
+                channelTitle: channel.title,
+                thumbnailUrl: channel.thumbnails?.last.url,
+                kind: 'channel',
+                channelId: channel.channelId,
+                playlistId: null,
+                streamUrl: null,
+                duration: null,
+              ))
+          .toList();
+      resources.addAll(channels);
+    }
+
+    if (response.playlists != null) {
+      final playlists = response.playlists!
+          .map((playlist) => ResourceMT(
+                id: playlist.playlistId,
+                title: playlist.title,
+                description: playlist.description,
+                channelTitle: null,
+                thumbnailUrl: playlist.thumbnails?.last.url,
+                kind: 'playlist',
+                channelId: null,
+                playlistId: playlist.playlistId,
+                streamUrl: null,
+                duration: null,
+              ))
+          .toList();
+      resources.addAll(playlists);
+    }
+
+    return ResponseMT(
+        resources: resources, nextPageToken: response.continuationToken);
   }
 }

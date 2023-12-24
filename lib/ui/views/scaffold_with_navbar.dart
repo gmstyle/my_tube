@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
+import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
+import 'package:my_tube/ui/views/common/custom_search_delegate.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 
@@ -27,10 +30,6 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
       label: 'Music',
     ),
     NavigationDestination(
-      icon: Icon(Icons.search),
-      label: 'Search',
-    ),
-    NavigationDestination(
       icon: Icon(Icons.subscriptions),
       label: 'Subscriptions',
     ),
@@ -49,12 +48,9 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
         context.goNamed(AppRoute.music.name);
         break;
       case 2:
-        context.goNamed(AppRoute.search.name);
-        break;
-      case 3:
         context.goNamed(AppRoute.subscriptions.name);
         break;
-      case 4:
+      case 3:
         context.goNamed(AppRoute.queue.name);
         break;
       default:
@@ -68,15 +64,26 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
 
   @override
   Widget build(BuildContext context) {
+    final searchBloc = context.read<SearchBloc>();
+    final serachSuggestionsCubit = context.read<SearchSuggestionCubit>();
+    final miniPlayerCubit = context.read<MiniPlayerCubit>();
     final miniPlayerHeight = MediaQuery.of(context).size.height * 0.15;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
     return MainGradient(
       child: Scaffold(
         appBar: CustomAppbar(
-          title: 'My Tube',
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search))
+            IconButton(
+                onPressed: () {
+                  showSearch(
+                      context: context,
+                      delegate: CustomSearchDelegate(
+                          searchBloc: searchBloc,
+                          searchSuggestionCubit: serachSuggestionsCubit,
+                          miniPlayerCubit: miniPlayerCubit));
+                },
+                icon: const Icon(Icons.search))
           ],
         ),
         backgroundColor: Colors.transparent,

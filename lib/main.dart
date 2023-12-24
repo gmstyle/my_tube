@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
+import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
+import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/providers/youtube_provider.dart';
@@ -71,6 +73,18 @@ void main() async {
               create: (context) => QueueRepository())
         ],
         child: MultiBlocProvider(providers: [
+          BlocProvider<SearchBloc>(
+              create: (context) => SearchBloc(
+                  youtubeRepository: context.read<YoutubeRepository>(),
+                  innertubeRepository: context.read<InnertubeRepository>())),
+          BlocProvider<SearchSuggestionCubit>(
+              create: (context) => SearchSuggestionCubit(
+                  youtubeRepository: context.read<YoutubeRepository>(),
+                  innertubeRepository: context.read<InnertubeRepository>())),
+          BlocProvider<SearchSuggestionCubit>(
+              create: (context) => SearchSuggestionCubit(
+                  youtubeRepository: context.read<YoutubeRepository>(),
+                  innertubeRepository: context.read<InnertubeRepository>())),
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(
                     innertubeRepository: context.read<InnertubeRepository>(),
