@@ -4,6 +4,7 @@ import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
 import 'package:my_tube/ui/views/common/single_selection_buttons.dart';
+import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class ExploreTabView extends StatefulWidget {
   const ExploreTabView({super.key});
@@ -88,7 +89,7 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                                     .read<MiniPlayerCubit>()
                                     .startPlaying(video.id!);
                               },
-                              child: ResourceTile(resource: video!));
+                              child: VideoTile(video: video!));
                         },
                       ),
                     ),

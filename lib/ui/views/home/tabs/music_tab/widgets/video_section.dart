@@ -4,6 +4,7 @@ import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
+import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class VideoSection extends StatelessWidget {
   const VideoSection(
@@ -34,7 +35,7 @@ class VideoSection extends StatelessWidget {
                 context.read<MiniPlayerCubit>().startPlaying(video.id!);
               },
               child: crossAxisCount > 1
-                  ? ResourceTile(resource: video)
+                  ? VideoTile(video: video)
                   : VideoGridItem(video: video),
             );
           }),

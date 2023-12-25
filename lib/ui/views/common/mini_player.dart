@@ -24,7 +24,7 @@ class MiniPlayer extends StatelessWidget {
               builder: (context) {
                 return const SongView();
               })
-        }, //context.pushNamed(AppRoute.song.name),
+        },
         child: Stack(
           fit: StackFit.expand,
           children: [
