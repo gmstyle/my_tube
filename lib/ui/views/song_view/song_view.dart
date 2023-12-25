@@ -23,10 +23,9 @@ class SongView extends StatelessWidget {
     });
 
     return MainGradient(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: const CustomAppbar(),
-        body: Padding(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height - kToolbarHeight,
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: StreamBuilder(
               stream: mtPlayerHandler.mediaItem,

@@ -20,7 +20,7 @@ class PlaylistHeader extends StatelessWidget {
     final playlistState = context.watch<PlaylistBloc>().state;
     return Column(
       children: [
-        Row(
+        /*  Row(
           children: [
             IconButton(
               onPressed: () {
@@ -37,9 +37,9 @@ class PlaylistHeader extends StatelessWidget {
               icon: const Icon(Icons.more_vert, color: Colors.white),
             ),
           ],
-        ),
+        ), */
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.3,
+          height: MediaQuery.of(context).size.height * 0.25,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Stack(
@@ -111,8 +111,8 @@ class PlaylistHeader extends StatelessWidget {
                         backgroundColor: Colors.white,
                         onPressed: playlistState.status == PlaylistStatus.loaded
                             ? () {
-                                miniplayerCubit.startPlayingPlaylist(
-                                    playlistState.videoIds!);
+                                miniplayerCubit
+                                    .startPlayingPlaylist(playlist!.videos!);
                               }
                             : null,
                         child: const Icon(Icons.playlist_play)))

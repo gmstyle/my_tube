@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 
@@ -9,8 +10,12 @@ part 'queue_state.dart';
 
 class QueueBloc extends Bloc<QueueEvent, QueueState> {
   final QueueRepository queueRepository;
+  final InnertubeRepository innertubeRepository;
   final MtPlayerHandler mtPlayerHandler;
-  QueueBloc({required this.queueRepository, required this.mtPlayerHandler})
+  QueueBloc(
+      {required this.queueRepository,
+      required this.innertubeRepository,
+      required this.mtPlayerHandler})
       : super(const QueueState.initial()) {
     // ascolto il cambiamento della coda e aggiorno lo stato
     // quando viene aggiunto o rimosso un video
@@ -18,8 +23,8 @@ class QueueBloc extends Bloc<QueueEvent, QueueState> {
       add(GetQueue());
     });
 
-    on<GetQueue>((event, emit) {
-      _onGetQueue(event, emit);
+    on<GetQueue>((event, emit) async {
+      await _onGetQueue(event, emit);
     });
 
     on<AddToQueue>((event, emit) async {
@@ -35,10 +40,14 @@ class QueueBloc extends Bloc<QueueEvent, QueueState> {
     });
   }
 
-  void _onGetQueue(QueueEvent event, Emitter<QueueState> emit) {
+  Future<void> _onGetQueue(QueueEvent event, Emitter<QueueState> emit) async {
     emit(const QueueState.loading());
-    final queue = queueRepository.queue;
-    emit(QueueState.success(queue));
+    final videos = <ResourceMT>[];
+    for (final id in queueRepository.videoIds) {
+      final video = await innertubeRepository.getVideo(id);
+      videos.add(video);
+    }
+    emit(QueueState.success(videos));
   }
 
   Future<void> _onAddToQueue(QueueEvent event, Emitter<QueueState> emit) async {

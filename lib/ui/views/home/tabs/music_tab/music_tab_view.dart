@@ -34,27 +34,7 @@ class MusicTabView extends StatelessWidget {
                 }*/
                     return false;
                   },
-                  child: /* ListView.builder(
-                controller: _scrollController,
-                itemCount: state.response!.resources.length,
-                itemBuilder: (context, index) {
-                  if (index >= state.response!.resources.length) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else {
-                    final video = state.response?.resources[index];
-                    return GestureDetector(
-                        onTap: () async {
-                          await context
-                              .read<MiniPlayerCubit>()
-                              .startPlaying(video);
-                        },
-                        child: ResourceTile(resource: video!));
-                  }
-                },
-              ), */
-                      SingleChildScrollView(
+                  child: SingleChildScrollView(
                     child: Column(
                       children: [
                         Carousel(
@@ -91,8 +71,8 @@ class MusicTabView extends StatelessWidget {
                                     if (section.videos != null &&
                                         section.videos!.isNotEmpty)
                                       VideoSection(
-                                          videos: section.videos!,
-                                          crossAxisCount: 1),
+                                        videos: section.videos!,
+                                      ),
                                     if (section.playlists != null &&
                                         section.playlists!.isNotEmpty)
                                       PlaylistSection(

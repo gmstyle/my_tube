@@ -71,7 +71,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Inizializza currentIndex, playlist e currentTrack da hive
-  Future<void> init() async {
+  /* Future<void> init() async {
     //queueRepository.clear();
     //currentIndex = queueRepository.currentIndex;
     final localQueue = queueRepository.queue;
@@ -117,7 +117,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     // propaga lo stato del player ad audio_service e a tutti i listeners
     //chewieController.videoPlayerController.addListener(broadcastState);
-  }
+  } */
 
   // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(ResourceMT video) async {

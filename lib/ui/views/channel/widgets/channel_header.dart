@@ -4,13 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/channel_mt.dart';
+import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/utils/utils.dart';
 
 class ChannelHeader extends StatelessWidget {
   const ChannelHeader({super.key, required this.channel});
 
-  final ChannelMT? channel;
+  final ChannelPageMT? channel;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class ChannelHeader extends StatelessWidget {
     return Column(
       children: [
         // Actions
-        Row(
+        /* Row(
           children: [
             IconButton(
               onPressed: () {
@@ -36,18 +37,18 @@ class ChannelHeader extends StatelessWidget {
               icon: const Icon(Icons.more_vert, color: Colors.white),
             ),
           ],
-        ),
+        ), */
 
         // Channel info
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.3,
+          height: MediaQuery.of(context).size.height * 0.25,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Stack(
               fit: StackFit.expand,
               children: [
                 Image.network(
-                  channel!.thumbnailUrl!,
+                  channel!.tvBannerUrl!,
                   fit: BoxFit.cover,
                 ),
                 Container(
@@ -85,11 +86,11 @@ class ChannelHeader extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if (channel!.customUrl != null)
+                      if (channel!.channelHandleText != null)
                         Row(
                           children: [
                             Text(
-                              '${channel!.customUrl}',
+                              '${channel!.channelHandleText}',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -98,7 +99,7 @@ class ChannelHeader extends StatelessWidget {
                           ],
                         ),
                       const SizedBox(height: 4),
-                      Row(
+                      /* Row(
                         children: [
                           const Icon(
                             Icons.music_note_rounded,
@@ -109,24 +110,25 @@ class ChannelHeader extends StatelessWidget {
                             style: const TextStyle(color: Colors.white),
                           ),
                         ],
-                      ),
+                      ), */
                       const SizedBox(width: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.remove_red_eye,
-                            color: Colors.white,
-                          ),
-                          Text(
-                            ' Views: ${Utils.formatNumber(int.parse(channel!.viewCount!))}',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
+                      if (channel!.subscriberCount != null)
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.remove_red_eye,
+                              color: Colors.white,
+                            ),
+                            Text(
+                              ' Subscribers: ${channel!.subscriberCount!}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
-                Positioned(
+                /* Positioned(
                     right: 16,
                     bottom: 16,
                     child: FloatingActionButton.small(
@@ -134,11 +136,11 @@ class ChannelHeader extends StatelessWidget {
                         onPressed:
                             channelState.status == ChannelPageStatus.loaded
                                 ? () {
-                                    miniplayerCubit.startPlayingPlaylist(
-                                        channelState.channel!.videoIds!);
+                                    /* miniplayerCubit.startPlayingPlaylist(
+                                        channelState.channel!.videoIds!); */
                                   }
                                 : null,
-                        child: const Icon(Icons.playlist_play)))
+                        child: const Icon(Icons.playlist_play))) */
               ],
             ),
           ),

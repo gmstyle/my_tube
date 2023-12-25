@@ -15,9 +15,10 @@ class PlaylistPage extends Page {
         builder: (BuildContext context) {
           return MultiBlocProvider(providers: [
             BlocProvider<PlaylistBloc>(
-                create: (context) =>
-                    PlaylistBloc(youtubeRepository: context.read())
-                      ..add(GetPlaylist(playlistId: playlistId))),
+                create: (context) => PlaylistBloc(
+                    youtubeRepository: context.read(),
+                    innertubeRepository: context.read())
+                  ..add(GetPlaylist(playlistId: playlistId))),
           ], child: PlaylistView(playlistId: playlistId));
         });
   }

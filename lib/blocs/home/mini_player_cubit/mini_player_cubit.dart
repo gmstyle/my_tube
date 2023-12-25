@@ -23,22 +23,22 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     });
   }
 
-  Future<void> startPlaying(ResourceMT video) async {
+  Future<void> startPlaying(String id) async {
     emit(const MiniPlayerState.loading());
 
-    final response = await innertubeRepository.getVideo(video.id!);
+    final response = await innertubeRepository.getVideo(id);
 
     await _startPlaying(response);
 
     emit(const MiniPlayerState.shown());
   }
 
-  Future<void> startPlayingPlaylist(List<String> videoIds) async {
+  Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
     emit(const MiniPlayerState.loading());
 
     //final response = await youtubeRepository.getVideos(videoIds: videoIds);
 
-    //await _startPlayingPlaylist(response.resources);
+    await _startPlayingPlaylist(videos);
 
     emit(const MiniPlayerState.shown());
   }

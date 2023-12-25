@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/ui/views/common/resource_tile.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
 
 class VideoSection extends StatelessWidget {
   const VideoSection(
-      {super.key, required this.videos, this.crossAxisCount = 2});
+      {super.key, required this.videos, this.crossAxisCount = 1});
   final List<ResourceMT> videos;
   final int crossAxisCount;
 
@@ -14,20 +15,27 @@ class VideoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: GridView.builder(
+          shrinkWrap: true,
           scrollDirection: Axis.horizontal,
+          physics: const ClampingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: videos.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisSpacing: 8,
               crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 8),
+              mainAxisSpacing: 8,
+              mainAxisExtent: crossAxisCount > 1
+                  ? MediaQuery.of(context).size.width - 64
+                  : null),
           itemBuilder: (context, index) {
             final video = videos[index];
             return GestureDetector(
-              child: VideoGridItem(video: video),
               onTap: () {
-                context.read<MiniPlayerCubit>().startPlaying(video);
+                context.read<MiniPlayerCubit>().startPlaying(video.id!);
               },
+              child: crossAxisCount > 1
+                  ? ResourceTile(resource: video)
+                  : VideoGridItem(video: video),
             );
           }),
     );

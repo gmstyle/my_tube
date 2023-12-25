@@ -67,7 +67,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
     final searchBloc = context.read<SearchBloc>();
     final serachSuggestionsCubit = context.read<SearchSuggestionCubit>();
     final miniPlayerCubit = context.read<MiniPlayerCubit>();
-    final miniPlayerHeight = MediaQuery.of(context).size.height * 0.15;
+    final miniPlayerHeight = MediaQuery.of(context).size.height * 0.10;
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
     return MainGradient(

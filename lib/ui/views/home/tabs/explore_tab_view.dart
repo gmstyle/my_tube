@@ -86,7 +86,7 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                               onTap: () async {
                                 await context
                                     .read<MiniPlayerCubit>()
-                                    .startPlaying(video);
+                                    .startPlaying(video.id!);
                               },
                               child: ResourceTile(resource: video!));
                         },

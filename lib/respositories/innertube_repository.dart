@@ -1,4 +1,5 @@
 import 'package:innertube_dart/enums/enums.dart';
+import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/models/music_home_mt.dart';
 import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -69,7 +70,7 @@ class InnertubeRepository {
             ))
         .toList();
     final sections = response.sections!
-        .map((section) => MusicSectionMT(
+        .map((section) => SectionMT(
               title: section.title,
               playlistId: section.playlistId,
               videos: section.videos
@@ -134,7 +135,7 @@ class InnertubeRepository {
               thumbnailUrl: video.thumbnails?.first.url,
               kind: 'video',
               channelId: video.channelId,
-              playlistId: '',
+              playlistId: playlist.playlistId,
               streamUrl: video.muxedStreamingUrl,
               duration: video.durationMs != null
                   ? int.parse(video.durationMs!)
@@ -219,5 +220,68 @@ class InnertubeRepository {
 
     return ResponseMT(
         resources: resources, nextPageToken: response.continuationToken);
+  }
+
+  Future<ChannelPageMT> getChannel(String channelId) async {
+    final channel = await innertubeProvider.getChannel(channelId);
+    final sections = channel.sections
+        ?.map((section) => SectionMT(
+              title: section.title,
+              playlistId: section.playlistId,
+              videos: section.videos
+                  ?.map((video) => ResourceMT(
+                        id: video.videoId,
+                        title: video.title,
+                        description: video.description,
+                        channelTitle: video.author,
+                        thumbnailUrl: video.thumbnails?.last.url,
+                        kind: 'video',
+                        channelId: video.channelId,
+                        playlistId: '',
+                        streamUrl: video.muxedStreamingUrl,
+                        duration: video.durationMs != null
+                            ? int.parse(video.durationMs!)
+                            : null,
+                      ))
+                  .toList(),
+              playlists: section.playlists
+                  ?.map((playlist) => PlaylistMT(
+                      id: playlist.playlistId,
+                      channelId: null,
+                      title: playlist.title,
+                      description: playlist.description,
+                      thumbnailUrl: playlist.thumbnails?.last.url,
+                      itemCount: int.tryParse(playlist.videoCount ?? '0'),
+                      videos: playlist.videos
+                          ?.map((video) => ResourceMT(
+                                id: video.videoId,
+                                title: video.title,
+                                description: video.description,
+                                channelTitle: video.author,
+                                thumbnailUrl: video.thumbnails?.last.url,
+                                kind: 'playlist',
+                                channelId: video.channelId,
+                                playlistId: '',
+                                streamUrl: video.muxedStreamingUrl,
+                                duration: video.durationMs != null
+                                    ? int.parse(video.durationMs!)
+                                    : null,
+                              ))
+                          .toList()))
+                  .toList(),
+            ))
+        .toList();
+
+    return ChannelPageMT(
+      title: channel.title,
+      description: channel.description,
+      channelHandleText: channel.channelHandleText,
+      avatarUrl: channel.avatars?.last.url,
+      bannerUrl: channel.banners?.last.url,
+      thumbnailUrl: channel.thumbnails?.last.url,
+      tvBannerUrl: channel.tvBanners?.last.url,
+      sections: sections,
+      subscriberCount: channel.subscriberCount,
+    );
   }
 }

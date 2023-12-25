@@ -19,7 +19,7 @@ class PlaylistView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
 
           case PlaylistStatus.loaded:
-            final playlist = state.response?.playlist;
+            final playlist = state.response;
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -32,13 +32,12 @@ class PlaylistView extends StatelessWidget {
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: playlist?.videos!.length,
                         itemBuilder: (context, index) {
-                          final video =
-                              state.response?.playlist!.videos![index];
+                          final video = playlist?.videos![index];
                           return GestureDetector(
                             onTap: () async {
                               await context
                                   .read<MiniPlayerCubit>()
-                                  .startPlaying(video);
+                                  .startPlaying(video.id!);
                             },
                             child: ResourceTile(resource: video!),
                           );

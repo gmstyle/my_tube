@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/playlist_mt.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
 
 class PlaylistSection extends StatelessWidget {
@@ -18,7 +20,13 @@ class PlaylistSection extends StatelessWidget {
                 maxCrossAxisExtent: MediaQuery.of(context).size.width - 32),
             childrenDelegate: SliverChildBuilderDelegate((context, index) {
               final playlist = playlists[index];
-              return PlaylistGridItem(playlist: playlist);
+              return GestureDetector(
+                child: PlaylistGridItem(playlist: playlist),
+                onTap: () {
+                  context.pushNamed(AppRoute.playlist.name,
+                      extra: {'playlistId': playlist.id});
+                },
+              );
             }, childCount: playlists.length)));
   }
 }

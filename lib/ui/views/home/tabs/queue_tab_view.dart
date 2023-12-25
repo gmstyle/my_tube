@@ -60,7 +60,7 @@ class QueueTabView extends StatelessWidget {
                               onTap: () async {
                                 await context
                                     .read<MiniPlayerCubit>()
-                                    .startPlaying(video);
+                                    .startPlaying(video.id!);
                               },
                               child: ResourceTile(resource: video));
                         },

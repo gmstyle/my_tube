@@ -48,7 +48,7 @@ void main() async {
 
       Provider<YoutubeProvider>(create: (context) => YoutubeProvider()),
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
-      Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler..init()),
+      Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler),
     ],
     child: MultiProvider(
       providers: [
@@ -93,6 +93,7 @@ void main() async {
           BlocProvider<QueueBloc>(
               create: (context) => QueueBloc(
                   queueRepository: context.read<QueueRepository>(),
+                  innertubeRepository: context.read<InnertubeRepository>(),
                   mtPlayerHandler: context.read<MtPlayerHandler>()))
         ], child: const MyApp()),
       ),

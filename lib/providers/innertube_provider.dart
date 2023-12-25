@@ -1,5 +1,6 @@
 import 'package:innertube_dart/enums/enums.dart';
 import 'package:innertube_dart/innertube.dart';
+import 'package:innertube_dart/models/responses/channel.dart';
 import 'package:innertube_dart/models/responses/music_home_response.dart';
 import 'package:innertube_dart/models/responses/playlist.dart';
 import 'package:innertube_dart/models/responses/search_response.dart';
@@ -52,6 +53,12 @@ class InnertubeProvider extends BaseProvider {
     final innertube = await _getClient();
     final response =
         await innertube.search(query: query, continuationToken: nextPageToken);
+    return response;
+  }
+
+  Future<Channel> getChannel(String channelId) async {
+    final innertube = await _getClient();
+    final response = await innertube.getChannel(channelId: channelId);
     return response;
   }
 }

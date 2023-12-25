@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:my_tube/ui/views/song_view/song_view.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({
@@ -17,7 +18,13 @@ class MiniPlayer extends StatelessWidget {
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
       child: GestureDetector(
-        onTap: () => context.pushNamed(AppRoute.song.name),
+        onTap: () => {
+          showBottomSheet(
+              context: context,
+              builder: (context) {
+                return const SongView();
+              })
+        }, //context.pushNamed(AppRoute.song.name),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -28,7 +35,7 @@ class MiniPlayer extends StatelessWidget {
                   final mediaItem = snapshot.data;
                   return mediaItem?.artUri != null
                       ? Image.network(
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fitWidth,
                           mediaItem!.artUri.toString(),
                         )
                       : ClipRRect(

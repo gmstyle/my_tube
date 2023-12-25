@@ -6,7 +6,7 @@ class MusicHomeMT extends Equatable {
   final String? title;
   final String? description;
   final List<ResourceMT>? carouselVideos;
-  final List<MusicSectionMT> sections;
+  final List<SectionMT> sections;
 
   const MusicHomeMT({
     this.title,
@@ -21,7 +21,7 @@ class MusicHomeMT extends Equatable {
       description: json['description'],
       carouselVideos: json['carouselItems'],
       sections: (json['sections'] as List<dynamic>)
-          .map<MusicSectionMT>((e) => MusicSectionMT.fromJson(e))
+          .map<SectionMT>((e) => SectionMT.fromJson(e))
           .toList(),
     );
   }
@@ -39,21 +39,21 @@ class MusicHomeMT extends Equatable {
   List<Object?> get props => [title, description, carouselVideos, sections];
 }
 
-class MusicSectionMT extends Equatable {
+class SectionMT extends Equatable {
   final String? title;
   final String? playlistId;
   final List<ResourceMT>? videos;
   final List<PlaylistMT>? playlists;
 
-  const MusicSectionMT({
+  const SectionMT({
     this.title,
     this.playlistId,
     this.videos,
     this.playlists,
   });
 
-  factory MusicSectionMT.fromJson(Map<String, dynamic> json) {
-    return MusicSectionMT(
+  factory SectionMT.fromJson(Map<String, dynamic> json) {
+    return SectionMT(
       title: json['title'],
       playlistId: json['playlistId'],
       videos: json['videos'],

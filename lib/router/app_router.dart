@@ -5,7 +5,6 @@ import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/musci_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/queue_tab_page.dart';
-import 'package:my_tube/router/pages/song_page.dart';
 import 'package:my_tube/router/pages/subscriptions_tab_page.dart';
 import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
@@ -14,13 +13,6 @@ class AppRouter {
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
-    GoRoute(
-        parentNavigatorKey: rootNavigatorKey,
-        name: AppRoute.song.name,
-        path: AppRoute.song.path,
-        pageBuilder: (context, state) {
-          return const SongPage();
-        }),
     ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (context, state, child) =>
@@ -45,7 +37,6 @@ class AppRouter {
                     path: AppRoute.playlist.path,
                     pageBuilder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>;
-
                       final playlistId = extra['playlistId'] as String;
                       return PlaylistPage(playlistId: playlistId);
                     }),
@@ -93,7 +84,6 @@ enum AppRoute {
   account('/account'),
   channel('channel'),
   playlist('playlist'),
-  song('/song'),
   queue('/queue'),
   ;
 
