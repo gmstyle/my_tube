@@ -3,17 +3,16 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
 class FavoritesRepository {
-  final queueBox = Hive.box<ResourceMT>('queue');
-  final queueSettingsBox = Hive.box('queueSettings');
+  final queueBox = Hive.box<ResourceMT>('favorites');
 
-  List<ResourceMT> get queue => queueBox.values.toList();
+  List<ResourceMT> get favorites => queueBox.values.toList();
 
-  List<String> get videoIds => queue.map((e) => e.id!).toList();
+  List<String> get videoIds => favorites.map((e) => e.id!).toList();
+
   ValueListenable<Box<ResourceMT>> get queueListenable => queueBox.listenable();
 
   Future<void> save(ResourceMT video) async {
-    final videoWithAddedAt = video.copyWith(addedAt: DateTime.now());
-    await queueBox.add(videoWithAddedAt);
+    await queueBox.add(video);
   }
 
   Future<void> saveAll(List<ResourceMT> videos) async {
@@ -21,7 +20,7 @@ class FavoritesRepository {
   }
 
   Future<void> remove(ResourceMT video) async {
-    final index = queue.indexWhere((element) => element.id == video.id);
+    final index = favorites.indexWhere((element) => element.id == video.id);
     await queueBox.deleteAt(index);
   }
 

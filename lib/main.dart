@@ -27,8 +27,8 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ResourceMTAdapter());
   await Hive.openBox('settings');
-  await Hive.openBox<ResourceMT>('queue');
-  await Hive.openBox('queueSettings');
+  await Hive.openBox<ResourceMT>('favorites');
+
   final mtPlayerHandler = await AudioService.init(
       builder: () => MtPlayerHandler(),
       config: const AudioServiceConfig(

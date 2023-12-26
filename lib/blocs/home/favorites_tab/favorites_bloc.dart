@@ -39,14 +39,49 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   }
 
   Future<void> _onGetFavorites(
-      FavoritesEvent event, Emitter<FavoritesState> emit) async {}
+      FavoritesEvent event, Emitter<FavoritesState> emit) async {
+    emit(const FavoritesState.loading());
+    try {
+      final favorites = favoritesRepository.favorites;
+      emit(FavoritesState.success(favorites));
+    } catch (e) {
+      emit(FavoritesState.failure(e.toString()));
+    }
+  }
 
   Future<void> _onAddToFavorites(
-      FavoritesEvent event, Emitter<FavoritesState> emit) async {}
+      AddToFavorites event, Emitter<FavoritesState> emit) async {
+    emit(const FavoritesState.loading());
+    try {
+      await favoritesRepository.save(event.video);
+      final favorites = favoritesRepository.favorites;
+      emit(FavoritesState.success(favorites));
+    } catch (e) {
+      emit(FavoritesState.failure(e.toString()));
+    }
+  }
 
   Future<void> _onRemoveFromFavorites(
-      FavoritesEvent event, Emitter<FavoritesState> emit) async {}
+      RemoveFromFavorites event, Emitter<FavoritesState> emit) async {
+    emit(const FavoritesState.loading());
+    try {
+      await favoritesRepository.remove(event.video);
+      final favorites = favoritesRepository.favorites;
+      emit(FavoritesState.success(favorites));
+    } catch (e) {
+      emit(FavoritesState.failure(e.toString()));
+    }
+  }
 
   Future<void> _onClearFavorites(
-      FavoritesEvent event, Emitter<FavoritesState> emit) async {}
+      ClearFavorites event, Emitter<FavoritesState> emit) async {
+    emit(const FavoritesState.loading());
+    try {
+      await favoritesRepository.clear();
+      final favorites = favoritesRepository.favorites;
+      emit(FavoritesState.success(favorites));
+    } catch (e) {
+      emit(FavoritesState.failure(e.toString()));
+    }
+  }
 }

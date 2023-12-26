@@ -25,7 +25,7 @@ class QueueTabView extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      'Your queue',
+                      'Your fvorites',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Colors.white,
                           ),

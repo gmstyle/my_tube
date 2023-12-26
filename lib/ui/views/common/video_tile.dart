@@ -41,6 +41,18 @@ class VideoTile extends StatelessWidget {
                             child: FlutterLogo(),
                           ),
                         ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.4),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
                   Positioned(
                     top: 4,
                     bottom: 4,
