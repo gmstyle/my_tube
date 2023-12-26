@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class QueueTabView extends StatelessWidget {
@@ -9,13 +9,14 @@ class QueueTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<QueueBloc>().add(GetQueue());
-    return BlocBuilder<QueueBloc, QueueState>(builder: (context, state) {
+    context.read<FavoritesBloc>().add(GetFavorites());
+    return BlocBuilder<FavoritesBloc, FavoritesState>(
+        builder: (context, state) {
       switch (state.status) {
-        case QueueStatus.loading:
+        case FavoritesStatus.loading:
           return const Center(child: CircularProgressIndicator());
-        case QueueStatus.success:
-          final queue = state.queue!;
+        case FavoritesStatus.success:
+          final queue = state.favorites!;
           final videoIds = queue.map((e) => e.id!).toList();
           return Column(
             children: [
@@ -42,7 +43,9 @@ class QueueTabView extends StatelessWidget {
                         color: Colors.white,
                         onPressed: queue.isNotEmpty
                             ? () {
-                                context.read<QueueBloc>().add(ClearQueue());
+                                context
+                                    .read<FavoritesBloc>()
+                                    .add(ClearFavorites());
                               }
                             : null,
                         icon: const Icon(Icons.clear_all_rounded))
@@ -69,7 +72,7 @@ class QueueTabView extends StatelessWidget {
               ),
             ],
           );
-        case QueueStatus.failure:
+        case FavoritesStatus.failure:
           return Center(child: Text(state.error!));
         default:
           return const SizedBox.shrink();

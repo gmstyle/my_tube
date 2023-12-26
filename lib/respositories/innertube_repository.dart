@@ -186,7 +186,7 @@ class InnertubeRepository {
       final channels = response.channels!
           .map((channel) => ResourceMT(
                 id: channel.channelId,
-                title: channel.channelHandleText,
+                title: channel.title,
                 description: channel.description,
                 channelTitle: channel.title,
                 thumbnailUrl: channel.thumbnails?.last.url,
@@ -195,6 +195,8 @@ class InnertubeRepository {
                 playlistId: null,
                 streamUrl: null,
                 duration: null,
+                subscriberCount: channel.subscriberCount,
+                videoCount: channel.videoCount,
               ))
           .toList();
       resources.addAll(channels);

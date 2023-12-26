@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
-import 'package:my_tube/respositories/queue_repository.dart';
+import 'package:my_tube/respositories/favorites_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:provider/provider.dart';
@@ -57,8 +57,8 @@ void main() async {
           RepositoryProvider<InnertubeRepository>(
               create: (context) => InnertubeRepository(
                   innertubeProvider: context.read<InnertubeProvider>())),
-          RepositoryProvider<QueueRepository>(
-              create: (context) => QueueRepository())
+          RepositoryProvider<FavoritesRepository>(
+              create: (context) => FavoritesRepository())
         ],
         child: MultiBlocProvider(providers: [
           BlocProvider<SearchBloc>(
@@ -75,11 +75,11 @@ void main() async {
                     innertubeRepository: context.read<InnertubeRepository>(),
                     mtPlayerHandler: context.read<MtPlayerHandler>(),
                   )),
-          BlocProvider<QueueBloc>(
-              create: (context) => QueueBloc(
-                  queueRepository: context.read<QueueRepository>(),
-                  innertubeRepository: context.read<InnertubeRepository>(),
-                  mtPlayerHandler: context.read<MtPlayerHandler>()))
+          BlocProvider<FavoritesBloc>(
+              create: (context) => FavoritesBloc(
+                    favoritesRepository: context.read<FavoritesRepository>(),
+                    innertubeRepository: context.read<InnertubeRepository>(),
+                  ))
         ], child: const MyApp()),
       ),
     ),

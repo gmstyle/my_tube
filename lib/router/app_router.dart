@@ -4,7 +4,7 @@ import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/musci_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
-import 'package:my_tube/router/pages/queue_tab_page.dart';
+import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
 class AppRouter {
@@ -25,6 +25,7 @@ class AppRouter {
               pageBuilder: (context, state) => const ExploreTabPage(),
               routes: [
                 GoRoute(
+                    name: AppRoute.channel.name,
                     path: AppRoute.channel.path,
                     pageBuilder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>;

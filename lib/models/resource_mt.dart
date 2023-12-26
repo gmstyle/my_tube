@@ -77,6 +77,12 @@ class ResourceMT extends Equatable with HiveObjectMixin {
   @HiveField(10)
   final DateTime? addedAt;
 
+  @HiveField(11)
+  final String? subscriberCount;
+
+  @HiveField(12)
+  final String? videoCount;
+
   ResourceMT({
     required this.id,
     required this.title,
@@ -89,6 +95,8 @@ class ResourceMT extends Equatable with HiveObjectMixin {
     required this.streamUrl,
     required this.duration,
     this.addedAt,
+    this.subscriberCount,
+    this.videoCount,
   });
 
   factory ResourceMT.fromJson(Map<String, dynamic> json) {
@@ -106,6 +114,8 @@ class ResourceMT extends Equatable with HiveObjectMixin {
       addedAt: json['addedAt'] == null
           ? null
           : DateTime.parse(json['addedAt'] as String),
+      subscriberCount: json['subscriberCount'] as String?,
+      videoCount: json['videoCount'] as String?,
     );
   }
 
@@ -122,6 +132,8 @@ class ResourceMT extends Equatable with HiveObjectMixin {
       'streamUrl': streamUrl,
       'duration': duration,
       'addedAt': addedAt?.toIso8601String(),
+      'subscriberCount': subscriberCount,
+      'videoCount': videoCount,
     };
   }
 
@@ -137,6 +149,8 @@ class ResourceMT extends Equatable with HiveObjectMixin {
     String? streamUrl,
     int? duration,
     DateTime? addedAt,
+    String? subscriberCount,
+    String? videoCount,
   }) {
     return ResourceMT(
       id: id ?? this.id,
@@ -150,6 +164,8 @@ class ResourceMT extends Equatable with HiveObjectMixin {
       streamUrl: streamUrl ?? this.streamUrl,
       duration: duration ?? this.duration,
       addedAt: addedAt ?? this.addedAt,
+      subscriberCount: subscriberCount ?? this.subscriberCount,
+      videoCount: videoCount ?? this.videoCount,
     );
   }
 

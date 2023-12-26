@@ -10,7 +10,7 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
-import 'package:my_tube/ui/views/common/resource_tile.dart';
+import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
@@ -201,10 +201,7 @@ class CustomSearchDelegate extends SearchDelegate {
     }
 
     if (result.kind == 'playlist') {
-      return ListTile(
-        leading: Image.network(result.thumbnailUrl!),
-        title: Text(result.title!),
-      );
+      return PlaylistTile(playlist: result);
     }
 
     return Container();

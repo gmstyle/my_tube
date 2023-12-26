@@ -28,13 +28,15 @@ class ResourceMTAdapter extends TypeAdapter<ResourceMT> {
       streamUrl: fields[8] as String?,
       duration: fields[9] as int?,
       addedAt: fields[10] as DateTime?,
+      subscriberCount: fields[11] as String?,
+      videoCount: fields[12] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ResourceMT obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +58,11 @@ class ResourceMTAdapter extends TypeAdapter<ResourceMT> {
       ..writeByte(9)
       ..write(obj.duration)
       ..writeByte(10)
-      ..write(obj.addedAt);
+      ..write(obj.addedAt)
+      ..writeByte(11)
+      ..write(obj.subscriberCount)
+      ..writeByte(12)
+      ..write(obj.videoCount);
   }
 
   @override

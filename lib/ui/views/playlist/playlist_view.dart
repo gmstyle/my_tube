@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
-import 'package:my_tube/ui/views/common/resource_tile.dart';
+import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/playlist/widgets/playlist_header.dart';
 
 class PlaylistView extends StatelessWidget {
@@ -39,7 +39,7 @@ class PlaylistView extends StatelessWidget {
                                   .read<MiniPlayerCubit>()
                                   .startPlaying(video.id!);
                             },
-                            child: ResourceTile(resource: video!),
+                            child: VideoTile(video: video!),
                           );
                         }),
                   ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/ui/views/home/tabs/queue_tab_view.dart';
+import 'package:my_tube/ui/views/home/tabs/favorites_tab_view.dart';
 
 class QueueTabPage extends Page {
   const QueueTabPage({super.key});

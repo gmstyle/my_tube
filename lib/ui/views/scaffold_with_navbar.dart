@@ -30,8 +30,8 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
       label: 'Music',
     ),
     NavigationDestination(
-      icon: Icon(Icons.queue_music),
-      label: 'Queue',
+      icon: Icon(Icons.favorite),
+      label: 'Favorites',
     ),
   ];
 

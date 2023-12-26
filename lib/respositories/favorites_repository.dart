@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
-class QueueRepository {
+class FavoritesRepository {
   final queueBox = Hive.box<ResourceMT>('queue');
   final queueSettingsBox = Hive.box('queueSettings');
 

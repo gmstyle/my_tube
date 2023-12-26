@@ -7,10 +7,7 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/song_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 
-import '../respositories/queue_repository.dart';
-
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
-  final QueueRepository queueRepository = QueueRepository();
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
   int currentIndex = 0;
@@ -136,8 +133,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
       playlist.add(item);
-      // salva il brano nella coda locale
-      await queueRepository.save(video);
     }
 
     currentIndex = playlist.indexOf(item);
@@ -164,8 +159,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       // aggiungi il brano alla coda se non è già presente
       if (!playlist.contains(item)) {
         playlist.add(item);
-        // salva il brano nella coda locale
-        await queueRepository.save(videos[list.indexOf(item)]);
       }
     }
 
@@ -282,8 +275,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
       playlist.add(item);
-      // salva il brano nella coda locale
-      await queueRepository.save(video);
     }
     queue.add(playlist);
 
@@ -303,7 +294,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         extras: {
           'streamUrl': video.streamUrl!,
         }));
-    await queueRepository.remove(video);
+
     playlist.removeAt(index);
     queue.add(playlist);
 
@@ -322,31 +313,18 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   Future<void> clearQueue() async {
     stop();
-    await queueRepository.clear();
+
     playlist.clear();
     queue.add(playlist);
   }
 
+//TODO: implementare il metodo
   Future<void> toggleShuffle() async {
     shuffleEnabled = !shuffleEnabled;
     if (shuffleEnabled) {
-      _shufflePlaylist();
+      //_shufflePlaylist();
     } else {
       // ripristina la playlist originale
-      playlist = queueRepository.queue.map((e) {
-        return MediaItem(
-            id: e.id!,
-            title: e.title!,
-            album: e.channelTitle!,
-            artUri: Uri.parse(e.thumbnailUrl!),
-            duration: Duration(milliseconds: e.duration!),
-            extras: {
-              'streamUrl': e.streamUrl!,
-              'description': e.description,
-            });
-      }).toList();
-      currentIndex = playlist.indexOf(currentTrack);
-      await _playCurrentTrack();
     }
   }
 

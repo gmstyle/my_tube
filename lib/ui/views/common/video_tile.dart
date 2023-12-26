@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
 
 class VideoTile extends StatelessWidget {
@@ -11,7 +12,8 @@ class VideoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final queueCubit = context.read<QueueBloc>();
+    final favoritesBloc = context.read<FavoritesBloc>();
+    final MtPlayerHandler mtPlayerHandler = context.read<MtPlayerHandler>();
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
       margin: const EdgeInsets.only(bottom: 16),
@@ -52,14 +54,13 @@ class VideoTile extends StatelessWidget {
                           children: [
                             // show an animated that the video is playing
                             StreamBuilder(
-                                stream: queueCubit.mtPlayerHandler.mediaItem,
+                                stream: mtPlayerHandler.mediaItem,
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     final currentVideoId = snapshot.data!.id;
                                     if (currentVideoId == video.id) {
                                       return StreamBuilder(
-                                          stream: queueCubit
-                                              .mtPlayerHandler.playbackState
+                                          stream: mtPlayerHandler.playbackState
                                               .map((playbackState) =>
                                                   playbackState.playing)
                                               .distinct(),
@@ -116,18 +117,24 @@ class VideoTile extends StatelessWidget {
               itemBuilder: (context) {
                 return [
                   // show the option to remove the video from the queue if it is in the queue
-                  if (queueCubit.queueRepository.videoIds.contains(video.id))
+                  if (favoritesBloc.favoritesRepository.videoIds
+                      .contains(video.id))
                     PopupMenuItem(
                         value: 'remove',
                         child: const Text('Remove from queue'),
-                        onTap: () => queueCubit.add(RemoveFromQueue(video))),
+                        onTap: () {
+                          //TODO
+                        }),
 
                   // show the option to add the video to the queue if it is not in the queue
-                  if (!queueCubit.queueRepository.videoIds.contains(video.id))
+                  if (!favoritesBloc.favoritesRepository.videoIds
+                      .contains(video.id))
                     PopupMenuItem(
                         value: 'add',
                         child: const Text('Add to queue'),
-                        onTap: () => queueCubit.add(AddToQueue(video))),
+                        onTap: () {
+                          //TODO
+                        }),
                 ];
               },
               icon: const Icon(Icons.more_vert_rounded))
