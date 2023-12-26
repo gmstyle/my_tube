@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/queue_tab/queue_bloc.dart';
-import 'package:my_tube/ui/views/common/resource_tile.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class QueueTabView extends StatelessWidget {

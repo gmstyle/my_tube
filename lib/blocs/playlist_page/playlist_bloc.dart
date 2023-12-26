@@ -2,17 +2,14 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/youtube_repository.dart';
 
 part 'playlist_event.dart';
 part 'playlist_state.dart';
 
 class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
-  final YoutubeRepository youtubeRepository;
   final InnertubeRepository innertubeRepository;
 
-  PlaylistBloc(
-      {required this.youtubeRepository, required this.innertubeRepository})
+  PlaylistBloc({required this.innertubeRepository})
       : super(const PlaylistState.initial()) {
     on<GetPlaylist>((event, emit) async {
       await _onGetPlaylist(event, emit);

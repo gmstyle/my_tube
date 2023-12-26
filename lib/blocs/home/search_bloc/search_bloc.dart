@@ -5,17 +5,14 @@ import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/youtube_repository.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final YoutubeRepository youtubeRepository;
   final InnertubeRepository innertubeRepository;
   final settingsBox = Hive.box('settings');
-  SearchBloc(
-      {required this.youtubeRepository, required this.innertubeRepository})
+  SearchBloc({required this.innertubeRepository})
       : super(const SearchState.initial()) {
     on<SearchContents>((event, emit) async {
       await _onSearchContents(event, emit);

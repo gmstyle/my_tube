@@ -44,7 +44,8 @@ class QueueBloc extends Bloc<QueueEvent, QueueState> {
     emit(const QueueState.loading());
     final videos = <ResourceMT>[];
     for (final id in queueRepository.videoIds) {
-      final video = await innertubeRepository.getVideo(id);
+      final video =
+          await innertubeRepository.getVideo(id, withStreamUrl: false);
       videos.add(video);
     }
     emit(QueueState.success(videos));

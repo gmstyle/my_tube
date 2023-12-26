@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/song_view/song_view.dart';
 

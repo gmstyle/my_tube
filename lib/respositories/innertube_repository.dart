@@ -10,8 +10,8 @@ class InnertubeRepository {
 
   final InnertubeProvider innertubeProvider;
 
-  Future<ResourceMT> getVideo(String videoId) async {
-    final video = await innertubeProvider.getVideo(videoId);
+  Future<ResourceMT> getVideo(String videoId, {bool? withStreamUrl}) async {
+    final video = await innertubeProvider.getVideo(videoId, withStreamUrl);
     return ResourceMT(
       id: video.videoId,
       title: video.title,

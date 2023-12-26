@@ -1,19 +1,15 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_tube/models/channel_mt.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/youtube_repository.dart';
 
 part 'channel_page_event.dart';
 part 'channel_page_state.dart';
 
 class ChannelPageBloc extends Bloc<ChannelPageEvent, ChannelPageState> {
-  final YoutubeRepository youtubeRepository;
   final InnertubeRepository innertubeRepository;
 
-  ChannelPageBloc(
-      {required this.youtubeRepository, required this.innertubeRepository})
+  ChannelPageBloc({required this.innertubeRepository})
       : super(const ChannelPageState.initial()) {
     on<GetChannelDetails>((event, emit) async {
       await _onGetChannelDetails(event, emit);

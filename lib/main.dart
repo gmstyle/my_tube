@@ -9,12 +9,9 @@ import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
-import 'package:my_tube/providers/youtube_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/mappers/subscription_mapper.dart';
 import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/queue_repository.dart';
-import 'package:my_tube/respositories/youtube_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:provider/provider.dart';
@@ -46,26 +43,17 @@ void main() async {
     providers: [
       /// Providers
 
-      Provider<YoutubeProvider>(create: (context) => YoutubeProvider()),
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler),
     ],
     child: MultiProvider(
       providers: [
         /// Mappers
-
         Provider<SearchMapper>(create: (context) => SearchMapper()),
-        Provider<SubscriptionMapper>(create: (context) => SubscriptionMapper()),
       ],
       child: MultiRepositoryProvider(
         /// Repositories
         providers: [
-          RepositoryProvider<YoutubeRepository>(
-            create: (context) => YoutubeRepository(
-                youtubeProvider: context.read<YoutubeProvider>(),
-                searchMapper: context.read<SearchMapper>(),
-                subscriptionMapper: context.read<SubscriptionMapper>()),
-          ),
           RepositoryProvider<InnertubeRepository>(
               create: (context) => InnertubeRepository(
                   innertubeProvider: context.read<InnertubeProvider>())),
@@ -75,15 +63,12 @@ void main() async {
         child: MultiBlocProvider(providers: [
           BlocProvider<SearchBloc>(
               create: (context) => SearchBloc(
-                  youtubeRepository: context.read<YoutubeRepository>(),
                   innertubeRepository: context.read<InnertubeRepository>())),
           BlocProvider<SearchSuggestionCubit>(
               create: (context) => SearchSuggestionCubit(
-                  youtubeRepository: context.read<YoutubeRepository>(),
                   innertubeRepository: context.read<InnertubeRepository>())),
           BlocProvider<SearchSuggestionCubit>(
               create: (context) => SearchSuggestionCubit(
-                  youtubeRepository: context.read<YoutubeRepository>(),
                   innertubeRepository: context.read<InnertubeRepository>())),
           BlocProvider<MiniPlayerCubit>(
               create: (context) => MiniPlayerCubit(

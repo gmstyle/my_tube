@@ -10,9 +10,10 @@ import 'package:my_tube/providers/base_provider.dart';
 import 'package:my_tube/utils/utils.dart';
 
 class InnertubeProvider extends BaseProvider {
-  Future<Video> getVideo(String videoId) async {
+  Future<Video> getVideo(String videoId, bool? withStreamUrl) async {
     final innertube = await _getClient();
-    final video = await innertube.getVideo(videoId: videoId);
+    final video = await innertube.getVideo(
+        videoId: videoId, withStreamingUrl: withStreamUrl ?? true);
     return video;
   }
 

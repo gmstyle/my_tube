@@ -30,10 +30,6 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
       label: 'Music',
     ),
     NavigationDestination(
-      icon: Icon(Icons.subscriptions),
-      label: 'Subscriptions',
-    ),
-    NavigationDestination(
       icon: Icon(Icons.queue_music),
       label: 'Queue',
     ),
@@ -47,10 +43,8 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
       case 1:
         context.goNamed(AppRoute.music.name);
         break;
+
       case 2:
-        context.goNamed(AppRoute.subscriptions.name);
-        break;
-      case 3:
         context.goNamed(AppRoute.queue.name);
         break;
       default:
