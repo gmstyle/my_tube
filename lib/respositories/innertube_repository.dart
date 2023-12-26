@@ -186,7 +186,7 @@ class InnertubeRepository {
       final channels = response.channels!
           .map((channel) => ResourceMT(
                 id: channel.channelId,
-                title: channel.title,
+                title: channel.channelHandleText,
                 description: channel.description,
                 channelTitle: channel.title,
                 thumbnailUrl: channel.thumbnails?.last.url,

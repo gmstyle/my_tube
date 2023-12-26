@@ -8,8 +8,10 @@ import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/resource_tile.dart';
+import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
   final SearchBloc searchBloc;
@@ -115,7 +117,7 @@ class CustomSearchDelegate extends SearchDelegate {
                             close(context, result);
                             _playOrNavigateTo(result, miniPlayerCubit, context);
                           },
-                          child: ResourceTile(resource: result),
+                          child: _setTile(result),
                         );
                       }),
                 );
@@ -187,5 +189,24 @@ class CustomSearchDelegate extends SearchDelegate {
       context.pushNamed(AppRoute.playlist.name,
           extra: {'playlist': result.title!, 'playlistId': result.playlistId!});
     }
+  }
+
+  Widget _setTile(ResourceMT result) {
+    if (result.kind == 'video') {
+      return VideoTile(video: result);
+    }
+
+    if (result.kind == 'channel') {
+      return ChannelTile(channel: result);
+    }
+
+    if (result.kind == 'playlist') {
+      return ListTile(
+        leading: Image.network(result.thumbnailUrl!),
+        title: Text(result.title!),
+      );
+    }
+
+    return Container();
   }
 }

@@ -111,27 +111,26 @@ class VideoTile extends StatelessWidget {
           ),
 
           //Menu
-          if (video.kind != 'channel')
-            PopupMenuButton(
-                iconColor: Colors.white,
-                itemBuilder: (context) {
-                  return [
-                    // show the option to remove the video from the queue if it is in the queue
-                    if (queueCubit.queueRepository.videoIds.contains(video.id))
-                      PopupMenuItem(
-                          value: 'remove',
-                          child: const Text('Remove from queue'),
-                          onTap: () => queueCubit.add(RemoveFromQueue(video))),
+          PopupMenuButton(
+              iconColor: Colors.white,
+              itemBuilder: (context) {
+                return [
+                  // show the option to remove the video from the queue if it is in the queue
+                  if (queueCubit.queueRepository.videoIds.contains(video.id))
+                    PopupMenuItem(
+                        value: 'remove',
+                        child: const Text('Remove from queue'),
+                        onTap: () => queueCubit.add(RemoveFromQueue(video))),
 
-                    // show the option to add the video to the queue if it is not in the queue
-                    if (!queueCubit.queueRepository.videoIds.contains(video.id))
-                      PopupMenuItem(
-                          value: 'add',
-                          child: const Text('Add to queue'),
-                          onTap: () => queueCubit.add(AddToQueue(video))),
-                  ];
-                },
-                icon: const Icon(Icons.more_vert_rounded))
+                  // show the option to add the video to the queue if it is not in the queue
+                  if (!queueCubit.queueRepository.videoIds.contains(video.id))
+                    PopupMenuItem(
+                        value: 'add',
+                        child: const Text('Add to queue'),
+                        onTap: () => queueCubit.add(AddToQueue(video))),
+                ];
+              },
+              icon: const Icon(Icons.more_vert_rounded))
         ],
       ),
     );
