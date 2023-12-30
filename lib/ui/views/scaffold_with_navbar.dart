@@ -49,7 +49,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
         break;
 
       case 2:
-        context.goNamed(AppRoute.queue.name);
+        context.goNamed(AppRoute.favorites.name);
         break;
       case 3:
         context.goNamed(AppRoute.search.name);
@@ -88,36 +88,41 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
           ], */
             ),
         backgroundColor: Colors.transparent,
-        body: Column(
+        body: Stack(
           children: [
             /// Tab content
-            Expanded(child: widget.child),
+            widget.child,
 
             /// Mini player
-            AnimatedContainer(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10))),
-              duration: const Duration(milliseconds: 500),
-              height: miniplayerStatus == MiniPlayerStatus.shown ||
-                      miniplayerStatus == MiniPlayerStatus.loading
-                  ? miniPlayerHeight
-                  : 0,
-              child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
-                  builder: (context, state) {
-                switch (state.status) {
-                  case MiniPlayerStatus.loading:
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  case MiniPlayerStatus.shown:
-                    return const MiniPlayer();
-                  default:
-                    return const SizedBox.shrink();
-                }
-              }),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: AnimatedContainer(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10))),
+                duration: const Duration(milliseconds: 500),
+                height: miniplayerStatus == MiniPlayerStatus.shown ||
+                        miniplayerStatus == MiniPlayerStatus.loading
+                    ? miniPlayerHeight
+                    : 0,
+                child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+                    builder: (context, state) {
+                  switch (state.status) {
+                    case MiniPlayerStatus.loading:
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    case MiniPlayerStatus.shown:
+                      return const MiniPlayer();
+                    default:
+                      return const SizedBox.shrink();
+                  }
+                }),
+              ),
             ),
           ],
         ),

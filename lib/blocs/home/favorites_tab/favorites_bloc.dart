@@ -17,7 +17,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   }) : super(const FavoritesState.initial()) {
     // ascolto il cambiamento della coda e aggiorno lo stato
     // quando viene aggiunto o rimosso un video
-    favoritesRepository.queueListenable.addListener(() {
+    favoritesRepository.favoritesListenable.addListener(() {
       add(GetFavorites());
     });
 

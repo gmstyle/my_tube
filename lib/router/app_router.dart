@@ -51,12 +51,12 @@ class AppRouter {
               path: AppRoute.music.path,
               pageBuilder: (context, state) => const MusicTabPAge()),
 
-          // Tab Queue
+          // Tab Favorites
           GoRoute(
               parentNavigatorKey: shellNavigatorKey,
-              name: AppRoute.queue.name,
-              path: AppRoute.queue.path,
-              pageBuilder: (context, state) => const QueueTabPage()),
+              name: AppRoute.favorites.name,
+              path: AppRoute.favorites.path,
+              pageBuilder: (context, state) => const FavoritesTabPage()),
 
           // Tab Search
           GoRoute(
@@ -93,7 +93,7 @@ enum AppRoute {
   account('/account'),
   channel('channel'),
   playlist('playlist'),
-  queue('/queue'),
+  favorites('/favorites'),
   ;
 
   final String path;

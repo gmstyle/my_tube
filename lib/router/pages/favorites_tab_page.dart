@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab_view.dart';
 
-class QueueTabPage extends Page {
-  const QueueTabPage({super.key});
+class FavoritesTabPage extends Page {
+  const FavoritesTabPage({super.key});
 
   @override
   Route createRoute(BuildContext context) {
