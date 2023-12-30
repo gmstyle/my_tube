@@ -205,19 +205,19 @@ class SearchView extends StatelessWidget {
     }
 
     if (result.kind == 'channel') {
-      /* context.go('${AppRoute.search.path}/${AppRoute.channel.path}',
-          extra: {'channelId': result.channelId!}); */
-      showBottomSheet(
+      context.go('${AppRoute.search.path}/${AppRoute.channel.path}',
+          extra: {'channelId': result.channelId!});
+      /* showBottomSheet(
           context: context,
-          builder: (context) => ChannelView(channelId: result.channelId!));
+          builder: (context) => ChannelView(channelId: result.channelId!)); */
     }
 
     if (result.kind == 'playlist') {
-      /* context.go('${AppRoute.search.path}/${AppRoute.playlist.path}',
-          extra: {'playlist': result.title!, 'playlistId': result.playlistId!}); */
-      showBottomSheet(
+      context.go('${AppRoute.search.path}/${AppRoute.playlist.path}',
+          extra: {'playlist': result.title!, 'playlistId': result.playlistId!});
+      /* showBottomSheet(
           context: context,
-          builder: (context) => PlaylistView(playlistId: result.playlistId!));
+          builder: (context) => PlaylistView(playlistId: result.playlistId!)); */
     }
   }
 
