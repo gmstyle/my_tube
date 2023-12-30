@@ -33,6 +33,10 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
       icon: Icon(Icons.favorite),
       label: 'Favorites',
     ),
+    NavigationDestination(
+      icon: Icon(Icons.search),
+      label: 'Search',
+    ),
   ];
 
   void onDestinationSelected(int index) {
@@ -46,6 +50,9 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
 
       case 2:
         context.goNamed(AppRoute.queue.name);
+        break;
+      case 3:
+        context.goNamed(AppRoute.search.name);
         break;
       default:
         break;
@@ -67,7 +74,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
     return MainGradient(
       child: Scaffold(
         appBar: CustomAppbar(
-          actions: [
+            /* actions: [
             IconButton(
                 onPressed: () {
                   showSearch(
@@ -78,8 +85,8 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
                           miniPlayerCubit: miniPlayerCubit));
                 },
                 icon: const Icon(Icons.search))
-          ],
-        ),
+          ], */
+            ),
         backgroundColor: Colors.transparent,
         body: Column(
           children: [
