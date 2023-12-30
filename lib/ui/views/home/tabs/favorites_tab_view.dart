@@ -24,6 +24,11 @@ class QueueTabView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   children: [
+                    const Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 8),
                     Text(
                       'Your fvorites',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -68,7 +73,7 @@ class QueueTabView extends StatelessWidget {
                               child: VideoTile(video: video));
                         },
                       )
-                    : const Center(child: Text('Queue is empty')),
+                    : const Center(child: Text('No favorites yet')),
               ),
             ],
           );
