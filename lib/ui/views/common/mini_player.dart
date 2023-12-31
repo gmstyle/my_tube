@@ -20,6 +20,9 @@ class MiniPlayer extends StatelessWidget {
         if (state.status == MiniPlayerStatus.loading) {
           return const ShimmerMiniPlayer();
         }
+        if (state.status == MiniPlayerStatus.hidden) {
+          return const SizedBox.shrink();
+        }
         return GestureDetector(
           onTap: () => context.pushNamed(AppRoute.video.name),
           child: ClipRRect(

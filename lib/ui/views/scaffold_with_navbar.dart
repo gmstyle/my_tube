@@ -82,6 +82,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
           bottomNavigationBar: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              //const ShimmerMiniPlayer(),
               const MiniPlayer(),
               NavigationBar(
                   elevation: 0,

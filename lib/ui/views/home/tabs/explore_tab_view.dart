@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/ui/shimmers/list_shimmer.dart';
 import 'package:my_tube/ui/views/common/single_selection_buttons.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
@@ -56,7 +57,7 @@ class _ExploreTabViewState extends State<ExploreTabView> {
             builder: (context, state) {
               switch (state.status) {
                 case YoutubeStatus.loading:
-                  return const Center(child: CircularProgressIndicator());
+                  return const ListShimmer();
 
                 case YoutubeStatus.loaded:
                   return RefreshIndicator(
