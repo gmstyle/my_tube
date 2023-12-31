@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/ui/shimmers/miniplayer_shimmer.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 
 class MiniPlayer extends StatelessWidget {
@@ -16,10 +17,8 @@ class MiniPlayer extends StatelessWidget {
 
     return BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
       builder: (context, state) {
-        if (state.status == MiniPlayerStatus.loading ||
-            state.status == MiniPlayerStatus.hidden) {
-          //TODO: shimmer
-          return const SizedBox.shrink();
+        if (state.status == MiniPlayerStatus.loading) {
+          return const ShimmerMiniPlayer();
         }
         return GestureDetector(
           onTap: () => context.pushNamed(AppRoute.video.name),
@@ -64,7 +63,7 @@ class MiniPlayer extends StatelessWidget {
                                       : const SizedBox(
                                           height: 80,
                                           width: 80,
-                                          child: FlutterLogo()),
+                                        ),
                                 ),
                               );
                             }),
