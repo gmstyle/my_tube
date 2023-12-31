@@ -11,7 +11,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
   int currentIndex = 0;
-  late MediaItem currentTrack;
+  MediaItem? currentTrack;
   List<MediaItem> playlist = [];
   bool get hasNextVideo => currentIndex < playlist.length - 1;
   bool shuffleEnabled = false;
@@ -208,7 +208,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     // inizializza il video player controller da passare a chewie
     videoPlayerController = VideoPlayerController.networkUrl(
-      Uri.parse(currentTrack.extras!['streamUrl']),
+      Uri.parse(currentTrack?.extras!['streamUrl']),
       videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
     );
     if (!videoPlayerController.value.isInitialized) {
@@ -307,7 +307,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         stop();
       }
     } else {
-      currentIndex = playlist.indexOf(currentTrack);
+      currentIndex = playlist.indexOf(currentTrack!);
     }
   }
 
