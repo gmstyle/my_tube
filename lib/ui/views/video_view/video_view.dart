@@ -2,13 +2,14 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
-import 'package:my_tube/ui/views/song_view/widget/controls.dart';
+import 'package:my_tube/ui/views/video_view/widget/controls.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-class SongView extends StatelessWidget {
-  const SongView({
+class VideoView extends StatelessWidget {
+  const VideoView({
     super.key,
   });
 
@@ -22,9 +23,10 @@ class SongView extends StatelessWidget {
     });
 
     return MainGradient(
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height - kToolbarHeight,
-        child: Padding(
+      child: Scaffold(
+        appBar: const CustomAppbar(),
+        backgroundColor: Colors.transparent,
+        body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: StreamBuilder(
               stream: mtPlayerHandler.mediaItem,
@@ -47,15 +49,18 @@ class SongView extends StatelessWidget {
                       Row(
                         children: [
                           Flexible(
-                            child: Text(
-                              mediaItem?.title ?? '',
-                              maxLines: 2,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                  ),
+                            child: Hero(
+                              tag: 'video_title',
+                              child: Text(
+                                mediaItem?.title ?? '',
+                                maxLines: 2,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                              ),
                             ),
                           ),
                         ],
@@ -66,11 +71,14 @@ class SongView extends StatelessWidget {
                       Row(
                         children: [
                           Flexible(
-                            child: Text(mediaItem?.album ?? '',
-                                maxLines: 2,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                )),
+                            child: Hero(
+                              tag: 'video_Album',
+                              child: Text(mediaItem?.album ?? '',
+                                  maxLines: 2,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  )),
+                            ),
                           ),
                         ],
                       ),

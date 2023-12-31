@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/ui/views/song_view/widget/full_screen_video_view.dart';
+import 'package:my_tube/ui/views/video_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {

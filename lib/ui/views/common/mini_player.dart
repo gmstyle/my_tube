@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
-import 'package:my_tube/ui/views/song_view/song_view.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({
@@ -12,7 +13,130 @@ class MiniPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
-    return ClipRRect(
+    final currentSong = miniPlayerCubit.mtPlayerHandler.mediaItem.valueOrNull;
+    if (currentSong == null) {
+      return const SizedBox.shrink();
+    }
+    return GestureDetector(
+      onTap: () => context.pushNamed(AppRoute.video.name),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+        child: Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: Dismissible(
+            confirmDismiss: (direction) async {
+              // skip to previous or next song
+              if (direction == DismissDirection.startToEnd) {
+                await miniPlayerCubit.skipToPrevious();
+              } else {
+                await miniPlayerCubit.skipToNext();
+              }
+              return Future.value(false);
+            },
+            key: Key(currentSong.id),
+            child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Row(
+                  children: [
+                    // Image
+                    StreamBuilder(
+                        stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                        builder: (context, snapshot) {
+                          final mediaItem = snapshot.data;
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: mediaItem?.artUri != null
+                                ? Image.network(
+                                    height: 80,
+                                    width: 80,
+                                    fit: BoxFit.cover,
+                                    mediaItem!.artUri.toString(),
+                                  )
+                                : const SizedBox(
+                                    height: 80,
+                                    width: 80,
+                                    child: FlutterLogo()),
+                          );
+                        }),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Video Title and Album
+                          StreamBuilder(
+                              stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                              builder: (context, snapshot) {
+                                final mediaItem = snapshot.data;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Hero(
+                                      tag: 'video_title',
+                                      child: Text(
+                                        mediaItem?.title ?? '',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Hero(
+                                      tag: 'video_album',
+                                      child: Text(
+                                        mediaItem?.album ?? '',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }),
+                          const SizedBox(height: 4),
+                          // SeekBar
+                          const SeekBar(
+                            darkBackground: false,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Play/Pause Button
+                    StreamBuilder(
+                        stream: miniPlayerCubit.mtPlayerHandler.playbackState
+                            .map((playbackState) => playbackState.playing)
+                            .distinct(),
+                        builder: (context, snapshot) {
+                          final isPlaying = snapshot.data ?? false;
+                          return Hero(
+                            tag: 'play_pause_button',
+                            child: IconButton(
+                                iconSize:
+                                    MediaQuery.of(context).size.width * 0.1,
+                                onPressed: () {
+                                  if (isPlaying) {
+                                    miniPlayerCubit.mtPlayerHandler.pause();
+                                  } else {
+                                    miniPlayerCubit.mtPlayerHandler.play();
+                                  }
+                                },
+                                icon: Icon(
+                                  isPlaying ? Icons.pause : Icons.play_arrow,
+                                )),
+                          );
+                        }),
+                  ],
+                )),
+          ),
+        ),
+      ),
+    ); /* ClipRRect(
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
       child: GestureDetector(
@@ -176,177 +300,6 @@ class MiniPlayer extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-    /* return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                Expanded(
-                    child: GestureDetector(
-                  child: Row(
-                    children: [
-                      /// SzedBox con width 0 per far partire il video
-                      /// senza che si veda il video in modalità mini player
-                      SizedBox(
-                          width: 0,
-                          child: Chewie(
-                            controller: mtPlayerHandler.chewieController,
-                          )),
-
-                      // Thumbnail
-                      StreamBuilder(
-                          stream: mtPlayerHandler.mediaItem,
-                          builder: (context, snapshot) {
-                            final mediaItem = snapshot.data;
-                            return mediaItem?.artUri != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      mediaItem!.artUri.toString(),
-                                    ),
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: const FlutterLogo(),
-                                  );
-                          }),
-
-                      const SizedBox(
-                        width: 8,
-                      ),
-
-                      // Title
-                      StreamBuilder(
-                          stream: mtPlayerHandler.mediaItem,
-                          builder: (context, snapshot) {
-                            final mediaItem = snapshot.data;
-                            return Expanded(
-                              flex: 2,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          mediaItem?.title ?? '',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 2,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          mediaItem?.album ?? '',
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          })
-                    ],
-                  ),
-                  onTap: () {
-                    context.pushNamed(AppRoute.song.name);
-                  },
-                )),
-              ],
-            ),
-          ),
-
-          // Controls
-          Row(
-            children: [
-              // Progress bar
-              const Flexible(child: SeekBar()),
-              //
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                // skip previous button
-                StreamBuilder(
-                    stream: mtPlayerHandler.queue,
-                    builder: ((context, snapshot) {
-                      final queue = snapshot.data ?? [];
-                      final index = queue.indexOf(mtPlayerHandler.currentTrack);
-                      return IconButton(
-                        icon: const Icon(
-                          Icons.skip_previous,
-                        ),
-                        onPressed: index > 0
-                            ? () async {
-                                await mtPlayerHandler.skipToPrevious();
-                              }
-                            : null,
-                      );
-                    })),
-
-                //Play/pause button
-                StreamBuilder(
-                    stream: mtPlayerHandler.playbackState
-                        .map((playbackState) => playbackState.playing)
-                        .distinct(),
-                    builder: (context, snapshot) {
-                      final isPlaying = snapshot.data ?? false;
-                      return IconButton(
-                          iconSize: MediaQuery.of(context).size.width * 0.1,
-                          onPressed: () {
-                            if (isPlaying) {
-                              mtPlayerHandler.pause();
-                            } else {
-                              mtPlayerHandler.play();
-                            }
-                          },
-                          icon:
-                              Icon(isPlaying ? Icons.pause : Icons.play_arrow));
-                    }),
-
-                //Stop button
-                /*  IconButton(
-                    onPressed: () {
-                      miniPlayerCubit.mtPlayerHandler.stop();
-                    },
-                    icon: const Icon(Icons.stop)),
- */
-                // skip next button
-                StreamBuilder(
-                    stream: mtPlayerHandler.queue,
-                    builder: ((context, snapshot) {
-                      final queue = snapshot.data ?? [];
-                      final index = queue.indexOf(mtPlayerHandler.currentTrack);
-                      return IconButton(
-                        icon: const Icon(
-                          Icons.skip_next,
-                        ),
-                        onPressed: index < queue.length - 1
-                            ? () async {
-                                await mtPlayerHandler.skipToNext();
-                              }
-                            : null,
-                      );
-                    })),
-              ]),
-            ],
-          ),
-        ],
       ),
     ); */
   }

@@ -6,6 +6,7 @@ import 'package:my_tube/router/pages/musci_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
+import 'package:my_tube/router/pages/video_page.dart';
 import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
 class AppRouter {
@@ -13,6 +14,14 @@ class AppRouter {
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
+    // Root
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      name: AppRoute.video.name,
+      path: AppRoute.video.path,
+      pageBuilder: (context, state) => const VideoPage(),
+    ),
+    // Shell
     ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (context, state, child) =>
@@ -66,6 +75,7 @@ class AppRouter {
               pageBuilder: (context, state) => const SearchPage(),
               routes: [
                 GoRoute(
+                    parentNavigatorKey: shellNavigatorKey,
                     name: AppRoute.channel.name,
                     path: AppRoute.channel.path,
                     pageBuilder: (context, state) {
@@ -74,6 +84,7 @@ class AppRouter {
                       return ChannelPage(channelId: channelId);
                     }),
                 GoRoute(
+                    parentNavigatorKey: shellNavigatorKey,
                     name: AppRoute.playlist.name,
                     path: AppRoute.playlist.path,
                     pageBuilder: (context, state) {
@@ -94,7 +105,7 @@ enum AppRoute {
   channel('channel'),
   playlist('playlist'),
   favorites('/favorites'),
-  ;
+  video('/video');
 
   final String path;
 

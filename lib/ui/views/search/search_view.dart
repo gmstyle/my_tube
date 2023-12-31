@@ -6,11 +6,9 @@ import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/views/channel/channel_view.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
-import 'package:my_tube/ui/views/playlist/playlist_view.dart';
 
 // ignore: must_be_immutable
 class SearchView extends StatelessWidget {
@@ -205,19 +203,13 @@ class SearchView extends StatelessWidget {
     }
 
     if (result.kind == 'channel') {
-      context.go('${AppRoute.search.path}/${AppRoute.channel.path}',
+      context.goNamed(AppRoute.channel.name,
           extra: {'channelId': result.channelId!});
-      /* showBottomSheet(
-          context: context,
-          builder: (context) => ChannelView(channelId: result.channelId!)); */
     }
 
     if (result.kind == 'playlist') {
-      context.go('${AppRoute.search.path}/${AppRoute.playlist.path}',
+      context.goNamed(AppRoute.playlist.name,
           extra: {'playlist': result.title!, 'playlistId': result.playlistId!});
-      /* showBottomSheet(
-          context: context,
-          builder: (context) => PlaylistView(playlistId: result.playlistId!)); */
     }
   }
 

@@ -66,19 +66,22 @@ class Controls extends StatelessWidget {
                 .distinct(),
             builder: (context, snapshot) {
               final playing = snapshot.data ?? false;
-              return IconButton(
-                iconSize: MediaQuery.of(context).size.width * 0.15,
-                icon: Icon(
-                  playing ? Icons.pause_circle : Icons.play_circle,
-                  color: Colors.white,
+              return Hero(
+                tag: 'play_pause_button',
+                child: IconButton(
+                  iconSize: MediaQuery.of(context).size.width * 0.15,
+                  icon: Icon(
+                    playing ? Icons.pause_circle : Icons.play_circle,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    if (playing) {
+                      mtPlayerHandler.pause();
+                    } else {
+                      mtPlayerHandler.play();
+                    }
+                  },
                 ),
-                onPressed: () {
-                  if (playing) {
-                    mtPlayerHandler.pause();
-                  } else {
-                    mtPlayerHandler.play();
-                  }
-                },
               );
             }),
 

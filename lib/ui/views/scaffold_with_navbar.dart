@@ -6,7 +6,6 @@ import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
-import 'package:my_tube/ui/views/common/custom_search_delegate.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 
@@ -73,7 +72,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
 
     return MainGradient(
       child: Scaffold(
-        appBar: CustomAppbar(
+        appBar: const CustomAppbar(
             /* actions: [
             IconButton(
                 onPressed: () {
@@ -88,51 +87,21 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
           ], */
             ),
         backgroundColor: Colors.transparent,
-        body: Stack(
+        body: widget.child,
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            /// Tab content
-            widget.child,
-
-            /// Mini player
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: AnimatedContainer(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10))),
-                duration: const Duration(milliseconds: 500),
-                height: miniplayerStatus == MiniPlayerStatus.shown ||
-                        miniplayerStatus == MiniPlayerStatus.loading
-                    ? miniPlayerHeight
-                    : 0,
-                child: BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
-                    builder: (context, state) {
-                  switch (state.status) {
-                    case MiniPlayerStatus.loading:
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    case MiniPlayerStatus.shown:
-                      return const MiniPlayer();
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                }),
-              ),
-            ),
+            const MiniPlayer(),
+            NavigationBar(
+                elevation: 0,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                selectedIndex: currentIndex,
+                destinations: _navBarItems,
+                onDestinationSelected: onDestinationSelected,
+                labelBehavior:
+                    NavigationDestinationLabelBehavior.onlyShowSelected),
           ],
         ),
-        bottomNavigationBar: NavigationBar(
-            elevation: 0,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            selectedIndex: currentIndex,
-            destinations: _navBarItems,
-            onDestinationSelected: onDestinationSelected,
-            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected),
       ),
     );
   }
