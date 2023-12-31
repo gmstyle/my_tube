@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,14 +18,15 @@ class VideoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final favoritesBloc = context.read<FavoritesBloc>();
 
-    final MtPlayerHandler mtPlayerHandler = context.read<MtPlayerHandler>();
+    final MiniPlayerCubit miniPlayerCubit =
+        BlocProvider.of<MiniPlayerCubit>(context);
 
     return GestureDetector(
       onLongPress: () {
         // show option dialog
         showDialog(
             context: context,
-            builder: (context) {
+            builder: (_) {
               return AlertDialog(
                 //title: const Text('Options'),
                 content: Column(
@@ -38,7 +40,7 @@ class VideoTile extends StatelessWidget {
                         title: const Text('Remove from favorites'),
                         onTap: () {
                           favoritesBloc.add(RemoveFromFavorites(video));
-                          Navigator.of(context).pop();
+                          context.pop();
                         },
                       ),
 
@@ -50,18 +52,35 @@ class VideoTile extends StatelessWidget {
                         title: const Text('Add to favorites'),
                         onTap: () {
                           favoritesBloc.add(AddToFavorites(video));
-                          Navigator.of(context).pop();
+                          context.pop();
                         },
                       ),
 
-                    // show the option to add the video to the queue
-                    ListTile(
-                      leading: const Icon(Icons.playlist_add),
-                      title: const Text('Add to queue'),
-                      onTap: () async {
-                        context.pop();
-                      },
-                    ),
+                    // show the option to add the video to the queue if it is not in the queue
+                    if (!miniPlayerCubit.mtPlayerHandler.queue.value
+                        .map((e) => e.id)
+                        .contains(video.id))
+                      ListTile(
+                        leading: const Icon(Icons.playlist_add),
+                        title: const Text('Add to queue'),
+                        onTap: () {
+                          miniPlayerCubit.addToQueue(video.id!);
+                          context.pop();
+                        },
+                      ),
+
+                    // show the option to remove the video from the queue if it is in the queue
+                    if (miniPlayerCubit.mtPlayerHandler.queue.value
+                        .map((e) => e.id)
+                        .contains(video.id))
+                      ListTile(
+                        leading: const Icon(Icons.remove),
+                        title: const Text('Remove from queue'),
+                        onTap: () {
+                          miniPlayerCubit.removeFromQueue(video);
+                          context.pop();
+                        },
+                      ),
 
                     // show the option to share the video
                     ListTile(
@@ -69,7 +88,7 @@ class VideoTile extends StatelessWidget {
                       title: const Text('Share'),
                       onTap: () {
                         //TODO
-                        Navigator.of(context).pop();
+                        context.pop();
                       },
                     ),
                   ],
@@ -129,14 +148,15 @@ class VideoTile extends StatelessWidget {
                             children: [
                               // show an animated that the video is playing
                               StreamBuilder(
-                                  stream: mtPlayerHandler.mediaItem,
+                                  stream:
+                                      miniPlayerCubit.mtPlayerHandler.mediaItem,
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
                                       final currentVideoId = snapshot.data!.id;
                                       if (currentVideoId == video.id) {
                                         return StreamBuilder(
-                                            stream: mtPlayerHandler
-                                                .playbackState
+                                            stream: miniPlayerCubit
+                                                .mtPlayerHandler.playbackState
                                                 .map((playbackState) =>
                                                     playbackState.playing)
                                                 .distinct(),
@@ -193,22 +213,15 @@ class VideoTile extends StatelessWidget {
                 itemBuilder: (context) {
                   return [
                     // show the option to remove the video from the queue if it is in the queue
-                    if (favoritesBloc.favoritesRepository.videoIds
-                        .contains(video.id))
-                      PopupMenuItem(
-                          value: 'remove',
-                          child: const Text('Remove from favorites'),
-                          onTap: () {
-                            //TODO
-                          }),
-      
+
+                    PopupMenuItem(
+                        value: 'remove',
+                        child: const Text('Remove from favorites'),
+                        onTap: () async {
+                          
+                        }),
+
                     // show the option to add the video to the queue if it is not in the queue
-                    if (!favoritesBloc.favoritesRepository.videoIds
-                        .contains(video.id))
-                      PopupMenuItem(
-                          value: 'add',
-                          child: const Text('Add to favorites'),
-                          onTap: () {}),
                   ];
                 },
                 icon: const Icon(Icons.more_vert_rounded)) */

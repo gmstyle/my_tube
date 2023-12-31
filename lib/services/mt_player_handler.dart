@@ -10,7 +10,7 @@ import 'package:video_player/video_player.dart';
 class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
-  int currentIndex = 0;
+  int currentIndex = -1;
   MediaItem? currentTrack;
   List<MediaItem> playlist = [];
   bool get hasNextVideo => currentIndex < playlist.length - 1;
@@ -275,40 +275,40 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
       playlist.add(item);
-    }
-    queue.add(playlist);
+      queue.add(playlist);
 
-    if (currentIndex == -1) {
-      currentIndex = playlist.indexOf(item);
-      await _playCurrentTrack();
+      if (currentIndex == -1) {
+        currentIndex = playlist.indexOf(item);
+        await _playCurrentTrack();
+      }
     }
   }
 
-  Future<void> removeFromQueue(ResourceMT video) async {
-    final index = playlist.indexOf(MediaItem(
-        id: video.id!,
-        title: video.title!,
-        album: video.channelTitle!,
-        artUri: Uri.parse(video.thumbnailUrl!),
-        duration: Duration(milliseconds: video.duration!),
-        extras: {
-          'streamUrl': video.streamUrl!,
-        }));
+  Future<bool?> removeFromQueue(ResourceMT video) async {
+    final index =
+        playlist.indexOf(MediaItem(id: video.id!, title: video.title!));
 
-    playlist.removeAt(index);
-    queue.add(playlist);
+    if (index != -1) {
+      playlist.removeAt(index);
+      queue.add(playlist);
 
-    if (index < currentIndex) {
-      currentIndex--;
-    } else if (index == currentIndex) {
-      if (hasNextVideo) {
-        skipToNext();
+      if (index < currentIndex) {
+        currentIndex--;
+      } else if (index == currentIndex) {
+        if (hasNextVideo) {
+          skipToNext();
+          return Future.value(true);
+        } else {
+          stop();
+          currentIndex = -1;
+          return Future.value(false);
+        }
       } else {
-        stop();
+        currentIndex = playlist.indexOf(currentTrack!);
+        Future.value(true);
       }
-    } else {
-      currentIndex = playlist.indexOf(currentTrack!);
     }
+    return Future.value(null);
   }
 
   Future<void> clearQueue() async {

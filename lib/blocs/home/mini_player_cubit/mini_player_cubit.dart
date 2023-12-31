@@ -36,8 +36,6 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
     emit(const MiniPlayerState.loading());
 
-    //final response = await youtubeRepository.getVideos(videoIds: videoIds);
-
     await _startPlayingPlaylist(videos);
 
     emit(const MiniPlayerState.shown());
@@ -55,19 +53,26 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.shown());
   }
 
-  /* Future<void> showMiniPlayer() async {
-    emit(const MiniPlayerState.shown());
-  }
-
-  void hideMiniPlayer() {
-    emit(const MiniPlayerState.hidden());
-  } */
-
   Future<void> _startPlaying(ResourceMT video) async {
     await mtPlayerHandler.startPlaying(video);
   }
 
   Future<void> _startPlayingPlaylist(List<ResourceMT> videos) async {
     await mtPlayerHandler.startPlayingPlaylist(videos);
+  }
+
+  Future<void> addToQueue(String id) async {
+    final video = await innertubeRepository.getVideo(id);
+    await mtPlayerHandler.addToQueue(video);
+    emit(const MiniPlayerState.shown());
+  }
+
+  Future<void> removeFromQueue(ResourceMT video) async {
+    final result = await mtPlayerHandler.removeFromQueue(video);
+    if (result != null && result) {
+      emit(const MiniPlayerState.shown());
+    } else if (result != null && !result) {
+      emit(const MiniPlayerState.hidden());
+    }
   }
 }
