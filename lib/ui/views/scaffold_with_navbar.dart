@@ -71,36 +71,39 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
     final miniplayerStatus = context.watch<MiniPlayerCubit>().state.status;
 
     return MainGradient(
-      child: Scaffold(
-        appBar: const CustomAppbar(
-            /* actions: [
-            IconButton(
-                onPressed: () {
-                  showSearch(
-                      context: context,
-                      delegate: CustomSearchDelegate(
-                          searchBloc: searchBloc,
-                          searchSuggestionCubit: serachSuggestionsCubit,
-                          miniPlayerCubit: miniPlayerCubit));
-                },
-                icon: const Icon(Icons.search))
-          ], */
-            ),
-        backgroundColor: Colors.transparent,
-        body: widget.child,
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const MiniPlayer(),
-            NavigationBar(
-                elevation: 0,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                selectedIndex: currentIndex,
-                destinations: _navBarItems,
-                onDestinationSelected: onDestinationSelected,
-                labelBehavior:
-                    NavigationDestinationLabelBehavior.onlyShowSelected),
-          ],
+      child: SafeArea(
+        child: Scaffold(
+          /*appBar: const CustomAppbar(
+               actions: [
+              IconButton(
+                  onPressed: () {
+                    showSearch(
+                        context: context,
+                        delegate: CustomSearchDelegate(
+                            searchBloc: searchBloc,
+                            searchSuggestionCubit: serachSuggestionsCubit,
+                            miniPlayerCubit: miniPlayerCubit));
+                  },
+                  icon: const Icon(Icons.search))
+            ],
+              ), */
+          backgroundColor: Colors.transparent,
+          body: widget.child,
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const MiniPlayer(),
+              NavigationBar(
+                  elevation: 0,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
+                  selectedIndex: currentIndex,
+                  destinations: _navBarItems,
+                  onDestinationSelected: onDestinationSelected,
+                  labelBehavior:
+                      NavigationDestinationLabelBehavior.onlyShowSelected),
+            ],
+          ),
         ),
       ),
     );

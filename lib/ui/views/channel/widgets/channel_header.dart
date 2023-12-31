@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
@@ -16,26 +17,6 @@ class ChannelHeader extends StatelessWidget {
     final channelState = context.watch<ChannelPageBloc>().state;
     return Column(
       children: [
-        // Actions
-        /* Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.more_vert, color: Colors.white),
-            ),
-          ],
-        ), */
-
         // Channel info
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.25,
@@ -46,7 +27,7 @@ class ChannelHeader extends StatelessWidget {
               children: [
                 Image.network(
                   channel!.tvBannerUrl!,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                 ),
                 Container(
                   decoration: BoxDecoration(

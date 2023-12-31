@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
@@ -24,7 +25,18 @@ class VideoView extends StatelessWidget {
 
     return MainGradient(
       child: Scaffold(
-        appBar: const CustomAppbar(),
+        appBar: CustomAppbar(
+          centerTitle: true,
+          leading: context.canPop()
+              ? IconButton(
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  color: Colors.white,
+                  onPressed: () {
+                    context.pop();
+                  },
+                )
+              : null,
+        ),
         backgroundColor: Colors.transparent,
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -35,13 +47,17 @@ class VideoView extends StatelessWidget {
                 return SingleChildScrollView(
                   child: Column(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: AspectRatio(
-                            aspectRatio: mtPlayerHandler.chewieController
-                                .videoPlayerController.value.aspectRatio,
-                            child: Chewie(
-                                controller: mtPlayerHandler.chewieController)),
+                      Hero(
+                        tag: 'video_image_or_player',
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: AspectRatio(
+                              aspectRatio: mtPlayerHandler.chewieController
+                                  .videoPlayerController.value.aspectRatio,
+                              child: Chewie(
+                                  controller:
+                                      mtPlayerHandler.chewieController)),
+                        ),
                       ),
                       const SizedBox(
                         height: 8,

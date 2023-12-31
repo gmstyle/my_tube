@@ -4,11 +4,15 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppbar({
     super.key,
     this.title,
+    this.centerTitle = false,
+    this.showTitle = true,
     this.leading,
     this.actions,
   });
 
   final Widget? title;
+  final bool centerTitle;
+  final bool showTitle;
   final Widget? leading;
   final List<Widget>? actions;
   final bool isSearch = false;
@@ -19,8 +23,11 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: leading,
-        title: title ??
-            const Text('MyTube', style: TextStyle(color: Colors.white)),
+        centerTitle: centerTitle,
+        title: showTitle
+            ? title ??
+                const Text('MyTube', style: TextStyle(color: Colors.white))
+            : null,
         actionsIconTheme: const IconThemeData(color: Colors.white),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

@@ -13,10 +13,7 @@ class MiniPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
-    final currentSong = miniPlayerCubit.mtPlayerHandler.mediaItem.valueOrNull;
-    if (currentSong == null) {
-      return const SizedBox.shrink();
-    }
+
     return GestureDetector(
       onTap: () => context.pushNamed(AppRoute.video.name),
       child: ClipRRect(
@@ -34,7 +31,7 @@ class MiniPlayer extends StatelessWidget {
               }
               return Future.value(false);
             },
-            key: Key(currentSong.id),
+            key: Key(miniPlayerCubit.mtPlayerHandler.currentTrack.id),
             child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Row(
@@ -44,19 +41,22 @@ class MiniPlayer extends StatelessWidget {
                         stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
                         builder: (context, snapshot) {
                           final mediaItem = snapshot.data;
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: mediaItem?.artUri != null
-                                ? Image.network(
-                                    height: 80,
-                                    width: 80,
-                                    fit: BoxFit.cover,
-                                    mediaItem!.artUri.toString(),
-                                  )
-                                : const SizedBox(
-                                    height: 80,
-                                    width: 80,
-                                    child: FlutterLogo()),
+                          return Hero(
+                            tag: 'video_image_or_player',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: mediaItem?.artUri != null
+                                  ? Image.network(
+                                      height: 80,
+                                      width: 80,
+                                      fit: BoxFit.cover,
+                                      mediaItem!.artUri.toString(),
+                                    )
+                                  : const SizedBox(
+                                      height: 80,
+                                      width: 80,
+                                      child: FlutterLogo()),
+                            ),
                           );
                         }),
                     const SizedBox(width: 8),

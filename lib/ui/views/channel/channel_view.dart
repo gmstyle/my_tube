@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
+import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/video_section.dart';
@@ -15,6 +16,9 @@ class ChannelView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MainGradient(
       child: Scaffold(
+        appBar: const CustomAppbar(
+          showTitle: false,
+        ),
         backgroundColor: Colors.transparent,
         body: BlocBuilder<ChannelPageBloc, ChannelPageState>(
           builder: (context, state) {

@@ -19,24 +19,6 @@ class PlaylistHeader extends StatelessWidget {
     final playlistState = context.watch<PlaylistBloc>().state;
     return Column(
       children: [
-        /*  Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                context.pop();
-              },
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.more_vert, color: Colors.white),
-            ),
-          ],
-        ), */
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.25,
           child: ClipRRect(
@@ -47,7 +29,7 @@ class PlaylistHeader extends StatelessWidget {
                 Image.network(playlist?.thumbnailUrl ?? '',
                     height: MediaQuery.of(context).size.height * 0.2,
                     width: MediaQuery.of(context).size.width * 0.8,
-                    fit: BoxFit.cover),
+                    fit: BoxFit.fill),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
