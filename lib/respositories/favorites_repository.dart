@@ -5,18 +5,19 @@ import 'package:my_tube/models/resource_mt.dart';
 class FavoritesRepository {
   final favoritesBox = Hive.box<ResourceMT>('favorites');
 
-  List<ResourceMT> get favorites => favoritesBox.values.toList();
+  List<ResourceMT> get favorites =>
+      favoritesBox.values.toList().reversed.toList();
 
   List<String> get videoIds => favorites.map((e) => e.id!).toList();
 
   ValueListenable<Box<ResourceMT>> get favoritesListenable =>
       favoritesBox.listenable();
 
-  Future<void> save(ResourceMT video) async {
+  Future<void> add(ResourceMT video) async {
     await favoritesBox.add(video);
   }
 
-  Future<void> saveAll(List<ResourceMT> videos) async {
+  Future<void> addAll(List<ResourceMT> videos) async {
     await favoritesBox.addAll(videos);
   }
 

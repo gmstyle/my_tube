@@ -52,7 +52,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       AddToFavorites event, Emitter<FavoritesState> emit) async {
     emit(const FavoritesState.loading());
     try {
-      await favoritesRepository.save(event.video);
+      await favoritesRepository.add(event.video);
       final favorites = favoritesRepository.favorites;
       emit(FavoritesState.success(favorites));
     } catch (e) {

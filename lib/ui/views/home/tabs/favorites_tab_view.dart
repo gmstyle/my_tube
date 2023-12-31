@@ -16,8 +16,8 @@ class QueueTabView extends StatelessWidget {
         case FavoritesStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesStatus.success:
-          final queue = state.favorites!;
-          final videoIds = queue.map((e) => e.id!).toList();
+          final favorites = state.favorites!;
+          final videoIds = favorites.map((e) => e.id!).toList();
           return Column(
             children: [
               Padding(
@@ -30,7 +30,7 @@ class QueueTabView extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Your fvorites',
+                      'Your favorites',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Colors.white,
                           ),
@@ -46,7 +46,7 @@ class QueueTabView extends StatelessWidget {
                         icon: const Icon(Icons.playlist_play)), */
                     IconButton(
                         color: Colors.white,
-                        onPressed: queue.isNotEmpty
+                        onPressed: favorites.isNotEmpty
                             ? () {
                                 context
                                     .read<FavoritesBloc>()
@@ -58,12 +58,11 @@ class QueueTabView extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: queue.isNotEmpty
+                child: favorites.isNotEmpty
                     ? ListView.builder(
-                        //reverse: true,
-                        itemCount: queue.length,
+                        itemCount: favorites.length,
                         itemBuilder: (context, index) {
-                          final video = queue[index];
+                          final video = favorites[index];
                           return GestureDetector(
                               onTap: () async {
                                 await context
