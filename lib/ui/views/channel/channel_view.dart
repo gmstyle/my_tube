@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
+import 'package:my_tube/ui/skeletons/skeleton_channel.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
@@ -24,7 +25,7 @@ class ChannelView extends StatelessWidget {
           builder: (context, state) {
             switch (state.status) {
               case ChannelPageStatus.loading:
-                return const Center(child: CircularProgressIndicator());
+                return const SkeletonChannel();
 
               case ChannelPageStatus.loaded:
                 final channel = state.channel;

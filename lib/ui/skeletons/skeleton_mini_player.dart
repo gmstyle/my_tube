@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:skeletons/skeletons.dart';
 
-class ListShimmer extends StatelessWidget {
-  const ListShimmer({super.key});
+class SkeletonMiniPlayer extends StatelessWidget {
+  const SkeletonMiniPlayer({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+      child: Container(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: SkeletonItem(
           child: Row(
             children: [
               ClipRRect(
@@ -39,10 +44,19 @@ class ListShimmer extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  height: 32,
+                  width: 32,
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

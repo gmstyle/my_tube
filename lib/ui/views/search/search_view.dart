@@ -6,6 +6,7 @@ import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/ui/skeletons/skeleton_list.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
@@ -155,7 +156,7 @@ class SearchView extends StatelessWidget {
               builder: (_, SearchState state) {
             switch (state.status) {
               case SearchStatus.loading:
-                return const Center(child: CircularProgressIndicator());
+                return const SkeletonList();
               case SearchStatus.success:
                 return NotificationListener<ScrollNotification>(
                   onNotification: (scrollInfo) {

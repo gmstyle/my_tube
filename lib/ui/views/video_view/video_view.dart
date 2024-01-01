@@ -65,18 +65,15 @@ class VideoView extends StatelessWidget {
                       Row(
                         children: [
                           Flexible(
-                            child: Hero(
-                              tag: 'video_title',
-                              child: Text(
-                                mediaItem?.title ?? '',
-                                maxLines: 2,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: Colors.white,
-                                    ),
-                              ),
+                            child: Text(
+                              mediaItem?.title ?? '',
+                              maxLines: 2,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
                             ),
                           ),
                         ],
@@ -87,14 +84,11 @@ class VideoView extends StatelessWidget {
                       Row(
                         children: [
                           Flexible(
-                            child: Hero(
-                              tag: 'video_Album',
-                              child: Text(mediaItem?.album ?? '',
-                                  maxLines: 2,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                  )),
-                            ),
+                            child: Text(mediaItem?.album ?? '',
+                                maxLines: 2,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                )),
                           ),
                         ],
                       ),

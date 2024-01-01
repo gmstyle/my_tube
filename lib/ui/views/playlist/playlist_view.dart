@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
+import 'package:my_tube/ui/skeletons/skeleton_playlist.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
@@ -24,7 +25,7 @@ class PlaylistView extends StatelessWidget {
           builder: ((context, state) {
             switch (state.status) {
               case PlaylistStatus.loading:
-                return const Center(child: CircularProgressIndicator());
+                return const SkeletonPlaylist();
 
               case PlaylistStatus.loaded:
                 final playlist = state.response;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/shimmers/miniplayer_shimmer.dart';
+import 'package:my_tube/ui/skeletons/skeleton_mini_player.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 
@@ -82,7 +82,7 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
           bottomNavigationBar: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              //const ShimmerMiniPlayer(),
+              //const SkeletonMiniPlayer(),
               const MiniPlayer(),
               NavigationBar(
                   elevation: 0,
