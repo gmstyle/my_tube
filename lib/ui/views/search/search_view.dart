@@ -66,7 +66,7 @@ class SearchView extends StatelessWidget {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8))),
                           child: SizedBox(
-                            height: 52.0 * options.length,
+                            height: 58.0 * options.length,
                             width: constraints.biggest.width -
                                 32, // -32 per compensare il margin del container
                             child: ListView.builder(
