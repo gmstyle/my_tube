@@ -70,4 +70,8 @@ class Utils {
     //TODO: fix this
     return const Locale('it', 'IT');
   }
+
+  static checkIfStringIsOnlyNumeric(String string) {
+    return int.tryParse(string) != null;
+  }
 }

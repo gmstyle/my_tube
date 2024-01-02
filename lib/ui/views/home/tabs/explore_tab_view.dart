@@ -14,7 +14,6 @@ class ExploreTabView extends StatefulWidget {
 }
 
 class _ExploreTabViewState extends State<ExploreTabView> {
-  final ScrollController _scrollController = ScrollController();
   final categories = const ['now', 'music', 'film', 'gaming'];
   final icons = const [
     Icons.whatshot,
@@ -65,33 +64,19 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                       exploreTabBloc
                           .add(GetTrendingVideos(category: _selectedCategory));
                     },
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (scrollInfo) {
-                        /* if (state.response?.nextPageToken != null) {
-                          if (scrollInfo.metrics.pixels ==
-                              scrollInfo.metrics.maxScrollExtent) {
-                            exploreTabBloc.add(GetNextPageTrendingVideos(
-                                nextPageToken: state.response!.nextPageToken!));
-                          }
-                        } */
-
-                        return false;
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      itemCount: state.response!.resources.length,
+                      itemBuilder: (context, index) {
+                        final video = state.response?.resources[index];
+                        return GestureDetector(
+                            onTap: () async {
+                              await context
+                                  .read<MiniPlayerCubit>()
+                                  .startPlaying(video.id!);
+                            },
+                            child: VideoTile(video: video!));
                       },
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        controller: _scrollController,
-                        itemCount: state.response!.resources.length,
-                        itemBuilder: (context, index) {
-                          final video = state.response?.resources[index];
-                          return GestureDetector(
-                              onTap: () async {
-                                await context
-                                    .read<MiniPlayerCubit>()
-                                    .startPlaying(video.id!);
-                              },
-                              child: VideoTile(video: video!));
-                        },
-                      ),
                     ),
                   );
                 case YoutubeStatus.error:

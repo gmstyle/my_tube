@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/ui/skeletons/skeleton_channel.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
+import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.dart';
@@ -79,6 +80,8 @@ class ChannelView extends StatelessWidget {
                                           section.playlists!.isNotEmpty)
                                         PlaylistSection(
                                             playlists: section.playlists!),
+                                      if (section.channel != null)
+                                        ChannelTile(channel: section.channel!)
                                     ],
                                   ),
                                 ),

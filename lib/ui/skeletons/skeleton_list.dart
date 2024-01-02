@@ -11,44 +11,58 @@ class SkeletonList extends StatelessWidget {
       itemBuilder: (context, index) {
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: SkeletonItem(
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    height: 80,
-                    width: 80,
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 16,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                        ),
-                        height: 8,
-                        width: double.infinity,
-                      ),
-                    ],
-                  ),
-                ),
+          child: Skeleton(
+            shimmerGradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.tertiary,
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            isLoading: true,
+            skeleton: SkeletonItem(
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.09,
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 16,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                          ),
+                          height: 8,
+                          width: double.infinity,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            child: const SizedBox(),
           ),
         );
       },

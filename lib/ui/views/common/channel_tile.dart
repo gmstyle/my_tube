@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class ChannelTile extends StatelessWidget {
   const ChannelTile({super.key, required this.channel});
@@ -17,7 +18,7 @@ class ChannelTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           CircleAvatar(
-            radius: MediaQuery.of(context).size.height * 0.04,
+            radius: MediaQuery.of(context).size.height * 0.05,
             foregroundImage: channel.thumbnailUrl != null
                 ? NetworkImage(channel.thumbnailUrl!)
                 : null,
@@ -39,7 +40,10 @@ class ChannelTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  channel.videoCount ?? '',
+                  channel.videoCount != null &&
+                          Utils.checkIfStringIsOnlyNumeric(channel.videoCount!)
+                      ? '${channel.videoCount} videos'
+                      : '${channel.videoCount}',
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: Colors.white, fontWeight: FontWeight.bold),
                 ),

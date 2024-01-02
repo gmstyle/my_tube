@@ -1,4 +1,5 @@
 import 'package:innertube_dart/enums/enums.dart';
+import 'package:my_tube/models/channel_mt.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/models/music_home_mt.dart';
 import 'package:my_tube/models/playlist_mt.dart';
@@ -271,6 +272,23 @@ class InnertubeRepository {
                               ))
                           .toList()))
                   .toList(),
+              channel: section.featuredChannel != null
+                  ? ResourceMT(
+                      id: section.featuredChannel!.channelId,
+                      title: section.featuredChannel!.title,
+                      description: section.featuredChannel!.description,
+                      channelTitle: section.featuredChannel!.title,
+                      thumbnailUrl:
+                          section.featuredChannel!.thumbnails?.last.url,
+                      kind: 'channel',
+                      channelId: section.featuredChannel!.channelId,
+                      subscriberCount: channel.subscriberCount,
+                      videoCount: channel.videoCount,
+                      playlistId: null,
+                      streamUrl: null,
+                      duration: null,
+                    )
+                  : null,
             ))
         .toList();
 
