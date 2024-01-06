@@ -103,22 +103,22 @@ class VideoView extends StatelessWidget {
                       Controls(mtPlayerHandler: mtPlayerHandler),
 
                       // description
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              mediaItem?.extras!['description'] ?? '',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                  ),
-                            ),
-                          )
-                        ],
-                      )
+                      if (mediaItem?.extras!['description'] != null)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                mediaItem?.extras!['description'] ?? '',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            )
+                          ],
+                        )
                     ],
                   ),
                 );
