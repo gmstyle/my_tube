@@ -30,7 +30,7 @@ class SearchView extends StatelessWidget {
             final searchSuggestionCubit = context.read<SearchSuggestionCubit>();
             final suggestions = searchSuggestionCubit.state.suggestions;
             return Container(
-              margin: const EdgeInsets.only(bottom: 16),
+              margin: const EdgeInsets.only(bottom: 16, top: 16),
               width: constraints.biggest.width,
               child: Row(
                 children: [

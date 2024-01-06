@@ -11,7 +11,10 @@ import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final shellNavigatorKey = GlobalKey<NavigatorState>();
+  static final exploreKey = GlobalKey<NavigatorState>();
+  static final musicKey = GlobalKey<NavigatorState>();
+  static final searchKey = GlobalKey<NavigatorState>();
+  static final favoritesKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
     // Root
@@ -22,77 +25,59 @@ class AppRouter {
       pageBuilder: (context, state) => const VideoPage(),
     ),
     // Shell
-    ShellRoute(
-        navigatorKey: shellNavigatorKey,
-        builder: (context, state, child) =>
-            ScaffoldWithNavbarView(child: child),
-        routes: [
+    StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            ScaffoldWithNavbarView(navigationShell: navigationShell),
+        branches: [
           // Tab Explore
-          GoRoute(
-            parentNavigatorKey: shellNavigatorKey,
-            name: AppRoute.explore.name,
-            path: AppRoute.explore.path,
-            pageBuilder: (context, state) => const ExploreTabPage(),
-            /* routes: [
-                GoRoute(
-                    name: AppRoute.channel.name,
-                    path: AppRoute.channel.path,
-                    pageBuilder: (context, state) {
-                      final extra = state.extra as Map<String, dynamic>;
-                      final channelId = extra['channelId'] as String;
-                      return ChannelPage(channelId: channelId);
-                    }),
-                GoRoute(
-                    name: AppRoute.playlist.name,
-                    path: AppRoute.playlist.path,
-                    pageBuilder: (context, state) {
-                      final extra = state.extra as Map<String, dynamic>;
-                      final playlistId = extra['playlistId'] as String;
-                      return PlaylistPage(playlistId: playlistId);
-                    }),
-              ] */
-          ),
+          StatefulShellBranch(navigatorKey: exploreKey, routes: [
+            GoRoute(
+                name: AppRoute.explore.name,
+                path: AppRoute.explore.path,
+                pageBuilder: (context, state) => const ExploreTabPage()),
+          ]),
+
+          // Tab Music
+          StatefulShellBranch(navigatorKey: musicKey, routes: [
+            GoRoute(
+                name: AppRoute.music.name,
+                path: AppRoute.music.path,
+                pageBuilder: (context, state) => const MusicTabPAge())
+          ]),
 
           // Tab Favorites
-          GoRoute(
-              parentNavigatorKey: shellNavigatorKey,
-              name: AppRoute.music.name,
-              path: AppRoute.music.path,
-              pageBuilder: (context, state) => const MusicTabPAge()),
-
-          // Tab Favorites
-          GoRoute(
-              parentNavigatorKey: shellNavigatorKey,
-              name: AppRoute.favorites.name,
-              path: AppRoute.favorites.path,
-              pageBuilder: (context, state) => const FavoritesTabPage()),
+          StatefulShellBranch(navigatorKey: favoritesKey, routes: [
+            GoRoute(
+                name: AppRoute.favorites.name,
+                path: AppRoute.favorites.path,
+                pageBuilder: (context, state) => const FavoritesTabPage()),
+          ]),
 
           // Tab Search
-          GoRoute(
-              parentNavigatorKey: shellNavigatorKey,
-              name: AppRoute.search.name,
-              path: AppRoute.search.path,
-              pageBuilder: (context, state) => const SearchPage(),
-              routes: [
-                GoRoute(
-                    parentNavigatorKey: shellNavigatorKey,
-                    name: AppRoute.channel.name,
-                    path: AppRoute.channel.path,
-                    pageBuilder: (context, state) {
-                      final extra = state.extra as Map<String, dynamic>;
-                      final channelId = extra['channelId'] as String;
-                      return ChannelPage(channelId: channelId);
-                    }),
-                GoRoute(
-                    parentNavigatorKey: shellNavigatorKey,
-                    name: AppRoute.playlist.name,
-                    path: AppRoute.playlist.path,
-                    pageBuilder: (context, state) {
-                      final extra = state.extra as Map<String, dynamic>;
-                      final playlistId = extra['playlistId'] as String;
-                      return PlaylistPage(playlistId: playlistId);
-                    }),
-              ]),
+          StatefulShellBranch(navigatorKey: searchKey, routes: [
+            GoRoute(
+                name: AppRoute.search.name,
+                path: AppRoute.search.path,
+                pageBuilder: (context, state) => const SearchPage(),
+                routes: [
+                  GoRoute(
+                      name: AppRoute.channel.name,
+                      path: AppRoute.channel.path,
+                      pageBuilder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>;
+                        final channelId = extra['channelId'] as String;
+                        return ChannelPage(channelId: channelId);
+                      }),
+                  GoRoute(
+                      name: AppRoute.playlist.name,
+                      path: AppRoute.playlist.path,
+                      pageBuilder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>;
+                        final playlistId = extra['playlistId'] as String;
+                        return PlaylistPage(playlistId: playlistId);
+                      }),
+                ]),
+          ])
         ]),
   ]);
 }

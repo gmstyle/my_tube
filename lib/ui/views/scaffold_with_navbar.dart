@@ -1,20 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/skeletons/skeleton_mini_player.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 
-class ScaffoldWithNavbarView extends StatefulWidget {
-  const ScaffoldWithNavbarView({super.key, required this.child});
-  final Widget child;
+class ScaffoldWithNavbarView extends StatelessWidget {
+  const ScaffoldWithNavbarView({super.key, required this.navigationShell});
+  final StatefulNavigationShell navigationShell;
 
-  @override
-  State<ScaffoldWithNavbarView> createState() => _ScaffoldWithNavbarViewState();
-}
-
-class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
-  int currentIndex = 0;
   final _navBarItems = const [
     NavigationDestination(
       icon: Icon(Icons.explore),
@@ -35,27 +29,9 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
   ];
 
   void onDestinationSelected(int index) {
-    switch (index) {
-      case 0:
-        context.goNamed(AppRoute.explore.name);
-        break;
-      case 1:
-        context.goNamed(AppRoute.music.name);
-        break;
-
-      case 2:
-        context.goNamed(AppRoute.favorites.name);
-        break;
-      case 3:
-        context.goNamed(AppRoute.search.name);
-        break;
-      default:
-        break;
-    }
-
-    setState(() {
-      currentIndex = index;
-    });
+    navigationShell.goBranch(index,
+        initialLocation: index == navigationShell.currentIndex);
+    log('onDestinationSelected: $index');
   }
 
   @override
@@ -63,32 +39,17 @@ class _ScaffoldWithNavbarViewState extends State<ScaffoldWithNavbarView> {
     return MainGradient(
       child: SafeArea(
         child: Scaffold(
-          /*appBar: const CustomAppbar(
-               actions: [
-              IconButton(
-                  onPressed: () {
-                    showSearch(
-                        context: context,
-                        delegate: CustomSearchDelegate(
-                            searchBloc: searchBloc,
-                            searchSuggestionCubit: serachSuggestionsCubit,
-                            miniPlayerCubit: miniPlayerCubit));
-                  },
-                  icon: const Icon(Icons.search))
-            ],
-              ), */
           backgroundColor: Colors.transparent,
-          body: widget.child,
+          body: navigationShell,
           bottomNavigationBar: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              //const SkeletonMiniPlayer(),
               const MiniPlayer(),
               NavigationBar(
                   elevation: 0,
                   backgroundColor:
                       Theme.of(context).colorScheme.primaryContainer,
-                  selectedIndex: currentIndex,
+                  selectedIndex: navigationShell.currentIndex,
                   destinations: _navBarItems,
                   onDestinationSelected: onDestinationSelected,
                   labelBehavior:
