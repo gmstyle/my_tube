@@ -52,8 +52,7 @@ class VideoView extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: AspectRatio(
-                              aspectRatio: mtPlayerHandler.chewieController
-                                  .videoPlayerController.value.aspectRatio,
+                              aspectRatio: _setAspectRatio(mtPlayerHandler),
                               child: Chewie(
                                   controller:
                                       mtPlayerHandler.chewieController)),
@@ -126,5 +125,14 @@ class VideoView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  double _setAspectRatio(MtPlayerHandler mtPlayerHandler) {
+    return mtPlayerHandler
+                .chewieController.videoPlayerController.value.aspectRatio <=
+            1
+        ? 1
+        : mtPlayerHandler
+            .chewieController.videoPlayerController.value.aspectRatio;
   }
 }
