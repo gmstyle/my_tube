@@ -20,7 +20,7 @@ class ChannelHeader extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 Image.network(
-                  channel!.tvBannerUrl!,
+                  _setChannelBanner(channel!),
                   fit: BoxFit.fill,
                 ),
                 Container(
@@ -125,5 +125,15 @@ class ChannelHeader extends StatelessWidget {
         ],
       ],
     );
+  }
+
+  String _setChannelBanner(ChannelPageMT channelPageMT) {
+    if (channelPageMT.tvBannerUrl != null) {
+      return channelPageMT.tvBannerUrl!;
+    } else if (channelPageMT.bannerUrl != null) {
+      return channelPageMT.bannerUrl!;
+    } else {
+      return channelPageMT.avatarUrl!;
+    }
   }
 }
