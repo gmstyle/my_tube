@@ -10,7 +10,6 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/mappers/search_mapper.dart';
 import 'package:my_tube/respositories/favorites_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_handler.dart';
@@ -46,42 +45,36 @@ void main() async {
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler),
     ],
-    child: MultiProvider(
+    child: MultiRepositoryProvider(
+      /// Repositories
       providers: [
-        /// Mappers
-        Provider<SearchMapper>(create: (context) => SearchMapper()),
+        RepositoryProvider<InnertubeRepository>(
+            create: (context) => InnertubeRepository(
+                innertubeProvider: context.read<InnertubeProvider>())),
+        RepositoryProvider<FavoritesRepository>(
+            create: (context) => FavoritesRepository())
       ],
-      child: MultiRepositoryProvider(
-        /// Repositories
-        providers: [
-          RepositoryProvider<InnertubeRepository>(
-              create: (context) => InnertubeRepository(
-                  innertubeProvider: context.read<InnertubeProvider>())),
-          RepositoryProvider<FavoritesRepository>(
-              create: (context) => FavoritesRepository())
-        ],
-        child: MultiBlocProvider(providers: [
-          BlocProvider<SearchBloc>(
-              create: (context) => SearchBloc(
-                  innertubeRepository: context.read<InnertubeRepository>())),
-          BlocProvider<SearchSuggestionCubit>(
-              create: (context) => SearchSuggestionCubit(
-                  innertubeRepository: context.read<InnertubeRepository>())),
-          BlocProvider<SearchSuggestionCubit>(
-              create: (context) => SearchSuggestionCubit(
-                  innertubeRepository: context.read<InnertubeRepository>())),
-          BlocProvider<MiniPlayerCubit>(
-              create: (context) => MiniPlayerCubit(
-                    innertubeRepository: context.read<InnertubeRepository>(),
-                    mtPlayerHandler: context.read<MtPlayerHandler>(),
-                  )),
-          BlocProvider<FavoritesBloc>(
-              create: (context) => FavoritesBloc(
-                    favoritesRepository: context.read<FavoritesRepository>(),
-                    innertubeRepository: context.read<InnertubeRepository>(),
-                  ))
-        ], child: const MyApp()),
-      ),
+      child: MultiBlocProvider(providers: [
+        BlocProvider<SearchBloc>(
+            create: (context) => SearchBloc(
+                innertubeRepository: context.read<InnertubeRepository>())),
+        BlocProvider<SearchSuggestionCubit>(
+            create: (context) => SearchSuggestionCubit(
+                innertubeRepository: context.read<InnertubeRepository>())),
+        BlocProvider<SearchSuggestionCubit>(
+            create: (context) => SearchSuggestionCubit(
+                innertubeRepository: context.read<InnertubeRepository>())),
+        BlocProvider<MiniPlayerCubit>(
+            create: (context) => MiniPlayerCubit(
+                  innertubeRepository: context.read<InnertubeRepository>(),
+                  mtPlayerHandler: context.read<MtPlayerHandler>(),
+                )),
+        BlocProvider<FavoritesBloc>(
+            create: (context) => FavoritesBloc(
+                  favoritesRepository: context.read<FavoritesRepository>(),
+                  innertubeRepository: context.read<InnertubeRepository>(),
+                ))
+      ], child: const MyApp()),
     ),
   ));
 }

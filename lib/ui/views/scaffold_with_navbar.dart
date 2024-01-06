@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
@@ -34,8 +35,17 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     log('onDestinationSelected: $index');
   }
 
+  Future<void> disableBatteryOptimization() async {
+    final isDisabled =
+        await DisableBatteryOptimization.isAllBatteryOptimizationDisabled;
+    if (isDisabled == false) {
+      await DisableBatteryOptimization.showDisableBatteryOptimizationSettings();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    disableBatteryOptimization();
     return MainGradient(
       child: SafeArea(
         child: Scaffold(
