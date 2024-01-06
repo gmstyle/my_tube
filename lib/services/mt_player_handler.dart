@@ -315,7 +315,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     stop();
 
     playlist.clear();
-    queue.add(playlist);
+    queue.value.clear();
   }
 
 //TODO: implementare il metodo
