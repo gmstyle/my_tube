@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
@@ -17,7 +18,7 @@ class QueueTabView extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         case FavoritesStatus.success:
           final favorites = state.favorites!.reversed.toList();
-          final videoIds = favorites.map((e) => e.id!).toList();
+
           return Column(
             children: [
               Padding(
@@ -48,9 +49,46 @@ class QueueTabView extends StatelessWidget {
                         color: Colors.white,
                         onPressed: favorites.isNotEmpty
                             ? () {
-                                context
-                                    .read<FavoritesBloc>()
-                                    .add(ClearFavorites());
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: const Row(
+                                          children: [
+                                            Icon(Icons.favorite),
+                                            SizedBox(width: 8),
+                                            Text('Clear favorites'),
+                                          ],
+                                        ),
+                                        content: const Text(
+                                            'Are you sure you want to clear your favorites?'),
+                                        actions: [
+                                          IconButton(
+                                              onPressed: () {
+                                                context.pop(true);
+                                              },
+                                              icon: Icon(
+                                                Icons.check,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                              )),
+                                          IconButton(
+                                              onPressed: () {
+                                                context.pop(false);
+                                              },
+                                              icon: const Icon(
+                                                Icons.close,
+                                              )),
+                                        ],
+                                      );
+                                    }).then((value) {
+                                  if (value == true) {
+                                    context
+                                        .read<FavoritesBloc>()
+                                        .add(ClearFavorites());
+                                  }
+                                });
                               }
                             : null,
                         icon: const Icon(Icons.clear_all_rounded))
