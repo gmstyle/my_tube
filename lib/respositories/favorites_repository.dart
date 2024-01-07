@@ -5,8 +5,7 @@ import 'package:my_tube/models/resource_mt.dart';
 class FavoritesRepository {
   final favoritesBox = Hive.box<ResourceMT>('favorites');
 
-  List<ResourceMT> get favorites =>
-      favoritesBox.values.toList().reversed.toList();
+  List<ResourceMT> get favorites => favoritesBox.values.toList();
 
   List<String> get videoIds => favorites.map((e) => e.id!).toList();
 
@@ -21,8 +20,8 @@ class FavoritesRepository {
     await favoritesBox.addAll(videos);
   }
 
-  Future<void> remove(ResourceMT video) async {
-    final index = favorites.indexWhere((element) => element.id == video.id);
+  Future<void> remove(String videoId) async {
+    final index = favorites.indexWhere((element) => element.id == videoId);
     await favoritesBox.deleteAt(index);
   }
 

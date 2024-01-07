@@ -16,7 +16,7 @@ class QueueTabView extends StatelessWidget {
         case FavoritesStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesStatus.success:
-          final favorites = state.favorites!;
+          final favorites = state.favorites!.reversed.toList();
           final videoIds = favorites.map((e) => e.id!).toList();
           return Column(
             children: [

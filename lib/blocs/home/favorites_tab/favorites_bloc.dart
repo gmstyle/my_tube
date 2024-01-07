@@ -64,7 +64,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       RemoveFromFavorites event, Emitter<FavoritesState> emit) async {
     emit(const FavoritesState.loading());
     try {
-      await favoritesRepository.remove(event.video);
+      await favoritesRepository.remove(event.id);
       final favorites = favoritesRepository.favorites;
       emit(FavoritesState.success(favorites));
     } catch (e) {

@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 part 'resource_mt.g.dart';
@@ -166,6 +167,22 @@ class ResourceMT extends Equatable with HiveObjectMixin {
       addedAt: addedAt ?? this.addedAt,
       subscriberCount: subscriberCount ?? this.subscriberCount,
       videoCount: videoCount ?? this.videoCount,
+    );
+  }
+
+  factory ResourceMT.fromMediaItem(MediaItem mediaItem) {
+    return ResourceMT(
+      id: mediaItem.id,
+      title: mediaItem.title,
+      description: mediaItem.extras!['description'],
+      channelTitle: mediaItem.album,
+      thumbnailUrl: mediaItem.artUri?.toString(),
+      kind: 'video',
+      channelId: null,
+      playlistId: null,
+      streamUrl: mediaItem.extras!['streamUrl'],
+      duration: mediaItem.duration?.inMilliseconds,
+      addedAt: DateTime.now(),
     );
   }
 

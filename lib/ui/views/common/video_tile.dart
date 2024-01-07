@@ -36,7 +36,7 @@ class VideoTile extends StatelessWidget {
                         leading: const Icon(Icons.remove),
                         title: const Text('Remove from favorites'),
                         onTap: () {
-                          favoritesBloc.add(RemoveFromFavorites(video));
+                          favoritesBloc.add(RemoveFromFavorites(video.id!));
                           context.pop();
                         },
                       ),
@@ -78,16 +78,6 @@ class VideoTile extends StatelessWidget {
                           context.pop();
                         },
                       ),
-
-                    // show the option to share the video
-                    ListTile(
-                      leading: const Icon(Icons.share),
-                      title: const Text('Share'),
-                      onTap: () {
-                        //TODO
-                        context.pop();
-                      },
-                    ),
                   ],
                 ),
               );

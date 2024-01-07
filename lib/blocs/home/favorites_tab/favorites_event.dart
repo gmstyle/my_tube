@@ -19,12 +19,12 @@ class AddToFavorites extends FavoritesEvent {
 }
 
 class RemoveFromFavorites extends FavoritesEvent {
-  final ResourceMT video;
+  final String id;
 
-  const RemoveFromFavorites(this.video);
+  const RemoveFromFavorites(this.id);
 
   @override
-  List<Object> get props => [video];
+  List<Object> get props => [id];
 }
 
 class ClearFavorites extends FavoritesEvent {}
