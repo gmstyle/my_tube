@@ -7,6 +7,7 @@ import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/skeleton_list.dart';
+import 'package:my_tube/ui/skeletons/skeleton_video_tile.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
@@ -173,15 +174,20 @@ class SearchView extends StatelessWidget {
                   child: state.result!.resources.isNotEmpty
                       ? ListView.builder(
                           padding: const EdgeInsets.only(bottom: 16),
-                          itemCount: state.result!.resources.length,
+                          itemCount: state.result!.resources.length + 1,
                           itemBuilder: (context, index) {
-                            final result = state.result!.resources[index];
-                            return GestureDetector(
-                                onTap: () {
-                                  _playOrNavigateTo(
-                                      result, miniPlayerCubit, context);
-                                },
-                                child: _setTile(result));
+                            if (index < state.result!.resources.length) {
+                              final result = state.result!.resources[index];
+                              return GestureDetector(
+                                  onTap: () {
+                                    _playOrNavigateTo(
+                                        result, miniPlayerCubit, context);
+                                  },
+                                  child: _setTile(result));
+                            } else {
+                              // Loader alla fine della lista
+                              return const SkeletonVideoTile();
+                            }
                           })
                       : const Center(child: Text('No results found')),
                 );

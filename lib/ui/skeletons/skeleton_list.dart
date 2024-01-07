@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_tube/ui/skeletons/skeleton_video_tile.dart';
 import 'package:skeletons/skeletons.dart';
 
 class SkeletonList extends StatelessWidget {
@@ -21,47 +22,7 @@ class SkeletonList extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             isLoading: true,
-            skeleton: SkeletonItem(
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      height: MediaQuery.of(context).size.height * 0.09,
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 16,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color:
-                                Theme.of(context).colorScheme.primaryContainer,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color:
-                                Theme.of(context).colorScheme.primaryContainer,
-                          ),
-                          height: 8,
-                          width: double.infinity,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            skeleton: const SkeletonVideoTile(),
             child: const SizedBox(),
           ),
         );
