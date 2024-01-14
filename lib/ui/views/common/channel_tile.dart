@@ -43,7 +43,7 @@ class ChannelTile extends StatelessWidget {
                   channel.videoCount != null &&
                           Utils.checkIfStringIsOnlyNumeric(channel.videoCount!)
                       ? '${channel.videoCount} videos'
-                      : '${channel.videoCount}',
+                      : channel.videoCount ?? '',
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: Colors.white, fontWeight: FontWeight.bold),
                 ),

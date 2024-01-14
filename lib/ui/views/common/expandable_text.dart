@@ -29,7 +29,7 @@ class _ExpandableTextState extends State<ExpandableText> {
                     ),
           ),
         ),
-        if (widget.text.split('\n').length > 2)
+        if (widget.text.split(',').length > 2)
           TextButton(
             onPressed: () {
               setState(() {

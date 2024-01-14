@@ -13,12 +13,13 @@ class VideoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.25,
       child: GridView.builder(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
           physics: const ClampingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          //padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: videos.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisSpacing: 8,

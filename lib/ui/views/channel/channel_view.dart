@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/skeletons/skeleton_channel.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
-import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
+import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/featured_channels_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/video_section.dart';
 
@@ -45,57 +44,38 @@ class ChannelView extends StatelessWidget {
                         for (final section in channel!.sections!)
                           Column(
                             children: [
-                              if (section.title != null)
-                                const SizedBox(height: 8),
-                              Container(
-                                margin: const EdgeInsets.only(
-                                  bottom: 8,
-                                ),
-                                child: SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.25,
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const SizedBox(width: 16),
-                                          Text(
-                                            section.title ?? '',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall
-                                                ?.copyWith(
-                                                  color: Colors.white,
-                                                ),
+                              Row(
+                                children: [
+                                  const SizedBox(width: 16),
+                                  Flexible(
+                                    child: Text(
+                                      section.title ?? '',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall
+                                          ?.copyWith(
+                                            color: Colors.white,
                                           ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      if (section.videos != null &&
-                                          section.videos!.isNotEmpty)
-                                        VideoSection(
-                                          videos: section.videos!,
-                                          crossAxisCount: 2,
-                                        ),
-                                      if (section.playlists != null &&
-                                          section.playlists!.isNotEmpty)
-                                        PlaylistSection(
-                                            playlists: section.playlists!),
-                                      if (section.channel != null)
-                                        GestureDetector(
-                                            onTap: () => context.pushNamed(
-                                                    AppRoute.channel.name,
-                                                    extra: {
-                                                      'channelId': section
-                                                          .channel!.channelId
-                                                    }),
-                                            child: ChannelTile(
-                                                channel: section.channel!))
-                                    ],
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
+                              const SizedBox(height: 8),
+                              if (section.videos != null &&
+                                  section.videos!.isNotEmpty)
+                                VideoSection(
+                                  videos: section.videos!,
+                                  crossAxisCount: 2,
+                                ),
+                              if (section.playlists != null &&
+                                  section.playlists!.isNotEmpty)
+                                PlaylistSection(playlists: section.playlists!),
+                              if (section.channels != null &&
+                                  section.channels!.isNotEmpty)
+                                FeaturedChannelsSection(
+                                    channels: section.channels!),
+                              const SizedBox(height: 8),
                             ],
                           )
                       ],

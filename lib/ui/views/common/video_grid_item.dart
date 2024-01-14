@@ -46,7 +46,7 @@ class VideoGridItem extends StatelessWidget {
                     const Spacer(),
                     Row(
                       children: [
-                        Flexible(
+                        Expanded(
                           child: Text(
                             video.title!,
                             maxLines: 2,
@@ -54,6 +54,7 @@ class VideoGridItem extends StatelessWidget {
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(color: Colors.white),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -61,7 +62,7 @@ class VideoGridItem extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Flexible(
+                        Expanded(
                           child: Text(
                             ' ${video.channelTitle ?? ''}',
                             style: Theme.of(context)

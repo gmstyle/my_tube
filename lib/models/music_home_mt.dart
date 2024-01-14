@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:my_tube/models/channel_mt.dart';
 import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
@@ -45,14 +44,14 @@ class SectionMT extends Equatable {
   final String? playlistId;
   final List<ResourceMT>? videos;
   final List<PlaylistMT>? playlists;
-  final ResourceMT? channel;
+  final List<ResourceMT>? channels;
 
   const SectionMT({
     this.title,
     this.playlistId,
     this.videos,
     this.playlists,
-    this.channel,
+    this.channels,
   });
 
   factory SectionMT.fromJson(Map<String, dynamic> json) {
@@ -61,7 +60,7 @@ class SectionMT extends Equatable {
       playlistId: json['playlistId'],
       videos: json['videos'],
       playlists: json['playlists'],
-      channel: json['channel'],
+      channels: json['channels'],
     );
   }
 
@@ -71,10 +70,10 @@ class SectionMT extends Equatable {
       'playlistId': playlistId,
       'videos': videos?.map((e) => e.toJson()).toList(),
       'playlists': playlists?.map((e) => e.toJson()).toList(),
-      'channel': channel?.toJson(),
+      'channels': channels?.map((e) => e.toJson()).toList(),
     };
   }
 
   @override
-  List<Object?> get props => [title, playlistId, videos, playlists, channel];
+  List<Object?> get props => [title, playlistId, videos, playlists, channels];
 }
