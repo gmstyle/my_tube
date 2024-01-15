@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
@@ -130,9 +128,11 @@ class ChannelHeader extends StatelessWidget {
   }
 
   String _setChannelBanner(ChannelPageMT channelPageMT) {
-    if (channelPageMT.tvBannerUrl != null) {
+    if (channelPageMT.tvBannerUrl != null &&
+        channelPageMT.tvBannerUrl!.isNotEmpty) {
       return channelPageMT.tvBannerUrl!;
-    } else if (channelPageMT.bannerUrl != null) {
+    } else if (channelPageMT.bannerUrl != null &&
+        channelPageMT.bannerUrl!.isNotEmpty) {
       return channelPageMT.bannerUrl!;
     } else {
       return channelPageMT.avatarUrl!;

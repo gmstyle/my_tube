@@ -1,3 +1,4 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:innertube_dart/enums/enums.dart';
 import 'package:innertube_dart/innertube.dart';
 import 'package:innertube_dart/models/responses/channel.dart';
@@ -10,6 +11,8 @@ import 'package:my_tube/providers/base_provider.dart';
 import 'package:my_tube/utils/utils.dart';
 
 class InnertubeProvider extends BaseProvider {
+  final settingsBox = Hive.box('settings');
+
   Future<Video> getVideo(String videoId, bool? withStreamUrl) async {
     final innertube = await _getClient();
     final video = await innertube.getVideo(
@@ -37,12 +40,6 @@ class InnertubeProvider extends BaseProvider {
     return response;
   }
 
-  Future<Innertube> _getClient() async {
-    final countryCode = await getCountryCode();
-    final locale = Utils.getLocaleFromCountryCode(countryCode);
-    return Innertube(locale: locale);
-  }
-
   Future<List<String>?> getSearchSuggestions(String query) async {
     final innertube = await _getClient();
     final response = await innertube.suggestQueries(query: query);
@@ -61,5 +58,13 @@ class InnertubeProvider extends BaseProvider {
     final innertube = await _getClient();
     final response = await innertube.getChannel(channelId: channelId);
     return response;
+  }
+
+  Future<Innertube> _getClient() async {
+    //TODO: memorizzare il localde in un box di hive e recuperarlo da li
+    //se non presente recuperarlo da internet
+    final countryCode = await getCountryCode();
+    final locale = Utils.getLocaleFromCountryCode(countryCode);
+    return Innertube(locale: locale);
   }
 }

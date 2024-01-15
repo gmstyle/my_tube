@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/video_category_mt.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class Utils {
   static String getMusicVideoCategoryId(dynamic categories) {
@@ -66,9 +67,12 @@ class Utils {
   }
 
   static Locale getLocaleFromCountryCode(String countryCode) {
-    //return Locale.fromSubtags(countryCode: countryCode);
-    //TODO: fix this
-    return const Locale('it', 'IT');
+    final langCode = countryToLanguage[countryCode];
+    if (langCode != null) {
+      return Locale(langCode, countryCode);
+    } else {
+      return const Locale('en', 'US');
+    }
   }
 
   static checkIfStringIsOnlyNumeric(String string) {
