@@ -24,7 +24,7 @@ class FeaturedChannelsSection extends StatelessWidget {
             final channel = channels[index];
             return GestureDetector(
               onTap: () {
-                context.pushNamed(AppRoute.playlist.name,
+                context.pushNamed(AppRoute.channel.name,
                     extra: {'channelId': channel.id});
               },
               child: ChannelTile(channel: channel),
