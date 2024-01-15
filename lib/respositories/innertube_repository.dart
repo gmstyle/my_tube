@@ -286,24 +286,7 @@ class InnertubeRepository {
                         streamUrl: null,
                         duration: null,
                       ))
-                  .toList() /* != null
-                  ? ResourceMT(
-                      id: section.featuredChannel!.channelId,
-                      title: section.featuredChannel!.title,
-                      description: section.featuredChannel!.description,
-                      channelTitle: section.featuredChannel!.title,
-                      thumbnailUrl:
-                          section.featuredChannel!.thumbnails?.last.url,
-                      kind: 'channel',
-                      channelId: section.featuredChannel!.channelId,
-                      subscriberCount: channel.subscriberCount,
-                      videoCount: channel.videoCount,
-                      playlistId: null,
-                      streamUrl: null,
-                      duration: null,
-                    )
-                  : null */
-              ,
+                  .toList(),
             ))
         .toList();
 
@@ -311,10 +294,18 @@ class InnertubeRepository {
       title: channel.title,
       description: channel.description,
       channelHandleText: channel.channelHandleText,
-      avatarUrl: channel.avatars?.last.url,
-      bannerUrl: channel.banners?.last.url,
-      thumbnailUrl: channel.thumbnails?.last.url,
-      tvBannerUrl: channel.tvBanners?.last.url,
+      avatarUrl: channel.avatars?.isNotEmpty == true
+          ? channel.avatars?.last.url
+          : null,
+      bannerUrl: channel.banners?.isNotEmpty == true
+          ? channel.banners?.last.url
+          : null,
+      thumbnailUrl: channel.thumbnails?.isNotEmpty == true
+          ? channel.thumbnails?.last.url
+          : null,
+      tvBannerUrl: channel.tvBanners?.isNotEmpty == true
+          ? channel.tvBanners?.last.url
+          : null,
       sections: sections,
       subscriberCount: channel.subscriberCount,
     );
