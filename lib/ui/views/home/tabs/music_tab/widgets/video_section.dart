@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
+import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
 class VideoSection extends StatelessWidget {
@@ -35,8 +36,10 @@ class VideoSection extends StatelessWidget {
                 context.read<MiniPlayerCubit>().startPlaying(video.id!);
               },
               child: crossAxisCount > 1
-                  ? VideoTile(video: video)
-                  : VideoGridItem(video: video),
+                  ? VideoMenuDialog(
+                      video: video, child: VideoTile(video: video))
+                  : VideoMenuDialog(
+                      video: video, child: VideoGridItem(video: video)),
             );
           }),
     );

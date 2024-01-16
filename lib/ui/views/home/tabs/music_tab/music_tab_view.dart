@@ -24,8 +24,8 @@ class MusicTabView extends StatelessWidget {
                 favoritesTabBloc.add(const GetMusicHome());
               },
               child: SingleChildScrollView(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 8, bottom: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
                       Carousel(carouselVideos: state.response!.carouselVideos!),
@@ -35,8 +35,6 @@ class MusicTabView extends StatelessWidget {
                       for (final section in state.response!.sections)
                         Column(
                           children: [
-                            if (section.title != null)
-                              const SizedBox(height: 8),
                             Column(
                               children: [
                                 Row(
@@ -56,8 +54,15 @@ class MusicTabView extends StatelessWidget {
                                 const SizedBox(height: 8),
                                 if (section.videos != null &&
                                     section.videos!.isNotEmpty)
-                                  VideoSection(
-                                    videos: section.videos!,
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 16),
+                                      child: VideoSection(
+                                        videos: section.videos!,
+                                      ),
+                                    ),
                                   ),
                                 if (section.playlists != null &&
                                     section.playlists!.isNotEmpty)

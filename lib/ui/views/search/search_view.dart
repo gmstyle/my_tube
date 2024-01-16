@@ -10,6 +10,7 @@ import 'package:my_tube/ui/skeletons/skeleton_list.dart';
 import 'package:my_tube/ui/skeletons/skeleton_video_tile.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
+import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
 // ignore: must_be_immutable
@@ -233,7 +234,7 @@ class SearchView extends StatelessWidget {
 
   Widget _setTile(ResourceMT result) {
     if (result.kind == 'video') {
-      return VideoTile(video: result);
+      return VideoMenuDialog(video: result, child: VideoTile(video: result));
     }
 
     if (result.kind == 'channel') {

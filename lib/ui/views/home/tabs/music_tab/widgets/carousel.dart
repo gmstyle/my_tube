@@ -90,6 +90,7 @@ class Carousel extends StatelessWidget {
             autoPlay: true,
             enableInfiniteScroll: true,
             enlargeCenterPage: true,
+            viewportFraction: 0.85,
           )),
     );
   }

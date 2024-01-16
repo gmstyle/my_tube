@@ -81,7 +81,7 @@ class QueueDraggableSheet extends StatelessWidget {
                                   ),
                                   title: Text(mediaItem.title ?? ''),
                                   subtitle: Text(mediaItem.album ?? ''),
-                                  onTap: () async {
+                                  onTap: () {
                                     // TODO: Implement onTap
                                   },
                                 );
