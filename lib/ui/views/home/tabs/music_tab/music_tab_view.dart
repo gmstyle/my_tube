@@ -24,20 +24,20 @@ class MusicTabView extends StatelessWidget {
                 favoritesTabBloc.add(const GetMusicHome());
               },
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Carousel(carouselVideos: state.response!.carouselVideos!),
-                    const SizedBox(height: 16),
-                    // TODO: Related videos
-                    // Sections
-                    for (final section in state.response!.sections)
-                      Column(
-                        children: [
-                          if (section.title != null) const SizedBox(height: 8),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.25,
-                            width: MediaQuery.of(context).size.width,
-                            child: Column(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: Column(
+                    children: [
+                      Carousel(carouselVideos: state.response!.carouselVideos!),
+                      const SizedBox(height: 16),
+                      // TODO: Related videos
+                      // Sections
+                      for (final section in state.response!.sections)
+                        Column(
+                          children: [
+                            if (section.title != null)
+                              const SizedBox(height: 8),
+                            Column(
                               children: [
                                 Row(
                                   children: [
@@ -65,10 +65,10 @@ class MusicTabView extends StatelessWidget {
                                       playlists: section.playlists!),
                               ],
                             ),
-                          ),
-                        ],
-                      )
-                  ],
+                          ],
+                        )
+                    ],
+                  ),
                 ),
               ));
         case FavoritesStatus.error:
