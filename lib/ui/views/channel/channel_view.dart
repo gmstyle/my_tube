@@ -17,6 +17,8 @@ class ChannelView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final miniplayerCubit = context.read<MiniPlayerCubit>();
+
     return MainGradient(
       child: Scaffold(
         appBar: const CustomAppbar(
@@ -45,8 +47,9 @@ class ChannelView extends StatelessWidget {
                           Column(
                             children: [
                               Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const SizedBox(width: 16),
                                   Flexible(
                                     child: Text(
                                       section.title ?? '',
@@ -59,6 +62,15 @@ class ChannelView extends StatelessWidget {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  if (section.videos != null &&
+                                      section.videos!.isNotEmpty)
+                                    IconButton(
+                                        color: Colors.white,
+                                        onPressed: () {
+                                          miniplayerCubit.startPlayingPlaylist(
+                                              section.videos!);
+                                        },
+                                        icon: const Icon(Icons.playlist_play))
                                 ],
                               ),
                               const SizedBox(height: 8),

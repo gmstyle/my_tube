@@ -35,7 +35,12 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
   Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
     emit(const MiniPlayerState.loading());
-
+    // se lo streamUrl è null, vuol dire arrivo da una channel page
+    // e cioè dal pulsante play all di una section i video
+    if (videos.first.streamUrl == null) {
+      final futures = videos.map((e) => innertubeRepository.getVideo(e.id!));
+      videos = await Future.wait(futures);
+    }
     await _startPlayingPlaylist(videos);
 
     emit(const MiniPlayerState.shown());
