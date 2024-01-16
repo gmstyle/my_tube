@@ -62,15 +62,18 @@ class SearchView extends StatelessWidget {
                       return Align(
                         alignment: Alignment.topLeft,
                         child: Material(
+                          color: Theme.of(context).colorScheme.onPrimary,
                           clipBehavior: Clip.antiAlias,
                           shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
+                              borderRadius: BorderRadius.all(
+                            Radius.circular(8),
+                          )),
                           child: SizedBox(
-                            height: 58.0 * options.length,
+                            height: MediaQuery.of(context).size.height * 0.5,
                             width: constraints.biggest.width -
                                 32, // -32 per compensare il margin del container
                             child: ListView.builder(
+                              shrinkWrap: true,
                               padding: EdgeInsets.zero,
                               itemCount: options.length,
                               itemBuilder: (context, index) {
