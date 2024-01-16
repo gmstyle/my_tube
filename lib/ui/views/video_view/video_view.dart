@@ -9,7 +9,10 @@ import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
+import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
+final scaffoldKey = GlobalKey<ScaffoldState>();
 
 class VideoView extends StatelessWidget {
   const VideoView({
@@ -31,6 +34,7 @@ class VideoView extends StatelessWidget {
           builder: (context, snapshot) {
             final mediaItem = snapshot.data;
             return Scaffold(
+              key: scaffoldKey,
               appBar: CustomAppbar(
                 centerTitle: true,
                 leading: context.canPop()
@@ -68,91 +72,141 @@ class VideoView extends StatelessWidget {
                 ],
               ),
               backgroundColor: Colors.transparent,
-              body: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
-                  children: [
-                    Hero(
-                      tag: 'video_image_or_player',
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: AspectRatio(
-                            aspectRatio: _setAspectRatio(mtPlayerHandler),
-                            child: Chewie(
-                                controller: mtPlayerHandler.chewieController)),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Row(
+              body: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
                       children: [
-                        Flexible(
-                          child: Text(
-                            mediaItem?.title ?? '',
-                            maxLines: 2,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  color: Colors.white,
-                                ),
+                        Hero(
+                          tag: 'video_image_or_player',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: AspectRatio(
+                                aspectRatio: _setAspectRatio(mtPlayerHandler),
+                                child: Chewie(
+                                    controller:
+                                        mtPlayerHandler.chewieController)),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(mediaItem?.album ?? '',
-                              maxLines: 2,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              )),
+                        const SizedBox(
+                          height: 8,
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-
-                    // Seek bar
-                    const SeekBar(
-                      darkBackground: true,
-                    ),
-                    // controls
-                    Controls(mtPlayerHandler: mtPlayerHandler),
-
-                    // description
-                    if (mediaItem?.extras!['description'] != null)
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      mediaItem?.extras!['description'] ?? '',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.copyWith(
-                                            color: Colors.white,
-                                          ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                mediaItem?.title ?? '',
+                                maxLines: 2,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      color: Colors.white,
                                     ),
-                                  )
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(mediaItem?.album ?? '',
+                                  maxLines: 2,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  )),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+
+                        // Seek bar
+                        const SeekBar(
+                          darkBackground: true,
+                        ),
+                        // controls
+                        Controls(mtPlayerHandler: mtPlayerHandler),
+
+                        // description
+                        if (mediaItem?.extras!['description'] != null)
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          mediaItem?.extras!['description'] ??
+                                              '',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.copyWith(
+                                                color: Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      )
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
+                  QueueDraggableSheet()
+                  /* Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        scaffoldKey.currentState?.showBottomSheet(
+                            enableDrag: true,
+                            /* constraints: BoxConstraints(
+                                maxHeight: MediaQuery.of(context).size.height *
+                                    0.5), */
+                            (context) {
+                          return MainGradient(
+                            child: SizedBox.expand(
+                              child: ListView.builder(
+                                itemCount: 20,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    title: Text('Item $index'),
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        });
+                      },
+                      child: Container(
+                          height: MediaQuery.of(context).size.height * 0.05,
+                          decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(8),
+                                  topRight: Radius.circular(8))),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Queue'),
+                            ],
+                          )),
+                    ),
+                  ) */
+                ],
               ),
             );
           }),
