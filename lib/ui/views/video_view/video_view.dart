@@ -70,83 +70,88 @@ class VideoView extends StatelessWidget {
               backgroundColor: Colors.transparent,
               body: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Hero(
-                        tag: 'video_image_or_player',
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: AspectRatio(
-                              aspectRatio: _setAspectRatio(mtPlayerHandler),
-                              child: Chewie(
-                                  controller:
-                                      mtPlayerHandler.chewieController)),
-                        ),
+                child: Column(
+                  children: [
+                    Hero(
+                      tag: 'video_image_or_player',
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                            aspectRatio: _setAspectRatio(mtPlayerHandler),
+                            child: Chewie(
+                                controller: mtPlayerHandler.chewieController)),
                       ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              mediaItem?.title ?? '',
-                              maxLines: 2,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(mediaItem?.album ?? '',
-                                maxLines: 2,
-                                style: const TextStyle(
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            mediaItem?.title ?? '',
+                            maxLines: 2,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
                                   color: Colors.white,
-                                )),
+                                ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(mediaItem?.album ?? '',
+                              maxLines: 2,
+                              style: const TextStyle(
+                                color: Colors.white,
+                              )),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
 
-                      // Seek bar
-                      const SeekBar(
-                        darkBackground: true,
-                      ),
-                      // controls
-                      Controls(mtPlayerHandler: mtPlayerHandler),
+                    // Seek bar
+                    const SeekBar(
+                      darkBackground: true,
+                    ),
+                    // controls
+                    Controls(mtPlayerHandler: mtPlayerHandler),
 
-                      // description
-                      if (mediaItem?.extras!['description'] != null)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                mediaItem?.extras!['description'] ?? '',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color: Colors.white,
+                    // description
+                    if (mediaItem?.extras!['description'] != null)
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      mediaItem?.extras!['description'] ?? '',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                          ),
                                     ),
+                                  )
+                                ],
                               ),
-                            )
-                          ],
-                        )
-                    ],
-                  ),
+                            ],
+                          ),
+                        ),
+                      )
+                  ],
                 ),
               ),
             );
