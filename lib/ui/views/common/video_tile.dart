@@ -124,25 +124,6 @@ class VideoTile extends StatelessWidget {
               ],
             ),
           ),
-
-          //Menu
-          /* PopupMenuButton(
-              iconColor: Colors.white,
-              itemBuilder: (context) {
-                return [
-                  // show the option to remove the video from the queue if it is in the queue
-    
-                  PopupMenuItem(
-                      value: 'remove',
-                      child: const Text('Remove from favorites'),
-                      onTap: () async {
-                        
-                      }),
-    
-                  // show the option to add the video to the queue if it is not in the queue
-                ];
-              },
-              icon: const Icon(Icons.more_vert_rounded)) */
         ],
       ),
     );
