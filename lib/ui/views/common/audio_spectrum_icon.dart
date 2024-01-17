@@ -66,7 +66,7 @@ class AudioSpectrumPainter extends CustomPainter {
 
     final double centerY = size.height / 2;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
       final double x = i * (barWidth + spaceWidth) + barWidth / 2;
       final double height =
           size.height * (0.2 + 0.5 * sin(controller.value * pi * 2 + i * 0.2));

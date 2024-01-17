@@ -124,6 +124,11 @@ class MediaitemTile extends StatelessWidget {
                                         height: 48,
                                         width: 48,
                                       );
+                                    } else {
+                                      return const Icon(
+                                        Icons.more_horiz,
+                                        color: Colors.white,
+                                      );
                                     }
                                   }
                                   return const SizedBox();

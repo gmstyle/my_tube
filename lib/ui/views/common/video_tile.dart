@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -126,6 +127,11 @@ class VideoTile extends StatelessWidget {
                                       return const AudioSpectrumIcon(
                                         height: 48,
                                         width: 48,
+                                      );
+                                    } else {
+                                      return const Icon(
+                                        Icons.more_horiz,
+                                        color: Colors.white,
                                       );
                                     }
                                   }
