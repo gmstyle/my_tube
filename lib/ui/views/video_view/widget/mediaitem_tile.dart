@@ -6,9 +6,9 @@ import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
 
 class MediaitemTile extends StatelessWidget {
-  const MediaitemTile({super.key, required this.video});
+  const MediaitemTile({super.key, required this.mediaItem});
 
-  final MediaItem video;
+  final MediaItem mediaItem;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +28,9 @@ class MediaitemTile extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  video.artUri != null
+                  mediaItem.artUri != null
                       ? Image.network(
-                          video.artUri!.toString(),
+                          mediaItem.artUri!.toString(),
                           height: MediaQuery.of(context).size.height * 0.09,
                           width: MediaQuery.of(context).size.width * 0.2,
                           fit: BoxFit.cover,
@@ -71,7 +71,7 @@ class MediaitemTile extends StatelessWidget {
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     final currentVideoId = snapshot.data!.id;
-                                    if (currentVideoId == video.id) {
+                                    if (currentVideoId == mediaItem.id) {
                                       return StreamBuilder(
                                           stream: miniPlayerCubit
                                               .mtPlayerHandler.playbackState
@@ -111,14 +111,14 @@ class MediaitemTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  video.title,
+                  mediaItem.title,
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge
                       ?.copyWith(fontWeight: FontWeight.bold),
                   maxLines: 2,
                 ),
-                Text(video.album ?? '',
+                Text(mediaItem.album ?? '',
                     style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
