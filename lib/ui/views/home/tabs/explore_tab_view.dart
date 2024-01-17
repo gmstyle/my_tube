@@ -7,10 +7,10 @@ import 'package:my_tube/ui/views/common/single_selection_buttons.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
+enum CategoryEnum { now, music, film, gaming }
+
 class ExploreTabView extends StatelessWidget {
   ExploreTabView({super.key});
-
-  final categories = const ['now', 'music', 'film', 'gaming'];
 
   final icons = const [
     Icons.whatshot,
@@ -19,27 +19,26 @@ class ExploreTabView extends StatelessWidget {
     Icons.videogame_asset
   ];
 
-  String _selectedCategory = 'now';
+  String _selectedCategory = CategoryEnum.now.name;
 
   @override
   Widget build(BuildContext context) {
     final exploreTabBloc = context.read<ExploreTabBloc>()
-      ..add(GetTrendingVideos(category: _selectedCategory));
+      ..add(GetTrendingVideos(category: _getCategory()));
     final miniplayerCubit = context.read<MiniPlayerCubit>();
 
     return Column(
       children: [
         StatefulBuilder(builder: (context, setState) {
           return SingleSelectionButtons(
-            items: categories,
+            items: CategoryEnum.values.map((e) => e.name).toList(),
             icons: icons,
             onSelected: (selectedIndex, selectedValue) {
               if (_selectedCategory != selectedValue) {
                 setState(() {
                   _selectedCategory = selectedValue;
                 });
-                exploreTabBloc
-                    .add(GetTrendingVideos(category: _selectedCategory));
+                exploreTabBloc.add(GetTrendingVideos(category: _getCategory()));
               }
             },
           );
@@ -55,7 +54,7 @@ class ExploreTabView extends StatelessWidget {
                   return RefreshIndicator(
                     onRefresh: () async {
                       exploreTabBloc
-                          .add(GetTrendingVideos(category: _selectedCategory));
+                          .add(GetTrendingVideos(category: _getCategory()));
                     },
                     child: ListView.builder(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -87,5 +86,11 @@ class ExploreTabView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  CategoryEnum _getCategory() {
+    return CategoryEnum.values
+        .where((element) => element.name == _selectedCategory)
+        .first;
   }
 }

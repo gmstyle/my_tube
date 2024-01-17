@@ -5,18 +5,9 @@ sealed class ExploreTabEvent extends Equatable {
 }
 
 class GetTrendingVideos extends ExploreTabEvent {
-  final String category;
+  final CategoryEnum category;
   const GetTrendingVideos({required this.category});
 
   @override
   List<Object?> get props => [category];
-}
-
-class GetNextPageTrendingVideos extends ExploreTabEvent {
-  const GetNextPageTrendingVideos({required this.nextPageToken});
-
-  final String nextPageToken;
-
-  @override
-  List<Object> get props => [nextPageToken];
 }

@@ -1,10 +1,10 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:innertube_dart/enums/enums.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/ui/views/home/tabs/explore_tab_view.dart';
 
 part 'explore_tab_event.dart';
 part 'explore_tab_state.dart';
@@ -17,10 +17,6 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
     on<GetTrendingVideos>((event, emit) async {
       await _onGetTrendingVideos(event, emit);
     });
-
-    on<GetNextPageTrendingVideos>((event, emit) async {
-      await _onGetNextPageTrendingVideos(event, emit);
-    });
   }
 
   Future<void> _onGetTrendingVideos(
@@ -29,16 +25,16 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
     TrendingCategory trendingCategory = TrendingCategory.now;
     try {
       switch (event.category) {
-        case 'now':
+        case CategoryEnum.now:
           trendingCategory = TrendingCategory.now;
           break;
-        case 'music':
+        case CategoryEnum.music:
           trendingCategory = TrendingCategory.music;
           break;
-        case 'film':
+        case CategoryEnum.film:
           trendingCategory = TrendingCategory.film;
           break;
-        case 'gaming':
+        case CategoryEnum.gaming:
           trendingCategory = TrendingCategory.gaming;
           break;
       }
@@ -47,31 +43,5 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));
     }
-  }
-
-  Future<void> _onGetNextPageTrendingVideos(
-      GetNextPageTrendingVideos event, Emitter<ExploreTabState> emit) async {
-    /* try {
-      final List<ResourceMT> videos = state.status == YoutubeStatus.loaded
-          ? state.response!.resources
-          : const <ResourceMT>[];
-      final musicVideoCategoryId = Utils.getMusicVideoCategoryId(
-          jsonDecode(settingsBox.get('categories')));
-      final response = await innertubeRepository.getVideos(
-          nextPageToken: event.nextPageToken,
-          categoryId: musicVideoCategoryId,
-          chart: 'mostPopular');
-
-      final newVideos = response.resources;
-
-      final updatedVideos = [...videos, ...newVideos];
-      emit(ExploreTabState.loaded(
-          response: ResponseMT(
-        resources: updatedVideos,
-        nextPageToken: response.nextPageToken,
-      )));
-    } catch (error) {
-      emit(ExploreTabState.error(error: error.toString()));
-    } */
   }
 }
