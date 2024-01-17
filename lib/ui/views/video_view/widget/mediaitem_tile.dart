@@ -19,111 +19,133 @@ class MediaitemTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width * 0.03),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  mediaItem.artUri != null
-                      ? Image.network(
-                          mediaItem.artUri!.toString(),
-                          height: MediaQuery.of(context).size.height * 0.09,
-                          width: MediaQuery.of(context).size.width * 0.2,
-                          fit: BoxFit.cover,
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: const SizedBox(
-                            child: FlutterLogo(),
-                          ),
-                        ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.4),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 4,
-                    bottom: 4,
-                    left: 4,
-                    right: 0,
-                    child: Column(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        const Spacer(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // show an animated that the video is playing
-                            StreamBuilder(
-                                stream:
-                                    miniPlayerCubit.mtPlayerHandler.mediaItem,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    final currentVideoId = snapshot.data!.id;
-                                    if (currentVideoId == mediaItem.id) {
-                                      return StreamBuilder(
-                                          stream: miniPlayerCubit
-                                              .mtPlayerHandler.playbackState
-                                              .map((playbackState) =>
-                                                  playbackState.playing)
-                                              .distinct(),
-                                          builder: (context, snapshot) {
-                                            if (snapshot.hasData) {
-                                              final isPlaying =
-                                                  snapshot.data ?? false;
-                                              if (isPlaying) {
-                                                return const AudioSpectrumIcon();
-                                              }
-                                            }
-                                            return const SizedBox();
-                                          });
-                                    }
-                                  }
-                                  return const SizedBox();
-                                }),
-                          ],
-                        ),
+                        mediaItem.artUri != null
+                            ? Image.network(
+                                mediaItem.artUri!.toString(),
+                                height:
+                                    MediaQuery.of(context).size.height * 0.09,
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                fit: BoxFit.cover,
+                              )
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: const SizedBox(
+                                  child: FlutterLogo(),
+                                ),
+                              ),
+                        Positioned(
+                          top: 4,
+                          bottom: 4,
+                          left: 4,
+                          right: 0,
+                          child: Column(
+                            children: [
+                              const Spacer(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // show an animated that the video is playing
+                                  StreamBuilder(
+                                      stream: miniPlayerCubit
+                                          .mtPlayerHandler.mediaItem,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          final currentVideoId =
+                                              snapshot.data!.id;
+                                          if (currentVideoId == mediaItem.id) {
+                                            return StreamBuilder(
+                                                stream: miniPlayerCubit
+                                                    .mtPlayerHandler
+                                                    .playbackState
+                                                    .map((playbackState) =>
+                                                        playbackState.playing)
+                                                    .distinct(),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasData) {
+                                                    final isPlaying =
+                                                        snapshot.data ?? false;
+                                                    if (isPlaying) {
+                                                      return const AudioSpectrumIcon();
+                                                    }
+                                                  }
+                                                  return const SizedBox();
+                                                });
+                                          }
+                                        }
+                                        return const SizedBox();
+                                      }),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 16,
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  mediaItem.title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                  maxLines: 2,
+                  ),
                 ),
-                Text(mediaItem.album ?? '',
-                    style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(
+                  width: 16,
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        mediaItem.title,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                        maxLines: 2,
+                      ),
+                      Text(mediaItem.album ?? '',
+                          style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
+            StreamBuilder(
+                stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final currentVideoId = snapshot.data!.id;
+                    if (currentVideoId == mediaItem.id) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.4),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                  return const SizedBox();
+                }),
+          ],
+        ),
       ),
     );
   }

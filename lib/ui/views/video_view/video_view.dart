@@ -163,49 +163,6 @@ class VideoView extends StatelessWidget {
                     ),
                   ),
                   QueueDraggableSheet()
-                  /* Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () {
-                        scaffoldKey.currentState?.showBottomSheet(
-                            enableDrag: true,
-                            /* constraints: BoxConstraints(
-                                maxHeight: MediaQuery.of(context).size.height *
-                                    0.5), */
-                            (context) {
-                          return MainGradient(
-                            child: SizedBox.expand(
-                              child: ListView.builder(
-                                itemCount: 20,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    title: Text('Item $index'),
-                                  );
-                                },
-                              ),
-                            ),
-                          );
-                        });
-                      },
-                      child: Container(
-                          height: MediaQuery.of(context).size.height * 0.05,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  topRight: Radius.circular(8))),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('Queue'),
-                            ],
-                          )),
-                    ),
-                  ) */
                 ],
               ),
             );
