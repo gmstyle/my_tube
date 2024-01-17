@@ -178,7 +178,7 @@ class CustomSearchDelegate extends SearchDelegate {
   void _playOrNavigateTo(ResourceMT result, MiniPlayerCubit miniPlayerCubit,
       BuildContext context) {
     if (result.kind == 'video') {
-      if (miniPlayerCubit.mtPlayerHandler.mediaItem.value?.id != result.id) {
+      if (miniPlayerCubit.mtPlayerService.mediaItem.value?.id != result.id) {
         miniPlayerCubit.startPlaying(result.id!);
       }
     }

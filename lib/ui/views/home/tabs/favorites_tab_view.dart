@@ -108,7 +108,7 @@ class QueueTabView extends StatelessWidget {
                           return GestureDetector(
                               onTap: () {
                                 if (miniplayerCubit
-                                        .mtPlayerHandler.currentTrack?.id !=
+                                        .mtPlayerService.currentTrack?.id !=
                                     video.id) {
                                   miniplayerCubit.startPlaying(video.id!);
                                 }
@@ -161,7 +161,7 @@ class QueueTabView extends StatelessWidget {
                         color: Colors.white,
                         onPressed: queue.isNotEmpty
                             ? () async {
-                                await miniplayerCubit.mtPlayerHandler
+                                await miniplayerCubit.mtPlayerService
                                     .clearQueue();
                               }
                             : null,

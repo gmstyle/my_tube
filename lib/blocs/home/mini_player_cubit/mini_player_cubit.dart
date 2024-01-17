@@ -2,21 +2,21 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/services/mt_player_service.dart';
 
 part 'mini_player_state.dart';
 
 class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   final InnertubeRepository innertubeRepository;
 
-  final MtPlayerHandler mtPlayerHandler;
+  final MtPlayerService mtPlayerService;
 
   MiniPlayerCubit(
-      {required this.innertubeRepository, required this.mtPlayerHandler})
+      {required this.innertubeRepository, required this.mtPlayerService})
       : super(const MiniPlayerState.hidden());
 
   init() {
-    mtPlayerHandler.queue.listen((value) {
+    mtPlayerService.queue.listen((value) {
       if (value.isEmpty) {
         emit(const MiniPlayerState.hidden());
       }
@@ -48,32 +48,32 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
 
   Future<void> skipToNext() async {
     emit(const MiniPlayerState.loading());
-    await mtPlayerHandler.skipToNext();
+    await mtPlayerService.skipToNext();
     emit(const MiniPlayerState.shown());
   }
 
   Future<void> skipToPrevious() async {
     emit(const MiniPlayerState.loading());
-    await mtPlayerHandler.skipToPrevious();
+    await mtPlayerService.skipToPrevious();
     emit(const MiniPlayerState.shown());
   }
 
   Future<void> _startPlaying(ResourceMT video) async {
-    await mtPlayerHandler.startPlaying(video);
+    await mtPlayerService.startPlaying(video);
   }
 
   Future<void> _startPlayingPlaylist(List<ResourceMT> videos) async {
-    await mtPlayerHandler.startPlayingPlaylist(videos);
+    await mtPlayerService.startPlayingPlaylist(videos);
   }
 
   Future<void> addToQueue(String id) async {
     final video = await innertubeRepository.getVideo(id);
-    await mtPlayerHandler.addToQueue(video);
+    await mtPlayerService.addToQueue(video);
     emit(const MiniPlayerState.shown());
   }
 
   Future<void> removeFromQueue(ResourceMT video) async {
-    final result = await mtPlayerHandler.removeFromQueue(video);
+    final result = await mtPlayerService.removeFromQueue(video);
     if (result != null && result) {
       emit(const MiniPlayerState.shown());
     } else if (result != null && !result) {

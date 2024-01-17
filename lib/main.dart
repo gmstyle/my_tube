@@ -12,7 +12,7 @@ import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/favorites_repository.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/services/mt_player_service.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';
@@ -28,11 +28,11 @@ void main() async {
   await Hive.openBox('settings');
   await Hive.openBox<ResourceMT>('favorites');
 
-  final mtPlayerHandler = await AudioService.init(
-      builder: () => MtPlayerHandler(),
+  final mtPlayerService = await AudioService.init(
+      builder: () => MtPlayerService(),
       config: const AudioServiceConfig(
-          //androidNotificationChannelId: 'mytube_channel',
-          //androidNotificationChannelName: 'MyTube',
+          androidNotificationChannelId: 'mytube_channel',
+          androidNotificationChannelName: 'MyTube',
           androidNotificationOngoing: true));
 
   /// Bloc observer
@@ -43,7 +43,7 @@ void main() async {
       /// Providers
 
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
-      Provider<MtPlayerHandler>(create: (context) => mtPlayerHandler),
+      Provider<MtPlayerService>(create: (context) => mtPlayerService),
     ],
     child: MultiRepositoryProvider(
       /// Repositories
@@ -67,7 +67,7 @@ void main() async {
         BlocProvider<MiniPlayerCubit>(
             create: (context) => MiniPlayerCubit(
                   innertubeRepository: context.read<InnertubeRepository>(),
-                  mtPlayerHandler: context.read<MtPlayerHandler>(),
+                  mtPlayerService: context.read<MtPlayerService>(),
                 )),
         BlocProvider<FavoritesBloc>(
             create: (context) => FavoritesBloc(

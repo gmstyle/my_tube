@@ -76,7 +76,7 @@ class MediaitemTile extends StatelessWidget {
               ],
             ),
             StreamBuilder(
-                stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                stream: miniPlayerCubit.mtPlayerService.mediaItem,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final currentVideoId = snapshot.data!.id;
@@ -105,14 +105,14 @@ class MediaitemTile extends StatelessWidget {
               child: Row(
                 children: [
                   StreamBuilder(
-                      stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                      stream: miniPlayerCubit.mtPlayerService.mediaItem,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           final currentVideoId = snapshot.data!.id;
                           if (currentVideoId == mediaItem.id) {
                             return StreamBuilder(
                                 stream: miniPlayerCubit
-                                    .mtPlayerHandler.playbackState
+                                    .mtPlayerService.playbackState
                                     .map((playbackState) =>
                                         playbackState.playing)
                                     .distinct(),

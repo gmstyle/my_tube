@@ -7,7 +7,7 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/video_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 
-class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
+class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   late VideoPlayerController videoPlayerController;
   late ChewieController chewieController;
   int currentIndex = -1;
@@ -66,55 +66,6 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       skipController.add(null);
     }
   }
-
-  // Inizializza currentIndex, playlist e currentTrack da hive
-  /* Future<void> init() async {
-    //queueRepository.clear();
-    //currentIndex = queueRepository.currentIndex;
-    final localQueue = queueRepository.queue;
-
-    for (final video in localQueue) {
-      playlist.add(MediaItem(
-          id: video.id!,
-          title: video.title!,
-          album: video.channelTitle!,
-          artUri: Uri.parse(video.thumbnailUrl!),
-          duration: Duration(milliseconds: video.duration!),
-          extras: {
-            'streamUrl': video.streamUrl!,
-            'description': video.description,
-          }));
-    }
-    currentTrack = playlist[currentIndex];
-
-    /*  // inizializza il video player controller da passare a chewie
-    videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(currentTrack.extras!['streamUrl']),
-        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true));
-    await videoPlayerController.initialize();
-
-    // inizializza il chewie controller per la riproduzione del video
-    chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
-      autoPlay: true,
-      showOptions: false,
-      routePageBuilder: (context, animation, __, ___) {
-        // uso un widget per il full screen personalizzato
-        // per poter gestire il cambio di brano anche in full screen
-        return FullScreenVideoView(
-          mtPlayerHandler: this,
-        );
-      },
-    );
-
-    // aggiungi il brano alla coda
-    queue.add(playlist);
-    // aggiungi il brano al media item per la notifica
-    mediaItem.add(currentTrack); */
-
-    // propaga lo stato del player ad audio_service e a tutti i listeners
-    //chewieController.videoPlayerController.addListener(broadcastState);
-  } */
 
   // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(ResourceMT video) async {
@@ -224,7 +175,7 @@ class MtPlayerHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         // uso un widget per il full screen personalizzato
         // per poter gestire il cambio di brano anche in full screen
         return FullScreenVideoView(
-          mtPlayerHandler: this,
+          mtPlayerService: this,
         );
       },
     );

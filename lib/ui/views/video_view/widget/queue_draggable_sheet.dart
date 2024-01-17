@@ -89,7 +89,7 @@ class QueueDraggableSheet extends StatelessWidget {
       left: 0,
       right: 0,
       child: StreamBuilder<List<MediaItem>>(
-          stream: miniPlayerCubit.mtPlayerHandler.queue,
+          stream: miniPlayerCubit.mtPlayerService.queue,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');

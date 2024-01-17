@@ -1,11 +1,11 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/services/mt_player_service.dart';
 
 class Controls extends StatelessWidget {
-  const Controls({super.key, required this.mtPlayerHandler});
+  const Controls({super.key, required this.mtPlayerService});
 
-  final MtPlayerHandler mtPlayerHandler;
+  final MtPlayerService mtPlayerService;
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +16,12 @@ class Controls extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.shuffle,
-            color: mtPlayerHandler.shuffleEnabled
+            color: mtPlayerService.shuffleEnabled
                 ? Theme.of(context).colorScheme.onPrimary
                 : Colors.white.withOpacity(0.5),
           ),
           onPressed: () async {
-            await mtPlayerHandler
+            await mtPlayerService
                 .toggleShuffle(); // Aggiungi questa funzione nel tuo MtPlayerHandler
           },
         ),
@@ -33,18 +33,18 @@ class Controls extends StatelessWidget {
             color: Colors.white,
           ),
           onPressed: () async {
-            await mtPlayerHandler.seek(
-                mtPlayerHandler.videoPlayerController.value.position -
+            await mtPlayerService.seek(
+                mtPlayerService.videoPlayerController.value.position -
                     const Duration(seconds: 10));
           },
         ),
 
         // Skip previous
         StreamBuilder(
-            stream: mtPlayerHandler.queue,
+            stream: mtPlayerService.queue,
             builder: ((context, snapshot) {
               final queue = snapshot.data ?? [];
-              final index = queue.indexOf(mtPlayerHandler.mediaItem.value!);
+              final index = queue.indexOf(mtPlayerService.mediaItem.value!);
               bool isEnabled = index > 0;
               return IconButton(
                 icon: Icon(
@@ -53,7 +53,7 @@ class Controls extends StatelessWidget {
                 ),
                 onPressed: isEnabled
                     ? () async {
-                        await mtPlayerHandler.skipToPrevious();
+                        await mtPlayerService.skipToPrevious();
                       }
                     : null,
               );
@@ -61,7 +61,7 @@ class Controls extends StatelessWidget {
 
         // Play/Pause
         StreamBuilder(
-            stream: mtPlayerHandler.playbackState
+            stream: mtPlayerService.playbackState
                 .map((state) => state.playing)
                 .distinct(),
             builder: (context, snapshot) {
@@ -76,9 +76,9 @@ class Controls extends StatelessWidget {
                   ),
                   onPressed: () {
                     if (playing) {
-                      mtPlayerHandler.pause();
+                      mtPlayerService.pause();
                     } else {
-                      mtPlayerHandler.play();
+                      mtPlayerService.play();
                     }
                   },
                 ),
@@ -87,10 +87,10 @@ class Controls extends StatelessWidget {
 
         // Skip next
         StreamBuilder(
-            stream: mtPlayerHandler.queue,
+            stream: mtPlayerService.queue,
             builder: ((context, snapshot) {
               final queue = snapshot.data ?? [];
-              final index = queue.indexOf(mtPlayerHandler.mediaItem.value!);
+              final index = queue.indexOf(mtPlayerService.mediaItem.value!);
               bool isEnable = index < queue.length - 1;
               return IconButton(
                 icon: Icon(
@@ -99,7 +99,7 @@ class Controls extends StatelessWidget {
                 ),
                 onPressed: isEnable
                     ? () async {
-                        await mtPlayerHandler.skipToNext();
+                        await mtPlayerService.skipToNext();
                       }
                     : null,
               );
@@ -112,15 +112,15 @@ class Controls extends StatelessWidget {
             color: Colors.white,
           ),
           onPressed: () async {
-            await mtPlayerHandler.seek(
-                mtPlayerHandler.videoPlayerController.value.position +
+            await mtPlayerService.seek(
+                mtPlayerService.videoPlayerController.value.position +
                     const Duration(seconds: 10));
           },
         ),
 
         // repeat
         StreamBuilder(
-            stream: mtPlayerHandler.playbackState
+            stream: mtPlayerService.playbackState
                 .map((state) => state.repeatMode)
                 .distinct(),
             builder: (context, snapshot) {
@@ -137,7 +137,7 @@ class Controls extends StatelessWidget {
               return IconButton(
                 icon: icons[index],
                 onPressed: () {
-                  mtPlayerHandler.setRepeatMode(cycleModes[
+                  mtPlayerService.setRepeatMode(cycleModes[
                       (cycleModes.indexOf(repeatMode) + 1) %
                           cycleModes.length]);
                 },

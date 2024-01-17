@@ -52,7 +52,7 @@ class VideoMenuDialog extends StatelessWidget {
                       ),
 
                     // show the option to add the video to the queue if it is not in the queue
-                    if (!miniPlayerCubit.mtPlayerHandler.queue.value
+                    if (!miniPlayerCubit.mtPlayerService.queue.value
                         .map((e) => e.id)
                         .contains(video.id))
                       ListTile(
@@ -65,7 +65,7 @@ class VideoMenuDialog extends StatelessWidget {
                       ),
 
                     // show the option to remove the video from the queue if it is in the queue
-                    if (miniPlayerCubit.mtPlayerHandler.queue.value
+                    if (miniPlayerCubit.mtPlayerService.queue.value
                         .map((e) => e.id)
                         .contains(video.id))
                       ListTile(

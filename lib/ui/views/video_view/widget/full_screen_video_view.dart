@@ -1,12 +1,12 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/services/mt_player_service.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class FullScreenVideoView extends StatefulWidget {
-  const FullScreenVideoView({super.key, required this.mtPlayerHandler});
+  const FullScreenVideoView({super.key, required this.mtPlayerService});
 
-  final MtPlayerHandler mtPlayerHandler;
+  final MtPlayerService mtPlayerService;
 
   @override
   State<FullScreenVideoView> createState() => _FullScreenVideoViewState();
@@ -20,7 +20,7 @@ class _FullScreenVideoViewState extends State<FullScreenVideoView> {
     // enable wakelock
     WakelockPlus.enabled;
 
-    widget.mtPlayerHandler.onSkip.listen((_) {
+    widget.mtPlayerService.onSkip.listen((_) {
       setState(() {});
     });
   }
@@ -30,7 +30,7 @@ class _FullScreenVideoViewState extends State<FullScreenVideoView> {
     // disable wakelock
     WakelockPlus.disable;
 
-    //widget.mtPlayerHandler.skipController.close();
+    //widget.mtPlayerService.skipController.close();
 
     super.dispose();
   }
@@ -38,9 +38,9 @@ class _FullScreenVideoViewState extends State<FullScreenVideoView> {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: widget.mtPlayerHandler.chewieController.videoPlayerController
+      aspectRatio: widget.mtPlayerService.chewieController.videoPlayerController
           .value.aspectRatio,
-      child: Chewie(controller: widget.mtPlayerHandler.chewieController),
+      child: Chewie(controller: widget.mtPlayerService.chewieController),
     );
   }
 }

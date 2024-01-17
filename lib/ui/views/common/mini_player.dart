@@ -41,7 +41,7 @@ class MiniPlayer extends StatelessWidget {
                   return Future.value(false);
                 },
                 key:
-                    Key(miniPlayerCubit.mtPlayerHandler.currentTrack?.id ?? ''),
+                    Key(miniPlayerCubit.mtPlayerService.currentTrack?.id ?? ''),
                 child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -49,7 +49,7 @@ class MiniPlayer extends StatelessWidget {
                       children: [
                         // Image
                         StreamBuilder(
-                            stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                            stream: miniPlayerCubit.mtPlayerService.mediaItem,
                             builder: (context, snapshot) {
                               final mediaItem = snapshot.data;
                               return Hero(
@@ -78,7 +78,7 @@ class MiniPlayer extends StatelessWidget {
                               // Video Title and Album
                               StreamBuilder(
                                   stream:
-                                      miniPlayerCubit.mtPlayerHandler.mediaItem,
+                                      miniPlayerCubit.mtPlayerService.mediaItem,
                                   builder: (context, snapshot) {
                                     final mediaItem = snapshot.data;
                                     return Column(
@@ -123,7 +123,7 @@ class MiniPlayer extends StatelessWidget {
                         // Play/Pause Button
                         StreamBuilder(
                             stream: miniPlayerCubit
-                                .mtPlayerHandler.playbackState
+                                .mtPlayerService.playbackState
                                 .map((playbackState) => playbackState.playing)
                                 .distinct(),
                             builder: (context, snapshot) {
@@ -135,9 +135,9 @@ class MiniPlayer extends StatelessWidget {
                                         MediaQuery.of(context).size.width * 0.1,
                                     onPressed: () {
                                       if (isPlaying) {
-                                        miniPlayerCubit.mtPlayerHandler.pause();
+                                        miniPlayerCubit.mtPlayerService.pause();
                                       } else {
-                                        miniPlayerCubit.mtPlayerHandler.play();
+                                        miniPlayerCubit.mtPlayerService.play();
                                       }
                                     },
                                     icon: Icon(
@@ -170,7 +170,7 @@ class MiniPlayer extends StatelessWidget {
           children: [
             // Image
             StreamBuilder(
-                stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                stream: miniPlayerCubit.mtPlayerService.mediaItem,
                 builder: (context, snapshot) {
                   final mediaItem = snapshot.data;
                   return mediaItem?.artUri != null
@@ -210,7 +210,7 @@ class MiniPlayer extends StatelessWidget {
                     // Video Title and Album
                     Expanded(
                       child: StreamBuilder(
-                          stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                          stream: miniPlayerCubit.mtPlayerService.mediaItem,
                           builder: (context, snapshot) {
                             final mediaItem = snapshot.data;
                             return Column(
@@ -242,11 +242,11 @@ class MiniPlayer extends StatelessWidget {
 
                     // skip previous button
                     StreamBuilder(
-                        stream: miniPlayerCubit.mtPlayerHandler.queue,
+                        stream: miniPlayerCubit.mtPlayerService.queue,
                         builder: ((context, snapshot) {
                           final queue = snapshot.data ?? [];
                           final index = queue.indexOf(
-                              miniPlayerCubit.mtPlayerHandler.currentTrack);
+                              miniPlayerCubit.mtPlayerService.currentTrack);
                           return IconButton(
                             icon: Icon(
                               Icons.skip_previous,
@@ -262,7 +262,7 @@ class MiniPlayer extends StatelessWidget {
 
                     // Play/Pause Button
                     StreamBuilder(
-                        stream: miniPlayerCubit.mtPlayerHandler.playbackState
+                        stream: miniPlayerCubit.mtPlayerService.playbackState
                             .map((playbackState) => playbackState.playing)
                             .distinct(),
                         builder: (context, snapshot) {
@@ -271,9 +271,9 @@ class MiniPlayer extends StatelessWidget {
                               iconSize: MediaQuery.of(context).size.width * 0.1,
                               onPressed: () {
                                 if (isPlaying) {
-                                  miniPlayerCubit.mtPlayerHandler.pause();
+                                  miniPlayerCubit.mtPlayerService.pause();
                                 } else {
-                                  miniPlayerCubit.mtPlayerHandler.play();
+                                  miniPlayerCubit.mtPlayerService.play();
                                 }
                               },
                               icon: Icon(
@@ -284,11 +284,11 @@ class MiniPlayer extends StatelessWidget {
 
                     // skip next button
                     StreamBuilder(
-                        stream: miniPlayerCubit.mtPlayerHandler.queue,
+                        stream: miniPlayerCubit.mtPlayerService.queue,
                         builder: ((context, snapshot) {
                           final queue = snapshot.data ?? [];
                           final index = queue.indexOf(
-                              miniPlayerCubit.mtPlayerHandler.currentTrack);
+                              miniPlayerCubit.mtPlayerService.currentTrack);
                           final hasNext = index < queue.length - 1;
                           return IconButton(
                             icon: Icon(

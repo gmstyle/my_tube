@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/utils/utils.dart';
 
 class SeekBar extends StatelessWidget {
@@ -12,12 +12,12 @@ class SeekBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mtPlayerHandler = context.read<MtPlayerHandler>();
+    final mtPlayerService = context.read<MtPlayerService>();
     return Row(
       children: [
         // Position
         StreamBuilder(
-            stream: mtPlayerHandler.playbackState
+            stream: mtPlayerService.playbackState
                 .map((playbackState) => playbackState.position)
                 .distinct(),
             builder: (context, snapshot) {
@@ -35,15 +35,15 @@ class SeekBar extends StatelessWidget {
         // Seek bar
         Expanded(
           child: StreamBuilder(
-              stream: mtPlayerHandler.playbackState
+              stream: mtPlayerService.playbackState
                   .map((playbackState) => playbackState.position)
                   .distinct(),
               builder: (context, snapshot) {
                 final position = snapshot.data ?? Duration.zero;
                 return StreamBuilder(
-                    stream: mtPlayerHandler.queue
+                    stream: mtPlayerService.queue
                         .map((queue) =>
-                            queue[mtPlayerHandler.currentIndex].duration)
+                            queue[mtPlayerService.currentIndex].duration)
                         .distinct(),
                     builder: (context, snapshot) {
                       final duration = snapshot.data ?? Duration.zero;
@@ -77,7 +77,7 @@ class SeekBar extends StatelessWidget {
                           value: position.inMilliseconds.toDouble(),
                           max: duration.inMilliseconds.toDouble(),
                           onChanged: (value) {
-                            mtPlayerHandler.seek(Duration(
+                            mtPlayerService.seek(Duration(
                                 milliseconds: value.toInt(),
                                 microseconds: 0,
                                 seconds: 0));
@@ -90,15 +90,15 @@ class SeekBar extends StatelessWidget {
 
         // Remaining time
         StreamBuilder(
-            stream: mtPlayerHandler.playbackState
+            stream: mtPlayerService.playbackState
                 .map((playbackState) => playbackState.position)
                 .distinct(),
             builder: (context, snapshot) {
               final position = snapshot.data ?? Duration.zero;
               return StreamBuilder(
-                  stream: mtPlayerHandler.queue
+                  stream: mtPlayerService.queue
                       .map((queue) =>
-                          queue[mtPlayerHandler.currentIndex].duration)
+                          queue[mtPlayerService.currentIndex].duration)
                       .distinct(),
                   builder: (context, snapshot) {
                     final duration = snapshot.data ?? Duration.zero;

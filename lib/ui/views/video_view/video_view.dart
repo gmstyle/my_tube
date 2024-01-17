@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/services/mt_player_handler.dart';
+import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
@@ -21,16 +21,16 @@ class VideoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mtPlayerHandler = context.read<MtPlayerHandler>();
+    final mtPlayerService = context.read<MtPlayerService>();
 
-    mtPlayerHandler.chewieController.videoPlayerController.addListener(() {
+    mtPlayerService.chewieController.videoPlayerController.addListener(() {
       WakelockPlus.toggle(
-          enable: mtPlayerHandler.chewieController.isFullScreen);
+          enable: mtPlayerService.chewieController.isFullScreen);
     });
 
     return MainGradient(
       child: StreamBuilder(
-          stream: mtPlayerHandler.mediaItem,
+          stream: mtPlayerService.mediaItem,
           builder: (context, snapshot) {
             final mediaItem = snapshot.data;
             return Scaffold(
@@ -83,10 +83,10 @@ class VideoView extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: AspectRatio(
-                                aspectRatio: _setAspectRatio(mtPlayerHandler),
+                                aspectRatio: _setAspectRatio(mtPlayerService),
                                 child: Chewie(
                                     controller:
-                                        mtPlayerHandler.chewieController)),
+                                        mtPlayerService.chewieController)),
                           ),
                         ),
                         const SizedBox(
@@ -131,7 +131,7 @@ class VideoView extends StatelessWidget {
                           darkBackground: true,
                         ),
                         // controls
-                        Controls(mtPlayerHandler: mtPlayerHandler),
+                        Controls(mtPlayerService: mtPlayerService),
 
                         // description
                         if (mediaItem?.extras!['description'] != null)
@@ -170,12 +170,12 @@ class VideoView extends StatelessWidget {
     );
   }
 
-  double _setAspectRatio(MtPlayerHandler mtPlayerHandler) {
-    return mtPlayerHandler
+  double _setAspectRatio(MtPlayerService mtPlayerService) {
+    return mtPlayerService
                 .chewieController.videoPlayerController.value.aspectRatio <=
             1
         ? 1
-        : mtPlayerHandler
+        : mtPlayerService
             .chewieController.videoPlayerController.value.aspectRatio;
   }
 }

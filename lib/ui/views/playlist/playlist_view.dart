@@ -47,7 +47,7 @@ class PlaylistView extends StatelessWidget {
                               return GestureDetector(
                                 onTap: () {
                                   if (miniplayerCubit
-                                          .mtPlayerHandler.currentTrack?.id !=
+                                          .mtPlayerService.currentTrack?.id !=
                                       video.id) {
                                     miniplayerCubit.startPlaying(video.id!);
                                   }

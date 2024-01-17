@@ -34,7 +34,7 @@ class VideoSection extends StatelessWidget {
             final video = videos[index];
             return GestureDetector(
               onTap: () {
-                if (miniplayerCubit.mtPlayerHandler.currentTrack?.id !=
+                if (miniplayerCubit.mtPlayerService.currentTrack?.id !=
                     video.id) {
                   miniplayerCubit.startPlaying(video.id!);
                 }
