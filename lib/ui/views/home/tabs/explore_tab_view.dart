@@ -7,34 +7,25 @@ import 'package:my_tube/ui/views/common/single_selection_buttons.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
-class ExploreTabView extends StatefulWidget {
-  const ExploreTabView({super.key});
+class ExploreTabView extends StatelessWidget {
+  ExploreTabView({super.key});
 
-  @override
-  State<ExploreTabView> createState() => _ExploreTabViewState();
-}
-
-class _ExploreTabViewState extends State<ExploreTabView> {
   final categories = const ['now', 'music', 'film', 'gaming'];
+
   final icons = const [
     Icons.whatshot,
     Icons.music_note,
     Icons.movie,
     Icons.videogame_asset
   ];
+
   String _selectedCategory = 'now';
 
   @override
-  void initState() {
-    super.initState();
-    context
-        .read<ExploreTabBloc>()
-        .add(GetTrendingVideos(category: _selectedCategory));
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final exploreTabBloc = context.read<ExploreTabBloc>();
+    final exploreTabBloc = context.read<ExploreTabBloc>()
+      ..add(GetTrendingVideos(category: _selectedCategory));
+    final miniplayerCubit = context.read<MiniPlayerCubit>();
 
     return Column(
       children: [
@@ -43,12 +34,13 @@ class _ExploreTabViewState extends State<ExploreTabView> {
             items: categories,
             icons: icons,
             onSelected: (selectedIndex, selectedValue) {
-              setState(() {
-                _selectedCategory = selectedValue;
-              });
-              context
-                  .read<ExploreTabBloc>()
-                  .add(GetTrendingVideos(category: _selectedCategory));
+              if (_selectedCategory != selectedValue) {
+                setState(() {
+                  _selectedCategory = selectedValue;
+                });
+                exploreTabBloc
+                    .add(GetTrendingVideos(category: _selectedCategory));
+              }
             },
           );
         }),
@@ -71,10 +63,12 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                       itemBuilder: (context, index) {
                         final video = state.response?.resources[index];
                         return GestureDetector(
-                            onTap: () async {
-                              await context
-                                  .read<MiniPlayerCubit>()
-                                  .startPlaying(video.id!);
+                            onTap: () {
+                              if (miniplayerCubit
+                                      .mtPlayerHandler.currentTrack?.id !=
+                                  video.id) {
+                                miniplayerCubit.startPlaying(video.id!);
+                              }
                             },
                             child: VideoMenuDialog(
                                 video: video!, child: VideoTile(video: video)));

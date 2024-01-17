@@ -18,7 +18,7 @@ class ExploreTabPage extends Page {
             BlocProvider<ExploreTabBloc>(
                 create: (_) =>
                     ExploreTabBloc(innertubeRepository: innerubeRepository)),
-          ], child: const ExploreTabView());
+          ], child: ExploreTabView());
         });
   }
 }

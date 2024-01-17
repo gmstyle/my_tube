@@ -16,6 +16,7 @@ class PlaylistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final miniplayerCubit = context.read<MiniPlayerCubit>();
     return MainGradient(
       child: Scaffold(
         appBar: const CustomAppbar(
@@ -44,10 +45,12 @@ class PlaylistView extends StatelessWidget {
                             itemBuilder: (context, index) {
                               final video = playlist?.videos![index];
                               return GestureDetector(
-                                onTap: () async {
-                                  await context
-                                      .read<MiniPlayerCubit>()
-                                      .startPlaying(video.id!);
+                                onTap: () {
+                                  if (miniplayerCubit
+                                          .mtPlayerHandler.currentTrack?.id !=
+                                      video.id) {
+                                    miniplayerCubit.startPlaying(video.id!);
+                                  }
                                 },
                                 child: VideoMenuDialog(
                                     video: video!,

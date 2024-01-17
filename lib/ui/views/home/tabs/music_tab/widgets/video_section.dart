@@ -14,6 +14,7 @@ class VideoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final miniplayerCubit = context.read<MiniPlayerCubit>();
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.25,
       child: GridView.builder(
@@ -33,7 +34,10 @@ class VideoSection extends StatelessWidget {
             final video = videos[index];
             return GestureDetector(
               onTap: () {
-                context.read<MiniPlayerCubit>().startPlaying(video.id!);
+                if (miniplayerCubit.mtPlayerHandler.currentTrack?.id !=
+                    video.id) {
+                  miniplayerCubit.startPlaying(video.id!);
+                }
               },
               child: crossAxisCount > 1
                   ? VideoMenuDialog(

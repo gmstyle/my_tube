@@ -1,4 +1,4 @@
-import 'dart:developer';
+/* import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -178,7 +178,9 @@ class CustomSearchDelegate extends SearchDelegate {
   void _playOrNavigateTo(ResourceMT result, MiniPlayerCubit miniPlayerCubit,
       BuildContext context) {
     if (result.kind == 'video') {
-      miniPlayerCubit.startPlaying(result.id!);
+      if (miniPlayerCubit.mtPlayerHandler.mediaItem.value?.id != result.id) {
+        miniPlayerCubit.startPlaying(result.id!);
+      }
     }
 
     if (result.kind == 'channel') {
@@ -208,3 +210,4 @@ class CustomSearchDelegate extends SearchDelegate {
     return Container();
   }
 }
+ */

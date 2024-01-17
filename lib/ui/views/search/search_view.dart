@@ -210,7 +210,9 @@ class SearchView extends StatelessWidget {
   void _playOrNavigateTo(ResourceMT result, MiniPlayerCubit miniPlayerCubit,
       BuildContext context) {
     if (result.kind == 'video') {
-      miniPlayerCubit.startPlaying(result.id!);
+      if (miniPlayerCubit.mtPlayerHandler.currentTrack?.id != result.id) {
+        miniPlayerCubit.startPlaying(result.id!);
+      }
     }
 
     if (result.kind == 'channel') {

@@ -1,4 +1,4 @@
-Map<String, String> countryToLanguage = {
+const Map<String, String> countryToLanguage = {
   'US': 'en',
   'GB': 'en',
   'IT': 'it',
