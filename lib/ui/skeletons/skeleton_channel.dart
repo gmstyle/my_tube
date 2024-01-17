@@ -28,7 +28,7 @@ class SkeletonChannel extends StatelessWidget {
                   child: Container(
                     height: MediaQuery.of(context).size.height * 0.25,
                     width: double.infinity,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -41,7 +41,7 @@ class SkeletonChannel extends StatelessWidget {
                         child: Container(
                           height: 16,
                           width: 100,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -70,7 +70,7 @@ class SkeletonChannel extends StatelessWidget {
                             child: Container(
                               height: 200,
                               width: 200,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         );
@@ -86,7 +86,7 @@ class SkeletonChannel extends StatelessWidget {
                         child: Container(
                           height: 16,
                           width: 100,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -115,7 +115,7 @@ class SkeletonChannel extends StatelessWidget {
                             child: Container(
                               height: 200,
                               width: 200,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         );

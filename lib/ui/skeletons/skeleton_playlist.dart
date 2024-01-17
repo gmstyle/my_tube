@@ -28,7 +28,7 @@ class SkeletonPlaylist extends StatelessWidget {
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.25,
                   width: double.infinity,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 16),

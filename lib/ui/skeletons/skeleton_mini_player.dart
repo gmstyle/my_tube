@@ -12,11 +12,11 @@ class SkeletonMiniPlayer extends StatelessWidget {
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
       child: Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: Theme.of(context).colorScheme.primary,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Skeleton(
           shimmerGradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.primaryContainer,
+            Theme.of(context).colorScheme.primary,
             Colors.grey[400]!,
           ], begin: Alignment.centerLeft, end: Alignment.centerRight),
           isLoading: true,
@@ -28,7 +28,7 @@ class SkeletonMiniPlayer extends StatelessWidget {
                   child: Container(
                     height: 80,
                     width: 80,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -39,13 +39,13 @@ class SkeletonMiniPlayer extends StatelessWidget {
                       Container(
                         height: 16,
                         width: double.infinity,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 4),
                       Container(
                         height: 8,
                         width: double.infinity,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ],
                   ),

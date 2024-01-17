@@ -9,7 +9,7 @@ import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet.dart';
+import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();

@@ -27,7 +27,7 @@ class SkeletonMusicHhome extends StatelessWidget {
                   child: Container(
                     height: MediaQuery.of(context).size.height * 0.25,
                     width: MediaQuery.of(context).size.width * 0.9,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -40,7 +40,7 @@ class SkeletonMusicHhome extends StatelessWidget {
                         child: Container(
                           height: 16,
                           width: 100,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -62,7 +62,7 @@ class SkeletonMusicHhome extends StatelessWidget {
                             child: Container(
                               height: MediaQuery.of(context).size.height * 0.20,
                               width: MediaQuery.of(context).size.width * 0.4,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         );
@@ -78,7 +78,7 @@ class SkeletonMusicHhome extends StatelessWidget {
                         child: Container(
                           height: 16,
                           width: 100,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -100,7 +100,7 @@ class SkeletonMusicHhome extends StatelessWidget {
                             child: Container(
                               height: MediaQuery.of(context).size.height * 0.25,
                               width: MediaQuery.of(context).size.width * 0.4,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         );
