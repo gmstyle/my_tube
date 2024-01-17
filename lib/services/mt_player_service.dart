@@ -70,16 +70,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(ResourceMT video) async {
     // inizializza il media item da passare riprodurre
-    final item = MediaItem(
-        id: video.id!,
-        title: video.title!,
-        album: video.channelTitle!,
-        artUri: Uri.parse(video.thumbnailUrl!),
-        duration: Duration(milliseconds: video.duration!),
-        extras: {
-          'streamUrl': video.streamUrl!,
-          'description': video.description,
-        });
+    final item = _createMediaItem(video);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -94,17 +85,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   // Inizializza il player per la riproduzione di una coda di video
   Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
     // inizializza la playlist ed il primo brano
-    final list = videos
-        .map((video) => MediaItem(
-                id: video.id!,
-                title: video.title!,
-                album: video.channelTitle!,
-                artUri: Uri.parse(video.thumbnailUrl!),
-                duration: Duration(milliseconds: video.duration!),
-                extras: {
-                  'streamUrl': video.streamUrl!,
-                }))
-        .toList();
+    final list = videos.map(_createMediaItem).toList();
 
     for (final item in list) {
       // aggiungi il brano alla coda se non è già presente
@@ -212,16 +193,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> addToQueue(ResourceMT video) async {
-    final item = MediaItem(
-        id: video.id!,
-        title: video.title!,
-        album: video.channelTitle!,
-        artUri: Uri.parse(video.thumbnailUrl!),
-        duration: Duration(milliseconds: video.duration!),
-        extras: {
-          'streamUrl': video.streamUrl!,
-          'description': video.description,
-        });
+    final item = _createMediaItem(video);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -298,5 +270,18 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     await chewieController.videoPlayerController.seekTo(Duration.zero);
     await _playCurrentTrack();
     skipController.add(null);
+  }
+
+  MediaItem _createMediaItem(ResourceMT video) {
+    return MediaItem(
+        id: video.id!,
+        title: video.title!,
+        album: video.channelTitle!,
+        artUri: Uri.parse(video.thumbnailUrl!),
+        duration: Duration(milliseconds: video.duration!),
+        extras: {
+          'streamUrl': video.streamUrl!,
+          'description': video.description,
+        });
   }
 }
