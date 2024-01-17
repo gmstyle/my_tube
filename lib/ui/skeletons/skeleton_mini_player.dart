@@ -12,11 +12,11 @@ class SkeletonMiniPlayer extends StatelessWidget {
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
       child: Container(
-        color: Theme.of(context).colorScheme.primary,
+        color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Skeleton(
           shimmerGradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.primaryContainer,
             Colors.grey[400]!,
           ], begin: Alignment.centerLeft, end: Alignment.centerRight),
           isLoading: true,
