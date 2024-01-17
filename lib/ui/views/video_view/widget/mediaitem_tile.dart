@@ -47,52 +47,36 @@ class MediaitemTile extends StatelessWidget {
                                   child: FlutterLogo(),
                                 ),
                               ),
-                        Positioned(
-                          top: 4,
-                          bottom: 4,
-                          left: 4,
-                          right: 0,
-                          child: Column(
-                            children: [
-                              const Spacer(),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // show an animated that the video is playing
-                                  StreamBuilder(
-                                      stream: miniPlayerCubit
-                                          .mtPlayerHandler.mediaItem,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData) {
-                                          final currentVideoId =
-                                              snapshot.data!.id;
-                                          if (currentVideoId == mediaItem.id) {
-                                            return StreamBuilder(
-                                                stream: miniPlayerCubit
-                                                    .mtPlayerHandler
-                                                    .playbackState
-                                                    .map((playbackState) =>
-                                                        playbackState.playing)
-                                                    .distinct(),
-                                                builder: (context, snapshot) {
-                                                  if (snapshot.hasData) {
-                                                    final isPlaying =
-                                                        snapshot.data ?? false;
-                                                    if (isPlaying) {
-                                                      return const AudioSpectrumIcon();
-                                                    }
-                                                  }
-                                                  return const SizedBox();
-                                                });
+                        Center(
+                          child: StreamBuilder(
+                              stream: miniPlayerCubit.mtPlayerHandler.mediaItem,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final currentVideoId = snapshot.data!.id;
+                                  if (currentVideoId == mediaItem.id) {
+                                    return StreamBuilder(
+                                        stream: miniPlayerCubit
+                                            .mtPlayerHandler.playbackState
+                                            .map((playbackState) =>
+                                                playbackState.playing)
+                                            .distinct(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            final isPlaying =
+                                                snapshot.data ?? false;
+                                            if (isPlaying) {
+                                              return const AudioSpectrumIcon(
+                                                height: 48,
+                                                width: 48,
+                                              );
+                                            }
                                           }
-                                        }
-                                        return const SizedBox();
-                                      }),
-                                ],
-                              ),
-                            ],
-                          ),
+                                          return const SizedBox();
+                                        });
+                                  }
+                                }
+                                return const SizedBox();
+                              }),
                         )
                       ],
                     ),
@@ -134,6 +118,7 @@ class MediaitemTile extends StatelessWidget {
                             colors: [
                               Colors.transparent,
                               Colors.black.withOpacity(0.4),
+                              Colors.black.withOpacity(0.6),
                             ],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
