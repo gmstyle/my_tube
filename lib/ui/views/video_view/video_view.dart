@@ -137,7 +137,7 @@ class VideoView extends StatelessWidget {
                             darkBackground: true,
                           ),
                           // controls
-                          Controls(mtPlayerService: mtPlayerService),
+                          const Controls(),
 
                           // description
                           if (mediaItem?.extras!['description'] != null &&

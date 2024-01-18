@@ -1,14 +1,14 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 
 class Controls extends StatelessWidget {
-  const Controls({super.key, required this.mtPlayerService});
-
-  final MtPlayerService mtPlayerService;
+  const Controls({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final mtPlayerService = context.read<MtPlayerService>();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
