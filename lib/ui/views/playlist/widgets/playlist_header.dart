@@ -103,7 +103,8 @@ class PlaylistHeader extends StatelessWidget {
         ),
         if (playlist!.description != null) ...[
           const SizedBox(height: 8),
-          ExpandableText(text: playlist!.description ?? '')
+          ExpandableText(
+              title: 'Description', text: playlist!.description ?? '')
         ],
       ],
     );

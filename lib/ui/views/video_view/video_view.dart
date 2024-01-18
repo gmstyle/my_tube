@@ -139,11 +139,8 @@ class VideoView extends StatelessWidget {
                           if (mediaItem?.extras!['description'] != null &&
                               mediaItem?.extras!['description'] != '')
                             ExpandableText(
+                              title: 'Description',
                               text: mediaItem?.extras!['description'] ?? '',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(color: Colors.white),
                             )
                         ],
                       ),

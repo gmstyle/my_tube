@@ -108,7 +108,7 @@ class ChannelHeader extends StatelessWidget {
         // Description
         if (channel!.description != null && channel!.description != '') ...[
           const SizedBox(height: 8),
-          ExpandableText(text: channel!.description ?? '')
+          ExpandableText(title: 'Description', text: channel!.description ?? '')
         ],
       ],
     );
