@@ -57,7 +57,6 @@ class ExploreTabView extends StatelessWidget {
                           .add(GetTrendingVideos(category: _getCategory()));
                     },
                     child: ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 16),
                       itemCount: state.response!.resources.length,
                       itemBuilder: (context, index) {
                         final video = state.response?.resources[index];

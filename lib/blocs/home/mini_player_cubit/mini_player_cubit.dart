@@ -72,8 +72,8 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.shown());
   }
 
-  Future<void> removeFromQueue(ResourceMT video) async {
-    final result = await mtPlayerService.removeFromQueue(video);
+  Future<void> removeFromQueue(String id) async {
+    final result = await mtPlayerService.removeFromQueue(id);
     if (result != null && result) {
       emit(const MiniPlayerState.shown());
     } else if (result != null && !result) {

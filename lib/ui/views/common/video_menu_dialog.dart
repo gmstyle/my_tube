@@ -72,7 +72,7 @@ class VideoMenuDialog extends StatelessWidget {
                         leading: const Icon(Icons.remove),
                         title: const Text('Remove from queue'),
                         onTap: () {
-                          miniPlayerCubit.removeFromQueue(video);
+                          miniPlayerCubit.removeFromQueue(video.id!);
                           context.pop();
                         },
                       ),

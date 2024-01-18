@@ -207,31 +207,36 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  Future<bool?> removeFromQueue(ResourceMT video) async {
-    final index =
-        playlist.indexOf(MediaItem(id: video.id!, title: video.title!));
+  Future<bool?> removeFromQueue(String id) async {
+    final index = playlist.indexWhere((element) => element.id == id);
 
-    if (index != -1) {
-      playlist.removeAt(index);
-      queue.add(playlist);
-
-      if (index < currentIndex) {
-        currentIndex--;
-      } else if (index == currentIndex) {
-        if (hasNextVideo) {
-          skipToNext();
-          return Future.value(true);
-        } else {
-          stop();
-          currentIndex = -1;
-          return Future.value(false);
-        }
-      } else {
-        currentIndex = playlist.indexOf(currentTrack!);
-        Future.value(true);
-      }
+    if (index == -1) {
+      return null;
     }
-    return Future.value(null);
+
+    var currentTrackBeforeRemoval = currentTrack;
+    playlist.removeAt(index);
+    queue.add(playlist);
+
+    if (index < currentIndex) {
+      currentIndex--;
+    } else if (index == currentIndex) {
+      if (hasNextVideo) {
+        await chewieController.videoPlayerController.seekTo(Duration.zero);
+        await _playCurrentTrack();
+        return true;
+      } else {
+        stop();
+        currentIndex = -1;
+        currentTrack = null;
+        mediaItem.add(null);
+        return false;
+      }
+    } else {
+      currentIndex = playlist.indexOf(currentTrackBeforeRemoval!);
+    }
+
+    return true;
   }
 
   Future<void> stopPlayingAndClearQueue() async {
@@ -245,6 +250,22 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     currentIndex = -1;
     currentTrack = null;
     mediaItem.add(null);
+  }
+
+  Future<void> reorderQueue(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final MediaItem item = playlist.removeAt(oldIndex);
+    playlist.insert(newIndex, item);
+    queue.add(playlist);
+    if (currentIndex == oldIndex) {
+      currentIndex = newIndex;
+    } else if (oldIndex < currentIndex && currentIndex <= newIndex) {
+      currentIndex--;
+    } else if (oldIndex > currentIndex && currentIndex >= newIndex) {
+      currentIndex++;
+    }
   }
 
 //TODO: implementare il metodo

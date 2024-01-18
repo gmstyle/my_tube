@@ -22,20 +22,25 @@ class MediaItemList extends StatelessWidget {
               return Text('Error: ${snapshot.error}');
             } else if (snapshot.hasData) {
               final queue = snapshot.data!;
-              return ListView.builder(
-                  itemCount: queue.length,
-                  itemBuilder: (context, index) {
-                    final mediaItem = queue[index];
-                    return GestureDetector(
-                        onTap: () {
-                          if (miniPlayerCubit
-                                  .mtPlayerService.currentTrack?.id !=
-                              mediaItem.id) {
-                            miniPlayerCubit.startPlaying(mediaItem.id);
-                          }
-                        },
-                        child: MediaitemTile(mediaItem: mediaItem));
-                  });
+              return ReorderableListView.builder(
+                itemCount: queue.length,
+                itemBuilder: (context, index) {
+                  final mediaItem = queue[index];
+                  return GestureDetector(
+                      key: Key(mediaItem.id),
+                      onTap: () {
+                        if (miniPlayerCubit.mtPlayerService.currentTrack?.id !=
+                            mediaItem.id) {
+                          miniPlayerCubit.startPlaying(mediaItem.id);
+                        }
+                      },
+                      child: MediaitemTile(mediaItem: mediaItem));
+                },
+                onReorder: (int oldIndex, int newIndex) async {
+                  await miniPlayerCubit.mtPlayerService
+                      .reorderQueue(oldIndex, newIndex);
+                },
+              );
             } else {
               return const SizedBox();
             }
