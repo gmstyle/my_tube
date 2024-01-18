@@ -19,6 +19,7 @@ class MediaitemTile extends StatelessWidget {
       key: Key(mediaItem.id),
       direction: DismissDirection.horizontal,
       onDismissed: (direction) {
+        //TODO: da gestire meglio
         miniPlayerCubit.removeFromQueue(mediaItem.id).then((value) {
           if (value == false) {
             context.pop();
