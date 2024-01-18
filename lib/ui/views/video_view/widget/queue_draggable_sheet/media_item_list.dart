@@ -28,7 +28,11 @@ class MediaItemList extends StatelessWidget {
                     final mediaItem = queue[index];
                     return GestureDetector(
                         onTap: () {
-                          miniPlayerCubit.startPlaying(mediaItem.id);
+                          if (miniPlayerCubit
+                                  .mtPlayerService.currentTrack?.id !=
+                              mediaItem.id) {
+                            miniPlayerCubit.startPlaying(mediaItem.id);
+                          }
                         },
                         child: MediaitemTile(mediaItem: mediaItem));
                   });
