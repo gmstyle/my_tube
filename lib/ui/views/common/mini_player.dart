@@ -31,13 +31,14 @@ class MiniPlayer extends StatelessWidget {
             child: Container(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: Dismissible(
-                confirmDismiss: (direction) async {
+                confirmDismiss: (direction) {
                   // skip to previous or next song
                   if (direction == DismissDirection.startToEnd) {
-                    await miniPlayerCubit.skipToPrevious();
+                    miniPlayerCubit.skipToPrevious();
                   } else {
-                    await miniPlayerCubit.skipToNext();
+                    miniPlayerCubit.skipToNext();
                   }
+
                   return Future.value(false);
                 },
                 key:
