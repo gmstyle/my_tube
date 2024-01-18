@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
@@ -17,8 +18,12 @@ class MediaitemTile extends StatelessWidget {
     return Dismissible(
       key: Key(mediaItem.id),
       direction: DismissDirection.horizontal,
-      onDismissed: (direction) async {
-        await miniPlayerCubit.mtPlayerService.removeFromQueue(mediaItem.id);
+      onDismissed: (direction) {
+        miniPlayerCubit.removeFromQueue(mediaItem.id).then((value) {
+          if (value == false) {
+            context.pop();
+          }
+        });
       },
       background: const DismissibleBackgroud(),
       child: Container(
