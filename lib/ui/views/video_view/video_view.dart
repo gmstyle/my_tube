@@ -7,6 +7,7 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
+import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
@@ -80,15 +81,18 @@ class VideoView extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          Hero(
-                            tag: 'video_image_or_player',
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: AspectRatio(
-                                  aspectRatio: _setAspectRatio(mtPlayerService),
-                                  child: Chewie(
-                                      controller:
-                                          mtPlayerService.chewieController)),
+                          HorizontalSwipeToSkip(
+                            child: Hero(
+                              tag: 'video_image_or_player',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: AspectRatio(
+                                    aspectRatio:
+                                        _setAspectRatio(mtPlayerService),
+                                    child: Chewie(
+                                        controller:
+                                            mtPlayerService.chewieController)),
+                              ),
                             ),
                           ),
                           const SizedBox(

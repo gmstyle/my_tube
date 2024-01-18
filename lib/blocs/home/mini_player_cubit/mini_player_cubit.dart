@@ -82,6 +82,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   }
 
   Future<void> stopPlayingAndClearMediaItem() async {
+    emit(const MiniPlayerState.loading());
     await mtPlayerService.stopPlayingAndClearMediaItem();
     emit(const MiniPlayerState.hidden());
   }
