@@ -6,6 +6,7 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
+import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
@@ -76,90 +77,76 @@ class VideoView extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      children: [
-                        Hero(
-                          tag: 'video_image_or_player',
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: AspectRatio(
-                                aspectRatio: _setAspectRatio(mtPlayerService),
-                                child: Chewie(
-                                    controller:
-                                        mtPlayerService.chewieController)),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                mediaItem?.title ?? '',
-                                maxLines: 2,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: Colors.white,
-                                    ),
-                              ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Hero(
+                            tag: 'video_image_or_player',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: AspectRatio(
+                                  aspectRatio: _setAspectRatio(mtPlayerService),
+                                  child: Chewie(
+                                      controller:
+                                          mtPlayerService.chewieController)),
                             ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(mediaItem?.album ?? '',
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  mediaItem?.title ?? '',
                                   maxLines: 2,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                  )),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-
-                        // Seek bar
-                        const SeekBar(
-                          darkBackground: true,
-                        ),
-                        // controls
-                        Controls(mtPlayerService: mtPlayerService),
-
-                        // description
-                        if (mediaItem?.extras!['description'] != null)
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          mediaItem?.extras!['description'] ??
-                                              '',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.copyWith(
-                                                color: Colors.white,
-                                              ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ],
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        color: Colors.white,
+                                      ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                      ],
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(mediaItem?.album ?? '',
+                                    maxLines: 2,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    )),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+
+                          // Seek bar
+                          const SeekBar(
+                            darkBackground: true,
+                          ),
+                          // controls
+                          Controls(mtPlayerService: mtPlayerService),
+
+                          // description
+                          if (mediaItem?.extras!['description'] != null &&
+                              mediaItem?.extras!['description'] != '')
+                            ExpandableText(
+                              text: mediaItem?.extras!['description'] ?? '',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(color: Colors.white),
+                            )
+                        ],
+                      ),
                     ),
                   ),
                   QueueDraggableSheet()

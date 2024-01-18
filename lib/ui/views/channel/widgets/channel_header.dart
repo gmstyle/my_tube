@@ -100,26 +100,13 @@ class ChannelHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-                /* Positioned(
-                    right: 16,
-                    bottom: 16,
-                    child: FloatingActionButton.small(
-                        backgroundColor: Colors.white,
-                        onPressed:
-                            channelState.status == ChannelPageStatus.loaded
-                                ? () {
-                                    /* miniplayerCubit.startPlayingPlaylist(
-                                        channelState.channel!.videoIds!); */
-                                  }
-                                : null,
-                        child: const Icon(Icons.playlist_play))) */
               ],
             ),
           ),
         ),
 
         // Description
-        if (channel!.description != null) ...[
+        if (channel!.description != null && channel!.description != '') ...[
           const SizedBox(height: 8),
           ExpandableText(text: channel!.description ?? '')
         ],
