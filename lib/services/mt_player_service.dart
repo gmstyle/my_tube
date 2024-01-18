@@ -234,11 +234,17 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     return Future.value(null);
   }
 
-  Future<void> clearQueue() async {
-    stop();
-
+  Future<void> stopPlayingAndClearQueue() async {
+    await stopPlayingAndClearMediaItem();
     playlist.clear();
     queue.value.clear();
+  }
+
+  Future<void> stopPlayingAndClearMediaItem() async {
+    await stop();
+    currentIndex = -1;
+    currentTrack = null;
+    mediaItem.add(null);
   }
 
 //TODO: implementare il metodo
