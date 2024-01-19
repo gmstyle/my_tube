@@ -134,11 +134,13 @@ class Controls extends StatelessWidget {
                 .distinct(),
             builder: (context, snapshot) {
               final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
-              const icons = [
-                Icon(Icons.repeat, color: Colors.white),
-                Icon(Icons.repeat_one, color: Colors.white),
+              final icons = [
+                const Icon(Icons.repeat, color: Colors.white),
+                const Icon(Icons.repeat_one, color: Colors.white),
+                Icon(Icons.repeat, color: Colors.white.withOpacity(0.5)),
               ];
               const cycleModes = [
+                AudioServiceRepeatMode.all,
                 AudioServiceRepeatMode.none,
                 AudioServiceRepeatMode.one,
               ];

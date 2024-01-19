@@ -21,6 +21,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   bool get hasNextVideoInShuffleMode =>
       playedIndexesInShuffleMode.length < playlist.length;
 
+  bool isRepeatModeAllEnabled() =>
+      playbackState.value.repeatMode == AudioServiceRepeatMode.all;
+
   // Stream per notificare il cambio di brano alla UI FullScreenView
   final StreamController<void> skipController =
       StreamController<void>.broadcast();
@@ -100,6 +103,20 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
     developer.log(
         'skipToRandomIndex called: ${playedIndexesInShuffleMode.length}, current index: $currentIndex');
+  }
+
+  Future<void> skipToNextInRepeatModeAll() async {
+    if (currentIndex < playlist.length - 1) {
+      currentIndex++;
+      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await _playCurrentTrack();
+      skipController.add(null);
+    } else {
+      currentIndex = 0;
+      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await _playCurrentTrack();
+      skipController.add(null);
+    }
   }
 
   // Inizializza il player per la riproduzione singola
