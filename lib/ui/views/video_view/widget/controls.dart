@@ -13,18 +13,27 @@ class Controls extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Shuffle
-        IconButton(
-          icon: Icon(
-            Icons.shuffle,
-            color: mtPlayerService.shuffleEnabled
-                ? Theme.of(context).colorScheme.onPrimary
-                : Colors.white.withOpacity(0.5),
-          ),
-          onPressed: () async {
-            await mtPlayerService
-                .toggleShuffle(); // Aggiungi questa funzione nel tuo MtPlayerHandler
-          },
-        ),
+        StreamBuilder(
+            stream: mtPlayerService.playbackState
+                .map(
+                    (state) => state.shuffleMode == AudioServiceShuffleMode.all)
+                .distinct(),
+            builder: (context, snapshot) {
+              final shuffleEnabled = snapshot.data ?? false;
+              return IconButton(
+                icon: Icon(
+                  Icons.shuffle,
+                  color: shuffleEnabled
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Colors.white.withOpacity(0.5),
+                ),
+                onPressed: () async {
+                  await mtPlayerService.setShuffleMode(shuffleEnabled
+                      ? AudioServiceShuffleMode.none
+                      : AudioServiceShuffleMode.all);
+                },
+              );
+            }),
 
         // seek backward
         IconButton(

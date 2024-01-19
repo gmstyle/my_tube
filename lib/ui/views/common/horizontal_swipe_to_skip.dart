@@ -14,14 +14,27 @@ class HorizontalSwipeToSkip extends StatelessWidget {
       key: const Key('horizontal_swipe_to_skip'),
       child: child,
       confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          await miniPlayerCubit.skipToPrevious();
-        } else {
-          await miniPlayerCubit.skipToNext();
-        }
+        _confirmDismiss(miniPlayerCubit, direction);
 
         return Future.value(false);
       },
     );
+  }
+
+  Future<void> _confirmDismiss(
+      MiniPlayerCubit miniPlayerCubit, DismissDirection direction) async {
+    if (direction == DismissDirection.startToEnd) {
+      if (miniPlayerCubit.mtPlayerService.isShuffleModeEnabled) {
+        await miniPlayerCubit.skipToRandomIndex();
+      } else {
+        await miniPlayerCubit.skipToPrevious();
+      }
+    } else {
+      if (miniPlayerCubit.mtPlayerService.isShuffleModeEnabled) {
+        await miniPlayerCubit.skipToRandomIndex();
+      } else {
+        await miniPlayerCubit.skipToNext();
+      }
+    }
   }
 }

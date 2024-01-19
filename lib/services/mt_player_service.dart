@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -14,13 +15,22 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   MediaItem? currentTrack;
   List<MediaItem> playlist = [];
   bool get hasNextVideo => currentIndex < playlist.length - 1;
-  bool get hasPreviousVideo => currentIndex > 0;
-  bool shuffleEnabled = false;
+  bool get isShuffleModeEnabled =>
+      playbackState.value.shuffleMode == AudioServiceShuffleMode.all;
+  final playedIndexesInShuffleMode = <int>[];
+  bool get hasNextVideoInShuffleMode =>
+      playedIndexesInShuffleMode.length < playlist.length;
 
   // Stream per notificare il cambio di brano alla UI FullScreenView
   final StreamController<void> skipController =
       StreamController<void>.broadcast();
   Stream<void> get onSkip => skipController.stream;
+
+  @override
+  Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
+    playedIndexesInShuffleMode.clear();
+    playbackState.add(playbackState.value.copyWith(shuffleMode: shuffleMode));
+  }
 
   @override
   Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
@@ -66,6 +76,30 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       await _playCurrentTrack();
       skipController.add(null);
     }
+  }
+
+  Future<void> skipToRandomIndex() async {
+    //TODO: gestire il caso in cui è attivo lo shuffle ed è attivo il repeat all
+
+    // se non ci sono altri brani da riprodurre, non fare nulla
+    if (!hasNextVideoInShuffleMode) {
+      return;
+    }
+    final random = Random();
+    final randomIndex = random.nextInt(playlist.length);
+
+    if (playedIndexesInShuffleMode.contains(randomIndex)) {
+      // se l'indice è già stato riprodotto, riprova a generare un nuovo indice
+      skipToRandomIndex();
+    } else if (currentIndex != randomIndex) {
+      currentIndex = randomIndex;
+      playedIndexesInShuffleMode.add(currentIndex);
+      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await _playCurrentTrack();
+      skipController.add(null);
+    }
+    developer.log(
+        'skipToRandomIndex called: ${playedIndexesInShuffleMode.length}, current index: $currentIndex');
   }
 
   // Inizializza il player per la riproduzione singola
@@ -175,10 +209,18 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       if (chewieController.videoPlayerController.value.duration ==
           chewieController.videoPlayerController.value.position) {
         // verifica che ci siano altri brani nella coda
-        if (hasNextVideo) {
-          skipToNext();
+        if (isShuffleModeEnabled) {
+          if (hasNextVideoInShuffleMode) {
+            skipToRandomIndex();
+          } else {
+            stop();
+          }
         } else {
-          stop();
+          if (hasNextVideo) {
+            skipToNext();
+          } else {
+            stop();
+          }
         }
       }
     });
@@ -272,37 +314,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     } else if (oldIndex > currentIndex && currentIndex >= newIndex) {
       currentIndex++;
     }
-  }
-
-//TODO: implementare il metodo
-  Future<void> toggleShuffle() async {
-    shuffleEnabled = !shuffleEnabled;
-    if (shuffleEnabled) {
-      //_shufflePlaylist();
-    } else {
-      // ripristina la playlist originale
-    }
-  }
-
-  Future<void> _shufflePlaylist() async {
-    final random = Random();
-    final List<MediaItem> shuffledPlaylist = List.from(playlist);
-
-    // Usa l'algoritmo di Fisher-Yates per mescolare la playlist
-    for (int i = shuffledPlaylist.length - 1; i > 0; i--) {
-      final int j = random.nextInt(i + 1);
-      final MediaItem temp = shuffledPlaylist[i];
-      shuffledPlaylist[i] = shuffledPlaylist[j];
-      shuffledPlaylist[j] = temp;
-    }
-
-    // Aggiorna la playlist e riproduci la prima traccia mescolata
-    playlist = shuffledPlaylist;
-    currentIndex = 0;
-
-    await chewieController.videoPlayerController.seekTo(Duration.zero);
-    await _playCurrentTrack();
-    skipController.add(null);
   }
 
   MediaItem _createMediaItem(ResourceMT video) {
