@@ -14,6 +14,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   MediaItem? currentTrack;
   List<MediaItem> playlist = [];
   bool get hasNextVideo => currentIndex < playlist.length - 1;
+  bool get hasPreviousVideo => currentIndex > 0;
   bool shuffleEnabled = false;
 
   // Stream per notificare il cambio di brano alla UI FullScreenView
@@ -215,13 +216,15 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
 
     var currentTrackBeforeRemoval = currentTrack;
-    playlist.removeAt(index);
-    queue.add(playlist);
 
     if (index < currentIndex) {
       currentIndex--;
     } else if (index == currentIndex) {
-      if (hasNextVideo) {
+      playlist.removeAt(index);
+      queue.add(playlist);
+
+      if (playlist.isNotEmpty) {
+        currentIndex = index < playlist.length ? index : playlist.length - 1;
         await chewieController.videoPlayerController.seekTo(Duration.zero);
         await _playCurrentTrack();
         return true;
@@ -235,6 +238,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     } else {
       currentIndex = playlist.indexOf(currentTrackBeforeRemoval!);
     }
+
+    playlist.removeAt(index);
+    queue.add(playlist);
 
     return true;
   }
