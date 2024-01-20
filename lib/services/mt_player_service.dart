@@ -15,6 +15,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   MediaItem? currentTrack;
   List<MediaItem> playlist = [];
   bool get hasNextVideo => currentIndex < playlist.length - 1;
+  final random = Random();
   bool get isShuffleModeEnabled =>
       playbackState.value.shuffleMode == AudioServiceShuffleMode.all;
   final playedIndexesInShuffleMode = <int>[];
@@ -86,7 +87,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     if (!hasNextVideoInShuffleMode) {
       return;
     }
-    final random = Random();
+
     final randomIndex = random.nextInt(playlist.length);
 
     if (playedIndexesInShuffleMode.contains(randomIndex)) {

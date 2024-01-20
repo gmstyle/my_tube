@@ -25,13 +25,13 @@ class HorizontalSwipeToSkip extends StatelessWidget {
       MiniPlayerCubit miniPlayerCubit, DismissDirection direction) async {
     if (direction == DismissDirection.startToEnd) {
       if (miniPlayerCubit.mtPlayerService.isShuffleModeEnabled) {
-        await miniPlayerCubit.skipToRandomIndex();
+        await miniPlayerCubit.skipToNextInShuffleMode();
       } else {
         await miniPlayerCubit.skipToPrevious();
       }
     } else {
       if (miniPlayerCubit.mtPlayerService.isShuffleModeEnabled) {
-        await miniPlayerCubit.skipToRandomIndex();
+        await miniPlayerCubit.skipToNextInShuffleMode();
       } else {
         await miniPlayerCubit.skipToNext();
       }

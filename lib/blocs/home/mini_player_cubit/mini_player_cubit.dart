@@ -52,7 +52,7 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     emit(const MiniPlayerState.shown());
   }
 
-  Future<void> skipToRandomIndex() async {
+  Future<void> skipToNextInShuffleMode() async {
     emit(const MiniPlayerState.loading());
     await mtPlayerService.skipToNextInShuffleMode();
     emit(const MiniPlayerState.shown());
