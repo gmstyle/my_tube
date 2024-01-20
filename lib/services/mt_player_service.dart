@@ -83,6 +83,11 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> skipToNextInShuffleMode() async {
+    // se è attivo il repeat mode all, quando la lista playedIndexesInShuffleMode è piena, svuotala
+    if (isRepeatModeAllEnabled && !hasNextVideoInShuffleMode) {
+      playedIndexesInShuffleMode.clear();
+    }
+
     // se non ci sono altri brani da riprodurre, non fare nulla
     if (!hasNextVideoInShuffleMode) {
       return;
@@ -223,9 +228,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       if (chewieController.videoPlayerController.value.duration ==
           chewieController.videoPlayerController.value.position) {
         // verifica che ci siano altri brani nella coda
-        if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
-          // Caso in cui sia lo shuffle mode che il repeat all mode sono attivi
-        } else if (isShuffleModeEnabled) {
+        if (isShuffleModeEnabled) {
           // Caso in cui è attivo solo lo shuffle mode
           if (hasNextVideoInShuffleMode) {
             skipToNextInShuffleMode();
