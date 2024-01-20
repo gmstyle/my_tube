@@ -81,7 +81,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  Future<void> skipToNextInHuffleMode() async {
+  Future<void> skipToNextInShuffleMode() async {
     // se non ci sono altri brani da riprodurre, non fare nulla
     if (!hasNextVideoInShuffleMode) {
       return;
@@ -91,7 +91,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     if (playedIndexesInShuffleMode.contains(randomIndex)) {
       // se l'indice è già stato riprodotto, riprova a generare un nuovo indice
-      skipToNextInHuffleMode();
+      skipToNextInShuffleMode();
     } else if (currentIndex != randomIndex) {
       currentIndex = randomIndex;
       playedIndexesInShuffleMode.add(currentIndex);
@@ -227,7 +227,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         } else if (isShuffleModeEnabled) {
           // Caso in cui è attivo solo lo shuffle mode
           if (hasNextVideoInShuffleMode) {
-            skipToNextInHuffleMode();
+            skipToNextInShuffleMode();
           } else {
             stop();
           }
