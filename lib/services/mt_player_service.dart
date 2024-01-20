@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
