@@ -245,23 +245,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
             stop();
           }
         }
-        /* if (isShuffleModeEnabled) {
-          if (hasNextVideoInShuffleMode) {
-            skipToRandomIndex();
-          } else {
-            stop();
-          }
-        } else {
-          if (isRepeatModeAllEnabled()) {
-            skipToNextInRepeatModeAll();
-          } else {
-            if (hasNextVideo) {
-              skipToNext();
-            } else {
-              stop();
-            }
-          }
-        } */
       }
     });
   }
