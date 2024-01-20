@@ -21,7 +21,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   bool get hasNextVideoInShuffleMode =>
       playedIndexesInShuffleMode.length < playlist.length;
 
-  bool isRepeatModeAllEnabled() =>
+  bool get isRepeatModeAllEnabled =>
       playbackState.value.repeatMode == AudioServiceRepeatMode.all;
 
   // Stream per notificare il cambio di brano alla UI FullScreenView
@@ -81,9 +81,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  Future<void> skipToRandomIndex() async {
-    //TODO: gestire il caso in cui è attivo lo shuffle ed è attivo il repeat all
-
+  Future<void> skipToNextInHuffleMode() async {
     // se non ci sono altri brani da riprodurre, non fare nulla
     if (!hasNextVideoInShuffleMode) {
       return;
@@ -93,7 +91,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     if (playedIndexesInShuffleMode.contains(randomIndex)) {
       // se l'indice è già stato riprodotto, riprova a generare un nuovo indice
-      skipToRandomIndex();
+      skipToNextInHuffleMode();
     } else if (currentIndex != randomIndex) {
       currentIndex = randomIndex;
       playedIndexesInShuffleMode.add(currentIndex);
@@ -101,8 +99,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       await _playCurrentTrack();
       skipController.add(null);
     }
-    developer.log(
-        'skipToRandomIndex called: ${playedIndexesInShuffleMode.length}, current index: $currentIndex');
   }
 
   Future<void> skipToNextInRepeatModeAll() async {
@@ -226,29 +222,54 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       if (chewieController.videoPlayerController.value.duration ==
           chewieController.videoPlayerController.value.position) {
         // verifica che ci siano altri brani nella coda
-        if (isShuffleModeEnabled) {
+        if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
+          // Caso in cui sia lo shuffle mode che il repeat all mode sono attivi
+        } else if (isShuffleModeEnabled) {
+          // Caso in cui è attivo solo lo shuffle mode
           if (hasNextVideoInShuffleMode) {
-            skipToRandomIndex();
+            skipToNextInHuffleMode();
           } else {
             stop();
           }
+        } else if (isRepeatModeAllEnabled) {
+          // Caso in cui è attivo solo il repeat all mode
+          skipToNextInRepeatModeAll();
         } else {
+          // Caso in cui sono entrambi disattivi
           if (hasNextVideo) {
             skipToNext();
           } else {
             stop();
           }
         }
+        /* if (isShuffleModeEnabled) {
+          if (hasNextVideoInShuffleMode) {
+            skipToRandomIndex();
+          } else {
+            stop();
+          }
+        } else {
+          if (isRepeatModeAllEnabled()) {
+            skipToNextInRepeatModeAll();
+          } else {
+            if (hasNextVideo) {
+              skipToNext();
+            } else {
+              stop();
+            }
+          }
+        } */
       }
     });
   }
 
   Future<void> _setRepeatMode(AudioServiceRepeatMode repeatMode) async {
-    if (repeatMode == AudioServiceRepeatMode.none) {
-      await chewieController.videoPlayerController.setLooping(false);
-    } else {
+    if (repeatMode == AudioServiceRepeatMode.one) {
       await chewieController.videoPlayerController.setLooping(true);
+    } else {
+      await chewieController.videoPlayerController.setLooping(false);
     }
+
     playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
   }
 
@@ -260,6 +281,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       playlist.add(item);
       queue.add(playlist);
 
+      // se non è stato ancora inizializzato il player, inizializzalo e riproduci il brano
       if (currentIndex == -1) {
         currentIndex = playlist.indexOf(item);
         await _playCurrentTrack();

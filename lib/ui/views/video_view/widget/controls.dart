@@ -141,16 +141,15 @@ class Controls extends StatelessWidget {
               ];
               const cycleModes = [
                 AudioServiceRepeatMode.all,
-                AudioServiceRepeatMode.none,
                 AudioServiceRepeatMode.one,
+                AudioServiceRepeatMode.none,
               ];
               final index = cycleModes.indexOf(repeatMode);
               return IconButton(
                 icon: icons[index],
                 onPressed: () {
-                  mtPlayerService.setRepeatMode(cycleModes[
-                      (cycleModes.indexOf(repeatMode) + 1) %
-                          cycleModes.length]);
+                  var cycleMode = cycleModes[(index + 1) % cycleModes.length];
+                  mtPlayerService.setRepeatMode(cycleMode);
                 },
               );
             }),
