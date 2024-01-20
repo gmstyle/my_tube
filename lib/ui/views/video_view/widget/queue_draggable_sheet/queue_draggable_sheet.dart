@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/draggable_header.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/media_item_list.dart';
 
 const minChildSize = 0.05;
 const maxChildSize = 1.0;
 const snapSizes = [
-  0.5,
+  0.4,
 ];
 
 class QueueDraggableSheet extends StatelessWidget {
@@ -17,8 +15,6 @@ class QueueDraggableSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniPlayerCubit = context.read<MiniPlayerCubit>();
-
     return DraggableScrollableSheet(
         controller: controller,
         initialChildSize: minChildSize,
@@ -29,7 +25,7 @@ class QueueDraggableSheet extends StatelessWidget {
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8), topRight: Radius.circular(8))),
             child: Stack(
@@ -40,7 +36,7 @@ class QueueDraggableSheet extends StatelessWidget {
                 const SizedBox(
                   height: 8,
                 ),
-                const MediaItemList()
+                const MediaItemList(),
               ],
             ),
           );

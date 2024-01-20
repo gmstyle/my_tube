@@ -282,8 +282,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       return null;
     }
 
-    var currentTrackBeforeRemoval = currentTrack;
-
     if (index < currentIndex) {
       currentIndex--;
     } else if (index == currentIndex) {
@@ -303,7 +301,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         return false;
       }
     } else {
-      currentIndex = playlist.indexOf(currentTrackBeforeRemoval!);
+      currentIndex = playlist.indexOf(currentTrack!);
     }
 
     playlist.removeAt(index);

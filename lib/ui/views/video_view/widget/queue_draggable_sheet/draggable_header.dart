@@ -31,8 +31,9 @@ class DraggableHeader extends StatelessWidget {
           const SizedBox(
             height: 4,
           ),
-          const Text(
-            'QUEUE',
+          Icon(
+            Icons.queue_music,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
           ),
         ]),
       ),

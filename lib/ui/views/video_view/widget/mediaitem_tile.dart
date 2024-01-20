@@ -19,7 +19,6 @@ class MediaitemTile extends StatelessWidget {
       key: Key(mediaItem.id),
       direction: DismissDirection.horizontal,
       onDismissed: (direction) {
-        //TODO: da gestire meglio
         miniPlayerCubit.removeFromQueue(mediaItem.id).then((value) {
           if (value == false) {
             context.pop();
@@ -106,8 +105,8 @@ class MediaitemTile extends StatelessWidget {
                             gradient: LinearGradient(
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.4),
-                                Colors.black.withOpacity(0.6),
+                                Colors.black.withOpacity(0.3),
+                                Colors.black.withOpacity(0.5),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
