@@ -34,7 +34,8 @@ class FavoritesHeader extends StatelessWidget {
             color: Colors.white,
             onPressed: favorites.isNotEmpty
                 ? () {
-                    miniplayerCubit.startPlayingPlaylist(favorites);
+                    miniplayerCubit.startPlayingPlaylist(favorites,
+                        renewStreamUrls: true);
                   }
                 : null,
             icon: const Icon(Icons.playlist_play)),
