@@ -19,8 +19,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   bool get isShuffleModeEnabled =>
       playbackState.value.shuffleMode == AudioServiceShuffleMode.all;
   final playedIndexesInShuffleMode = <int>[];
-  bool get hasNextVideoInShuffleMode =>
-      playedIndexesInShuffleMode.length < playlist.length;
+  bool get allVideosPlayed =>
+      playedIndexesInShuffleMode.length == playlist.length;
 
   bool get isRepeatModeAllEnabled =>
       playbackState.value.repeatMode == AudioServiceRepeatMode.all;
@@ -84,13 +84,10 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   Future<void> skipToNextInShuffleMode() async {
     // se è attivo il repeat mode all, quando la lista playedIndexesInShuffleMode è piena, svuotala
-    if (isRepeatModeAllEnabled && !hasNextVideoInShuffleMode) {
-      playedIndexesInShuffleMode.clear();
-    }
-
-    // se non ci sono altri brani da riprodurre, non fare nulla
-    if (!hasNextVideoInShuffleMode) {
-      return;
+    if (isRepeatModeAllEnabled) {
+      if (playedIndexesInShuffleMode.length == playlist.length) {
+        playedIndexesInShuffleMode.clear();
+      }
     }
 
     final randomIndex = random.nextInt(playlist.length);
@@ -228,12 +225,14 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       if (chewieController.videoPlayerController.value.duration ==
           chewieController.videoPlayerController.value.position) {
         // verifica che ci siano altri brani nella coda
-        if (isShuffleModeEnabled) {
+        if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
+          skipToNextInShuffleMode();
+        } else if (isShuffleModeEnabled) {
           // Caso in cui è attivo solo lo shuffle mode
-          if (hasNextVideoInShuffleMode) {
-            skipToNextInShuffleMode();
-          } else {
+          if (allVideosPlayed) {
             stop();
+          } else {
+            skipToNextInShuffleMode();
           }
         } else if (isRepeatModeAllEnabled) {
           // Caso in cui è attivo solo il repeat all mode
