@@ -1,6 +1,45 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/services/mt_player_service.dart';
+
+class SpectrumPlayingIcon extends StatelessWidget {
+  const SpectrumPlayingIcon({super.key, required this.videoId});
+
+  final String videoId;
+
+  @override
+  Widget build(BuildContext context) {
+    final mtPlayerService = context.read<MtPlayerService>();
+    return StreamBuilder(
+        stream: mtPlayerService.mediaItem,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final currentVideoId = snapshot.data!.id;
+            if (currentVideoId == videoId) {
+              return StreamBuilder(
+                  stream: mtPlayerService.playbackState
+                      .map((playbackState) => playbackState.playing)
+                      .distinct(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final isPlaying = snapshot.data ?? false;
+                      if (isPlaying) {
+                        return const AudioSpectrumIcon(
+                          height: 48,
+                          width: 48,
+                        );
+                      }
+                    }
+                    return const SizedBox();
+                  });
+            }
+          }
+          return const SizedBox();
+        });
+  }
+}
 
 class AudioSpectrumIcon extends StatefulWidget {
   const AudioSpectrumIcon(

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
-import 'package:my_tube/ui/views/common/audio_spectrum_icon.dart';
+import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
 
 class MediaitemTile extends StatelessWidget {
   const MediaitemTile({super.key, required this.mediaItem});
@@ -123,34 +123,7 @@ class MediaitemTile extends StatelessWidget {
                 right: 0,
                 child: Row(
                   children: [
-                    StreamBuilder(
-                        stream: miniPlayerCubit.mtPlayerService.mediaItem,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final currentVideoId = snapshot.data!.id;
-                            if (currentVideoId == mediaItem.id) {
-                              return StreamBuilder(
-                                  stream: miniPlayerCubit
-                                      .mtPlayerService.playbackState
-                                      .map((playbackState) =>
-                                          playbackState.playing)
-                                      .distinct(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      final isPlaying = snapshot.data ?? false;
-                                      if (isPlaying) {
-                                        return const AudioSpectrumIcon(
-                                          height: 48,
-                                          width: 48,
-                                        );
-                                      }
-                                    }
-                                    return const SizedBox();
-                                  });
-                            }
-                          }
-                          return const SizedBox();
-                        }),
+                    SpectrumPlayingIcon(videoId: mediaItem.id),
                   ],
                 ),
               )
