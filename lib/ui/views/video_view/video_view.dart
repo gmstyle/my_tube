@@ -38,7 +38,7 @@ class VideoView extends StatelessWidget {
             return Scaffold(
               key: scaffoldKey,
               appBar: CustomAppbar(
-                centerTitle: true,
+                title: const Text(''),
                 leading: context.canPop()
                     ? IconButton(
                         icon: const Icon(Icons.keyboard_arrow_down),
