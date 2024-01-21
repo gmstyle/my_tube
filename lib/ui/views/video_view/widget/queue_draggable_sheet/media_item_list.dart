@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/views/video_view/widget/mediaitem_tile.dart';
+import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/play_pause_gesture_detector_mediaitem.dart';
 
 class MediaItemList extends StatelessWidget {
   const MediaItemList({super.key});
@@ -26,14 +27,9 @@ class MediaItemList extends StatelessWidget {
                 itemCount: queue.length,
                 itemBuilder: (context, index) {
                   final mediaItem = queue[index];
-                  return GestureDetector(
+                  return PlayPauseGestureDetectorMediaitem(
                       key: Key(mediaItem.id),
-                      onTap: () {
-                        if (miniPlayerCubit.mtPlayerService.currentTrack?.id !=
-                            mediaItem.id) {
-                          miniPlayerCubit.startPlaying(mediaItem.id);
-                        }
-                      },
+                      mediaItem: mediaItem,
                       child: MediaitemTile(mediaItem: mediaItem));
                 },
                 onReorder: (int oldIndex, int newIndex) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
@@ -35,14 +36,8 @@ class QueueTabView extends StatelessWidget {
                         itemCount: favorites.length,
                         itemBuilder: (context, index) {
                           final video = favorites[index];
-                          return GestureDetector(
-                              onTap: () {
-                                if (miniplayerCubit
-                                        .mtPlayerService.currentTrack?.id !=
-                                    video.id) {
-                                  miniplayerCubit.startPlaying(video.id!);
-                                }
-                              },
+                          return PlayPauseGestureDetector(
+                              resource: video,
                               child: VideoMenuDialog(
                                   video: video,
                                   child: VideoTile(video: video)));

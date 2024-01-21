@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
@@ -32,13 +33,8 @@ class VideoSection extends StatelessWidget {
                   : null),
           itemBuilder: (context, index) {
             final video = videos[index];
-            return GestureDetector(
-              onTap: () {
-                if (miniplayerCubit.mtPlayerService.currentTrack?.id !=
-                    video.id) {
-                  miniplayerCubit.startPlaying(video.id!);
-                }
-              },
+            return PlayPauseGestureDetector(
+              resource: video,
               child: crossAxisCount > 1
                   ? VideoMenuDialog(
                       video: video, child: VideoTile(video: video))
