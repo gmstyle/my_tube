@@ -5,6 +5,7 @@ import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/ui/skeletons/skeleton_playlist.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
+import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/playlist/widgets/playlist_header.dart';
@@ -44,16 +45,10 @@ class PlaylistView extends StatelessWidget {
                             itemCount: playlist?.videos!.length,
                             itemBuilder: (context, index) {
                               final video = playlist?.videos![index];
-                              return GestureDetector(
-                                onTap: () {
-                                  if (miniplayerCubit
-                                          .mtPlayerService.currentTrack?.id !=
-                                      video.id) {
-                                    miniplayerCubit.startPlaying(video.id!);
-                                  }
-                                },
+                              return PlayPauseGestureDetector(
+                                resource: video!,
                                 child: VideoMenuDialog(
-                                    video: video!,
+                                    video: video,
                                     child: VideoTile(video: video)),
                               );
                             }),

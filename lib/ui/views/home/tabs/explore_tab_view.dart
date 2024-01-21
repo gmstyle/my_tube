@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
 import 'package:my_tube/ui/skeletons/skeleton_list.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/single_selection_buttons.dart';
@@ -26,7 +25,6 @@ class ExploreTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     final exploreTabBloc = context.read<ExploreTabBloc>()
       ..add(GetTrendingVideos(category: _getCategory()));
-    final miniplayerCubit = context.read<MiniPlayerCubit>();
 
     return Column(
       children: [

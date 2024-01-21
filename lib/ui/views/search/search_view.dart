@@ -9,6 +9,7 @@ import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/skeleton_list.dart';
 import 'package:my_tube/ui/skeletons/skeleton_video_tile.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
+import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
@@ -182,12 +183,7 @@ class SearchView extends StatelessWidget {
                           itemBuilder: (context, index) {
                             if (index < state.result!.resources.length) {
                               final result = state.result!.resources[index];
-                              return GestureDetector(
-                                  onTap: () {
-                                    _playOrNavigateTo(
-                                        result, miniPlayerCubit, context);
-                                  },
-                                  child: _setTile(result));
+                              return _setTile(context, result);
                             } else {
                               // Loader alla fine della lista
                               return const SkeletonVideoTile();
@@ -207,25 +203,6 @@ class SearchView extends StatelessWidget {
     });
   }
 
-  void _playOrNavigateTo(ResourceMT result, MiniPlayerCubit miniPlayerCubit,
-      BuildContext context) {
-    if (result.kind == 'video') {
-      if (miniPlayerCubit.mtPlayerService.currentTrack?.id != result.id) {
-        miniPlayerCubit.startPlaying(result.id!);
-      }
-    }
-
-    if (result.kind == 'channel') {
-      context.goNamed(AppRoute.channel.name,
-          extra: {'channelId': result.channelId!});
-    }
-
-    if (result.kind == 'playlist') {
-      context.goNamed(AppRoute.playlist.name,
-          extra: {'playlist': result.title!, 'playlistId': result.playlistId!});
-    }
-  }
-
   void _onSelected(
       List<String> suggestions, String selected, BuildContext context) {
     searchController.text = selected;
@@ -234,17 +211,32 @@ class SearchView extends StatelessWidget {
     FocusScope.of(context).unfocus();
   }
 
-  Widget _setTile(ResourceMT result) {
+  Widget _setTile(BuildContext context, ResourceMT result) {
     if (result.kind == 'video') {
-      return VideoMenuDialog(video: result, child: VideoTile(video: result));
+      return PlayPauseGestureDetector(
+          resource: result,
+          child:
+              VideoMenuDialog(video: result, child: VideoTile(video: result)));
     }
 
     if (result.kind == 'channel') {
-      return ChannelTile(channel: result);
+      return GestureDetector(
+          onTap: () {
+            context.goNamed(AppRoute.channel.name,
+                extra: {'channelId': result.channelId!});
+          },
+          child: ChannelTile(channel: result));
     }
 
     if (result.kind == 'playlist') {
-      return PlaylistTile(playlist: result);
+      return GestureDetector(
+          onTap: () {
+            context.goNamed(AppRoute.playlist.name, extra: {
+              'playlist': result.title!,
+              'playlistId': result.playlistId!
+            });
+          },
+          child: PlaylistTile(playlist: result));
     }
 
     return Container();
