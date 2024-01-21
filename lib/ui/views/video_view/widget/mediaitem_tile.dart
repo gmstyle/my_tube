@@ -118,9 +118,9 @@ class MediaitemTile extends StatelessWidget {
                     return const SizedBox();
                   }),
               // audio spectrum icon
-              Positioned.fromRelativeRect(
-                rect: RelativeRect.fromLTRB(
-                    (MediaQuery.of(context).size.width * 0.03) * 4, 0, 0, 0),
+              Positioned(
+                bottom: 0,
+                right: 0,
                 child: Row(
                   children: [
                     StreamBuilder(
@@ -142,11 +142,6 @@ class MediaitemTile extends StatelessWidget {
                                         return const AudioSpectrumIcon(
                                           height: 48,
                                           width: 48,
-                                        );
-                                      } else {
-                                        return const Icon(
-                                          Icons.more_horiz,
-                                          color: Colors.white,
                                         );
                                       }
                                     }

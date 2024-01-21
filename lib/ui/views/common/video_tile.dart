@@ -101,47 +101,38 @@ class VideoTile extends StatelessWidget {
                   return const SizedBox();
                 }),
 
-            // audio spectrum icon
-            Positioned.fromRelativeRect(
-              rect: RelativeRect.fromLTRB(
-                  (MediaQuery.of(context).size.width * 0.03) * 4, 0, 0, 0),
-              child: Row(
-                children: [
-                  StreamBuilder(
-                      stream: miniPlayerCubit.mtPlayerService.mediaItem,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          final currentVideoId = snapshot.data!.id;
-                          if (currentVideoId == video.id) {
-                            return StreamBuilder(
-                                stream: miniPlayerCubit
-                                    .mtPlayerService.playbackState
-                                    .map((playbackState) =>
-                                        playbackState.playing)
-                                    .distinct(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    final isPlaying = snapshot.data ?? false;
-                                    if (isPlaying) {
-                                      return const AudioSpectrumIcon(
-                                        height: 48,
-                                        width: 48,
-                                      );
-                                    } else {
-                                      return const Icon(
-                                        Icons.more_horiz,
-                                        color: Colors.white,
-                                      );
-                                    }
-                                  }
-                                  return const SizedBox();
-                                });
-                          }
-                        }
-                        return const SizedBox();
-                      }),
-                ],
-              ),
+            // audio spectrum icon in posizione centrale rispetto all'immagine
+
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: StreamBuilder(
+                  stream: miniPlayerCubit.mtPlayerService.mediaItem,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final currentVideoId = snapshot.data!.id;
+                      if (currentVideoId == video.id) {
+                        return StreamBuilder(
+                            stream: miniPlayerCubit
+                                .mtPlayerService.playbackState
+                                .map((playbackState) => playbackState.playing)
+                                .distinct(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final isPlaying = snapshot.data ?? false;
+                                if (isPlaying) {
+                                  return const AudioSpectrumIcon(
+                                    height: 48,
+                                    width: 48,
+                                  );
+                                }
+                              }
+                              return const SizedBox();
+                            });
+                      }
+                    }
+                    return const SizedBox();
+                  }),
             )
           ],
         ),
