@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
-import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
@@ -13,6 +12,7 @@ import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/ui/views/search/widgets/empty_search.dart';
 
 // ignore: must_be_immutable
 class SearchView extends StatelessWidget {
@@ -23,7 +23,6 @@ class SearchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchBloc = context.read<SearchBloc>();
-    final playerCubit = context.read<PlayerCubit>();
 
     return LayoutBuilder(builder: (context, constraints) {
       return Container(
@@ -51,9 +50,7 @@ class SearchView extends StatelessWidget {
                       } else {
                         // Altrimenti mostro i suggerimenti di ricerca chiamando l'api
                         searchSuggestionCubit.getSuggestions(value.text);
-                        return suggestions.where((element) => element
-                            .toLowerCase()
-                            .contains(value.text.toLowerCase()));
+                        return suggestions;
                       }
                     },
 
@@ -65,17 +62,66 @@ class SearchView extends StatelessWidget {
                       return Align(
                         alignment: Alignment.topLeft,
                         child: Material(
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primaryContainer
+                              .withOpacity(0.8),
                           clipBehavior: Clip.antiAlias,
                           shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.all(
                             Radius.circular(8),
                           )),
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.5,
-                            width: constraints.biggest.width -
-                                32, // -32 per compensare il margin del container
-                            child: ListView.builder(
+                          child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height * 0.4,
+                                  minWidth: constraints.biggest.width - 32,
+                                  maxWidth: constraints.biggest.width - 32),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Wrap(
+                                        alignment: WrapAlignment.center,
+                                        spacing: 5.0,
+                                        children: List<Widget>.generate(
+                                            options.length,
+                                            (index) => InputChip(
+                                                  visualDensity:
+                                                      VisualDensity.compact,
+                                                  label: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      if (suggestionsState
+                                                          .isQueryHistory) ...[
+                                                        const Icon(
+                                                            Icons.history,
+                                                            size: 16),
+                                                        const SizedBox(width: 4)
+                                                      ],
+                                                      Text(options[index]),
+                                                    ],
+                                                  ),
+                                                  onPressed: () => onSelected(
+                                                      options[index]),
+                                                  onDeleted: suggestionsState
+                                                          .isQueryHistory
+                                                      ? () {
+                                                          searchSuggestionCubit
+                                                              .deleteQueryFromHistory(
+                                                                  options[
+                                                                      index]);
+                                                        }
+                                                      : null,
+                                                )),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ) /* ListView.builder(
                               shrinkWrap: true,
                               padding: EdgeInsets.zero,
                               itemCount: options.length,
@@ -100,8 +146,8 @@ class SearchView extends StatelessWidget {
                                   },
                                 );
                               },
-                            ),
-                          ),
+                            ), */
+                              ),
                         ),
                       );
                     },
@@ -124,7 +170,8 @@ class SearchView extends StatelessWidget {
                         decoration: InputDecoration(
                           isDense: true,
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor:
+                              Theme.of(context).colorScheme.primaryContainer,
                           prefixIcon: const Icon(Icons.search),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.clear),
@@ -196,7 +243,7 @@ class SearchView extends StatelessWidget {
                 return Center(child: Text(state.error!));
 
               default:
-                return const Center(child: Text('Todo widget here'));
+                return const Center(child: EmptySearch());
             }
           }))
         ]),
