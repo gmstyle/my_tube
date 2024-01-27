@@ -20,8 +20,14 @@ class ClearQueueButton extends StatelessWidget {
     showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-              title: const Text('Are you sure?'),
-              content: const Text('Do you want to clear the queue?'),
+              title: const Row(
+                children: [
+                  Icon(Icons.queue_music),
+                  SizedBox(width: 8),
+                  Text('Clear queue'),
+                ],
+              ),
+              content: const Text('Are you sure you want to clear your queue?'),
               actions: [
                 TextButton(
                     onPressed: () {
