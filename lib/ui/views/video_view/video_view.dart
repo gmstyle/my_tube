@@ -12,6 +12,7 @@ import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
+import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -40,7 +41,20 @@ class VideoView extends StatelessWidget {
             return Scaffold(
               key: scaffoldKey,
               appBar: CustomAppbar(
-                title: const Text(''),
+                centerTitle: true,
+                title: queueDraggableController.isAttached
+                    ? ListenableBuilder(
+                        listenable: queueDraggableController,
+                        builder: (context, child) {
+                          if (queueDraggableController.size == maxChildSize) {
+                            return child!;
+                          } else {
+                            return const SizedBox();
+                          }
+                        },
+                        child: const Icon(Icons.queue_music),
+                      )
+                    : null,
                 leading: queueDraggableController.isAttached
                     ? ListenableBuilder(
                         listenable: queueDraggableController,
@@ -109,11 +123,7 @@ class VideoView extends StatelessWidget {
                               );
                             }
                           },
-                          child: IconButton(
-                              onPressed: () {
-                                _onClearQueuePressed(context, playerCubit);
-                              },
-                              icon: const Icon(Icons.clear_all)))
+                          child: const ClearQueueButton())
                       : const SizedBox(),
                 ],
               ),

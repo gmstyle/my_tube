@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 
 class DraggableHeader extends StatelessWidget {
   const DraggableHeader({super.key, required this.controller});
@@ -31,10 +32,19 @@ class DraggableHeader extends StatelessWidget {
           const SizedBox(
             height: 4,
           ),
-          Icon(
-            Icons.queue_music,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-          ),
+          ListenableBuilder(
+            listenable: queueDraggableController,
+            builder: (context, child) {
+              if (queueDraggableController.size != maxChildSize) {
+                return child!;
+              }
+              return const SizedBox();
+            },
+            child: Icon(
+              Icons.queue_music,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
+          )
         ]),
       ),
     );
