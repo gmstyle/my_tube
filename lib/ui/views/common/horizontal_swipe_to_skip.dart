@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 
 class HorizontalSwipeToSkip extends StatelessWidget {
   const HorizontalSwipeToSkip({super.key, required this.child});
@@ -9,12 +9,12 @@ class HorizontalSwipeToSkip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
+    final PlayerCubit playerCubit = context.read<PlayerCubit>();
     return Dismissible(
       key: const Key('horizontal_swipe_to_skip'),
       child: child,
       confirmDismiss: (direction) async {
-        _confirmDismiss(miniPlayerCubit, direction);
+        _confirmDismiss(playerCubit, direction);
 
         return Future.value(false);
       },
@@ -22,18 +22,18 @@ class HorizontalSwipeToSkip extends StatelessWidget {
   }
 
   Future<void> _confirmDismiss(
-      MiniPlayerCubit miniPlayerCubit, DismissDirection direction) async {
+      PlayerCubit playerCubit, DismissDirection direction) async {
     if (direction == DismissDirection.startToEnd) {
-      if (miniPlayerCubit.mtPlayerService.isShuffleModeEnabled) {
-        await miniPlayerCubit.skipToNextInShuffleMode();
+      if (playerCubit.mtPlayerService.isShuffleModeEnabled) {
+        await playerCubit.skipToNextInShuffleMode();
       } else {
-        await miniPlayerCubit.skipToPrevious();
+        await playerCubit.skipToPrevious();
       }
     } else {
-      if (miniPlayerCubit.mtPlayerService.isShuffleModeEnabled) {
-        await miniPlayerCubit.skipToNextInShuffleMode();
+      if (playerCubit.mtPlayerService.isShuffleModeEnabled) {
+        await playerCubit.skipToNextInShuffleMode();
       } else {
-        await miniPlayerCubit.skipToNext();
+        await playerCubit.skipToNext();
       }
     }
   }

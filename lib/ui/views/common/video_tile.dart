@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
 
@@ -12,8 +12,7 @@ class VideoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MiniPlayerCubit miniPlayerCubit =
-        BlocProvider.of<MiniPlayerCubit>(context);
+    final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
       margin: const EdgeInsets.only(bottom: 16),
@@ -78,7 +77,7 @@ class VideoTile extends StatelessWidget {
             ),
             // overlay gradient per video selected
             StreamBuilder(
-                stream: miniPlayerCubit.mtPlayerService.mediaItem,
+                stream: playerCubit.mtPlayerService.mediaItem,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final currentVideoId = snapshot.data!.id;

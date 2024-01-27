@@ -8,15 +8,15 @@ const snapSizes = [
   0.4,
 ];
 
-class QueueDraggableSheet extends StatelessWidget {
-  QueueDraggableSheet({super.key});
+final queueDraggableController = DraggableScrollableController();
 
-  final controller = DraggableScrollableController();
+class QueueDraggableSheet extends StatelessWidget {
+  const QueueDraggableSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-        controller: controller,
+        controller: queueDraggableController,
         initialChildSize: minChildSize,
         minChildSize: minChildSize,
         maxChildSize: maxChildSize,
@@ -44,13 +44,14 @@ class QueueDraggableSheet extends StatelessWidget {
   }
 
   void _expandCollapse() {
-    final targetSize =
-        controller.size == minChildSize ? maxChildSize : minChildSize;
+    final targetSize = queueDraggableController.size == minChildSize
+        ? maxChildSize
+        : minChildSize;
     _animateControllerTo(targetSize);
   }
 
   void _animateControllerTo(double targetSize) {
-    controller.animateTo(
+    queueDraggableController.animateTo(
       targetSize,
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,

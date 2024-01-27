@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/skeleton_mini_player.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
@@ -14,14 +14,14 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MiniPlayerCubit miniPlayerCubit = context.read<MiniPlayerCubit>();
+    final PlayerCubit playerCubit = context.read<PlayerCubit>();
 
-    return BlocBuilder<MiniPlayerCubit, MiniPlayerState>(
+    return BlocBuilder<PlayerCubit, PlayerState>(
       builder: (context, state) {
-        if (state.status == MiniPlayerStatus.loading) {
+        if (state.status == PlayerStatus.loading) {
           return const SkeletonMiniPlayer();
         }
-        if (state.status == MiniPlayerStatus.hidden) {
+        if (state.status == PlayerStatus.hidden) {
           return const SizedBox.shrink();
         }
         return GestureDetector(
@@ -39,7 +39,7 @@ class MiniPlayer extends StatelessWidget {
                       children: [
                         // Image
                         StreamBuilder(
-                            stream: miniPlayerCubit.mtPlayerService.mediaItem,
+                            stream: playerCubit.mtPlayerService.mediaItem,
                             builder: (context, snapshot) {
                               final mediaItem = snapshot.data;
                               return Hero(
@@ -67,8 +67,7 @@ class MiniPlayer extends StatelessWidget {
                             children: [
                               // Video Title and Album
                               StreamBuilder(
-                                  stream:
-                                      miniPlayerCubit.mtPlayerService.mediaItem,
+                                  stream: playerCubit.mtPlayerService.mediaItem,
                                   builder: (context, snapshot) {
                                     final mediaItem = snapshot.data;
                                     return Column(
@@ -112,8 +111,7 @@ class MiniPlayer extends StatelessWidget {
                         const SizedBox(width: 8),
                         // Play/Pause Button
                         StreamBuilder(
-                            stream: miniPlayerCubit
-                                .mtPlayerService.playbackState
+                            stream: playerCubit.mtPlayerService.playbackState
                                 .map((playbackState) => playbackState.playing)
                                 .distinct(),
                             builder: (context, snapshot) {
@@ -125,9 +123,9 @@ class MiniPlayer extends StatelessWidget {
                                         MediaQuery.of(context).size.width * 0.1,
                                     onPressed: () {
                                       if (isPlaying) {
-                                        miniPlayerCubit.mtPlayerService.pause();
+                                        playerCubit.mtPlayerService.pause();
                                       } else {
-                                        miniPlayerCubit.mtPlayerService.play();
+                                        playerCubit.mtPlayerService.play();
                                       }
                                     },
                                     icon: Icon(
@@ -160,7 +158,7 @@ class MiniPlayer extends StatelessWidget {
           children: [
             // Image
             StreamBuilder(
-                stream: miniPlayerCubit.mtPlayerService.mediaItem,
+                stream: playerCubit.mtPlayerService.mediaItem,
                 builder: (context, snapshot) {
                   final mediaItem = snapshot.data;
                   return mediaItem?.artUri != null
@@ -200,7 +198,7 @@ class MiniPlayer extends StatelessWidget {
                     // Video Title and Album
                     Expanded(
                       child: StreamBuilder(
-                          stream: miniPlayerCubit.mtPlayerService.mediaItem,
+                          stream: playerCubit.mtPlayerService.mediaItem,
                           builder: (context, snapshot) {
                             final mediaItem = snapshot.data;
                             return Column(
@@ -232,11 +230,11 @@ class MiniPlayer extends StatelessWidget {
 
                     // skip previous button
                     StreamBuilder(
-                        stream: miniPlayerCubit.mtPlayerService.queue,
+                        stream: playerCubit.mtPlayerService.queue,
                         builder: ((context, snapshot) {
                           final queue = snapshot.data ?? [];
                           final index = queue.indexOf(
-                              miniPlayerCubit.mtPlayerService.currentTrack);
+                              playerCubit.mtPlayerService.currentTrack);
                           return IconButton(
                             icon: Icon(
                               Icons.skip_previous,
@@ -244,7 +242,7 @@ class MiniPlayer extends StatelessWidget {
                             ),
                             onPressed: index > 0
                                 ? () async {
-                                    await miniPlayerCubit.skipToPrevious();
+                                    await playerCubit.skipToPrevious();
                                   }
                                 : null,
                           );
@@ -252,7 +250,7 @@ class MiniPlayer extends StatelessWidget {
 
                     // Play/Pause Button
                     StreamBuilder(
-                        stream: miniPlayerCubit.mtPlayerService.playbackState
+                        stream: playerCubit.mtPlayerService.playbackState
                             .map((playbackState) => playbackState.playing)
                             .distinct(),
                         builder: (context, snapshot) {
@@ -261,9 +259,9 @@ class MiniPlayer extends StatelessWidget {
                               iconSize: MediaQuery.of(context).size.width * 0.1,
                               onPressed: () {
                                 if (isPlaying) {
-                                  miniPlayerCubit.mtPlayerService.pause();
+                                  playerCubit.mtPlayerService.pause();
                                 } else {
-                                  miniPlayerCubit.mtPlayerService.play();
+                                  playerCubit.mtPlayerService.play();
                                 }
                               },
                               icon: Icon(
@@ -274,11 +272,11 @@ class MiniPlayer extends StatelessWidget {
 
                     // skip next button
                     StreamBuilder(
-                        stream: miniPlayerCubit.mtPlayerService.queue,
+                        stream: playerCubit.mtPlayerService.queue,
                         builder: ((context, snapshot) {
                           final queue = snapshot.data ?? [];
                           final index = queue.indexOf(
-                              miniPlayerCubit.mtPlayerService.currentTrack);
+                              playerCubit.mtPlayerService.currentTrack);
                           final hasNext = index < queue.length - 1;
                           return IconButton(
                             icon: Icon(
@@ -287,7 +285,7 @@ class MiniPlayer extends StatelessWidget {
                             ),
                             onPressed: hasNext
                                 ? () async {
-                                    await miniPlayerCubit.skipToNext();
+                                    await playerCubit.skipToNext();
                                   }
                                 : null,
                           );

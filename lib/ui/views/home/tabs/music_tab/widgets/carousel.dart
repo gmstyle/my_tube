@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
 class Carousel extends StatelessWidget {
@@ -19,7 +19,7 @@ class Carousel extends StatelessWidget {
             for (final video in carouselVideos)
               GestureDetector(
                 onTap: () async {
-                  await context.read<MiniPlayerCubit>().startPlaying(video.id!);
+                  await context.read<PlayerCubit>().startPlaying(video.id!);
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),

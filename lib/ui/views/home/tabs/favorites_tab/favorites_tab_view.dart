@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
@@ -12,7 +12,7 @@ class QueueTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniplayerCubit = context.read<MiniPlayerCubit>();
+    final miniplayerCubit = context.read<PlayerCubit>();
 
     context.read<FavoritesBloc>().add(GetFavorites());
 

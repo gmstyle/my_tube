@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/ui/skeletons/skeleton_channel.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
@@ -17,7 +17,7 @@ class ChannelView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniplayerCubit = context.read<MiniPlayerCubit>();
+    final miniplayerCubit = context.read<PlayerCubit>();
 
     return MainGradient(
       child: Scaffold(
@@ -64,13 +64,28 @@ class ChannelView extends StatelessWidget {
                                   ),
                                   if (section.videos != null &&
                                       section.videos!.isNotEmpty)
-                                    IconButton(
-                                        color: Colors.white,
-                                        onPressed: () {
-                                          miniplayerCubit.startPlayingPlaylist(
-                                              section.videos!);
-                                        },
-                                        icon: const Icon(Icons.playlist_play))
+                                    Row(
+                                      children: [
+                                        // add to queue
+                                        IconButton(
+                                            color: Colors.white,
+                                            onPressed: () {
+                                              miniplayerCubit.addAllToQueue(
+                                                  section.videos!);
+                                            },
+                                            icon:
+                                                const Icon(Icons.queue_music)),
+                                        IconButton(
+                                            color: Colors.white,
+                                            onPressed: () {
+                                              miniplayerCubit
+                                                  .startPlayingPlaylist(
+                                                      section.videos!);
+                                            },
+                                            icon: const Icon(
+                                                Icons.playlist_play)),
+                                      ],
+                                    )
                                 ],
                               ),
                               const SizedBox(height: 8),

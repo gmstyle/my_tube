@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
@@ -15,7 +15,7 @@ class PlaylistHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniplayerCubit = context.read<MiniPlayerCubit>();
+    final miniplayerCubit = context.read<PlayerCubit>();
     final playlistState = context.watch<PlaylistBloc>().state;
     return Column(
       children: [
@@ -88,15 +88,28 @@ class PlaylistHeader extends StatelessWidget {
                 Positioned(
                     right: 16,
                     bottom: 16,
-                    child: FloatingActionButton.small(
-                        backgroundColor: Colors.white,
-                        onPressed: playlistState.status == PlaylistStatus.loaded
-                            ? () {
-                                miniplayerCubit
-                                    .startPlayingPlaylist(playlist!.videos!);
-                              }
-                            : null,
-                        child: const Icon(Icons.playlist_play)))
+                    child: Row(
+                      children: [
+                        FloatingActionButton.small(
+                            heroTag: "add_playlist_to_queue",
+                            backgroundColor: Colors.white,
+                            onPressed: () {
+                              miniplayerCubit.addAllToQueue(playlist!.videos!);
+                            },
+                            child: const Icon(Icons.queue_music)),
+                        FloatingActionButton.small(
+                            heroTag: "play_playlist",
+                            backgroundColor: Colors.white,
+                            onPressed:
+                                playlistState.status == PlaylistStatus.loaded
+                                    ? () {
+                                        miniplayerCubit.startPlayingPlaylist(
+                                            playlist!.videos!);
+                                      }
+                                    : null,
+                            child: const Icon(Icons.playlist_play)),
+                      ],
+                    ))
               ],
             ),
           ),

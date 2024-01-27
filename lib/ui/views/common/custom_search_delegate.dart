@@ -17,12 +17,12 @@ import 'package:my_tube/ui/views/common/video_tile.dart';
 class CustomSearchDelegate extends SearchDelegate {
   final SearchBloc searchBloc;
   final SearchSuggestionCubit searchSuggestionCubit;
-  final MiniPlayerCubit miniPlayerCubit;
+  final PlayerCubit playerCubit;
 
   CustomSearchDelegate(
       {required this.searchBloc,
       required this.searchSuggestionCubit,
-      required this.miniPlayerCubit});
+      required this.playerCubit});
 
 // per cambiare il testo nella barra di ricerca
   @override
@@ -116,7 +116,7 @@ class CustomSearchDelegate extends SearchDelegate {
                         return GestureDetector(
                           onTap: () {
                             close(context, result);
-                            _playOrNavigateTo(result, miniPlayerCubit, context);
+                            _playOrNavigateTo(result, playerCubit, context);
                           },
                           child: _setTile(result),
                         );
@@ -175,11 +175,11 @@ class CustomSearchDelegate extends SearchDelegate {
     );
   }
 
-  void _playOrNavigateTo(ResourceMT result, MiniPlayerCubit miniPlayerCubit,
+  void _playOrNavigateTo(ResourceMT result, PlayerCubit playerCubit,
       BuildContext context) {
     if (result.kind == 'video') {
-      if (miniPlayerCubit.mtPlayerService.mediaItem.value?.id != result.id) {
-        miniPlayerCubit.startPlaying(result.id!);
+      if (playerCubit.mtPlayerService.mediaItem.value?.id != result.id) {
+        playerCubit.startPlaying(result.id!);
       }
     }
 

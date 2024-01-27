@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
@@ -23,7 +23,7 @@ class SearchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchBloc = context.read<SearchBloc>();
-    final miniPlayerCubit = context.read<MiniPlayerCubit>();
+    final playerCubit = context.read<PlayerCubit>();
 
     return LayoutBuilder(builder: (context, constraints) {
       return Container(
@@ -46,7 +46,8 @@ class SearchView extends StatelessWidget {
                       if (value.text.isEmpty) {
                         // Se il campo di ricerca è vuoto, mostro la cronologia delle ricerche
                         searchSuggestionCubit.getQueryHistory();
-                        return searchSuggestionCubit.state.suggestions;
+                        return searchSuggestionCubit.state.suggestions.reversed
+                            .toList();
                       } else {
                         // Altrimenti mostro i suggerimenti di ricerca chiamando l'api
                         searchSuggestionCubit.getSuggestions(value.text);

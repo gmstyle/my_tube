@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/ui/skeletons/skeleton_playlist.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
@@ -17,7 +17,7 @@ class PlaylistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniplayerCubit = context.read<MiniPlayerCubit>();
+    final miniplayerCubit = context.read<PlayerCubit>();
     return MainGradient(
       child: Scaffold(
         appBar: const CustomAppbar(

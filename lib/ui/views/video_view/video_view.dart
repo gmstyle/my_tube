@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
@@ -23,7 +24,8 @@ class VideoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mtPlayerService = context.read<MtPlayerService>();
+    final playerCubit = context.read<PlayerCubit>();
+    final MtPlayerService mtPlayerService = playerCubit.mtPlayerService;
 
     mtPlayerService.chewieController.videoPlayerController.addListener(() {
       WakelockPlus.toggle(
@@ -39,38 +41,80 @@ class VideoView extends StatelessWidget {
               key: scaffoldKey,
               appBar: CustomAppbar(
                 title: const Text(''),
-                leading: context.canPop()
-                    ? IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        color: Colors.white,
-                        onPressed: () {
-                          context.pop();
+                leading: queueDraggableController.isAttached
+                    ? ListenableBuilder(
+                        listenable: queueDraggableController,
+                        builder: (context, child) {
+                          if (queueDraggableController.size == maxChildSize) {
+                            return child!;
+                          } else {
+                            if (context.canPop()) {
+                              return IconButton(
+                                icon: const Icon(Icons.keyboard_arrow_down),
+                                color: Colors.white,
+                                onPressed: () {
+                                  context.pop();
+                                },
+                              );
+                            } else {
+                              return const SizedBox();
+                            }
+                          }
                         },
+                        child: IconButton(
+                          icon: const Icon(Icons.keyboard_arrow_down),
+                          color: Colors.white,
+                          onPressed: () {
+                            queueDraggableController.animateTo(
+                              minChildSize,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                        ),
                       )
                     : null,
                 actions: [
-                  BlocBuilder<FavoritesBloc, FavoritesState>(
-                    builder: (context, state) {
-                      final favoritesBloc =
-                          BlocProvider.of<FavoritesBloc>(context);
-                      return IconButton(
-                          color: Colors.white,
-                          onPressed: () {
-                            if (favoritesBloc.favoritesRepository.videoIds
-                                .contains(mediaItem?.id)) {
-                              favoritesBloc
-                                  .add(RemoveFromFavorites(mediaItem!.id));
+                  queueDraggableController.isAttached
+                      ? ListenableBuilder(
+                          listenable: queueDraggableController,
+                          builder: (context, child) {
+                            if (queueDraggableController.size == maxChildSize) {
+                              return child!;
                             } else {
-                              favoritesBloc.add(AddToFavorites(
-                                  ResourceMT.fromMediaItem(mediaItem!)));
+                              return BlocBuilder<FavoritesBloc, FavoritesState>(
+                                builder: (context, state) {
+                                  final favoritesBloc =
+                                      BlocProvider.of<FavoritesBloc>(context);
+                                  return IconButton(
+                                      color: Colors.white,
+                                      onPressed: () {
+                                        if (favoritesBloc
+                                            .favoritesRepository.videoIds
+                                            .contains(mediaItem?.id)) {
+                                          favoritesBloc.add(RemoveFromFavorites(
+                                              mediaItem!.id));
+                                        } else {
+                                          favoritesBloc.add(AddToFavorites(
+                                              ResourceMT.fromMediaItem(
+                                                  mediaItem!)));
+                                        }
+                                      },
+                                      icon: favoritesBloc
+                                              .favoritesRepository.videoIds
+                                              .contains(mediaItem?.id)
+                                          ? const Icon(Icons.favorite)
+                                          : const Icon(Icons.favorite_border));
+                                },
+                              );
                             }
                           },
-                          icon: favoritesBloc.favoritesRepository.videoIds
-                                  .contains(mediaItem?.id)
-                              ? const Icon(Icons.favorite)
-                              : const Icon(Icons.favorite_border));
-                    },
-                  )
+                          child: IconButton(
+                              onPressed: () {
+                                _onClearQueuePressed(context, playerCubit);
+                              },
+                              icon: const Icon(Icons.clear_all)))
+                      : const SizedBox(),
                 ],
               ),
               backgroundColor: Colors.transparent,
@@ -150,12 +194,39 @@ class VideoView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  QueueDraggableSheet()
+                  const QueueDraggableSheet()
                 ],
               ),
             );
           }),
     );
+  }
+
+  void _onClearQueuePressed(BuildContext context, PlayerCubit playerCubit) {
+    showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text('Are you sure?'),
+              content: const Text('Do you want to clear the queue?'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      context.pop(false);
+                    },
+                    child: const Text('No')),
+                TextButton(
+                    onPressed: () {
+                      context.pop(true);
+                    },
+                    child: const Text('Yes')),
+              ],
+            )).then((value) => {
+          if (value == true)
+            {
+              playerCubit.stopPlayingAndClearQueue(),
+              context.pop(),
+            }
+        });
   }
 
   double _setAspectRatio(MtPlayerService mtPlayerService) {

@@ -21,16 +21,30 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
       for (var item in widget.items)
-        IconButton(
+        FilterChip(
+          avatar: widget.icons != null
+              ? Icon(
+                  widget.icons![widget.items.indexOf(item)],
+                )
+              : null,
+          showCheckmark: false,
+          label: Text(item),
+          onSelected: (value) => setState(() {
+            selected = widget.items.indexOf(item);
+            widget.onSelected(widget.items.indexOf(item), item);
+          }),
+          selected: widget.items.indexOf(item) == selected,
+        )
+      /* IconButton(
             color: widget.items.indexOf(item) == selected
                 ? Colors.white
                 : Colors.grey,
             onPressed: () {
               setState(() {
                 selected = widget.items.indexOf(item);
-                widget.onSelected.call(widget.items.indexOf(item), item);
+                widget.onSelected(widget.items.indexOf(item), item);
               });
             },
             icon: Row(
@@ -52,7 +66,7 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
                           : Colors.grey),
                 ),
               ],
-            ))
+            )) */
     ]);
   }
 }

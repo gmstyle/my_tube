@@ -268,9 +268,28 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
       // se non è stato ancora inizializzato il player, inizializzalo e riproduci il brano
       if (currentIndex == -1) {
-        currentIndex = playlist.indexOf(item);
+        currentIndex = playlist.length - 1;
         await _playCurrentTrack();
       }
+    }
+  }
+
+  Future<void> addAllToQueue(List<ResourceMT> videos) async {
+    final list = videos.map(_createMediaItem).toList();
+
+    int? firstAddedIndex;
+    for (final item in list) {
+      if (!playlist.contains(item)) {
+        playlist.add(item);
+        firstAddedIndex ??= playlist.length - 1;
+      }
+    }
+
+    queue.add(playlist);
+
+    if (currentIndex == -1 && firstAddedIndex != null) {
+      currentIndex = firstAddedIndex;
+      await _playCurrentTrack();
     }
   }
 
@@ -309,10 +328,14 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     return true;
   }
 
-  Future<void> stopPlayingAndClearQueue() async {
-    await stopPlayingAndClearMediaItem();
+  Future<void> clearQueue() async {
     playlist.clear();
     queue.value.clear();
+  }
+
+  Future<void> stopPlayingAndClearQueue() async {
+    await stopPlayingAndClearMediaItem();
+    await clearQueue();
   }
 
   Future<void> stopPlayingAndClearMediaItem() async {

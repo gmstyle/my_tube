@@ -64,7 +64,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final oldHistory =
           jsonDecode(settingsBox.get('queryHistory')) as List<dynamic>;
       if (!oldHistory.contains(event.query)) {
-        oldHistory.add(event.query);
+        // aggiungi l'elemento alla lista in testa
+        oldHistory.insert(0, event.query);
+        // rimuovi l'ultimo elemento se la lista è più lunga di 15 elementi
+        if (oldHistory.length > 15) {
+          oldHistory.removeLast();
+        }
       }
       settingsBox.put('queryHistory', jsonEncode(oldHistory));
     } else {

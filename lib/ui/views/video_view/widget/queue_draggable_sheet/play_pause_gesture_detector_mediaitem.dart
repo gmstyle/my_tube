@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 
 class PlayPauseGestureDetectorMediaitem extends StatelessWidget {
   const PlayPauseGestureDetectorMediaitem(
@@ -12,9 +12,9 @@ class PlayPauseGestureDetectorMediaitem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniPlayerCubit = context.read<MiniPlayerCubit>();
+    final playerCubit = context.read<PlayerCubit>();
     return StreamBuilder(
-        stream: miniPlayerCubit.mtPlayerService.playbackState
+        stream: playerCubit.mtPlayerService.playbackState
             .map((playbackState) => playbackState.playing)
             .distinct(),
         builder: (context, snapshot) {
@@ -23,15 +23,15 @@ class PlayPauseGestureDetectorMediaitem extends StatelessWidget {
             onTap: () {
               // se la traccia corrente è diversa da quella che si vuole riprodurre
               // si avvia la riproduzione
-              if (miniPlayerCubit.mtPlayerService.currentTrack?.id !=
+              if (playerCubit.mtPlayerService.currentTrack?.id !=
                   mediaItem.id) {
-                miniPlayerCubit.startPlaying(mediaItem.id);
+                playerCubit.startPlaying(mediaItem.id);
               } else {
                 // altrimenti si mette in pausa o si riprende la riproduzione
                 if (isPlaying) {
-                  miniPlayerCubit.mtPlayerService.pause();
+                  playerCubit.mtPlayerService.pause();
                 } else {
-                  miniPlayerCubit.mtPlayerService.play();
+                  playerCubit.mtPlayerService.play();
                 }
               }
             },

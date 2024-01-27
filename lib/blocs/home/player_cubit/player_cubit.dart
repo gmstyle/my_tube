@@ -4,38 +4,40 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 
-part 'mini_player_state.dart';
+part 'player_state.dart';
 
-class MiniPlayerCubit extends Cubit<MiniPlayerState> {
+class PlayerCubit extends Cubit<PlayerState> {
   final InnertubeRepository innertubeRepository;
 
   final MtPlayerService mtPlayerService;
 
-  MiniPlayerCubit(
+  PlayerCubit(
       {required this.innertubeRepository, required this.mtPlayerService})
-      : super(const MiniPlayerState.hidden());
+      : super(const PlayerState.hidden());
 
   init() {
     mtPlayerService.queue.listen((value) {
       if (value.isEmpty) {
-        emit(const MiniPlayerState.hidden());
+        emit(const PlayerState.hidden());
       }
     });
   }
 
   Future<void> startPlaying(String id) async {
-    emit(const MiniPlayerState.loading());
+    emit(const PlayerState.loading());
 
     final response = await innertubeRepository.getVideo(id);
 
     await _startPlaying(response);
 
-    emit(const MiniPlayerState.shown());
+    emit(const PlayerState.shown());
   }
 
   Future<void> startPlayingPlaylist(List<ResourceMT> videos,
       {bool renewStreamUrls = false}) async {
-    emit(const MiniPlayerState.loading());
+    emit(const PlayerState.loading());
+    // svuoto la coda
+    await mtPlayerService.clearQueue();
     // se lo streamUrl è null, vuol dire arrivo da una channel page
     // e cioè dal pulsante play all di una section i video
     if (videos.first.streamUrl == null || renewStreamUrls) {
@@ -44,25 +46,25 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
     }
     await _startPlayingPlaylist(videos);
 
-    emit(const MiniPlayerState.shown());
+    emit(const PlayerState.shown());
   }
 
   Future<void> skipToNext() async {
-    emit(const MiniPlayerState.loading());
+    emit(const PlayerState.loading());
     await mtPlayerService.skipToNext();
-    emit(const MiniPlayerState.shown());
+    emit(const PlayerState.shown());
   }
 
   Future<void> skipToNextInShuffleMode() async {
-    emit(const MiniPlayerState.loading());
+    emit(const PlayerState.loading());
     await mtPlayerService.skipToNextInShuffleMode();
-    emit(const MiniPlayerState.shown());
+    emit(const PlayerState.shown());
   }
 
   Future<void> skipToPrevious() async {
-    emit(const MiniPlayerState.loading());
+    emit(const PlayerState.loading());
     await mtPlayerService.skipToPrevious();
-    emit(const MiniPlayerState.shown());
+    emit(const PlayerState.shown());
   }
 
   Future<void> _startPlaying(ResourceMT video) async {
@@ -76,23 +78,36 @@ class MiniPlayerCubit extends Cubit<MiniPlayerState> {
   Future<void> addToQueue(String id) async {
     final video = await innertubeRepository.getVideo(id);
     await mtPlayerService.addToQueue(video);
-    emit(const MiniPlayerState.shown());
+    emit(const PlayerState.shown());
+  }
+
+  Future<void> addAllToQueue(List<ResourceMT> videos) async {
+    final futures = videos.map((e) => innertubeRepository.getVideo(e.id!));
+    videos = await Future.wait(futures);
+    await mtPlayerService.addAllToQueue(videos);
+    emit(const PlayerState.shown());
   }
 
   Future<bool?> removeFromQueue(String id) async {
     final result = await mtPlayerService.removeFromQueue(id);
     if (result != null && result) {
-      emit(const MiniPlayerState.shown());
+      emit(const PlayerState.shown());
     } else if (result != null && !result) {
-      emit(const MiniPlayerState.hidden());
+      emit(const PlayerState.hidden());
     }
 
     return result;
   }
 
   Future<void> stopPlayingAndClearMediaItem() async {
-    emit(const MiniPlayerState.loading());
+    emit(const PlayerState.loading());
     await mtPlayerService.stopPlayingAndClearMediaItem();
-    emit(const MiniPlayerState.hidden());
+    emit(const PlayerState.hidden());
+  }
+
+  Future<void> stopPlayingAndClearQueue() async {
+    emit(const PlayerState.loading());
+    await mtPlayerService.stopPlayingAndClearQueue();
+    emit(const PlayerState.hidden());
   }
 }

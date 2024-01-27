@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
 class FavoritesHeader extends StatelessWidget {
@@ -15,7 +15,7 @@ class FavoritesHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MiniPlayerCubit miniplayerCubit = context.read<MiniPlayerCubit>();
+    final PlayerCubit miniplayerCubit = context.read<PlayerCubit>();
     return Row(
       children: [
         const Icon(
