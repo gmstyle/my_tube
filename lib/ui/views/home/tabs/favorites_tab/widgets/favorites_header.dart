@@ -18,20 +18,20 @@ class FavoritesHeader extends StatelessWidget {
     final PlayerCubit miniplayerCubit = context.read<PlayerCubit>();
     return Row(
       children: [
-        const Icon(
+        Icon(
           Icons.favorite,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onPrimary,
         ),
         const SizedBox(width: 8),
         Text(
           'Your favorites',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
         ),
         const Spacer(),
         IconButton(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
             onPressed: favorites.isNotEmpty
                 ? () {
                     miniplayerCubit.startPlayingPlaylist(favorites,
@@ -40,7 +40,7 @@ class FavoritesHeader extends StatelessWidget {
                 : null,
             icon: const Icon(Icons.playlist_play)),
         IconButton(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
             onPressed: favorites.isNotEmpty
                 ? () {
                     showDialog(

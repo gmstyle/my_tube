@@ -17,15 +17,17 @@ class ExpandableText extends StatelessWidget {
         dividerColor: Colors.transparent,
       ),
       child: ExpansionTile(
-          collapsedIconColor: Colors.white,
-          iconColor: Colors.white,
+          collapsedIconColor: Theme.of(context).colorScheme.onPrimary,
+          iconColor: Theme.of(context).colorScheme.onPrimary,
           title: Text(
             title,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           ),
           children: [
             ListTile(
-                title: Text(text, style: const TextStyle(color: Colors.white)))
+                title: Text(text,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary)))
           ]),
     );
   }

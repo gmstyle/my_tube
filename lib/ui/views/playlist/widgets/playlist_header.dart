@@ -60,7 +60,8 @@ class PlaylistHeader extends StatelessWidget {
                                   .textTheme
                                   .titleLarge
                                   ?.copyWith(
-                                    color: Colors.white,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                   ),
                             ),
                           ),
@@ -69,16 +70,19 @@ class PlaylistHeader extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.music_note_rounded,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
                           Text(
                             ' Tracks: ${playlist!.itemCount}',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.white,
-                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
                           ),
                         ],
                       ),
@@ -92,14 +96,16 @@ class PlaylistHeader extends StatelessWidget {
                       children: [
                         FloatingActionButton.small(
                             heroTag: "add_playlist_to_queue",
-                            backgroundColor: Colors.white,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
                             onPressed: () {
                               miniplayerCubit.addAllToQueue(playlist!.videos!);
                             },
                             child: const Icon(Icons.queue_music)),
                         FloatingActionButton.small(
                             heroTag: "play_playlist",
-                            backgroundColor: Colors.white,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
                             onPressed:
                                 playlistState.status == PlaylistStatus.loaded
                                     ? () {

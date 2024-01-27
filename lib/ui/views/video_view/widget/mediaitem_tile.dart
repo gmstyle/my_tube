@@ -143,18 +143,18 @@ class DismissibleBackgroud extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.error,
-      child: const Row(
+      child: Row(
         children: [
           Icon(
             Icons.delete,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
           SizedBox(
             width: 8,
           ),
           Text(
             'Remove from queue',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           )
         ],
       ),

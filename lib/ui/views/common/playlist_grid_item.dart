@@ -35,11 +35,11 @@ class PlaylistGridItem extends StatelessWidget {
                 right: 8,
                 child: Column(
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(
                           Icons.album_rounded,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ],
                     ),
@@ -53,7 +53,10 @@ class PlaylistGridItem extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(color: Colors.white),
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
                           ),
                         ),
                       ],

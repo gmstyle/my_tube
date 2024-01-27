@@ -39,11 +39,11 @@ class VideoGridItem extends StatelessWidget {
                 right: 8,
                 child: Column(
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(
                           Icons.audiotrack_rounded,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ],
                     ),
@@ -57,7 +57,10 @@ class VideoGridItem extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(color: Colors.white),
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -72,7 +75,10 @@ class VideoGridItem extends StatelessWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(color: Colors.white),
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
                           ),
                         ),
                       ],

@@ -209,7 +209,7 @@ class MiniPlayer extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: Theme.of(context).colorScheme.onPrimary,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -219,7 +219,7 @@ class MiniPlayer extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: Theme.of(context).colorScheme.onPrimary,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -238,7 +238,7 @@ class MiniPlayer extends StatelessWidget {
                           return IconButton(
                             icon: Icon(
                               Icons.skip_previous,
-                              color: index > 0 ? Colors.white : Colors.grey,
+                              color: index > 0 ? Theme.of(context).colorScheme.onPrimary : Colors.grey,
                             ),
                             onPressed: index > 0
                                 ? () async {
@@ -266,7 +266,7 @@ class MiniPlayer extends StatelessWidget {
                               },
                               icon: Icon(
                                 isPlaying ? Icons.pause : Icons.play_arrow,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ));
                         }),
 
@@ -281,7 +281,7 @@ class MiniPlayer extends StatelessWidget {
                           return IconButton(
                             icon: Icon(
                               Icons.skip_next,
-                              color: hasNext ? Colors.white : Colors.grey,
+                              color: hasNext ? Theme.of(context).colorScheme.onPrimary : Colors.grey,
                             ),
                             onPressed: hasNext
                                 ? () async {

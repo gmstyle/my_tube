@@ -46,7 +46,9 @@ class MusicTabView extends StatelessWidget {
                                           .textTheme
                                           .headlineSmall
                                           ?.copyWith(
-                                            color: Colors.white,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
                                           ),
                                     ),
                                   ],

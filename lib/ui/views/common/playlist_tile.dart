@@ -52,12 +52,12 @@ class PlaylistTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     top: 4,
                     left: 4,
                     child: Icon(
                       Icons.album_rounded,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   )
                 ],
@@ -76,14 +76,13 @@ class PlaylistTile extends StatelessWidget {
                 Text(
                   playlist.title ?? '',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold, color: Colors.white),
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimary),
                   maxLines: 2,
                 ),
                 Text(playlist.channelTitle ?? '',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.white)),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary)),
               ],
             ),
           ),

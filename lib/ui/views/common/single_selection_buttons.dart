@@ -39,7 +39,7 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
         )
       /* IconButton(
             color: widget.items.indexOf(item) == selected
-                ? Colors.white
+                ? Theme.of(context).colorScheme.onPrimary
                 : Colors.grey,
             onPressed: () {
               setState(() {
@@ -54,7 +54,7 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
                   Icon(
                     widget.icons![widget.items.indexOf(item)],
                     color: widget.items.indexOf(item) == selected
-                        ? Colors.white
+                        ? Theme.of(context).colorScheme.onPrimary
                         : Colors.grey,
                   ),
                 const SizedBox(width: 4),
@@ -62,7 +62,7 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
                   item,
                   style: TextStyle(
                       color: selected == widget.items.indexOf(item)
-                          ? Colors.white
+                          ? Theme.of(context).colorScheme.onPrimary
                           : Colors.grey),
                 ),
               ],

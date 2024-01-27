@@ -32,13 +32,13 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   ThemeData appBarTheme(BuildContext context) {
     final ThemeData theme = Theme.of(context).copyWith(
-      hintColor: Colors.white,
+      hintColor: Theme.of(context).colorScheme.onPrimary,
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.white,
+        cursorColor: Theme.of(context).colorScheme.onPrimary,
         selectionColor: Colors.grey[600],
       ),
       textTheme: const TextTheme(
-        titleLarge: TextStyle(color: Colors.white, fontSize: 18),
+        titleLarge: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 18),
       ),
       inputDecorationTheme: const InputDecorationTheme(
         border: InputBorder.none,
@@ -48,8 +48,8 @@ class CustomSearchDelegate extends SearchDelegate {
       appBarTheme: AppBarTheme(
         backgroundColor: Theme.of(context).primaryColor,
         elevation: 0,
-        actionsIconTheme: const IconThemeData(color: Colors.white),
-        iconTheme: const IconThemeData(color: Colors.white),
+        actionsIconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+        iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }
@@ -83,7 +83,7 @@ class CustomSearchDelegate extends SearchDelegate {
     if (query.isEmpty) {
       return const MainGradient(
         child: Center(
-          child: Text('No results', style: TextStyle(color: Colors.white)),
+          child: Text('No results', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         ),
       );
     }
@@ -152,17 +152,17 @@ class CustomSearchDelegate extends SearchDelegate {
                   return ListTile(
                     leading: Icon(
                       state.isQueryHistory ? Icons.history : Icons.search,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                     title: Text(suggestion,
-                        style: const TextStyle(color: Colors.white)),
+                        style: const TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
                     trailing: state.isQueryHistory
                         ? IconButton(
                             onPressed: () {
                               searchSuggestionCubit
                                   .deleteQueryFromHistory(suggestion);
                             },
-                            icon: const Icon(Icons.close, color: Colors.white),
+                            icon: const Icon(Icons.close, color: Theme.of(context).colorScheme.onPrimary),
                           )
                         : null,
                     onTap: () {

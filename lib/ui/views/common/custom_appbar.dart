@@ -26,10 +26,14 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
         centerTitle: centerTitle,
         title: showTitle
             ? title ??
-                const Text('MyTube', style: TextStyle(color: Colors.white))
+                Text('MyTube',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary))
             : null,
-        actionsIconTheme: const IconThemeData(color: Colors.white),
-        iconTheme: const IconThemeData(color: Colors.white),
+        actionsIconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
         actions: [
           if (actions != null) ...actions!,
         ],

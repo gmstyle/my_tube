@@ -25,7 +25,10 @@ class Controls extends StatelessWidget {
                   Icons.shuffle,
                   color: shuffleEnabled
                       ? Theme.of(context).colorScheme.onPrimary
-                      : Colors.white.withOpacity(0.5),
+                      : Theme.of(context)
+                          .colorScheme
+                          .onPrimary
+                          .withOpacity(0.5),
                 ),
                 onPressed: () async {
                   await mtPlayerService.setShuffleMode(shuffleEnabled
@@ -37,9 +40,9 @@ class Controls extends StatelessWidget {
 
         // seek backward
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.replay_10,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
           onPressed: () async {
             await mtPlayerService.seek(
@@ -58,7 +61,9 @@ class Controls extends StatelessWidget {
               return IconButton(
                 icon: Icon(
                   Icons.skip_previous,
-                  color: isEnabled ? Colors.white : null,
+                  color: isEnabled
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : null,
                 ),
                 onPressed: isEnabled
                     ? () async {
@@ -81,7 +86,7 @@ class Controls extends StatelessWidget {
                   iconSize: MediaQuery.of(context).size.width * 0.15,
                   icon: Icon(
                     playing ? Icons.pause_circle : Icons.play_circle,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                   onPressed: () {
                     if (playing) {
@@ -104,7 +109,8 @@ class Controls extends StatelessWidget {
               return IconButton(
                 icon: Icon(
                   Icons.skip_next,
-                  color: isEnable ? Colors.white : null,
+                  color:
+                      isEnable ? Theme.of(context).colorScheme.onPrimary : null,
                 ),
                 onPressed: isEnable
                     ? () async {
@@ -116,9 +122,9 @@ class Controls extends StatelessWidget {
 
         // seek forward
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.forward_10,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
           onPressed: () async {
             await mtPlayerService.seek(
@@ -135,9 +141,15 @@ class Controls extends StatelessWidget {
             builder: (context, snapshot) {
               final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
               final icons = [
-                const Icon(Icons.repeat, color: Colors.white),
-                const Icon(Icons.repeat_one, color: Colors.white),
-                Icon(Icons.repeat, color: Colors.white.withOpacity(0.5)),
+                Icon(Icons.repeat,
+                    color: Theme.of(context).colorScheme.onPrimary),
+                Icon(Icons.repeat_one,
+                    color: Theme.of(context).colorScheme.onPrimary),
+                Icon(Icons.repeat,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onPrimary
+                        .withOpacity(0.5)),
               ];
               const cycleModes = [
                 AudioServiceRepeatMode.all,

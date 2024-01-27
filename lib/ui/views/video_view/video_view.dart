@@ -65,7 +65,7 @@ class VideoView extends StatelessWidget {
                             if (context.canPop()) {
                               return IconButton(
                                 icon: const Icon(Icons.keyboard_arrow_down),
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 onPressed: () {
                                   context.pop();
                                 },
@@ -77,7 +77,7 @@ class VideoView extends StatelessWidget {
                         },
                         child: IconButton(
                           icon: const Icon(Icons.keyboard_arrow_down),
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           onPressed: () {
                             queueDraggableController.animateTo(
                               minChildSize,
@@ -101,7 +101,9 @@ class VideoView extends StatelessWidget {
                                   final favoritesBloc =
                                       BlocProvider.of<FavoritesBloc>(context);
                                   return IconButton(
-                                      color: Colors.white,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
                                       onPressed: () {
                                         if (favoritesBloc
                                             .favoritesRepository.videoIds
@@ -162,7 +164,9 @@ class VideoView extends StatelessWidget {
                                       .textTheme
                                       .titleLarge
                                       ?.copyWith(
-                                        color: Colors.white,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
                                       ),
                                 ),
                               ),
@@ -176,8 +180,10 @@ class VideoView extends StatelessWidget {
                               Flexible(
                                 child: Text(mediaItem?.album ?? '',
                                     maxLines: 2,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
                                     )),
                               ),
                             ],

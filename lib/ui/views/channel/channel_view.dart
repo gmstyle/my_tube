@@ -57,7 +57,9 @@ class ChannelView extends StatelessWidget {
                                           .textTheme
                                           .headlineSmall
                                           ?.copyWith(
-                                            color: Colors.white,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
                                           ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -68,7 +70,9 @@ class ChannelView extends StatelessWidget {
                                       children: [
                                         // add to queue
                                         IconButton(
-                                            color: Colors.white,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
                                             onPressed: () {
                                               miniplayerCubit.addAllToQueue(
                                                   section.videos!);
@@ -76,7 +80,9 @@ class ChannelView extends StatelessWidget {
                                             icon:
                                                 const Icon(Icons.queue_music)),
                                         IconButton(
-                                            color: Colors.white,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
                                             onPressed: () {
                                               miniplayerCubit
                                                   .startPlayingPlaylist(

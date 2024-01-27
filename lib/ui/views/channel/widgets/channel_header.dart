@@ -52,7 +52,9 @@ class ChannelHeader extends StatelessWidget {
                                     .textTheme
                                     .titleLarge
                                     ?.copyWith(
-                                      color: Colors.white,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
                                       fontWeight: FontWeight.bold,
                                     )),
                           ),
@@ -66,7 +68,10 @@ class ChannelHeader extends StatelessWidget {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(color: Colors.white),
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
                             ),
                           ],
                         ),
@@ -75,11 +80,11 @@ class ChannelHeader extends StatelessWidget {
                         children: [
                           const Icon(
                             Icons.music_note_rounded,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
                           Text(
                             ' Tracks: ${channel!.videos?.length}',
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                           ),
                         ],
                       ), */
@@ -87,13 +92,15 @@ class ChannelHeader extends StatelessWidget {
                       if (channel!.subscriberCount != null)
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.remove_red_eye,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                             Text(
                               ' Subscribers: ${channel!.subscriberCount!}',
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
                             ),
                           ],
                         ),

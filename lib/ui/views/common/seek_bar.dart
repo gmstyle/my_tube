@@ -26,7 +26,7 @@ class SeekBar extends StatelessWidget {
                 Utils.fornmatDuration(position),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: darkBackground
-                          ? Colors.white
+                          ? Theme.of(context).colorScheme.onPrimary
                           : Theme.of(context).colorScheme.primary,
                     ),
               );
@@ -50,19 +50,25 @@ class SeekBar extends StatelessWidget {
                       return SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: darkBackground
-                              ? Colors.white
+                              ? Theme.of(context).colorScheme.onPrimary
                               : Theme.of(context).colorScheme.primary,
                           inactiveTrackColor: darkBackground
-                              ? Colors.white.withOpacity(0.3)
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .onPrimary
+                                  .withOpacity(0.3)
                               : Theme.of(context)
                                   .colorScheme
                                   .primary
                                   .withOpacity(0.3),
                           thumbColor: darkBackground
-                              ? Colors.white
+                              ? Theme.of(context).colorScheme.onPrimary
                               : Theme.of(context).colorScheme.primary,
                           overlayColor: darkBackground
-                              ? Colors.white.withOpacity(0.3)
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .onPrimary
+                                  .withOpacity(0.3)
                               : Theme.of(context)
                                   .colorScheme
                                   .primary
@@ -106,7 +112,7 @@ class SeekBar extends StatelessWidget {
                       Utils.fornmatDuration(duration - position),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: darkBackground
-                                ? Colors.white
+                                ? Theme.of(context).colorScheme.onPrimary
                                 : Theme.of(context).colorScheme.primary,
                           ),
                     );

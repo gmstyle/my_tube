@@ -62,14 +62,17 @@ class VideoTile extends StatelessWidget {
                       Text(
                         video.title ?? '',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold, color: Colors.white),
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onPrimary),
                         maxLines: 2,
                       ),
                       Text(video.channelTitle ?? '',
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
-                              ?.copyWith(color: Colors.white)),
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary)),
                     ],
                   ),
                 ),

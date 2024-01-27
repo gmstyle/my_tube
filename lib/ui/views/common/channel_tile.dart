@@ -30,13 +30,15 @@ class ChannelTile extends StatelessWidget {
                 Text(
                   channel.channelTitle ?? '',
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   channel.subscriberCount ?? '',
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -45,7 +47,8 @@ class ChannelTile extends StatelessWidget {
                       ? '${channel.videoCount} videos'
                       : channel.videoCount ?? '',
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
             ),
