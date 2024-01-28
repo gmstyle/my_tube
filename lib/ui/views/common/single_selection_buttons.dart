@@ -24,12 +24,11 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
       for (var item in widget.items)
         FilterChip(
-          avatar: widget.icons != null
+          avatar: widget.icons != null && selected != widget.items.indexOf(item)
               ? Icon(
                   widget.icons![widget.items.indexOf(item)],
                 )
               : null,
-          showCheckmark: false,
           label: Text(item),
           onSelected: (value) => setState(() {
             selected = widget.items.indexOf(item);
@@ -37,36 +36,6 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
           }),
           selected: widget.items.indexOf(item) == selected,
         )
-      /* IconButton(
-            color: widget.items.indexOf(item) == selected
-                ? Theme.of(context).colorScheme.onPrimary
-                : Colors.grey,
-            onPressed: () {
-              setState(() {
-                selected = widget.items.indexOf(item);
-                widget.onSelected(widget.items.indexOf(item), item);
-              });
-            },
-            icon: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (widget.icons != null)
-                  Icon(
-                    widget.icons![widget.items.indexOf(item)],
-                    color: widget.items.indexOf(item) == selected
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Colors.grey,
-                  ),
-                const SizedBox(width: 4),
-                Text(
-                  item,
-                  style: TextStyle(
-                      color: selected == widget.items.indexOf(item)
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : Colors.grey),
-                ),
-              ],
-            )) */
     ]);
   }
 }

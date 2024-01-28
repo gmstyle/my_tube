@@ -25,16 +25,16 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
     TrendingCategory trendingCategory = TrendingCategory.now;
     try {
       switch (event.category) {
-        case CategoryEnum.now:
+        case CategoryEnum.Now:
           trendingCategory = TrendingCategory.now;
           break;
-        case CategoryEnum.music:
+        case CategoryEnum.Music:
           trendingCategory = TrendingCategory.music;
           break;
-        case CategoryEnum.film:
+        case CategoryEnum.Film:
           trendingCategory = TrendingCategory.film;
           break;
-        case CategoryEnum.gaming:
+        case CategoryEnum.Gaming:
           trendingCategory = TrendingCategory.gaming;
           break;
       }
