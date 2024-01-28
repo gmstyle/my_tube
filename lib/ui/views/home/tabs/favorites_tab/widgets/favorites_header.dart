@@ -29,67 +29,64 @@ class FavoritesHeader extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
         ),
-        const Spacer(),
-        IconButton(
-            color: Theme.of(context).colorScheme.onPrimary,
-            onPressed: favorites.isNotEmpty
-                ? () {
-                    miniplayerCubit.startPlayingPlaylist(favorites,
-                        renewStreamUrls: true);
-                  }
-                : null,
-            icon: const Icon(Icons.playlist_play)),
-        IconButton(
-            color: Theme.of(context).colorScheme.onPrimary,
-            onPressed: favorites.isNotEmpty
-                ? () {
-                    showDialog<bool>(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Row(
-                              children: [
-                                Icon(Icons.favorite,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondaryContainer),
-                                const SizedBox(width: 8),
-                                const Text('Clear favorites'),
-                              ],
-                            ),
-                            content: const Text(
-                                'Are you sure you want to clear your favorites?'),
-                            actions: [
-                              IconButton(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSecondaryContainer,
-                                  onPressed: () {
-                                    context.pop(false);
-                                  },
-                                  icon: const Icon(
-                                    Icons.close,
-                                  )),
-                              IconButton(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSecondaryContainer,
-                                  onPressed: () {
-                                    context.pop(true);
-                                  },
-                                  icon: const Icon(
-                                    Icons.check,
-                                  )),
-                            ],
-                          );
-                        }).then((value) {
-                      if (value == true) {
-                        context.read<FavoritesBloc>().add(ClearFavorites());
-                      }
+        if (favorites.isNotEmpty) ...[
+          const Spacer(),
+          IconButton(
+              color: Theme.of(context).colorScheme.onPrimary,
+              onPressed: () {
+                miniplayerCubit.startPlayingPlaylist(favorites,
+                    renewStreamUrls: true);
+              },
+              icon: const Icon(Icons.playlist_play)),
+          IconButton(
+              color: Theme.of(context).colorScheme.onPrimary,
+              onPressed: () {
+                showDialog<bool>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Row(
+                          children: [
+                            Icon(Icons.favorite,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer),
+                            const SizedBox(width: 8),
+                            const Text('Clear favorites'),
+                          ],
+                        ),
+                        content: const Text(
+                            'Are you sure you want to clear your favorites?'),
+                        actions: [
+                          IconButton(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                              onPressed: () {
+                                context.pop();
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                              )),
+                          IconButton(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                              onPressed: () {
+                                context
+                                    .read<FavoritesBloc>()
+                                    .add(ClearFavorites());
+                                context.pop();
+                              },
+                              icon: const Icon(
+                                Icons.check,
+                              )),
+                        ],
+                      );
                     });
-                  }
-                : null,
-            icon: const Icon(Icons.clear_all_rounded))
+              },
+              icon: const Icon(Icons.clear_all_rounded))
+        ]
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
 
 class QueueTabView extends StatelessWidget {
@@ -21,28 +22,31 @@ class QueueTabView extends StatelessWidget {
         case FavoritesStatus.success:
           final favorites = state.favorites!.reversed.toList();
 
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: FavoritesHeader(favorites: favorites),
-              ),
-              Expanded(
-                child: favorites.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: favorites.length,
-                        itemBuilder: (context, index) {
-                          final video = favorites[index];
-                          return PlayPauseGestureDetector(
-                              resource: video,
-                              child: VideoMenuDialog(
-                                  video: video,
-                                  child: VideoTile(video: video)));
-                        },
-                      )
-                    : const Center(child: Text('No favorites yet')),
-              ),
-            ],
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: FavoritesHeader(favorites: favorites),
+                ),
+                Expanded(
+                  child: favorites.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: favorites.length,
+                          itemBuilder: (context, index) {
+                            final video = favorites[index];
+                            return PlayPauseGestureDetector(
+                                resource: video,
+                                child: VideoMenuDialog(
+                                    video: video,
+                                    child: VideoTile(video: video)));
+                          },
+                        )
+                      : const EmptyFavorites(),
+                ),
+              ],
+            ),
           );
         case FavoritesStatus.failure:
           return Center(child: Text(state.error!));
