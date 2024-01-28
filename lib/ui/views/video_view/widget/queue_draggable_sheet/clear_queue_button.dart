@@ -34,7 +34,7 @@ class ClearQueueButton extends StatelessWidget {
                 IconButton(
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
                     onPressed: () {
-                      context.pop();
+                      context.pop(false);
                     },
                     icon: const Icon(
                       Icons.close,
@@ -42,13 +42,15 @@ class ClearQueueButton extends StatelessWidget {
                 IconButton(
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
                     onPressed: () {
-                      playerCubit.stopPlayingAndClearQueue();
-                      context.pop();
+                      context.pop(true);
                     },
                     icon: const Icon(
                       Icons.check,
                     )),
               ],
-            ));
+            )).then((value) => {
+          if (value == true)
+            {playerCubit.stopPlayingAndClearQueue(), context.pop()}
+        });
   }
 }

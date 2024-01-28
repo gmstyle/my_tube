@@ -218,33 +218,6 @@ class VideoView extends StatelessWidget {
     );
   }
 
-  void _onClearQueuePressed(BuildContext context, PlayerCubit playerCubit) {
-    showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text('Are you sure?'),
-              content: const Text('Do you want to clear the queue?'),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      context.pop(false);
-                    },
-                    child: const Text('No')),
-                TextButton(
-                    onPressed: () {
-                      context.pop(true);
-                    },
-                    child: const Text('Yes')),
-              ],
-            )).then((value) => {
-          if (value == true)
-            {
-              playerCubit.stopPlayingAndClearQueue(),
-              context.pop(),
-            }
-        });
-  }
-
   double _setAspectRatio(MtPlayerService mtPlayerService) {
     return mtPlayerService
                 .chewieController.videoPlayerController.value.aspectRatio <=

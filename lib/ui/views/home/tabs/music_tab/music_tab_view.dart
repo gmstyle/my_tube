@@ -7,9 +7,7 @@ import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.da
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/video_section.dart';
 
 class MusicTabView extends StatelessWidget {
-  MusicTabView({super.key});
-
-  final ScrollController _scrollController = ScrollController();
+  const MusicTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +28,7 @@ class MusicTabView extends StatelessWidget {
                     children: [
                       Carousel(carouselVideos: state.response!.carouselVideos!),
                       const SizedBox(height: 16),
-                      // TODO: Related videos
+
                       // Sections
                       for (final section in state.response!.sections)
                         Column(

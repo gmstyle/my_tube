@@ -17,7 +17,7 @@ class MusicTabPAge extends Page {
                 create: (_) => MusicTabBloc(
                     innertubeRepository: context.read<InnertubeRepository>())
                   ..add(const GetMusicHome())),
-          ], child: MusicTabView());
+          ], child: const MusicTabView());
         });
   }
 }
