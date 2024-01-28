@@ -43,21 +43,27 @@ class FavoritesHeader extends StatelessWidget {
             color: Theme.of(context).colorScheme.onPrimary,
             onPressed: favorites.isNotEmpty
                 ? () {
-                    showDialog(
+                    showDialog<bool>(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: const Row(
+                            title: Row(
                               children: [
-                                Icon(Icons.favorite),
-                                SizedBox(width: 8),
-                                Text('Clear favorites'),
+                                Icon(Icons.favorite,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondaryContainer),
+                                const SizedBox(width: 8),
+                                const Text('Clear favorites'),
                               ],
                             ),
                             content: const Text(
                                 'Are you sure you want to clear your favorites?'),
                             actions: [
                               IconButton(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
                                   onPressed: () {
                                     context.pop(false);
                                   },
@@ -65,13 +71,14 @@ class FavoritesHeader extends StatelessWidget {
                                     Icons.close,
                                   )),
                               IconButton(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
                                   onPressed: () {
                                     context.pop(true);
                                   },
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.check,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
                                   )),
                             ],
                           );

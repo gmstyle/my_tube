@@ -20,31 +20,38 @@ class ClearQueueButton extends StatelessWidget {
     showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.queue_music),
-                  SizedBox(width: 8),
-                  Text('Clear queue'),
+                  Icon(Icons.queue_music,
+                      color:
+                          Theme.of(context).colorScheme.onSecondaryContainer),
+                  const SizedBox(width: 8),
+                  const Text('Clear queue'),
                 ],
               ),
               content: const Text('Are you sure you want to clear your queue?'),
               actions: [
-                TextButton(
+                IconButton(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
                     onPressed: () {
                       context.pop(false);
                     },
-                    child: const Text('No')),
-                TextButton(
+                    icon: const Icon(
+                      Icons.close,
+                    )),
+                IconButton(
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
                     onPressed: () {
                       context.pop(true);
                     },
-                    child: const Text('Yes')),
+                    icon: const Icon(
+                      Icons.check,
+                    )),
               ],
             )).then((value) => {
           if (value == true)
             {
               playerCubit.stopPlayingAndClearQueue(),
-              context.pop(),
             }
         });
   }
