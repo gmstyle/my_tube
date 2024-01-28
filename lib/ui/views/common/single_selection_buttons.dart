@@ -18,23 +18,29 @@ class SingleSelectionButtons extends StatefulWidget {
 
 class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
   int selected = 0;
+  List<Icon>? icons;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.icons != null) {
+      icons = widget.icons!.map((iconData) => Icon(iconData)).toList();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-      for (var item in widget.items)
+      for (var entry in widget.items.asMap().entries)
         FilterChip(
-          avatar: widget.icons != null && selected != widget.items.indexOf(item)
-              ? Icon(
-                  widget.icons![widget.items.indexOf(item)],
-                )
-              : null,
-          label: Text(item),
+          avatar:
+              icons != null && selected != entry.key ? icons![entry.key] : null,
+          label: Text(entry.value),
           onSelected: (value) => setState(() {
-            selected = widget.items.indexOf(item);
-            widget.onSelected(widget.items.indexOf(item), item);
+            selected = entry.key;
+            widget.onSelected(entry.key, entry.value);
           }),
-          selected: widget.items.indexOf(item) == selected,
+          selected: entry.key == selected,
         )
     ]);
   }
