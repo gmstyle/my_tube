@@ -149,7 +149,7 @@ class DismissibleBackgroud extends StatelessWidget {
             Icons.delete,
             color: Theme.of(context).colorScheme.onPrimary,
           ),
-          SizedBox(
+          const SizedBox(
             width: 8,
           ),
           Text(
