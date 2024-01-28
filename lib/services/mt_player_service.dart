@@ -162,13 +162,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     playbackState.add(playbackState.value.copyWith(
         controls: [
-          if (currentIndex > 0) MediaControl.skipToPrevious,
+          MediaControl.skipToPrevious,
           if (playbackState.value.playing)
             MediaControl.pause
           else
             MediaControl.play,
-          if (currentIndex < playlist.length - 1) MediaControl.skipToNext,
           MediaControl.stop,
+          MediaControl.skipToNext,
         ],
         systemActions: const {
           MediaAction.seek,
@@ -176,7 +176,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         androidCompactActionIndices: const [
           0,
           1,
-          2
+          3
         ],
         processingState: audioProcessingState(),
         playing: isPlaying(),
