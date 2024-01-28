@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
 class PlaylistTile extends StatelessWidget {
@@ -10,8 +8,6 @@ class PlaylistTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final queueCubit = context.read<FavoritesBloc>();
-
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
       margin: const EdgeInsets.only(bottom: 16),
