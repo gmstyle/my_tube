@@ -31,6 +31,7 @@ class MiniPlayer extends StatelessWidget {
                 topLeft: Radius.circular(10), topRight: Radius.circular(10)),
             child: Container(
               color: Theme.of(context).colorScheme.primaryContainer,
+              height: 80,
               child: HorizontalSwipeToSkip(
                 child: Container(
                     padding:
@@ -62,8 +63,7 @@ class MiniPlayer extends StatelessWidget {
                             }),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Wrap(
                             children: [
                               // Video Title and Album
                               StreamBuilder(

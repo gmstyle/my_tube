@@ -26,63 +26,59 @@ class ExploreTabView extends StatelessWidget {
     final exploreTabBloc = context.read<ExploreTabBloc>()
       ..add(GetTrendingVideos(category: _getCategory()));
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          StatefulBuilder(builder: (context, setState) {
-            return SingleSelectionButtons(
-              items: CategoryEnum.values.map((e) => e.name).toList(),
-              icons: icons,
-              onSelected: (selectedIndex, selectedValue) {
-                if (_selectedCategory != selectedValue) {
-                  setState(() {
-                    _selectedCategory = selectedValue;
-                  });
-                  exploreTabBloc
-                      .add(GetTrendingVideos(category: _getCategory()));
-                }
-              },
-            );
-          }),
-          const SizedBox(height: 8),
-          Expanded(
-            child: BlocBuilder<ExploreTabBloc, ExploreTabState>(
-              builder: (context, state) {
-                switch (state.status) {
-                  case YoutubeStatus.loading:
-                    return const SkeletonList();
+    return Column(
+      children: [
+        StatefulBuilder(builder: (context, setState) {
+          return SingleSelectionButtons(
+            items: CategoryEnum.values.map((e) => e.name).toList(),
+            icons: icons,
+            onSelected: (selectedIndex, selectedValue) {
+              if (_selectedCategory != selectedValue) {
+                setState(() {
+                  _selectedCategory = selectedValue;
+                });
+                exploreTabBloc.add(GetTrendingVideos(category: _getCategory()));
+              }
+            },
+          );
+        }),
+        const SizedBox(height: 8),
+        Expanded(
+          child: BlocBuilder<ExploreTabBloc, ExploreTabState>(
+            builder: (context, state) {
+              switch (state.status) {
+                case YoutubeStatus.loading:
+                  return const SkeletonList();
 
-                  case YoutubeStatus.loaded:
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        exploreTabBloc
-                            .add(GetTrendingVideos(category: _getCategory()));
+                case YoutubeStatus.loaded:
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      exploreTabBloc
+                          .add(GetTrendingVideos(category: _getCategory()));
+                    },
+                    child: ListView.builder(
+                      itemCount: state.response!.resources.length,
+                      itemBuilder: (context, index) {
+                        final video = state.response?.resources[index];
+                        return PlayPauseGestureDetector(
+                          resource: video!,
+                          child: VideoMenuDialog(
+                              video: video, child: VideoTile(video: video)),
+                        );
                       },
-                      child: ListView.builder(
-                        itemCount: state.response!.resources.length,
-                        itemBuilder: (context, index) {
-                          final video = state.response?.resources[index];
-                          return PlayPauseGestureDetector(
-                            resource: video!,
-                            child: VideoMenuDialog(
-                                video: video, child: VideoTile(video: video)),
-                          );
-                        },
-                      ),
-                    );
-                  case YoutubeStatus.error:
-                    return Center(
-                      child: Text(state.error!),
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
-            ),
+                    ),
+                  );
+                case YoutubeStatus.error:
+                  return Center(
+                    child: Text(state.error!),
+                  );
+                default:
+                  return const SizedBox.shrink();
+              }
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

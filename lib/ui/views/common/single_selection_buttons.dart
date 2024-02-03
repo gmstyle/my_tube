@@ -30,18 +30,22 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-      for (var entry in widget.items.asMap().entries)
-        FilterChip(
-          avatar:
-              icons != null && selected != entry.key ? icons![entry.key] : null,
-          label: Text(entry.value),
-          onSelected: (value) => setState(() {
-            selected = entry.key;
-            widget.onSelected(entry.key, entry.value);
-          }),
-          selected: entry.key == selected,
-        )
-    ]);
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(spacing: 8, children: [
+        for (var entry in widget.items.asMap().entries)
+          FilterChip(
+            avatar: icons != null && selected != entry.key
+                ? icons![entry.key]
+                : null,
+            label: Text(entry.value),
+            onSelected: (value) => setState(() {
+              selected = entry.key;
+              widget.onSelected(entry.key, entry.value);
+            }),
+            selected: entry.key == selected,
+          )
+      ]),
+    );
   }
 }

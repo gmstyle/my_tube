@@ -51,7 +51,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           resizeToAvoidBottomInset: false,
-          body: navigationShell,
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: navigationShell,
+          ),
           bottomNavigationBar: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

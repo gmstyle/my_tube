@@ -33,27 +33,23 @@ class PlaylistView extends StatelessWidget {
               case PlaylistStatus.loaded:
                 final playlist = state.response;
                 return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      children: [
-                        PlaylistHeader(playlist: playlist),
-                        const SizedBox(height: 16),
-                        ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: playlist?.videos!.length,
-                            itemBuilder: (context, index) {
-                              final video = playlist?.videos![index];
-                              return PlayPauseGestureDetector(
-                                resource: video!,
-                                child: VideoMenuDialog(
-                                    video: video,
-                                    child: VideoTile(video: video)),
-                              );
-                            }),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      PlaylistHeader(playlist: playlist),
+                      const SizedBox(height: 16),
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: playlist?.videos!.length,
+                          itemBuilder: (context, index) {
+                            final video = playlist?.videos![index];
+                            return PlayPauseGestureDetector(
+                              resource: video!,
+                              child: VideoMenuDialog(
+                                  video: video, child: VideoTile(video: video)),
+                            );
+                          }),
+                    ],
                   ),
                 );
 

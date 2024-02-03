@@ -22,58 +22,54 @@ class MusicTabView extends StatelessWidget {
                 favoritesTabBloc.add(const GetMusicHome());
               },
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Carousel(carouselVideos: state.response!.carouselVideos!),
-                      const SizedBox(height: 16),
+                child: Column(
+                  children: [
+                    Carousel(carouselVideos: state.response!.carouselVideos!),
+                    const SizedBox(height: 16),
 
-                      // Sections
-                      for (final section in state.response!.sections)
-                        Column(
-                          children: [
-                            Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    const SizedBox(width: 16),
-                                    Text(
-                                      section.title ?? '',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                if (section.videos != null &&
-                                    section.videos!.isNotEmpty)
-                                  SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 16),
-                                      child: VideoSection(
-                                        videos: section.videos!,
-                                      ),
+                    // Sections
+                    for (final section in state.response!.sections)
+                      Column(
+                        children: [
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    section.title ?? '',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              if (section.videos != null &&
+                                  section.videos!.isNotEmpty)
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    child: VideoSection(
+                                      videos: section.videos!,
                                     ),
                                   ),
-                                if (section.playlists != null &&
-                                    section.playlists!.isNotEmpty)
-                                  PlaylistSection(
-                                      playlists: section.playlists!),
-                              ],
-                            ),
-                          ],
-                        )
-                    ],
-                  ),
+                                ),
+                              if (section.playlists != null &&
+                                  section.playlists!.isNotEmpty)
+                                PlaylistSection(playlists: section.playlists!),
+                            ],
+                          ),
+                        ],
+                      )
+                  ],
                 ),
               ));
         case FavoritesStatus.error:

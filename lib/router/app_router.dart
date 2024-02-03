@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
-import 'package:my_tube/router/pages/musci_tab_page.dart';
+import 'package:my_tube/router/pages/music_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';

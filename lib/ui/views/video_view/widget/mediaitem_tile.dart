@@ -26,7 +26,7 @@ class MediaitemTile extends StatelessWidget {
       },
       background: const DismissibleBackgroud(),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.1,
+        height: 70,
         margin: const EdgeInsets.only(bottom: 16),
         padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.03),
@@ -68,19 +68,29 @@ class MediaitemTile extends StatelessWidget {
                   Expanded(
                     flex: 2,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          mediaItem.title,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                          maxLines: 2,
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                mediaItem.title,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                                maxLines: 2,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(mediaItem.album ?? '',
-                            style: Theme.of(context).textTheme.bodySmall),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(mediaItem.album ?? '',
+                                  style: Theme.of(context).textTheme.bodySmall),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

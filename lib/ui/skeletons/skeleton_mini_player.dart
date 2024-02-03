@@ -13,6 +13,7 @@ class SkeletonMiniPlayer extends StatelessWidget {
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
       child: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
+        height: 80,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Skeleton(
           shimmerGradient: LinearGradient(colors: [
@@ -34,7 +35,7 @@ class SkeletonMiniPlayer extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         height: 16,

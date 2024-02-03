@@ -34,85 +34,78 @@ class ChannelView extends StatelessWidget {
               case ChannelPageStatus.loaded:
                 final channel = state.channel;
                 return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                    ),
-                    child: Column(
-                      children: [
-                        ChannelHeader(channel: channel),
-                        const SizedBox(height: 8),
-                        // sections
-                        for (final section in channel!.sections!)
-                          Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      section.title ?? '',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                  child: Column(
+                    children: [
+                      ChannelHeader(channel: channel),
+                      const SizedBox(height: 8),
+                      // sections
+                      for (final section in channel!.sections!)
+                        Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    section.title ?? '',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (section.videos != null &&
-                                      section.videos!.isNotEmpty)
-                                    Row(
-                                      children: [
-                                        // add to queue
-                                        IconButton(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            onPressed: () {
-                                              miniplayerCubit.addAllToQueue(
-                                                  section.videos!);
-                                            },
-                                            icon:
-                                                const Icon(Icons.queue_music)),
-                                        IconButton(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            onPressed: () {
-                                              miniplayerCubit
-                                                  .startPlayingPlaylist(
-                                                      section.videos!);
-                                            },
-                                            icon: const Icon(
-                                                Icons.playlist_play)),
-                                      ],
-                                    )
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              if (section.videos != null &&
-                                  section.videos!.isNotEmpty)
-                                VideoSection(
-                                  videos: section.videos!,
-                                  crossAxisCount: 2,
                                 ),
-                              if (section.playlists != null &&
-                                  section.playlists!.isNotEmpty)
-                                PlaylistSection(playlists: section.playlists!),
-                              if (section.channels != null &&
-                                  section.channels!.isNotEmpty)
-                                FeaturedChannelsSection(
-                                    channels: section.channels!),
-                              const SizedBox(height: 8),
-                            ],
-                          )
-                      ],
-                    ),
+                                if (section.videos != null &&
+                                    section.videos!.isNotEmpty)
+                                  Row(
+                                    children: [
+                                      // add to queue
+                                      IconButton(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          onPressed: () {
+                                            miniplayerCubit
+                                                .addAllToQueue(section.videos!);
+                                          },
+                                          icon: const Icon(Icons.queue_music)),
+                                      IconButton(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          onPressed: () {
+                                            miniplayerCubit
+                                                .startPlayingPlaylist(
+                                                    section.videos!);
+                                          },
+                                          icon:
+                                              const Icon(Icons.playlist_play)),
+                                    ],
+                                  )
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            if (section.videos != null &&
+                                section.videos!.isNotEmpty)
+                              VideoSection(
+                                videos: section.videos!,
+                                crossAxisCount: 2,
+                              ),
+                            if (section.playlists != null &&
+                                section.playlists!.isNotEmpty)
+                              PlaylistSection(playlists: section.playlists!),
+                            if (section.channels != null &&
+                                section.channels!.isNotEmpty)
+                              FeaturedChannelsSection(
+                                  channels: section.channels!),
+                            const SizedBox(height: 8),
+                          ],
+                        )
+                    ],
                   ),
                 );
 

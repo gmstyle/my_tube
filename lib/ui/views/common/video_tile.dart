@@ -14,7 +14,7 @@ class VideoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
     return Container(
-      height: MediaQuery.of(context).size.height * 0.1,
+      height: 70,
       margin: const EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width * 0.03),
@@ -56,23 +56,39 @@ class VideoTile extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        video.title ?? '',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onPrimary),
-                        maxLines: 2,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              video.title ?? '',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                              maxLines: 2,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(video.channelTitle ?? '',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary)),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(video.channelTitle ?? '',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary)),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
