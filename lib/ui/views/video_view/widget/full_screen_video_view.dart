@@ -38,9 +38,9 @@ class _FullScreenVideoViewState extends State<FullScreenVideoView> {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: widget.mtPlayerService.chewieController.videoPlayerController
-          .value.aspectRatio,
-      child: Chewie(controller: widget.mtPlayerService.chewieController),
+      aspectRatio: widget.mtPlayerService.chewieController!
+          .videoPlayerController.value.aspectRatio,
+      child: Chewie(controller: widget.mtPlayerService.chewieController!),
     );
   }
 }

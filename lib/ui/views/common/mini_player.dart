@@ -24,6 +24,21 @@ class MiniPlayer extends StatelessWidget {
         if (state.status == PlayerStatus.hidden) {
           return const SizedBox.shrink();
         }
+
+        if (state.status == PlayerStatus.error) {
+          return ClipRRect(
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+            child: Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              height: 80,
+              child: Center(
+                child: Text(state.message!),
+              ),
+            ),
+          );
+        }
+
         return GestureDetector(
           onTap: () => context.pushNamed(AppRoute.video.name),
           child: ClipRRect(

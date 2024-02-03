@@ -8,8 +8,8 @@ import 'package:my_tube/ui/views/video_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 
 class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
-  late VideoPlayerController videoPlayerController;
-  late ChewieController chewieController;
+  VideoPlayerController? videoPlayerController;
+  ChewieController? chewieController;
   int currentIndex = -1;
   MediaItem? currentTrack;
   List<MediaItem> playlist = [];
@@ -42,30 +42,30 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   @override
   Future<void> play() async {
-    await chewieController.videoPlayerController.play();
+    await chewieController?.videoPlayerController.play();
   }
 
   @override
   Future<void> pause() async {
-    await chewieController.videoPlayerController.pause();
+    await chewieController?.videoPlayerController.pause();
   }
 
   @override
   Future<void> stop() async {
-    await chewieController.videoPlayerController.pause();
-    await chewieController.videoPlayerController.seekTo(Duration.zero);
+    await videoPlayerController?.dispose();
+    chewieController?.dispose();
   }
 
   @override
   Future<void> seek(Duration position) async {
-    await chewieController.videoPlayerController.seekTo(position);
+    await chewieController?.videoPlayerController.seekTo(position);
   }
 
   @override
   Future<void> skipToPrevious() async {
     if (currentIndex > 0) {
       currentIndex--;
-      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await chewieController?.videoPlayerController.seekTo(Duration.zero);
       await _playCurrentTrack();
       skipController.add(null);
     }
@@ -75,7 +75,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> skipToNext() async {
     if (currentIndex < playlist.length - 1) {
       currentIndex++;
-      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await chewieController?.videoPlayerController.seekTo(Duration.zero);
       await _playCurrentTrack();
       skipController.add(null);
     }
@@ -97,7 +97,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     } else if (currentIndex != randomIndex) {
       currentIndex = randomIndex;
       playedIndexesInShuffleMode.add(currentIndex);
-      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await chewieController?.videoPlayerController.seekTo(Duration.zero);
       await _playCurrentTrack();
       skipController.add(null);
     }
@@ -106,12 +106,12 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> skipToNextInRepeatModeAll() async {
     if (currentIndex < playlist.length - 1) {
       currentIndex++;
-      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await chewieController?.videoPlayerController.seekTo(Duration.zero);
       await _playCurrentTrack();
       skipController.add(null);
     } else {
       currentIndex = 0;
-      await chewieController.videoPlayerController.seekTo(Duration.zero);
+      await chewieController?.videoPlayerController.seekTo(Duration.zero);
       await _playCurrentTrack();
       skipController.add(null);
     }
@@ -151,10 +151,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   // prepara lo stato del player per la riproduzione
   void _broadcastState() {
-    bool isPlaying() => chewieController.videoPlayerController.value.isPlaying;
+    bool isPlaying() =>
+        chewieController != null &&
+        chewieController!.videoPlayerController.value.isPlaying;
 
     AudioProcessingState audioProcessingState() {
-      if (chewieController.videoPlayerController.value.isInitialized) {
+      if (chewieController != null &&
+          chewieController!.videoPlayerController.value.isInitialized) {
         return AudioProcessingState.ready;
       }
       return AudioProcessingState.idle;
@@ -180,26 +183,31 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         ],
         processingState: audioProcessingState(),
         playing: isPlaying(),
-        updatePosition: chewieController.videoPlayerController.value.position,
-        speed: chewieController.videoPlayerController.value.playbackSpeed,
+        updatePosition: chewieController!.videoPlayerController.value.position,
+        speed: chewieController!.videoPlayerController.value.playbackSpeed,
         queueIndex: currentIndex));
   }
 
   Future<void> _playCurrentTrack() async {
     currentTrack = playlist[currentIndex];
 
+    if (chewieController != null && videoPlayerController != null) {
+      await chewieController!.videoPlayerController.dispose();
+      chewieController!.dispose();
+    }
+
     // inizializza il video player controller da passare a chewie
     videoPlayerController = VideoPlayerController.networkUrl(
       Uri.parse(currentTrack?.extras!['streamUrl']),
       videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
     );
-    if (!videoPlayerController.value.isInitialized) {
-      await videoPlayerController.initialize();
+    if (!videoPlayerController!.value.isInitialized) {
+      await videoPlayerController!.initialize();
     }
 
     // inizializza il chewie controller per la riproduzione del video
     chewieController = ChewieController(
-      videoPlayerController: videoPlayerController,
+      videoPlayerController: videoPlayerController!,
       autoPlay: true,
       showOptions: false,
       routePageBuilder: (context, animation, __, ___) {
@@ -217,12 +225,12 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     mediaItem.add(currentTrack);
 
     // propaga lo stato del player ad audio_service e a tutti i listeners
-    chewieController.videoPlayerController.addListener(_broadcastState);
 
-    chewieController.videoPlayerController.addListener(() {
+    chewieController?.videoPlayerController.addListener(() {
+      _broadcastState();
       // verifica che il video sia finito
-      if (chewieController.videoPlayerController.value.duration ==
-          chewieController.videoPlayerController.value.position) {
+      if (chewieController!.videoPlayerController.value.duration ==
+          chewieController!.videoPlayerController.value.position) {
         // verifica che ci siano altri brani nella coda
         if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
           skipToNextInShuffleMode();
@@ -245,14 +253,19 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           }
         }
       }
+
+      if (chewieController!.videoPlayerController.value.hasError) {
+        print(
+            'Errore di riproduzione: ${chewieController!.videoPlayerController.value.errorDescription}');
+      }
     });
   }
 
   Future<void> _setRepeatMode(AudioServiceRepeatMode repeatMode) async {
     if (repeatMode == AudioServiceRepeatMode.one) {
-      await chewieController.videoPlayerController.setLooping(true);
+      await chewieController?.videoPlayerController.setLooping(true);
     } else {
-      await chewieController.videoPlayerController.setLooping(false);
+      await chewieController?.videoPlayerController.setLooping(false);
     }
 
     playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
@@ -308,7 +321,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
       if (playlist.isNotEmpty) {
         currentIndex = index < playlist.length ? index : playlist.length - 1;
-        await chewieController.videoPlayerController.seekTo(Duration.zero);
+        await chewieController?.videoPlayerController.seekTo(Duration.zero);
         await _playCurrentTrack();
         return true;
       } else {
@@ -329,6 +342,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> clearQueue() async {
+    stop();
     playlist.clear();
     queue.value.clear();
   }

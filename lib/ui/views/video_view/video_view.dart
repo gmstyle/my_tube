@@ -28,9 +28,9 @@ class VideoView extends StatelessWidget {
     final playerCubit = context.read<PlayerCubit>();
     final MtPlayerService mtPlayerService = playerCubit.mtPlayerService;
 
-    mtPlayerService.chewieController.videoPlayerController.addListener(() {
+    mtPlayerService.chewieController?.videoPlayerController.addListener(() {
       WakelockPlus.toggle(
-          enable: mtPlayerService.chewieController.isFullScreen);
+          enable: mtPlayerService.chewieController!.isFullScreen);
     });
 
     return MainGradient(
@@ -147,7 +147,7 @@ class VideoView extends StatelessWidget {
                                         _setAspectRatio(mtPlayerService),
                                     child: Chewie(
                                         controller:
-                                            mtPlayerService.chewieController)),
+                                            mtPlayerService.chewieController!)),
                               ),
                             ),
                           ),
@@ -220,10 +220,10 @@ class VideoView extends StatelessWidget {
 
   double _setAspectRatio(MtPlayerService mtPlayerService) {
     return mtPlayerService
-                .chewieController.videoPlayerController.value.aspectRatio <=
+                .chewieController!.videoPlayerController.value.aspectRatio <=
             1
         ? 1
         : mtPlayerService
-            .chewieController.videoPlayerController.value.aspectRatio;
+            .chewieController!.videoPlayerController.value.aspectRatio;
   }
 }

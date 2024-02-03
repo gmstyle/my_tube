@@ -28,7 +28,11 @@ class PlayerCubit extends Cubit<PlayerState> {
 
     final response = await innertubeRepository.getVideo(id);
 
-    await _startPlaying(response);
+    try {
+      await _startPlaying(response);
+    } on Exception catch (e) {
+      emit(PlayerState.error(e.toString()));
+    }
 
     emit(const PlayerState.shown());
   }
@@ -37,14 +41,18 @@ class PlayerCubit extends Cubit<PlayerState> {
       {bool renewStreamUrls = false}) async {
     emit(const PlayerState.loading());
     // svuoto la coda
-    await mtPlayerService.clearQueue();
-    // se lo streamUrl è null, vuol dire arrivo da una channel page
-    // e cioè dal pulsante play all di una section i video
-    if (videos.first.streamUrl == null || renewStreamUrls) {
-      final futures = videos.map((e) => innertubeRepository.getVideo(e.id!));
-      videos = await Future.wait(futures);
+    try {
+      await mtPlayerService.clearQueue();
+      // se lo streamUrl è null, vuol dire arrivo da una channel page
+      // e cioè dal pulsante play all di una section i video
+      if (videos.first.streamUrl == null || renewStreamUrls) {
+        final futures = videos.map((e) => innertubeRepository.getVideo(e.id!));
+        videos = await Future.wait(futures);
+      }
+      await _startPlayingPlaylist(videos);
+    } on Exception catch (e) {
+      emit(PlayerState.error(e.toString()));
     }
-    await _startPlayingPlaylist(videos);
 
     emit(const PlayerState.shown());
   }
