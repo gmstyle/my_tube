@@ -44,7 +44,7 @@ dependencies:
   extension_google_sign_in_as_googleapis_auth: ^2.0.11
   path_provider: ^2.1.1
   chewie: ^1.7.4
-  video_player: ^2.8.1
+  video_player: ^2.8.2
   hive_flutter: ^1.1.0
   flutter_adaptive_scaffold: ^0.1.7+1
   audio_service: ^0.18.12
