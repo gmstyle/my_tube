@@ -165,7 +165,7 @@ class SearchView extends StatelessWidget {
                       return TextField(
                         controller: searchController,
                         focusNode: focusNode,
-                        onEditingComplete: onFieldSubmitted,
+                        //onEditingComplete: onFieldSubmitted,
                         textInputAction: TextInputAction.search,
                         decoration: InputDecoration(
                           isDense: true,
@@ -189,9 +189,9 @@ class SearchView extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide.none),
                         ),
-                        onSubmitted: (query) => context
+                        onSubmitted: (_) => context
                             .read<SearchBloc>()
-                            .add(SearchContents(query: query)),
+                            .add(SearchContents(query: searchController.text)),
                       );
                     },
                     onSelected: (selected) {
