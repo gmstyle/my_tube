@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +13,10 @@ import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/favorites_repository.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
+import 'package:my_tube/utils/constants.dart';
+import 'package:my_tube/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';
@@ -38,12 +42,30 @@ void main() async {
   /// Bloc observer
   Bloc.observer = AppBlocObserver();
 
+  AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: notificationChannelKey,
+        channelName: notificationChannelName,
+        channelDescription: notificationChannelDescription,
+      ),
+    ],
+  );
+
+  final isNotificationAllowed =
+      await AwesomeNotifications().isNotificationAllowed();
+  if (!isNotificationAllowed) {
+    await AwesomeNotifications().requestPermissionToSendNotifications();
+  }
+
   runApp(MultiProvider(
     providers: [
-      /// Providers
+      /// Providers and services
 
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerService>(create: (context) => mtPlayerService),
+      Provider<DownloadService>(create: (context) => const DownloadService())
     ],
     child: MultiRepositoryProvider(
       /// Repositories

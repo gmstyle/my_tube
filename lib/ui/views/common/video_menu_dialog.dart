@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/services/download_service.dart';
 
 class VideoMenuDialog extends StatelessWidget {
   const VideoMenuDialog({super.key, required this.video, required this.child});
@@ -13,8 +14,9 @@ class VideoMenuDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoritesBloc = context.read<FavoritesBloc>();
+    final playerCubit = context.read<PlayerCubit>();
+    final downloadService = context.read<DownloadService>();
 
-    final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
     return GestureDetector(
       onLongPress: () {
         // show option dialog
@@ -75,6 +77,29 @@ class VideoMenuDialog extends StatelessWidget {
                           context.pop();
                         },
                       ),
+
+                    // show the option to download the video
+                    ListTile(
+                      leading: const Icon(Icons.download),
+                      title: const Text('Download'),
+                      onTap: () async {
+                        await downloadService.downloadFile(
+                            video.id!, video.title!);
+                        context.pop();
+                      },
+                    ),
+
+                    // show the option to download the audio only
+                    ListTile(
+                      leading: const Icon(Icons.music_note),
+                      title: const Text('Download audio only'),
+                      onTap: () async {
+                        await downloadService.downloadFile(
+                            video.id!, video.title!,
+                            isAudioOnly: true);
+                        context.pop();
+                      },
+                    ),
                   ],
                 ),
               );

@@ -1,6 +1,8 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/utils/constants.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Utils {
   static String getMusicVideoCategoryId(dynamic categories) {
@@ -77,5 +79,35 @@ class Utils {
 
   static checkIfStringIsOnlyNumeric(String string) {
     return int.tryParse(string) != null;
+  }
+
+  // request permission to save file into the Downloads system folder
+  static Future<void> requestPermission() async {
+    // if android sdk is 30 or higher
+    if (await _getAndroidSdkInt() <= 30) {
+      final status = await Permission.storage.status;
+      if (!status.isGranted) {
+        final result = await Permission.storage.request();
+        if (!result.isGranted) {
+          throw Exception('Permission denied: cannot save file');
+        }
+      }
+    }
+
+    /* final status = await Permission.manageExternalStorage.status;
+      if (status.isGranted) {
+        return;
+      } else {
+        final result = await Permission.manageExternalStorage.request();
+        if (result.isGranted) {
+          return;
+        }
+      } */
+  }
+
+  static _getAndroidSdkInt() async {
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    final androidSdkInt = androidInfo.version.sdkInt;
+    return androidSdkInt;
   }
 }
