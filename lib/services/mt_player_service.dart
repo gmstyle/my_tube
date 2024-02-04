@@ -52,8 +52,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   @override
   Future<void> stop() async {
-    await videoPlayerController?.dispose();
-    chewieController?.dispose();
+    await chewieController?.videoPlayerController.pause();
+    await chewieController?.videoPlayerController.seekTo(Duration.zero);
   }
 
   @override
@@ -192,8 +192,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     currentTrack = playlist[currentIndex];
 
     if (chewieController != null && videoPlayerController != null) {
-      await chewieController!.videoPlayerController.dispose();
-      chewieController!.dispose();
+      await _disposeControllers();
     }
 
     // inizializza il video player controller da passare a chewie
@@ -342,7 +341,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> clearQueue() async {
-    stop();
+    await _disposeControllers();
     playlist.clear();
     queue.value.clear();
   }
@@ -386,5 +385,10 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           'streamUrl': video.streamUrl!,
           'description': video.description,
         });
+  }
+
+  Future<void> _disposeControllers() async {
+    await chewieController!.videoPlayerController.dispose();
+    chewieController!.dispose();
   }
 }
