@@ -388,7 +388,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> _disposeControllers() async {
-    await chewieController!.videoPlayerController.dispose();
-    chewieController!.dispose();
+    await chewieController?.videoPlayerController.dispose();
+    chewieController?.dispose();
   }
 }
