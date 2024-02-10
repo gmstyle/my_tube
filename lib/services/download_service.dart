@@ -13,12 +13,15 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 class DownloadService {
   const DownloadService();
 
-  void download(
+  Future<void> download(
       {required ResourceMT video,
       required BuildContext context,
-      required bool isAudioOnly}) {
+      required bool isAudioOnly}) async {
     // ask for permissions to save file into the Downloads system folder
-    Utils.checkAndRequestPermissions();
+    final permissionsGranted = await Utils.checkAndRequestPermissions();
+    if (!permissionsGranted) {
+      return;
+    }
     RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
     final receivePort = ReceivePort();
 

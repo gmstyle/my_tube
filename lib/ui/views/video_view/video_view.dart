@@ -117,7 +117,7 @@ class VideoView extends StatelessWidget {
                                                       title: const Text(
                                                           'Download'),
                                                       onTap: () async {
-                                                        downloadService.download(
+                                                        await downloadService.download(
                                                             video: ResourceMT
                                                                 .fromMediaItem(
                                                                     mediaItem!),
@@ -132,8 +132,8 @@ class VideoView extends StatelessWidget {
                                                           Icons.music_note),
                                                       title: const Text(
                                                           'Download audio only'),
-                                                      onTap: () {
-                                                        downloadService.download(
+                                                      onTap: () async {
+                                                        await downloadService.download(
                                                             video: ResourceMT
                                                                 .fromMediaItem(
                                                                     mediaItem!),

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -84,7 +83,7 @@ class VideoMenuDialog extends StatelessWidget {
                       leading: const Icon(Icons.download),
                       title: const Text('Download'),
                       onTap: () async {
-                        downloadService.download(
+                        await downloadService.download(
                             video: video, context: context, isAudioOnly: false);
                       },
                     ),
@@ -93,8 +92,8 @@ class VideoMenuDialog extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.music_note),
                       title: const Text('Download audio only'),
-                      onTap: () {
-                        downloadService.download(
+                      onTap: () async {
+                        await downloadService.download(
                             video: video, context: context, isAudioOnly: true);
                       },
                     ),
