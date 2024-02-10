@@ -14,8 +14,6 @@ import 'package:my_tube/respositories/favorites_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
-import 'package:my_tube/utils/constants.dart';
-import 'package:my_tube/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';

@@ -1,4 +1,3 @@
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/utils/constants.dart';
