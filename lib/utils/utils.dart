@@ -1,6 +1,8 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/utils/constants.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Utils {
   static String getMusicVideoCategoryId(dynamic categories) {
@@ -77,5 +79,31 @@ class Utils {
 
   static checkIfStringIsOnlyNumeric(String string) {
     return int.tryParse(string) != null;
+  }
+
+  // request permission to save file into the Downloads system folder
+  static Future<bool> checkAndRequestPermissions() async {
+    if (await Permission.audio.status.isDenied &&
+        await Permission.storage.status.isDenied) {
+      await [Permission.audio, Permission.storage].request();
+      await Permission.manageExternalStorage.request();
+      if (await Permission.audio.status.isDenied &&
+          await Permission.storage.status.isDenied &&
+          await Permission.manageExternalStorage.isDenied) {
+        await openAppSettings();
+      }
+    }
+
+    return await Permission.storage.isGranted ||
+        await Permission.audio.isGranted ||
+        await Permission.manageExternalStorage.isGranted;
+  }
+
+  static String normalizeFileName(String fileName) {
+    // remove special characters
+    fileName = fileName.replaceAll(RegExp(r'[^\w\s]+'), '');
+    // replace "" with ''
+    fileName = fileName.replaceAll('"', '');
+    return fileName;
   }
 }

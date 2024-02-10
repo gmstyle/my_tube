@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/router/pages/app_shell_page.dart';
 import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/music_tab_page.dart';
@@ -7,7 +8,6 @@ import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
-import 'package:my_tube/ui/views/scaffold_with_navbar.dart';
 
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -27,7 +27,7 @@ class AppRouter {
     // Shell
     StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
-            ScaffoldWithNavbarView(navigationShell: navigationShell),
+            AppShellPage(navigationShell: navigationShell),
         branches: [
           // Tab Explore
           StatefulShellBranch(navigatorKey: exploreKey, routes: [

@@ -1,9 +1,17 @@
+import 'dart:developer';
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/services/download_service.dart';
+import 'package:my_tube/utils/constants.dart';
+import 'package:my_tube/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class VideoMenuDialog extends StatelessWidget {
   const VideoMenuDialog({super.key, required this.video, required this.child});
@@ -13,8 +21,9 @@ class VideoMenuDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoritesBloc = context.read<FavoritesBloc>();
+    final playerCubit = context.read<PlayerCubit>();
+    final downloadService = context.read<DownloadService>();
 
-    final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
     return GestureDetector(
       onLongPress: () {
         // show option dialog
@@ -75,6 +84,26 @@ class VideoMenuDialog extends StatelessWidget {
                           context.pop();
                         },
                       ),
+
+                    // show the option to download the video
+                    ListTile(
+                      leading: const Icon(Icons.download),
+                      title: const Text('Download'),
+                      onTap: () async {
+                        downloadService.download(
+                            video: video, context: context, isAudioOnly: false);
+                      },
+                    ),
+
+                    // show the option to download the audio only
+                    ListTile(
+                      leading: const Icon(Icons.music_note),
+                      title: const Text('Download audio only'),
+                      onTap: () {
+                        downloadService.download(
+                            video: video, context: context, isAudioOnly: true);
+                      },
+                    ),
                   ],
                 ),
               );

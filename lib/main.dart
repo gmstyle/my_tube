@@ -12,7 +12,10 @@ import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/favorites_repository.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
+import 'package:my_tube/utils/constants.dart';
+import 'package:my_tube/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';
@@ -40,10 +43,11 @@ void main() async {
 
   runApp(MultiProvider(
     providers: [
-      /// Providers
+      /// Providers and services
 
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerService>(create: (context) => mtPlayerService),
+      Provider<DownloadService>(create: (context) => const DownloadService())
     ],
     child: MultiRepositoryProvider(
       /// Repositories

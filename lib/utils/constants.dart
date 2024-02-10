@@ -1,3 +1,7 @@
+const notificationChannelKey = 'mytube_downloads_channel';
+const notificationChannelName = 'Downloads Channel';
+const notificationChannelDescription = 'Shows the progress of downloads';
+
 const Map<String, String> countryToLanguage = {
   'US': 'en',
   'GB': 'en',
