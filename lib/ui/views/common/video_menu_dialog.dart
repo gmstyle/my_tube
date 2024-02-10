@@ -1,10 +1,17 @@
+import 'dart:developer';
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/download_service.dart';
+import 'package:my_tube/utils/constants.dart';
+import 'package:my_tube/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class VideoMenuDialog extends StatelessWidget {
   const VideoMenuDialog({super.key, required this.video, required this.child});
@@ -83,9 +90,8 @@ class VideoMenuDialog extends StatelessWidget {
                       leading: const Icon(Icons.download),
                       title: const Text('Download'),
                       onTap: () async {
-                        await downloadService.downloadFile(
-                            video.id!, video.title!);
-                        context.pop();
+                        downloadService.download(
+                            video: video, context: context, isAudioOnly: false);
                       },
                     ),
 
@@ -93,11 +99,9 @@ class VideoMenuDialog extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.music_note),
                       title: const Text('Download audio only'),
-                      onTap: () async {
-                        await downloadService.downloadFile(
-                            video.id!, video.title!,
-                            isAudioOnly: true);
-                        context.pop();
+                      onTap: () {
+                        downloadService.download(
+                            video: video, context: context, isAudioOnly: true);
                       },
                     ),
                   ],

@@ -82,32 +82,28 @@ class Utils {
   }
 
   // request permission to save file into the Downloads system folder
-  static Future<void> requestPermission() async {
-    // if android sdk is 30 or higher
-    if (await _getAndroidSdkInt() <= 30) {
-      final status = await Permission.storage.status;
-      if (!status.isGranted) {
-        final result = await Permission.storage.request();
-        if (!result.isGranted) {
-          throw Exception('Permission denied: cannot save file');
-        }
+  static Future<bool> checkAndRequestPermissions() async {
+    if (await Permission.audio.status.isDenied &&
+        await Permission.storage.status.isDenied) {
+      await [Permission.audio, Permission.storage].request();
+      await Permission.manageExternalStorage.request();
+      if (await Permission.audio.status.isDenied &&
+          await Permission.storage.status.isDenied &&
+          await Permission.manageExternalStorage.isDenied) {
+        await openAppSettings();
       }
     }
 
-    /* final status = await Permission.manageExternalStorage.status;
-      if (status.isGranted) {
-        return;
-      } else {
-        final result = await Permission.manageExternalStorage.request();
-        if (result.isGranted) {
-          return;
-        }
-      } */
+    return await Permission.storage.isGranted ||
+        await Permission.audio.isGranted ||
+        await Permission.manageExternalStorage.isGranted;
   }
 
-  static _getAndroidSdkInt() async {
-    final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final androidSdkInt = androidInfo.version.sdkInt;
-    return androidSdkInt;
+  static String normalizeFileName(String fileName) {
+    // remove special characters
+    fileName = fileName.replaceAll(RegExp(r'[^\w\s]+'), '');
+    // replace "" with ''
+    fileName = fileName.replaceAll('"', '');
+    return fileName;
   }
 }

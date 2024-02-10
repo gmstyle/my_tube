@@ -1,5 +1,4 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,23 +40,6 @@ void main() async {
 
   /// Bloc observer
   Bloc.observer = AppBlocObserver();
-
-  AwesomeNotifications().initialize(
-    null,
-    [
-      NotificationChannel(
-        channelKey: notificationChannelKey,
-        channelName: notificationChannelName,
-        channelDescription: notificationChannelDescription,
-      ),
-    ],
-  );
-
-  final isNotificationAllowed =
-      await AwesomeNotifications().isNotificationAllowed();
-  if (!isNotificationAllowed) {
-    await AwesomeNotifications().requestPermissionToSendNotifications();
-  }
 
   runApp(MultiProvider(
     providers: [

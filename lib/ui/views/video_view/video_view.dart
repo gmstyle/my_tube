@@ -5,12 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
@@ -26,7 +28,8 @@ class VideoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final playerCubit = context.read<PlayerCubit>();
-    final MtPlayerService mtPlayerService = playerCubit.mtPlayerService;
+    final mtPlayerService = playerCubit.mtPlayerService;
+    final downloadService = context.read<DownloadService>();
 
     mtPlayerService.chewieController?.videoPlayerController.addListener(() {
       WakelockPlus.toggle(
@@ -96,32 +99,86 @@ class VideoView extends StatelessWidget {
                             if (queueDraggableController.size == maxChildSize) {
                               return child!;
                             } else {
-                              return BlocBuilder<FavoritesBloc, FavoritesState>(
-                                builder: (context, state) {
-                                  final favoritesBloc =
-                                      BlocProvider.of<FavoritesBloc>(context);
-                                  return IconButton(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
+                              return Wrap(
+                                children: [
+                                  IconButton(
                                       onPressed: () {
-                                        if (favoritesBloc
-                                            .favoritesRepository.videoIds
-                                            .contains(mediaItem?.id)) {
-                                          favoritesBloc.add(RemoveFromFavorites(
-                                              mediaItem!.id));
-                                        } else {
-                                          favoritesBloc.add(AddToFavorites(
-                                              ResourceMT.fromMediaItem(
-                                                  mediaItem!)));
-                                        }
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    // show the option to download the video
+                                                    ListTile(
+                                                      leading: const Icon(
+                                                          Icons.download),
+                                                      title: const Text(
+                                                          'Download'),
+                                                      onTap: () async {
+                                                        downloadService.download(
+                                                            video: ResourceMT
+                                                                .fromMediaItem(
+                                                                    mediaItem!),
+                                                            context: context,
+                                                            isAudioOnly: false);
+                                                      },
+                                                    ),
+
+                                                    // show the option to download the audio only
+                                                    ListTile(
+                                                      leading: const Icon(
+                                                          Icons.music_note),
+                                                      title: const Text(
+                                                          'Download audio only'),
+                                                      onTap: () {
+                                                        downloadService.download(
+                                                            video: ResourceMT
+                                                                .fromMediaItem(
+                                                                    mediaItem!),
+                                                            context: context,
+                                                            isAudioOnly: true);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            });
                                       },
-                                      icon: favoritesBloc
-                                              .favoritesRepository.videoIds
-                                              .contains(mediaItem?.id)
-                                          ? const Icon(Icons.favorite)
-                                          : const Icon(Icons.favorite_border));
-                                },
+                                      icon: const Icon(Icons.download)),
+                                  BlocBuilder<FavoritesBloc, FavoritesState>(
+                                    builder: (context, state) {
+                                      final favoritesBloc =
+                                          BlocProvider.of<FavoritesBloc>(
+                                              context);
+                                      return IconButton(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                          onPressed: () {
+                                            if (favoritesBloc
+                                                .favoritesRepository.videoIds
+                                                .contains(mediaItem?.id)) {
+                                              favoritesBloc.add(
+                                                  RemoveFromFavorites(
+                                                      mediaItem!.id));
+                                            } else {
+                                              favoritesBloc.add(AddToFavorites(
+                                                  ResourceMT.fromMediaItem(
+                                                      mediaItem!)));
+                                            }
+                                          },
+                                          icon: favoritesBloc
+                                                  .favoritesRepository.videoIds
+                                                  .contains(mediaItem?.id)
+                                              ? const Icon(Icons.favorite)
+                                              : const Icon(
+                                                  Icons.favorite_border));
+                                    },
+                                  ),
+                                ],
                               );
                             }
                           },
