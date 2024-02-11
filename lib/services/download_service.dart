@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class DownloadService {
