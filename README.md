@@ -15,14 +15,14 @@
 
 ## Screenshots
 
-![screenshots](Screenshot_1707650978.png)
-![screenshots](Screenshot_1707650985.png)
-![screenshots](Screenshot_1707651012.png)
-![screenshots](Screenshot_1707651024.png)
-![screenshots](Screenshot_1707651032.png)
-![screenshots](Screenshot_1707651046.png)
-![screenshots](Screenshot_1707651058.png)
-![screenshots](Screenshot_1707651066.png)
+![screenshots](screenshots/Screenshot_1707650978.png)
+![screenshots](screenshots/Screenshot_1707650985.png)
+![screenshots](screenshots/Screenshot_1707651012.png)
+![screenshots](screenshots/Screenshot_1707651024.png)
+![screenshots](screenshots/Screenshot_1707651032.png)
+![screenshots](screenshots/Screenshot_1707651046.png)
+![screenshots](screenshots/Screenshot_1707651058.png)
+![screenshots](screenshots/Screenshot_1707651066.png)
 
 ## Disclaimer
 
