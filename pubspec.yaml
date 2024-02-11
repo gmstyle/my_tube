@@ -58,7 +58,7 @@ dependencies:
   permission_handler: ^11.2.0
   youtube_explode_dart: ^2.1.0
   device_info_plus: ^9.1.2
-  open_file_manager: ^0.0.4
+  open_file: ^3.3.2
 
 dev_dependencies:
   flutter_test:

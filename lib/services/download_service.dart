@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/utils/utils.dart';
-import 'package:open_file_manager/open_file_manager.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -64,7 +64,7 @@ class DownloadService {
     try {
       final manifest = await yt.videos.streamsClient.getManifest(videoId);
       StreamInfo? streamInfo;
-      String? fileExtension;
+      String fileExtension;
       if (isAudioOnly) {
         streamInfo = manifest.audioOnly.withHighestBitrate();
         fileExtension = 'm4a';
@@ -73,14 +73,11 @@ class DownloadService {
         fileExtension = 'mp4';
       }
 
-      //final directory = await getExternalStorageDirectories();
       final stream = yt.videos.streamsClient.get(streamInfo);
-      final dir = Platform.isAndroid
-          ? '/storage/emulated/0/Download'
-          : (await getDownloadsDirectory())?.path;
-      // ignore: unnecessary_brace_in_string_interps
-      final path = '${dir}/${Utils.normalizeFileName(fileName)}.$fileExtension';
-
+      final path = await _getDownloadsPath(fileName, fileExtension);
+      if (path == null) {
+        throw Exception('Could not find the downloads directory');
+      }
       final file = File(path);
       final fileStream = file.openWrite();
 
@@ -103,7 +100,10 @@ class DownloadService {
   }
 
   void _showSnackbar(
-      ReceivePort receivePort, BuildContext context, String title) {
+    ReceivePort receivePort,
+    BuildContext context,
+    String title,
+  ) {
     // show snackbar with progress that comes from the isolate
     final snackBar = SnackBar(
       showCloseIcon: true,
@@ -111,20 +111,26 @@ class DownloadService {
       content: StreamBuilder(
         stream: receivePort.asBroadcastStream(),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Text('Preparing to download...');
+          }
           if (snapshot.hasData) {
             final progress = snapshot.data as double;
             if (progress >= 1.0) {
-              Future.delayed(const Duration(seconds: 5), () {
+              Future.delayed(const Duration(seconds: 10), () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
               });
+              String path =
+                  '/storage/emulated/0/Android/data/it.gmstyle.my_tube/files/downloads';
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Download complete 🎉'),
+                  Flexible(
+                    child: Text('Download complete 🎉 in $path'),
+                  ),
                   IconButton(
-                      onPressed: () {
-                        // open the phone download folder in the file manager
-                        openFileManager();
+                      onPressed: () async {
+                        await OpenFile.open(path);
                       },
                       icon: Icon(
                         Icons.folder,
@@ -141,14 +147,32 @@ class DownloadService {
               ],
             );
           } else if (snapshot.hasError) {
+            Future.delayed(const Duration(seconds: 5), () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            });
             return Text('Error: ${snapshot.error}');
           } else {
-            return const Text('Downloading...');
+            return const Text('Download failed!');
           }
         },
       ),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<String?> _getDownloadsPath(String filename, String extension) async {
+    // Get the directory for the app's files
+    try {
+      Directory? appDir = await getDownloadsDirectory();
+
+      if (!await appDir!.exists()) {
+        await appDir.create(recursive: true);
+      }
+
+      return '${appDir.path}/${Utils.normalizeFileName(filename)}.$extension';
+    } catch (e) {
+      return Future.error('Error: $e: Could not get downloads directory');
+    }
   }
 }

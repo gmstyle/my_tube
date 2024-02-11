@@ -82,27 +82,24 @@ class Utils {
 
   // request permission to save file into the Downloads system folder
   static Future<bool> checkAndRequestPermissions() async {
-    if (await Permission.audio.status.isDenied &&
-        await Permission.storage.status.isDenied) {
-      await [Permission.audio, Permission.storage].request();
-      await Permission.manageExternalStorage.request();
-      if (await Permission.audio.status.isDenied &&
-          await Permission.storage.status.isDenied &&
-          await Permission.manageExternalStorage.isDenied) {
+    if (await Permission.storage.status.isDenied) {
+      await Permission.storage.request();
+      if (await Permission.storage.status.isDenied) {
         await openAppSettings();
       }
     }
 
-    return await Permission.storage.isGranted ||
-        await Permission.audio.isGranted ||
-        await Permission.manageExternalStorage.isGranted;
+    return await Permission.storage.isGranted;
   }
 
   static String normalizeFileName(String fileName) {
     // remove special characters
-    fileName = fileName.replaceAll(RegExp(r'[^\w\s]+'), '');
-    // replace "" with ''
-    fileName = fileName.replaceAll('"', '');
+    fileName = fileName
+        .replaceAll(RegExp(r'[^\w\s]+'), '')
+        .replaceAll('"', '')
+        .replaceAll("'", '')
+        .replaceAll(' ', '_');
+
     return fileName;
   }
 }
