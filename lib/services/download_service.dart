@@ -38,6 +38,10 @@ class DownloadService {
       args,
     );
 
+    if (!context.mounted) {
+      return;
+    }
+
     context.pop();
     _showSnackbar(receivePort, context, video.title!);
   }
@@ -120,17 +124,16 @@ class DownloadService {
               Future.delayed(const Duration(seconds: 10), () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
               });
-              String path =
-                  '/storage/emulated/0/Android/data/it.gmstyle.my_tube/files/downloads';
+
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    child: Text('Download complete 🎉 in $path'),
+                  const Flexible(
+                    child: Text('Download complete 🎉'),
                   ),
                   IconButton(
                       onPressed: () async {
-                        await OpenFile.open(path);
+                        await OpenFile.open('/storage/emulated/0/Download');
                       },
                       icon: Icon(
                         Icons.folder,
@@ -164,9 +167,10 @@ class DownloadService {
   Future<String?> _getDownloadsPath(String filename, String extension) async {
     // Get the directory for the app's files
     try {
-      Directory? appDir = await getDownloadsDirectory();
+      //Directory? appDir = await getDownloadsDirectory();
+      Directory appDir = Directory('/storage/emulated/0/Download');
 
-      if (!await appDir!.exists()) {
+      if (!await appDir.exists()) {
         await appDir.create(recursive: true);
       }
 
