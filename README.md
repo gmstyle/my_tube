@@ -15,13 +15,30 @@
 
 ## Screenshots
 
+### Home
+
 ![screenshots](screenshots/Screenshot_1707650978.png)
+
+### Music
+
 ![screenshots](screenshots/Screenshot_1707650985.png)
+
+### Favorites
+
 ![screenshots](screenshots/Screenshot_1707651012.png)
+
+### Search
+
 ![screenshots](screenshots/Screenshot_1707651024.png)
+
+### Video Player and Features
+
 ![screenshots](screenshots/Screenshot_1707651032.png)
+
 ![screenshots](screenshots/Screenshot_1707651046.png)
+
 ![screenshots](screenshots/Screenshot_1707651058.png)
+
 ![screenshots](screenshots/Screenshot_1707651066.png)
 
 ## Disclaimer
