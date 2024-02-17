@@ -162,11 +162,13 @@ class VideoView extends StatelessWidget {
                                                 .contains(mediaItem?.id)) {
                                               favoritesBloc.add(
                                                   RemoveFromFavorites(
-                                                      mediaItem!.id));
+                                                      mediaItem!.id,
+                                                      kind: 'video'));
                                             } else {
                                               favoritesBloc.add(AddToFavorites(
                                                   ResourceMT.fromMediaItem(
-                                                      mediaItem!)));
+                                                      mediaItem!),
+                                                  kind: 'video'));
                                             }
                                           },
                                           icon: favoritesBloc

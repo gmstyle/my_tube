@@ -1,55 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
-import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
-import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
-import 'package:my_tube/ui/views/common/video_tile.dart';
-import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
-import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/channel_favorites.dart';
+import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/playlist_favorites.dart';
+import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/video_favorites.dart';
 
-class QueueTabView extends StatelessWidget {
-  const QueueTabView({super.key});
+class FavoritesTabView extends StatelessWidget {
+  const FavoritesTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    context.read<FavoritesBloc>().add(GetFavorites());
+    final favoritesBloc = context.read<FavoritesBloc>();
+    final playerCubit = context.read<PlayerCubit>();
 
-    return BlocBuilder<FavoritesBloc, FavoritesState>(
-        builder: (context, state) {
-      switch (state.status) {
-        case FavoritesStatus.loading:
-          return const Center(child: CircularProgressIndicator());
-        case FavoritesStatus.success:
-          final favorites = state.favorites!.reversed.toList();
-
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: FavoritesHeader(favorites: favorites),
-              ),
-              Expanded(
-                child: favorites.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: favorites.length,
-                        itemBuilder: (context, index) {
-                          final video = favorites[index];
-                          return PlayPauseGestureDetector(
-                              resource: video,
-                              child: VideoMenuDialog(
-                                  video: video,
-                                  child: VideoTile(video: video)));
-                        },
-                      )
-                    : const EmptyFavorites(),
-              ),
-            ],
-          );
-        case FavoritesStatus.failure:
-          return Center(child: Text(state.error!));
-        default:
-          return const SizedBox.shrink();
-      }
-    });
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          TabBar(
+              dividerColor: Colors.transparent,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorColor: Theme.of(context).colorScheme.onPrimary,
+              tabs: [
+                // favorites videos
+                Tab(
+                  icon: Icon(
+                    Icons.video_library,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+                // favorites channels
+                Tab(
+                  icon: Icon(MdiIcons.accountGroupOutline,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                ),
+                // favorites playlists
+                Tab(
+                  icon: Icon(Icons.album,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                ),
+              ]),
+          const SizedBox(height: 16),
+          Expanded(
+            child: TabBarView(
+              children: [
+                VideoFavorites(
+                    favoritesBloc: favoritesBloc, playerCubit: playerCubit),
+                ChannelFavorites(
+                  favoritesBloc: favoritesBloc,
+                ),
+                PlaylistFavorites(
+                  favoritesBloc: favoritesBloc,
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

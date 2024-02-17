@@ -208,7 +208,7 @@ class InnertubeRepository {
                 id: playlist.playlistId,
                 title: playlist.title,
                 description: playlist.description,
-                channelTitle: null,
+                channelTitle: playlist.author,
                 thumbnailUrl: playlist.thumbnails?.last.url,
                 kind: 'playlist',
                 channelId: null,

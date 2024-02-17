@@ -2,13 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/favorites_repository.dart';
+import 'package:my_tube/respositories/favorite_repository.dart';
 
 part 'favorites_event.dart';
 part 'favorites_state.dart';
 
 class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
-  final FavoritesRepository favoritesRepository;
+  final FavoriteRepository favoritesRepository;
   final InnertubeRepository innertubeRepository;
   FavoritesBloc({
     required this.favoritesRepository,
@@ -16,8 +16,16 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   }) : super(const FavoritesState.initial()) {
     // ascolto il cambiamento della coda e aggiorno lo stato
     // quando viene aggiunto o rimosso un video
-    favoritesRepository.favoritesListenable.addListener(() {
-      add(GetFavorites());
+    favoritesRepository.favoriteVideosListenable.addListener(() {
+      add(const GetFavorites(kind: 'video'));
+    });
+
+    favoritesRepository.favoriteChannelsListenable.addListener(() {
+      add(const GetFavorites(kind: 'channel'));
+    });
+
+    favoritesRepository.favoritePlaylistsListenable.addListener(() {
+      add(const GetFavorites(kind: 'playlist'));
     });
 
     on<GetFavorites>((event, emit) async {
@@ -41,7 +49,15 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       FavoritesEvent event, Emitter<FavoritesState> emit) async {
     emit(const FavoritesState.loading());
     try {
-      final favorites = favoritesRepository.favorites;
+      List<ResourceMT> favorites = [];
+      if (event.kind == 'video') {
+        favorites = favoritesRepository.favoriteVideos;
+      } else if (event.kind == 'channel') {
+        favorites = favoritesRepository.favoriteChannels;
+      } else if (event.kind == 'playlist') {
+        favorites = favoritesRepository.favoritePlaylists;
+      }
+
       emit(FavoritesState.success(favorites));
     } catch (e) {
       emit(FavoritesState.failure(e.toString()));
@@ -52,8 +68,17 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       AddToFavorites event, Emitter<FavoritesState> emit) async {
     emit(const FavoritesState.loading());
     try {
-      await favoritesRepository.add(event.video);
-      final favorites = favoritesRepository.favorites;
+      List<ResourceMT> favorites = [];
+      if (event.kind == 'video') {
+        await favoritesRepository.add(event.video, event.kind);
+        favorites = favoritesRepository.favoriteVideos;
+      } else if (event.kind == 'channel') {
+        await favoritesRepository.add(event.video, event.kind);
+        favorites = favoritesRepository.favoriteChannels;
+      } else if (event.kind == 'playlist') {
+        await favoritesRepository.add(event.video, event.kind);
+        favorites = favoritesRepository.favoritePlaylists;
+      }
       emit(FavoritesState.success(favorites));
     } catch (e) {
       emit(FavoritesState.failure(e.toString()));
@@ -64,8 +89,17 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       RemoveFromFavorites event, Emitter<FavoritesState> emit) async {
     emit(const FavoritesState.loading());
     try {
-      await favoritesRepository.remove(event.id);
-      final favorites = favoritesRepository.favorites;
+      List<ResourceMT> favorites = [];
+      if (event.kind == 'video') {
+        await favoritesRepository.remove(event.id, event.kind);
+        favorites = favoritesRepository.favoriteVideos;
+      } else if (event.kind == 'channel') {
+        await favoritesRepository.remove(event.id, event.kind);
+        favorites = favoritesRepository.favoriteChannels;
+      } else if (event.kind == 'playlist') {
+        await favoritesRepository.remove(event.id, event.kind);
+        favorites = favoritesRepository.favoritePlaylists;
+      }
       emit(FavoritesState.success(favorites));
     } catch (e) {
       emit(FavoritesState.failure(e.toString()));
@@ -76,8 +110,17 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       ClearFavorites event, Emitter<FavoritesState> emit) async {
     emit(const FavoritesState.loading());
     try {
-      await favoritesRepository.clear();
-      final favorites = favoritesRepository.favorites;
+      List<ResourceMT> favorites = [];
+      if (event.kind == 'video') {
+        await favoritesRepository.clear(event.kind);
+        favorites = favoritesRepository.favoriteVideos;
+      } else if (event.kind == 'channel') {
+        await favoritesRepository.clear(event.kind);
+        favorites = favoritesRepository.favoriteChannels;
+      } else if (event.kind == 'playlist') {
+        await favoritesRepository.clear(event.kind);
+        favorites = favoritesRepository.favoritePlaylists;
+      }
       emit(FavoritesState.success(favorites));
     } catch (e) {
       emit(FavoritesState.failure(e.toString()));

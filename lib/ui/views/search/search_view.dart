@@ -8,6 +8,7 @@ import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/skeleton_list.dart';
 import 'package:my_tube/ui/skeletons/skeleton_video_tile.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
+import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
@@ -121,33 +122,7 @@ class SearchView extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                              ) /* ListView.builder(
-                              shrinkWrap: true,
-                              padding: EdgeInsets.zero,
-                              itemCount: options.length,
-                              itemBuilder: (context, index) {
-                                final option = options.elementAt(index);
-                                return ListTile(
-                                  leading: Icon(suggestionsState.isQueryHistory
-                                      ? Icons.history
-                                      : Icons.search),
-                                  title: Text(option),
-                                  trailing: suggestionsState.isQueryHistory
-                                      ? IconButton(
-                                          icon: const Icon(Icons.clear),
-                                          onPressed: () {
-                                            searchSuggestionCubit
-                                                .deleteQueryFromHistory(option);
-                                          },
-                                        )
-                                      : null,
-                                  onTap: () {
-                                    onSelected(option);
-                                  },
-                                );
-                              },
-                            ), */
-                              ),
+                              )),
                         ),
                       );
                     },
@@ -273,7 +248,10 @@ class SearchView extends StatelessWidget {
             context.goNamed(AppRoute.channel.name,
                 extra: {'channelId': result.channelId!});
           },
-          child: ChannelTile(channel: result));
+          child: ChannelPlaylistMenuDialog(
+              resource: result,
+              kind: 'channel',
+              child: ChannelTile(channel: result)));
     }
 
     if (result.kind == 'playlist') {
@@ -284,7 +262,10 @@ class SearchView extends StatelessWidget {
               'playlistId': result.playlistId!
             });
           },
-          child: PlaylistTile(playlist: result));
+          child: ChannelPlaylistMenuDialog(
+              resource: result,
+              kind: 'playlist',
+              child: PlaylistTile(playlist: result)));
     }
 
     return Container();

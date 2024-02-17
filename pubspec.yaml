@@ -52,7 +52,7 @@ dependencies:
   innertube_dart:
     path: ../innertube_dart
   flutter_carousel_widget: ^2.2.0
- # material_design_icons_flutter: ^7.0.7296
+  #material_design_icons_flutter: ^7.0.7296
   skeletons: ^0.0.3
   disable_battery_optimization: ^1.1.1
   permission_handler: ^11.2.0

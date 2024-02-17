@@ -9,7 +9,7 @@ class PlaylistTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.1,
+      height: 90,
       margin: const EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(
           horizontal: MediaQuery.of(context).size.width * 0.03),
@@ -69,16 +69,45 @@ class PlaylistTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  playlist.title ?? '',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onPrimary),
-                  maxLines: 2,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        playlist.title ?? '',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onPrimary),
+                        maxLines: 2,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(playlist.channelTitle ?? '',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary)),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(playlist.channelTitle ?? '',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary)),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(playlist.videoCount ?? '',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary)),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

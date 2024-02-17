@@ -50,7 +50,25 @@ class AppRouter {
             GoRoute(
                 name: AppRoute.favorites.name,
                 path: AppRoute.favorites.path,
-                pageBuilder: (context, state) => const FavoritesTabPage()),
+                pageBuilder: (context, state) => const FavoritesTabPage(),
+                routes: [
+                  GoRoute(
+                      name: AppRoute.channelFavorites.name,
+                      path: AppRoute.channelFavorites.path,
+                      pageBuilder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>;
+                        final channelId = extra['channelId'] as String;
+                        return ChannelPage(channelId: channelId);
+                      }),
+                  GoRoute(
+                      name: AppRoute.playlistFavorites.name,
+                      path: AppRoute.playlistFavorites.path,
+                      pageBuilder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>;
+                        final playlistId = extra['playlistId'] as String;
+                        return PlaylistPage(playlistId: playlistId);
+                      }),
+                ]),
           ]),
 
           // Tab Search
@@ -88,7 +106,9 @@ enum AppRoute {
   search('/search'),
   account('/account'),
   channel('channel'),
+  channelFavorites('channelFavorite'),
   playlist('playlist'),
+  playlistFavorites('playlistFavorite'),
   favorites('/favorites'),
   video('/video');
 

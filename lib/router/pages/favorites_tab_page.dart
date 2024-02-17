@@ -9,7 +9,7 @@ class FavoritesTabPage extends Page {
     return MaterialPageRoute(
       settings: this,
       builder: (BuildContext context) {
-        return const QueueTabView();
+        return const FavoritesTabView();
       },
     );
   }

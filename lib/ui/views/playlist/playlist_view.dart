@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/skeletons/skeleton_playlist.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
@@ -17,11 +18,51 @@ class PlaylistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniplayerCubit = context.read<PlayerCubit>();
     return MainGradient(
       child: Scaffold(
-        appBar: const CustomAppbar(
+        appBar: CustomAppbar(
           showTitle: false,
+          actions: [
+            BlocBuilder<PlaylistBloc, PlaylistState>(builder: (context, state) {
+              if (state.status == PlaylistStatus.loaded) {
+                final playlist = state.response;
+                return BlocBuilder<FavoritesBloc, FavoritesState>(
+                    builder: (context, state) {
+                  final FavoritesBloc favoritesBloc =
+                      context.read<FavoritesBloc>();
+                  return IconButton(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      onPressed: () {
+                        if (favoritesBloc.favoritesRepository.playlistIds
+                            .contains(playlistId)) {
+                          favoritesBloc.add(RemoveFromFavorites(playlistId,
+                              kind: 'playlist'));
+                        } else {
+                          favoritesBloc.add(AddToFavorites(
+                              ResourceMT(
+                                  id: playlistId,
+                                  title: playlist!.title,
+                                  description: playlist.description,
+                                  channelTitle: null,
+                                  thumbnailUrl: playlist.thumbnailUrl,
+                                  kind: 'playlist',
+                                  channelId: playlist.channelId,
+                                  playlistId: playlistId,
+                                  duration: null,
+                                  streamUrl: null),
+                              kind: 'playlist'));
+                        }
+                      },
+                      icon: favoritesBloc.favoritesRepository.playlistIds
+                              .contains(playlistId)
+                          ? const Icon(Icons.favorite)
+                          : const Icon(Icons.favorite_border));
+                });
+              }
+
+              return const SizedBox.shrink();
+            })
+          ],
         ),
         backgroundColor: Colors.transparent,
         body: BlocBuilder<PlaylistBloc, PlaylistState>(

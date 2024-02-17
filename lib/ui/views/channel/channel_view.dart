@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/skeletons/skeleton_channel.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
@@ -21,8 +23,48 @@ class ChannelView extends StatelessWidget {
 
     return MainGradient(
       child: Scaffold(
-        appBar: const CustomAppbar(
+        appBar: CustomAppbar(
           showTitle: false,
+          actions: [
+            BlocBuilder<ChannelPageBloc, ChannelPageState>(
+                builder: (context, state) {
+              if (state.status == ChannelPageStatus.loaded) {
+                final channel = state.channel;
+                return BlocBuilder<FavoritesBloc, FavoritesState>(
+                    builder: (context, state) {
+                  final favoriteChannelsBloc = context.read<FavoritesBloc>();
+                  return IconButton(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      onPressed: () {
+                        if (favoriteChannelsBloc.favoritesRepository.channelIds
+                            .contains(channelId)) {
+                          favoriteChannelsBloc.add(
+                              RemoveFromFavorites(channelId, kind: 'channel'));
+                        } else {
+                          favoriteChannelsBloc.add(AddToFavorites(
+                              ResourceMT(
+                                  id: channelId,
+                                  title: channel!.title,
+                                  description: channel.description,
+                                  channelTitle: channel.title,
+                                  thumbnailUrl: channel.thumbnailUrl,
+                                  kind: 'channel',
+                                  channelId: channelId,
+                                  playlistId: null,
+                                  duration: null,
+                                  streamUrl: null),
+                              kind: 'channel'));
+                        }
+                      },
+                      icon: favoriteChannelsBloc.favoritesRepository.channelIds
+                              .contains(channelId)
+                          ? const Icon(Icons.favorite)
+                          : const Icon(Icons.favorite_border));
+                });
+              }
+              return const SizedBox.shrink();
+            })
+          ],
         ),
         backgroundColor: Colors.transparent,
         body: BlocBuilder<ChannelPageBloc, ChannelPageState>(

@@ -35,7 +35,8 @@ class VideoMenuDialog extends StatelessWidget {
                         leading: const Icon(Icons.remove),
                         title: const Text('Remove from favorites'),
                         onTap: () {
-                          favoritesBloc.add(RemoveFromFavorites(video.id!));
+                          favoritesBloc.add(
+                              RemoveFromFavorites(video.id!, kind: 'video'));
                           context.pop();
                         },
                       ),
@@ -47,7 +48,8 @@ class VideoMenuDialog extends StatelessWidget {
                         leading: const Icon(Icons.favorite),
                         title: const Text('Add to favorites'),
                         onTap: () {
-                          favoritesBloc.add(AddToFavorites(video));
+                          favoritesBloc
+                              .add(AddToFavorites(video, kind: 'video'));
                           context.pop();
                         },
                       ),

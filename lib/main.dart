@@ -10,7 +10,7 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
-import 'package:my_tube/respositories/favorites_repository.dart';
+import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
@@ -28,6 +28,8 @@ void main() async {
   Hive.registerAdapter(ResourceMTAdapter());
   await Hive.openBox('settings');
   await Hive.openBox<ResourceMT>('favorites');
+  await Hive.openBox<ResourceMT>('channels');
+  await Hive.openBox<ResourceMT>('playlists');
 
   final mtPlayerService = await AudioService.init(
       builder: () => MtPlayerService(),
@@ -53,8 +55,8 @@ void main() async {
         RepositoryProvider<InnertubeRepository>(
             create: (context) => InnertubeRepository(
                 innertubeProvider: context.read<InnertubeProvider>())),
-        RepositoryProvider<FavoritesRepository>(
-            create: (context) => FavoritesRepository())
+        RepositoryProvider<FavoriteRepository>(
+            create: (context) => FavoriteRepository()),
       ],
       child: MultiBlocProvider(providers: [
         BlocProvider<SearchBloc>(
@@ -73,9 +75,9 @@ void main() async {
                 )),
         BlocProvider<FavoritesBloc>(
             create: (context) => FavoritesBloc(
-                  favoritesRepository: context.read<FavoritesRepository>(),
+                  favoritesRepository: context.read<FavoriteRepository>(),
                   innertubeRepository: context.read<InnertubeRepository>(),
-                ))
+                )),
       ], child: const MyApp()),
     ),
   ));
