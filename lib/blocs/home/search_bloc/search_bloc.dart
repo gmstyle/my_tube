@@ -49,9 +49,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
       final newVideos = result.resources;
 
-      final updatedVideos = [...videos, ...newVideos];
+      // Add new videos directly to the existing list
+      videos.addAll(newVideos);
+
       emit(SearchState.success(ResponseMT(
-        resources: updatedVideos,
+        resources: videos,
         nextPageToken: result.nextPageToken,
       )));
     } catch (e) {
