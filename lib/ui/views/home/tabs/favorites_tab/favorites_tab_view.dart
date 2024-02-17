@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/channel_favorites.dart';
@@ -33,7 +32,7 @@ class FavoritesTabView extends StatelessWidget {
                 ),
                 // favorites channels
                 Tab(
-                  icon: Icon(MdiIcons.accountGroupOutline,
+                  icon: Icon(Icons.people,
                       color: Theme.of(context).colorScheme.onPrimary),
                 ),
                 // favorites playlists
