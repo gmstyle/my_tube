@@ -17,19 +17,19 @@
 
 ### Home
 
-![screenshots](screenshots/Screenshot_1707650978.png | width=200)
+![screenshots](screenshots/Screenshot_1707650978.png =200)
 
 ### Music
 
-![screenshots](screenshots/Screenshot_1707650985.png | width=200)
+![screenshots](screenshots/Screenshot_1707650985.png =200)
 
 ### Favorites
 
-![screenshots](screenshots/Screenshot_1707651012.png | width=200)
+![screenshots](screenshots/Screenshot_1707651012.png =200)
 
 ### Search
 
-![screenshots](screenshots/Screenshot_1707651024.png | width=200)
+![screenshots](screenshots/Screenshot_1707651024.png =200)
 
 ### Video Player and Features
 
