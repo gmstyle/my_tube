@@ -18,6 +18,7 @@
 ### Home
 
 ![screenshots](screenshots/Screenshot_1707650978.png =200)
+<img src="screenshots/Screenshot_1707650978.png" width="50%">
 
 ### Music
 
