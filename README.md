@@ -17,29 +17,29 @@
 
 ### Home
 
-![screenshots](screenshots/Screenshot_1707650978.png)
+![screenshots](screenshots/Screenshot_1707650978.png | width=200)
 
 ### Music
 
-![screenshots](screenshots/Screenshot_1707650985.png)
+![screenshots](screenshots/Screenshot_1707650985.png | width=200)
 
 ### Favorites
 
-![screenshots](screenshots/Screenshot_1707651012.png)
+![screenshots](screenshots/Screenshot_1707651012.png | width=200)
 
 ### Search
 
-![screenshots](screenshots/Screenshot_1707651024.png)
+![screenshots](screenshots/Screenshot_1707651024.png | width=200)
 
 ### Video Player and Features
 
-![screenshots](screenshots/Screenshot_1707651032.png)
+![screenshots](screenshots/Screenshot_1707651032.png | width=200)
 
-![screenshots](screenshots/Screenshot_1707651046.png)
+![screenshots](screenshots/Screenshot_1707651046.png | width=200)
 
-![screenshots](screenshots/Screenshot_1707651058.png)
+![screenshots](screenshots/Screenshot_1707651058.png | width=200)
 
-![screenshots](screenshots/Screenshot_1707651066.png)
+![screenshots](screenshots/Screenshot_1707651066.png | width=200)
 
 ## Disclaimer
 
