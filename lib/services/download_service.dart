@@ -17,7 +17,7 @@ class DownloadService {
       required BuildContext context,
       required bool isAudioOnly}) async {
     // ask for permissions to save file into the Downloads system folder
-    final permissionsGranted = await Utils.checkAndRequestPermissions();
+    final permissionsGranted = await Utils.checkAndRequestStoragePermissions();
     if (!permissionsGranted) {
       return;
     }

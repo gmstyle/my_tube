@@ -81,7 +81,7 @@ class Utils {
   }
 
   // request permission to save file into the Downloads system folder
-  static Future<bool> checkAndRequestPermissions() async {
+  static Future<bool> checkAndRequestStoragePermissions() async {
     if (await Permission.audio.status.isDenied &&
         await Permission.storage.status.isDenied) {
       await [Permission.audio, Permission.storage].request();
@@ -96,6 +96,18 @@ class Utils {
     return await Permission.storage.isGranted ||
         await Permission.audio.isGranted ||
         await Permission.manageExternalStorage.isGranted;
+  }
+
+  // request permissions to install packages
+  static Future<bool> checkAndRequestInstallPackagesPermissions() async {
+    if (await Permission.requestInstallPackages.isDenied) {
+      await Permission.requestInstallPackages.request();
+      if (await Permission.requestInstallPackages.isDenied) {
+        await openAppSettings();
+      }
+    }
+
+    return await Permission.requestInstallPackages.isGranted;
   }
 
   static String normalizeFileName(String fileName) {

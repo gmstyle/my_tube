@@ -7,10 +7,13 @@ import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
+import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
+import 'package:my_tube/providers/update_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
+import 'package:my_tube/respositories/update_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
@@ -47,7 +50,8 @@ void main() async {
 
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerService>(create: (context) => mtPlayerService),
-      Provider<DownloadService>(create: (context) => const DownloadService())
+      Provider<DownloadService>(create: (context) => const DownloadService()),
+      Provider<UpdateProvider>(create: (context) => UpdateProvider()),
     ],
     child: MultiRepositoryProvider(
       /// Repositories
@@ -57,6 +61,9 @@ void main() async {
                 innertubeProvider: context.read<InnertubeProvider>())),
         RepositoryProvider<FavoriteRepository>(
             create: (context) => FavoriteRepository()),
+        RepositoryProvider<UpdateRepository>(
+            create: (context) => UpdateRepository(
+                updateProvider: context.read<UpdateProvider>())),
       ],
       child: MultiBlocProvider(providers: [
         BlocProvider<SearchBloc>(
@@ -78,6 +85,9 @@ void main() async {
                   favoritesRepository: context.read<FavoriteRepository>(),
                   innertubeRepository: context.read<InnertubeRepository>(),
                 )),
+        BlocProvider<UpdateBloc>(
+            create: (context) =>
+                UpdateBloc(updateRepository: context.read<UpdateRepository>())),
       ], child: const MyApp()),
     ),
   ));
@@ -89,6 +99,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final router = AppRouter.router;
+    context.read<UpdateBloc>().add(const CheckForUpdate());
 
     const mainColor = Color.fromARGB(255, 66, 24, 150);
 
