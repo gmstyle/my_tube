@@ -25,7 +25,11 @@
 
 ### Favorites
 
-<img src="screenshots/Screenshot_1707651012.png" width="50%">
+<img src="screenshots/Screenshot_1708245739.png" width="50%">
+
+<img src="screenshots/Screenshot_1708245745.png" width="50%">
+
+<img src="screenshots/Screenshot_1708245752.png" width="50%">
 
 ### Search
 
