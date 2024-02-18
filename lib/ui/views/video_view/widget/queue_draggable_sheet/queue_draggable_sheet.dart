@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/draggable_header.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/media_item_list.dart';
 
-const minChildSize = 0.06;
+const minChildSize = 0.05;
 const maxChildSize = 1.0;
 const snapSizes = [
   0.4,
