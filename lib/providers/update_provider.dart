@@ -1,16 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class UpdateProvider {
   Future<String> getLatestReleaseVersion() async {
     try {
-      final headers = {
-        'Accept': 'application/vnd.github.+json',
-        HttpHeaders.authorizationHeader:
-            'Bearer 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'
-      };
+      final headers = {'Accept': 'application/vnd.github.+json'};
       final response = await http.get(
           Uri.parse(
               'https://api.github.com/repos/gmstyle/my_tube/releases/latest'),

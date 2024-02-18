@@ -12,11 +12,6 @@ class UpdateRepository {
 
   Future<Update> checkForUpdate() async {
     try {
-      /* final permissionGranted =
-          await Utils.checkAndRequestInstallPackagesPermissions();
-      if (!permissionGranted) {
-        return Future.error('Permission not granted');
-      } */
       final response = await updateProvider.getLatestReleaseVersion();
       final jsonResponse = jsonDecode(response);
       final releaseVersion = jsonResponse['tag_name'];
