@@ -23,7 +23,7 @@ class ChannelHeader extends StatelessWidget {
                 CachedNetworkImage(
                     imageUrl: _setChannelBanner(channel!),
                     fit: BoxFit.fill,
-                    errorWidget: (context, url, error) => FlutterLogo()),
+                    errorWidget: (context, url, error) => const FlutterLogo()),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(

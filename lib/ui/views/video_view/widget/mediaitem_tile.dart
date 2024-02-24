@@ -53,7 +53,7 @@ class MediaitemTile extends StatelessWidget {
                                       MediaQuery.of(context).size.width * 0.2,
                                   fit: BoxFit.cover,
                                   errorWidget: (context, url, error) =>
-                                      FlutterLogo())
+                                      const FlutterLogo())
                               : ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: const SizedBox(

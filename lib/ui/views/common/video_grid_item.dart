@@ -23,7 +23,7 @@ class VideoGridItem extends StatelessWidget {
               CachedNetworkImage(
                   imageUrl: video.thumbnailUrl!,
                   fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => FlutterLogo()),
+                  errorWidget: (context, url, error) => const FlutterLogo()),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

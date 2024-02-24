@@ -19,7 +19,7 @@ class PlaylistGridItem extends StatelessWidget {
               CachedNetworkImage(
                   imageUrl: playlist.thumbnailUrl!,
                   fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => FlutterLogo()),
+                  errorWidget: (context, url, error) => const FlutterLogo()),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
