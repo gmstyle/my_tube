@@ -50,7 +50,9 @@ dependencies:
   wakelock_plus: ^1.1.4
   hive_generator: ^2.0.1
   innertube_dart:
-    path: ../innertube_dart
+    #path: ../innertube_dart
+    git:
+      url: https://github.com/gmstyle/innertube_dart.git
   flutter_carousel_widget: ^2.2.0
   #material_design_icons_flutter: ^7.0.7296
   skeletons: ^0.0.3

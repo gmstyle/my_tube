@@ -70,7 +70,8 @@ class MiniPlayer extends StatelessWidget {
                                           fit: BoxFit.cover,
                                           imageUrl:
                                               mediaItem!.artUri.toString(),
-                                        )
+                                          errorWidget: (context, url, error) =>
+                                              FlutterLogo())
                                       : const SizedBox(
                                           height: 80,
                                           width: 80,

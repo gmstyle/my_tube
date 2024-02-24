@@ -31,7 +31,8 @@ class PlaylistHeader extends StatelessWidget {
                     imageUrl: playlist?.thumbnailUrl ?? '',
                     height: MediaQuery.of(context).size.height * 0.2,
                     width: MediaQuery.of(context).size.width * 0.8,
-                    fit: BoxFit.fill),
+                    fit: BoxFit.fill,
+                    errorWidget: (context, url, error) => FlutterLogo()),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(

@@ -208,8 +208,12 @@ class SearchView extends StatelessWidget {
                               final result = state.result!.resources[index];
                               return _setTile(context, result);
                             } else {
-                              // Loader alla fine della lista
-                              return const SkeletonVideoTile();
+                              // Loader alla fine della lista se la lista è maggiore di 20
+                              if (state.result!.resources.length >= 20) {
+                                return const SkeletonVideoTile();
+                              } else {
+                                return const SizedBox.shrink();
+                              }
                             }
                           })
                       : const Center(child: Text('No results found')),
