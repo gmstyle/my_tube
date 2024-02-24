@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
@@ -19,8 +20,8 @@ class ChannelHeader extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.network(
-                  _setChannelBanner(channel!),
+                CachedNetworkImage(
+                  imageUrl: _setChannelBanner(channel!),
                   fit: BoxFit.fill,
                 ),
                 Container(

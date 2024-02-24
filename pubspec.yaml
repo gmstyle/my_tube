@@ -60,6 +60,7 @@ dependencies:
   device_info_plus: ^9.1.2
   open_file: ^3.3.2
   package_info_plus: ^4.2.0
+  cached_network_image: ^3.3.1
   
 dev_dependencies:
   flutter_test:

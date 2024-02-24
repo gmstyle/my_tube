@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/playlist_mt.dart';
 
@@ -15,7 +16,8 @@ class PlaylistGridItem extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(playlist.thumbnailUrl!, fit: BoxFit.cover),
+              CachedNetworkImage(
+                  imageUrl: playlist.thumbnailUrl!, fit: BoxFit.cover),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

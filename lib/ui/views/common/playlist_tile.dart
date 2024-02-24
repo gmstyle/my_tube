@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
@@ -23,8 +24,8 @@ class PlaylistTile extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   playlist.thumbnailUrl != null
-                      ? Image.network(
-                          playlist.thumbnailUrl!,
+                      ? CachedNetworkImage(
+                          imageUrl: playlist.thumbnailUrl!,
                           height: MediaQuery.of(context).size.height * 0.09,
                           width: MediaQuery.of(context).size.width * 0.2,
                           fit: BoxFit.cover,
@@ -98,7 +99,10 @@ class PlaylistTile extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(
-                      child: Text(playlist.videoCount ?? '',
+                      child: Text(
+                          playlist.videoCount != null
+                              ? '${playlist.videoCount} videos'
+                              : '',
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall

@@ -48,6 +48,7 @@ class PlaylistView extends StatelessWidget {
                                   kind: 'playlist',
                                   channelId: playlist.channelId,
                                   playlistId: playlistId,
+                                  videoCount: playlist.itemCount.toString(),
                                   duration: null,
                                   streamUrl: null),
                               kind: 'playlist'));

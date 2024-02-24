@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -33,8 +34,8 @@ class VideoTile extends StatelessWidget {
                       fit: StackFit.expand,
                       children: [
                         video.thumbnailUrl != null
-                            ? Image.network(
-                                video.thumbnailUrl!,
+                            ? CachedNetworkImage(
+                                imageUrl: video.thumbnailUrl!,
                                 height:
                                     MediaQuery.of(context).size.height * 0.09,
                                 width: MediaQuery.of(context).size.width * 0.2,

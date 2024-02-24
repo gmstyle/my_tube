@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -44,8 +45,8 @@ class MediaitemTile extends StatelessWidget {
                         fit: StackFit.expand,
                         children: [
                           mediaItem.artUri != null
-                              ? Image.network(
-                                  mediaItem.artUri!.toString(),
+                              ? CachedNetworkImage(
+                                  imageUrl: mediaItem.artUri!.toString(),
                                   height:
                                       MediaQuery.of(context).size.height * 0.09,
                                   width:

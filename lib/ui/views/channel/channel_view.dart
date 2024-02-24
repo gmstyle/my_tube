@@ -47,7 +47,7 @@ class ChannelView extends StatelessWidget {
                                   title: channel!.title,
                                   description: channel.description,
                                   channelTitle: channel.title,
-                                  thumbnailUrl: channel.thumbnailUrl,
+                                  thumbnailUrl: channel.avatarUrl,
                                   kind: 'channel',
                                   channelId: channelId,
                                   playlistId: null,
