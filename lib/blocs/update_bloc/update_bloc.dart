@@ -28,7 +28,7 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
     try {
       final currentReleaseVersion = await _getAppVersion();
       final update = await updateRepository.checkForUpdate();
-      if (currentReleaseVersion != currentReleaseVersion) {
+      if (currentReleaseVersion != update.releaseVersion) {
         emit(UpdateState.updateAvailable(update));
       }
     } catch (e) {

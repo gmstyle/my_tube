@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -99,7 +101,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final router = AppRouter.router;
-    context.read<UpdateBloc>().add(const CheckForUpdate());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      log('Checking for updates');
+      context.read<UpdateBloc>().add(const CheckForUpdate());
+    });
 
     const mainColor = Color.fromARGB(255, 66, 24, 150);
 
