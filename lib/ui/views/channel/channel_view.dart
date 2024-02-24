@@ -84,52 +84,62 @@ class ChannelView extends StatelessWidget {
                       for (final section in channel!.sections!)
                         Column(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    section.title ?? '',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        ),
-                                    overflow: TextOverflow.ellipsis,
+                            if (section.title != null &&
+                                    section.title!.isNotEmpty &&
+                                    section.videos != null &&
+                                    section.videos!.isNotEmpty ||
+                                section.playlists != null &&
+                                    section.playlists!.isNotEmpty ||
+                                section.channels != null &&
+                                    section.channels!.isNotEmpty)
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      section.title ?? '',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
-                                if (section.videos != null &&
-                                    section.videos!.isNotEmpty)
-                                  Row(
-                                    children: [
-                                      // add to queue
-                                      IconButton(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          onPressed: () {
-                                            miniplayerCubit
-                                                .addAllToQueue(section.videos!);
-                                          },
-                                          icon: const Icon(Icons.queue_music)),
-                                      IconButton(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          onPressed: () {
-                                            miniplayerCubit
-                                                .startPlayingPlaylist(
-                                                    section.videos!);
-                                          },
-                                          icon:
-                                              const Icon(Icons.playlist_play)),
-                                    ],
-                                  )
-                              ],
-                            ),
+                                  if (section.videos != null &&
+                                      section.videos!.isNotEmpty)
+                                    Row(
+                                      children: [
+                                        // add to queue
+                                        IconButton(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                            onPressed: () {
+                                              miniplayerCubit.addAllToQueue(
+                                                  section.videos!);
+                                            },
+                                            icon:
+                                                const Icon(Icons.queue_music)),
+                                        IconButton(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                            onPressed: () {
+                                              miniplayerCubit
+                                                  .startPlayingPlaylist(
+                                                      section.videos!);
+                                            },
+                                            icon: const Icon(
+                                                Icons.playlist_play)),
+                                      ],
+                                    )
+                                ],
+                              ),
                             const SizedBox(height: 8),
                             if (section.videos != null &&
                                 section.videos!.isNotEmpty)
