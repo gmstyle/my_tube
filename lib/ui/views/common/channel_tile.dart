@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/utils/utils.dart';
@@ -17,11 +18,15 @@ class ChannelTile extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          CircleAvatar(
-            radius: MediaQuery.of(context).size.height * 0.05,
-            foregroundImage: channel.thumbnailUrl != null
-                ? NetworkImage(channel.thumbnailUrl!)
-                : null,
+          ClipOval(
+            child: channel.thumbnailUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: channel.thumbnailUrl!,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => const FlutterLogo())
+                : const ClipOval(
+                    child: FlutterLogo(),
+                  ),
           ),
           Expanded(
             child: Column(
