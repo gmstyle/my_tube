@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/download_service.dart';
@@ -13,7 +13,7 @@ class VideoMenuDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoritesBloc = context.read<FavoritesBloc>();
+    final favoritesBloc = context.read<FavoritesVideoBloc>();
     final playerCubit = context.read<PlayerCubit>();
     final downloadService = context.read<DownloadService>();
 
@@ -35,8 +35,7 @@ class VideoMenuDialog extends StatelessWidget {
                         leading: const Icon(Icons.remove),
                         title: const Text('Remove from favorites'),
                         onTap: () {
-                          favoritesBloc.add(
-                              RemoveFromFavorites(video.id!, kind: 'video'));
+                          favoritesBloc.add(RemoveFromFavorites(video.id!));
                           context.pop();
                         },
                       ),
@@ -48,8 +47,7 @@ class VideoMenuDialog extends StatelessWidget {
                         leading: const Icon(Icons.favorite),
                         title: const Text('Add to favorites'),
                         onTap: () {
-                          favoritesBloc
-                              .add(AddToFavorites(video, kind: 'video'));
+                          favoritesBloc.add(AddToFavorites(video));
                           context.pop();
                         },
                       ),

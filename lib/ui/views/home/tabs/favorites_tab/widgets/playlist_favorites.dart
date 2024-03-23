@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
@@ -9,20 +9,18 @@ import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
 
 class PlaylistFavorites extends StatelessWidget {
-  const PlaylistFavorites({super.key, required this.favoritesBloc});
-
-  final FavoritesBloc favoritesBloc;
+  const PlaylistFavorites({super.key});
 
   @override
   Widget build(BuildContext context) {
-    favoritesBloc.add(const GetFavorites(kind: 'playlist'));
+    context.read<FavoritesPlaylistBloc>().add(const GetFavoritesPlaylist());
 
-    return BlocBuilder<FavoritesBloc, FavoritesState>(
+    return BlocBuilder<FavoritesPlaylistBloc, FavoritesPlaylistState>(
         builder: (context, state) {
       switch (state.status) {
-        case FavoritesStatus.loading:
+        case FavoritesPlaylistStatus.loading:
           return const Center(child: CircularProgressIndicator());
-        case FavoritesStatus.success:
+        case FavoritesPlaylistStatus.success:
           final favorites = state.resources!.reversed.toList();
 
           return Column(
@@ -58,7 +56,7 @@ class PlaylistFavorites extends StatelessWidget {
               ),
             ],
           );
-        case FavoritesStatus.failure:
+        case FavoritesPlaylistStatus.failure:
           return Center(child: Text(state.error!));
         default:
           return const SizedBox.shrink();

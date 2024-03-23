@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/skeletons/skeleton_channel.dart';
@@ -30,18 +30,19 @@ class ChannelView extends StatelessWidget {
                 builder: (context, state) {
               if (state.status == ChannelPageStatus.loaded) {
                 final channel = state.channel;
-                return BlocBuilder<FavoritesBloc, FavoritesState>(
+                return BlocBuilder<FavoritesChannelBloc, FavoritesChannelState>(
                     builder: (context, state) {
-                  final favoriteChannelsBloc = context.read<FavoritesBloc>();
+                  final favoriteChannelsBloc =
+                      context.read<FavoritesChannelBloc>();
                   return IconButton(
                       color: Theme.of(context).colorScheme.onPrimary,
                       onPressed: () {
                         if (favoriteChannelsBloc.favoritesRepository.channelIds
                             .contains(channelId)) {
-                          favoriteChannelsBloc.add(
-                              RemoveFromFavorites(channelId, kind: 'channel'));
+                          favoriteChannelsBloc
+                              .add(RemoveFromFavoritesChannel(channelId));
                         } else {
-                          favoriteChannelsBloc.add(AddToFavorites(
+                          favoriteChannelsBloc.add(AddToFavoritesChannel(
                               ResourceMT(
                                   id: channelId,
                                   title: channel!.title,
@@ -52,8 +53,7 @@ class ChannelView extends StatelessWidget {
                                   channelId: channelId,
                                   playlistId: null,
                                   duration: null,
-                                  streamUrl: null),
-                              kind: 'channel'));
+                                  streamUrl: null)));
                         }
                       },
                       icon: favoriteChannelsBloc.favoritesRepository.channelIds

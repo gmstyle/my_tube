@@ -2,7 +2,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/download_service.dart';
@@ -147,10 +147,11 @@ class VideoView extends StatelessWidget {
                                             });
                                       },
                                       icon: const Icon(Icons.download)),
-                                  BlocBuilder<FavoritesBloc, FavoritesState>(
+                                  BlocBuilder<FavoritesVideoBloc,
+                                      FavoritesVideoState>(
                                     builder: (context, state) {
                                       final favoritesBloc =
-                                          BlocProvider.of<FavoritesBloc>(
+                                          BlocProvider.of<FavoritesVideoBloc>(
                                               context);
                                       return IconButton(
                                           color: Theme.of(context)
@@ -160,15 +161,15 @@ class VideoView extends StatelessWidget {
                                             if (favoritesBloc
                                                 .favoritesRepository.videoIds
                                                 .contains(mediaItem?.id)) {
-                                              favoritesBloc.add(
-                                                  RemoveFromFavorites(
-                                                      mediaItem!.id,
-                                                      kind: 'video'));
+                                              favoritesBloc
+                                                  .add(RemoveFromFavorites(
+                                                mediaItem!.id,
+                                              ));
                                             } else {
                                               favoritesBloc.add(AddToFavorites(
-                                                  ResourceMT.fromMediaItem(
-                                                      mediaItem!),
-                                                  kind: 'video'));
+                                                ResourceMT.fromMediaItem(
+                                                    mediaItem!),
+                                              ));
                                             }
                                           },
                                           icon: favoritesBloc

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/skeletons/skeleton_playlist.dart';
@@ -26,32 +26,29 @@ class PlaylistView extends StatelessWidget {
             BlocBuilder<PlaylistBloc, PlaylistState>(builder: (context, state) {
               if (state.status == PlaylistStatus.loaded) {
                 final playlist = state.response;
-                return BlocBuilder<FavoritesBloc, FavoritesState>(
-                    builder: (context, state) {
-                  final FavoritesBloc favoritesBloc =
-                      context.read<FavoritesBloc>();
+                return BlocBuilder<FavoritesPlaylistBloc,
+                    FavoritesPlaylistState>(builder: (context, state) {
+                  final favoritesBloc = context.read<FavoritesPlaylistBloc>();
                   return IconButton(
                       color: Theme.of(context).colorScheme.onPrimary,
                       onPressed: () {
                         if (favoritesBloc.favoritesRepository.playlistIds
                             .contains(playlistId)) {
-                          favoritesBloc.add(RemoveFromFavorites(playlistId,
-                              kind: 'playlist'));
+                          favoritesBloc
+                              .add(RemoveFromFavoritesPlaylist(playlistId));
                         } else {
-                          favoritesBloc.add(AddToFavorites(
-                              ResourceMT(
-                                  id: playlistId,
-                                  title: playlist!.title,
-                                  description: playlist.description,
-                                  channelTitle: null,
-                                  thumbnailUrl: playlist.thumbnailUrl,
-                                  kind: 'playlist',
-                                  channelId: playlist.channelId,
-                                  playlistId: playlistId,
-                                  videoCount: playlist.itemCount.toString(),
-                                  duration: null,
-                                  streamUrl: null),
-                              kind: 'playlist'));
+                          favoritesBloc.add(AddToFavoritesPlaylist(ResourceMT(
+                              id: playlistId,
+                              title: playlist!.title,
+                              description: playlist.description,
+                              channelTitle: null,
+                              thumbnailUrl: playlist.thumbnailUrl,
+                              kind: 'playlist',
+                              channelId: playlist.channelId,
+                              playlistId: playlistId,
+                              videoCount: playlist.itemCount.toString(),
+                              duration: null,
+                              streamUrl: null)));
                         }
                       },
                       icon: favoritesBloc.favoritesRepository.playlistIds

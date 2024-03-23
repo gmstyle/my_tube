@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
@@ -82,8 +84,18 @@ void main() async {
                   innertubeRepository: context.read<InnertubeRepository>(),
                   mtPlayerService: context.read<MtPlayerService>(),
                 )),
-        BlocProvider<FavoritesBloc>(
-            create: (context) => FavoritesBloc(
+        BlocProvider<FavoritesVideoBloc>(
+            create: (context) => FavoritesVideoBloc(
+                  favoritesRepository: context.read<FavoriteRepository>(),
+                  innertubeRepository: context.read<InnertubeRepository>(),
+                )),
+        BlocProvider<FavoritesChannelBloc>(
+            create: (context) => FavoritesChannelBloc(
+                  favoritesRepository: context.read<FavoriteRepository>(),
+                  innertubeRepository: context.read<InnertubeRepository>(),
+                )),
+        BlocProvider<FavoritesPlaylistBloc>(
+            create: (context) => FavoritesPlaylistBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),
                   innertubeRepository: context.read<InnertubeRepository>(),
                 )),
