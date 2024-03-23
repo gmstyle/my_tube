@@ -28,30 +28,34 @@ class PlaylistView extends StatelessWidget {
                 final playlist = state.response;
                 return BlocBuilder<FavoritesPlaylistBloc,
                     FavoritesPlaylistState>(builder: (context, state) {
-                  final favoritesBloc = context.read<FavoritesPlaylistBloc>();
+                  final favoritesPlaylistBloc =
+                      context.read<FavoritesPlaylistBloc>();
                   return IconButton(
                       color: Theme.of(context).colorScheme.onPrimary,
                       onPressed: () {
-                        if (favoritesBloc.favoritesRepository.playlistIds
+                        if (favoritesPlaylistBloc
+                            .favoritesRepository.playlistIds
                             .contains(playlistId)) {
-                          favoritesBloc
+                          favoritesPlaylistBloc
                               .add(RemoveFromFavoritesPlaylist(playlistId));
                         } else {
-                          favoritesBloc.add(AddToFavoritesPlaylist(ResourceMT(
-                              id: playlistId,
-                              title: playlist!.title,
-                              description: playlist.description,
-                              channelTitle: null,
-                              thumbnailUrl: playlist.thumbnailUrl,
-                              kind: 'playlist',
-                              channelId: playlist.channelId,
-                              playlistId: playlistId,
-                              videoCount: playlist.itemCount.toString(),
-                              duration: null,
-                              streamUrl: null)));
+                          favoritesPlaylistBloc.add(AddToFavoritesPlaylist(
+                              ResourceMT(
+                                  id: playlistId,
+                                  title: playlist!.title,
+                                  description: playlist.description,
+                                  channelTitle: null,
+                                  thumbnailUrl: playlist.thumbnailUrl,
+                                  kind: 'playlist',
+                                  channelId: playlist.channelId,
+                                  playlistId: playlistId,
+                                  videoCount: playlist.itemCount.toString(),
+                                  duration: null,
+                                  streamUrl: null)));
                         }
                       },
-                      icon: favoritesBloc.favoritesRepository.playlistIds
+                      icon: favoritesPlaylistBloc
+                              .favoritesRepository.playlistIds
                               .contains(playlistId)
                           ? const Icon(Icons.favorite)
                           : const Icon(Icons.favorite_border));

@@ -150,7 +150,7 @@ class VideoView extends StatelessWidget {
                                   BlocBuilder<FavoritesVideoBloc,
                                       FavoritesVideoState>(
                                     builder: (context, state) {
-                                      final favoritesBloc =
+                                      final favoritesVideoBloc =
                                           BlocProvider.of<FavoritesVideoBloc>(
                                               context);
                                       return IconButton(
@@ -158,21 +158,22 @@ class VideoView extends StatelessWidget {
                                               .colorScheme
                                               .onPrimary,
                                           onPressed: () {
-                                            if (favoritesBloc
+                                            if (favoritesVideoBloc
                                                 .favoritesRepository.videoIds
                                                 .contains(mediaItem?.id)) {
-                                              favoritesBloc
+                                              favoritesVideoBloc
                                                   .add(RemoveFromFavorites(
                                                 mediaItem!.id,
                                               ));
                                             } else {
-                                              favoritesBloc.add(AddToFavorites(
+                                              favoritesVideoBloc
+                                                  .add(AddToFavorites(
                                                 ResourceMT.fromMediaItem(
                                                     mediaItem!),
                                               ));
                                             }
                                           },
-                                          icon: favoritesBloc
+                                          icon: favoritesVideoBloc
                                                   .favoritesRepository.videoIds
                                                   .contains(mediaItem?.id)
                                               ? const Icon(Icons.favorite)
