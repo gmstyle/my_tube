@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
@@ -78,15 +80,20 @@ class FavoritesHeader extends StatelessWidget {
                                     .colorScheme
                                     .onSecondaryContainer,
                                 onPressed: () {
-                                  String kind = 'video';
-                                  if (title == 'Channels') {
-                                    kind = 'channel';
-                                  } else if (title == 'Playlists') {
-                                    kind = 'playlist';
+                                  if (title == 'Videos') {
+                                    context
+                                        .read<FavoritesVideoBloc>()
+                                        .add(const ClearFavorites());
+                                  } else if (title == 'Channels') {
+                                    context
+                                        .read<FavoritesChannelBloc>()
+                                        .add(const ClearFavoritesChannel());
+                                  } else {
+                                    context
+                                        .read<FavoritesPlaylistBloc>()
+                                        .add(const ClearFavoritesPlaylist());
                                   }
-                                  context
-                                      .read<FavoritesBloc>()
-                                      .add(ClearFavorites(kind: kind));
+
                                   context.pop();
                                 },
                                 icon: const Icon(

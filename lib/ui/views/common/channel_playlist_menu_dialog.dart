@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 
 class ChannelPlaylistMenuDialog extends StatelessWidget {
@@ -16,7 +18,8 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoritesBloc = context.read<FavoritesBloc>();
+    final favoritesChannelBloc = context.read<FavoritesChannelBloc>();
+    final favoritesPlaylistBloc = context.read<FavoritesPlaylistBloc>();
 
     return GestureDetector(
       onLongPress: () {
@@ -31,29 +34,28 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
                   children: [
                     // show the option to remove Channel from the favorites if it is in the favorites
                     if (kind == 'channel' &&
-                        favoritesBloc.favoritesRepository.channelIds
+                        favoritesChannelBloc.favoritesRepository.channelIds
                             .contains(resource.id))
                       ListTile(
                         leading: const Icon(Icons.remove),
                         title: const Text('Remove from favorites'),
                         onTap: () {
-                          favoritesBloc.add(RemoveFromFavorites(resource.id!,
-                              kind: 'channel'));
-
+                          favoritesChannelBloc
+                              .add(RemoveFromFavoritesChannel(resource.id!));
                           context.pop();
                         },
                       ),
 
                     // show the option to add Channel to the favorites if it is not in the favorites
                     if (kind == 'channel' &&
-                        !favoritesBloc.favoritesRepository.channelIds
+                        !favoritesChannelBloc.favoritesRepository.channelIds
                             .contains(resource.id))
                       ListTile(
                         leading: const Icon(Icons.favorite),
                         title: const Text('Add to favorites'),
                         onTap: () {
-                          favoritesBloc
-                              .add(AddToFavorites(resource, kind: 'channel'));
+                          favoritesChannelBloc
+                              .add(AddToFavoritesChannel(resource));
 
                           context.pop();
                         },
@@ -61,14 +63,14 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
 
                     // show the option to remove Playlist from the favorites if it is in the favorites
                     if (kind == 'playlist' &&
-                        favoritesBloc.favoritesRepository.playlistIds
+                        favoritesPlaylistBloc.favoritesRepository.playlistIds
                             .contains(resource.id))
                       ListTile(
                         leading: const Icon(Icons.remove),
                         title: const Text('Remove from favorites'),
                         onTap: () {
-                          favoritesBloc.add(RemoveFromFavorites(resource.id!,
-                              kind: 'playlist'));
+                          favoritesPlaylistBloc
+                              .add(RemoveFromFavoritesPlaylist(resource.id!));
 
                           context.pop();
                         },
@@ -76,14 +78,14 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
 
                     // show the option to add Playlist to the favorites if it is not in the favorites
                     if (kind == 'playlist' &&
-                        !favoritesBloc.favoritesRepository.playlistIds
+                        !favoritesPlaylistBloc.favoritesRepository.playlistIds
                             .contains(resource.id))
                       ListTile(
                         leading: const Icon(Icons.favorite),
                         title: const Text('Add to favorites'),
                         onTap: () {
-                          favoritesBloc
-                              .add(AddToFavorites(resource, kind: 'playlist'));
+                          favoritesPlaylistBloc
+                              .add(AddToFavoritesPlaylist(resource));
 
                           context.pop();
                         },

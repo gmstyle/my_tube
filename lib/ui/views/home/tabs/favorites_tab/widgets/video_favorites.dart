@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
-import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
@@ -9,16 +8,13 @@ import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
 
 class VideoFavorites extends StatelessWidget {
-  const VideoFavorites(
-      {super.key, required this.favoritesBloc, required this.playerCubit});
-  final FavoritesBloc favoritesBloc;
-  final PlayerCubit playerCubit;
+  const VideoFavorites({super.key});
 
   @override
   Widget build(BuildContext context) {
-    favoritesBloc.add(const GetFavorites(kind: 'video'));
+    context.read<FavoritesVideoBloc>().add(const GetFavorites());
 
-    return BlocBuilder<FavoritesBloc, FavoritesState>(
+    return BlocBuilder<FavoritesVideoBloc, FavoritesVideoState>(
         builder: (context, state) {
       switch (state.status) {
         case FavoritesStatus.loading:

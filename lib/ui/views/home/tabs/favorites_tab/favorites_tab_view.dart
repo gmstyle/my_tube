@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/home/favorites_tab/favorites_bloc.dart';
-import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/channel_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/playlist_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/video_favorites.dart';
@@ -11,9 +9,6 @@ class FavoritesTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoritesBloc = context.read<FavoritesBloc>();
-    final playerCubit = context.read<PlayerCubit>();
-
     return DefaultTabController(
       length: 3,
       child: Column(
@@ -42,17 +37,12 @@ class FavoritesTabView extends StatelessWidget {
                 ),
               ]),
           const SizedBox(height: 16),
-          Expanded(
+          const Expanded(
             child: TabBarView(
               children: [
-                VideoFavorites(
-                    favoritesBloc: favoritesBloc, playerCubit: playerCubit),
-                ChannelFavorites(
-                  favoritesBloc: favoritesBloc,
-                ),
-                PlaylistFavorites(
-                  favoritesBloc: favoritesBloc,
-                )
+                VideoFavorites(),
+                ChannelFavorites(),
+                PlaylistFavorites()
               ],
             ),
           ),
