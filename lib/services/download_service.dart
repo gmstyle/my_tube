@@ -3,7 +3,6 @@ import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:open_file/open_file.dart';
@@ -41,7 +40,6 @@ class DownloadService {
       return;
     }
 
-    context.pop();
     _showSnackbar(receivePort, context, video.title!);
   }
 
@@ -107,6 +105,8 @@ class DownloadService {
     BuildContext context,
     String title,
   ) {
+    //Close the previous snackbar
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     // show snackbar with progress that comes from the isolate
     final snackBar = SnackBar(
       showCloseIcon: true,

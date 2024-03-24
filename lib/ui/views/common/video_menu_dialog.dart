@@ -83,9 +83,10 @@ class VideoMenuDialog extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.download),
                       title: const Text('Download'),
-                      onTap: () async {
-                        await downloadService.download(
+                      onTap: () {
+                        downloadService.download(
                             video: video, context: context, isAudioOnly: false);
+                        context.pop();
                       },
                     ),
 
@@ -93,9 +94,10 @@ class VideoMenuDialog extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.music_note),
                       title: const Text('Download audio only'),
-                      onTap: () async {
-                        await downloadService.download(
+                      onTap: () {
+                        downloadService.download(
                             video: video, context: context, isAudioOnly: true);
+                        context.pop();
                       },
                     ),
                   ],
