@@ -116,13 +116,14 @@ class VideoView extends StatelessWidget {
                                                           Icons.download),
                                                       title: const Text(
                                                           'Download'),
-                                                      onTap: () async {
-                                                        await downloadService.download(
+                                                      onTap: () {
+                                                        downloadService.download(
                                                             video: ResourceMT
                                                                 .fromMediaItem(
                                                                     mediaItem!),
                                                             context: context,
                                                             isAudioOnly: false);
+                                                        context.pop();
                                                       },
                                                     ),
 
@@ -132,13 +133,14 @@ class VideoView extends StatelessWidget {
                                                           Icons.music_note),
                                                       title: const Text(
                                                           'Download audio only'),
-                                                      onTap: () async {
-                                                        await downloadService.download(
+                                                      onTap: () {
+                                                        downloadService.download(
                                                             video: ResourceMT
                                                                 .fromMediaItem(
                                                                     mediaItem!),
                                                             context: context,
                                                             isAudioOnly: true);
+                                                        context.pop();
                                                       },
                                                     ),
                                                   ],

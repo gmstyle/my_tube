@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
+import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/ui/views/playlist/playlist_view.dart';
 
 class PlaylistPage extends Page {
@@ -15,9 +16,9 @@ class PlaylistPage extends Page {
         builder: (BuildContext context) {
           return MultiBlocProvider(providers: [
             BlocProvider<PlaylistBloc>(
-                create: (context) =>
-                    PlaylistBloc(innertubeRepository: context.read())
-                      ..add(GetPlaylist(playlistId: playlistId))),
+                create: (context) => PlaylistBloc(
+                    innertubeRepository: context.read<InnertubeRepository>())
+                  ..add(GetPlaylist(playlistId: playlistId))),
           ], child: PlaylistView(playlistId: playlistId));
         });
   }
