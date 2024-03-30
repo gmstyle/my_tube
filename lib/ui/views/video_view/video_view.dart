@@ -123,7 +123,8 @@ class VideoView extends StatelessWidget {
                                                                     mediaItem!),
                                                             context: context,
                                                             isAudioOnly: false);
-                                                        context.pop();
+                                                        Navigator.of(context)
+                                                            .pop();
                                                       },
                                                     ),
 
@@ -140,7 +141,8 @@ class VideoView extends StatelessWidget {
                                                                     mediaItem!),
                                                             context: context,
                                                             isAudioOnly: true);
-                                                        context.pop();
+                                                        Navigator.of(context)
+                                                            .pop();
                                                       },
                                                     ),
                                                   ],

@@ -22,7 +22,7 @@ class VideoMenuDialog extends StatelessWidget {
         // show option dialog
         showDialog(
             context: context,
-            builder: (_) {
+            builder: (context) {
               return AlertDialog(
                 //title: const Text('Options'),
                 content: Column(
@@ -37,7 +37,7 @@ class VideoMenuDialog extends StatelessWidget {
                         onTap: () {
                           favoritesVideoBloc
                               .add(RemoveFromFavorites(video.id!));
-                          context.pop();
+                          Navigator.of(context).pop();
                         },
                       ),
 
@@ -49,7 +49,7 @@ class VideoMenuDialog extends StatelessWidget {
                         title: const Text('Add to favorites'),
                         onTap: () {
                           favoritesVideoBloc.add(AddToFavorites(video));
-                          context.pop();
+                          Navigator.of(context).pop();
                         },
                       ),
 
@@ -62,7 +62,7 @@ class VideoMenuDialog extends StatelessWidget {
                         title: const Text('Add to queue'),
                         onTap: () {
                           playerCubit.addToQueue(video.id!);
-                          context.pop();
+                          Navigator.of(context).pop();
                         },
                       ),
 
@@ -75,7 +75,7 @@ class VideoMenuDialog extends StatelessWidget {
                         title: const Text('Remove from queue'),
                         onTap: () {
                           playerCubit.removeFromQueue(video.id!);
-                          context.pop();
+                          Navigator.of(context).pop();
                         },
                       ),
 
@@ -86,7 +86,7 @@ class VideoMenuDialog extends StatelessWidget {
                       onTap: () {
                         downloadService.download(
                             video: video, context: context, isAudioOnly: false);
-                        context.pop();
+                        Navigator.of(context).pop();
                       },
                     ),
 
@@ -97,7 +97,7 @@ class VideoMenuDialog extends StatelessWidget {
                       onTap: () {
                         downloadService.download(
                             video: video, context: context, isAudioOnly: true);
-                        context.pop();
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
