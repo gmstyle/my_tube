@@ -203,80 +203,89 @@ class VideoView extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          HorizontalSwipeToSkip(
-                            child: Hero(
-                              tag: 'video_image_or_player',
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: AspectRatio(
-                                    aspectRatio:
-                                        _setAspectRatio(mtPlayerService),
-                                    child: Chewie(
-                                        controller:
-                                            mtPlayerService.chewieController!)),
-                              ),
+                    child: Column(
+                      children: [
+                        HorizontalSwipeToSkip(
+                          child: Hero(
+                            tag: 'video_image_or_player',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: AspectRatio(
+                                  aspectRatio: _setAspectRatio(mtPlayerService),
+                                  child: Chewie(
+                                      controller:
+                                          mtPlayerService.chewieController!)),
                             ),
                           ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  mediaItem?.title ?? '',
-                                  maxLines: 2,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 8,
-                          ),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(mediaItem?.album ?? '',
-                                    maxLines: 2,
-                                    style: TextStyle(
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                mediaItem?.title ?? '',
+                                maxLines: 2,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onPrimary,
-                                    )),
+                                    ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 8,
-                          ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(mediaItem?.album ?? '',
+                                          maxLines: 2,
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          )),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 8,
+                                ),
 
-                          // Seek bar
-                          const SeekBar(
-                            darkBackground: true,
-                          ),
-                          // controls
-                          const Controls(),
+                                // Seek bar
+                                const SeekBar(
+                                  darkBackground: true,
+                                ),
+                                // controls
+                                const Controls(),
 
-                          // description
-                          if (mediaItem?.extras!['description'] != null &&
-                              mediaItem?.extras!['description'] != '')
-                            ExpandableText(
-                              title: 'Description',
-                              text: mediaItem?.extras!['description'] ?? '',
-                            )
-                        ],
-                      ),
+                                // description
+                                if (mediaItem?.extras!['description'] != null &&
+                                    mediaItem?.extras!['description'] != '')
+                                  ExpandableText(
+                                    title: 'Description',
+                                    text:
+                                        mediaItem?.extras!['description'] ?? '',
+                                  ),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                   const QueueDraggableSheet()

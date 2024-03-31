@@ -215,6 +215,7 @@ class InnertubeRepository {
                 playlistId: playlist.playlistId,
                 streamUrl: null,
                 duration: null,
+                videoCount: playlist.videoCount,
               ))
           .toList();
       resources.addAll(playlists);
