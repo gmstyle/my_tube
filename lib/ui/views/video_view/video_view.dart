@@ -117,12 +117,12 @@ class VideoView extends StatelessWidget {
                                                       title: const Text(
                                                           'Download'),
                                                       onTap: () {
-                                                        downloadService.download(
-                                                            video: ResourceMT
-                                                                .fromMediaItem(
-                                                                    mediaItem!),
-                                                            context: context,
-                                                            isAudioOnly: false);
+                                                        downloadService
+                                                            .download(videos: [
+                                                          ResourceMT
+                                                              .fromMediaItem(
+                                                                  mediaItem!)
+                                                        ], context: context);
                                                         Navigator.of(context)
                                                             .pop();
                                                       },
@@ -135,12 +135,17 @@ class VideoView extends StatelessWidget {
                                                       title: const Text(
                                                           'Download audio only'),
                                                       onTap: () {
-                                                        downloadService.download(
-                                                            video: ResourceMT
-                                                                .fromMediaItem(
-                                                                    mediaItem!),
-                                                            context: context,
-                                                            isAudioOnly: true);
+                                                        downloadService
+                                                            .download(
+                                                                videos: [
+                                                              ResourceMT
+                                                                  .fromMediaItem(
+                                                                      mediaItem!)
+                                                            ],
+                                                                context:
+                                                                    context,
+                                                                isAudioOnly:
+                                                                    true);
                                                         Navigator.of(context)
                                                             .pop();
                                                       },

@@ -84,8 +84,8 @@ class VideoMenuDialog extends StatelessWidget {
                       leading: const Icon(Icons.download),
                       title: const Text('Download'),
                       onTap: () {
-                        downloadService.download(
-                            video: video, context: context, isAudioOnly: false);
+                        downloadService
+                            .download(videos: [video], context: context);
                         Navigator.of(context).pop();
                       },
                     ),
@@ -96,7 +96,9 @@ class VideoMenuDialog extends StatelessWidget {
                       title: const Text('Download audio only'),
                       onTap: () {
                         downloadService.download(
-                            video: video, context: context, isAudioOnly: true);
+                            videos: [video],
+                            context: context,
+                            isAudioOnly: true);
                         Navigator.of(context).pop();
                       },
                     ),

@@ -12,9 +12,9 @@ class DownloadService {
   const DownloadService();
 
   Future<void> download(
-      {required ResourceMT video,
+      {required List<ResourceMT> videos,
       required BuildContext context,
-      required bool isAudioOnly}) async {
+      bool isAudioOnly = false}) async {
     // ask for permissions to save file into the Downloads system folder
     final permissionsGranted = await Utils.checkAndRequestStoragePermissions();
     if (!permissionsGranted) {
@@ -23,16 +23,23 @@ class DownloadService {
     RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
     final receivePort = ReceivePort();
 
+    // crea una nuova lista di video da passare all'isolato ma per ogni video prendi solo l'id e il titolo
+    final List<Map<String, String>> newVideos = videos.map((video) {
+      return {
+        'id': video.id!,
+        'title': video.title!,
+      };
+    }).toList();
+
     final args = {
-      'videoId': video.id,
-      'fileName': video.title,
+      'videos': newVideos,
       'isAudioOnly': isAudioOnly,
       'sendPort': receivePort.sendPort,
       'rootIsolateToken': rootIsolateToken,
     };
 
     Isolate.spawn(
-      _downloadFileIsolate,
+      _downloadFilesIsolate,
       args,
     );
 
@@ -40,20 +47,23 @@ class DownloadService {
       return;
     }
 
-    _showSnackbar(receivePort, context, video.title!);
+    _showSnackbar(receivePort, context,
+        videos.length > 1 ? 'Multiple videos' : videos.first.title!);
   }
 
-  void _downloadFileIsolate(Map<String, dynamic> args) async {
+  void _downloadFilesIsolate(Map<String, dynamic> args) async {
     final sendPort = args['sendPort'] as SendPort;
-    final videoId = args['videoId'] as String;
-    final fileName = args['fileName'] as String;
+    final videos = args['videos'] as List<Map<String, String>>;
     final rootIsolateToken = args['rootIsolateToken'] as RootIsolateToken;
     final isAudioOnly = args['isAudioOnly'] as bool;
 
-    final stream = _downloadFileStream(videoId, fileName, rootIsolateToken,
-        isAudioOnly: isAudioOnly);
-    await for (final progress in stream) {
-      sendPort.send(progress);
+    for (final video in videos) {
+      final stream = _downloadFileStream(
+          video['id']!, video['title']!, rootIsolateToken,
+          isAudioOnly: isAudioOnly);
+      await for (final progress in stream) {
+        sendPort.send(progress);
+      }
     }
   }
 
