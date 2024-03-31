@@ -14,10 +14,15 @@ class DownloadService {
   Future<void> download(
       {required List<ResourceMT> videos,
       required BuildContext context,
+      String? destinationDir,
       bool isAudioOnly = false}) async {
     // ask for permissions to save file into the Downloads system folder
     final permissionsGranted = await Utils.checkAndRequestStoragePermissions();
     if (!permissionsGranted) {
+      return;
+    }
+
+    if (!context.mounted) {
       return;
     }
     RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
@@ -33,6 +38,7 @@ class DownloadService {
 
     final args = {
       'videos': newVideos,
+      'destinationDir': destinationDir,
       'isAudioOnly': isAudioOnly,
       'sendPort': receivePort.sendPort,
       'rootIsolateToken': rootIsolateToken,
@@ -43,32 +49,39 @@ class DownloadService {
       args,
     );
 
-    if (!context.mounted) {
-      return;
-    }
-
-    _showSnackbar(receivePort, context,
-        videos.length > 1 ? 'Multiple videos' : videos.first.title!);
+    _showSnackbar(receivePort, context, destinationDir ?? videos.first.title!);
   }
 
   void _downloadFilesIsolate(Map<String, dynamic> args) async {
     final sendPort = args['sendPort'] as SendPort;
     final videos = args['videos'] as List<Map<String, String>>;
+    final destinationDir = args['destinationDir'] as String?;
     final rootIsolateToken = args['rootIsolateToken'] as RootIsolateToken;
     final isAudioOnly = args['isAudioOnly'] as bool;
 
-    for (final video in videos) {
-      final stream = _downloadFileStream(
-          video['id']!, video['title']!, rootIsolateToken,
+    int totalVideos = videos.length;
+    List<double> progressList = List.filled(totalVideos, 0.0);
+
+    for (int i = 0; i < totalVideos; i++) {
+      final video = videos[i];
+      final stream = _downloadFileStream(video['id']!, video['title']!,
+          destinationDir, rootIsolateToken, totalVideos,
           isAudioOnly: isAudioOnly);
       await for (final progress in stream) {
-        sendPort.send(progress);
+        progressList[i] = progress;
+        double totalProgress =
+            progressList.reduce((a, b) => a + b) / totalVideos;
+        sendPort.send(totalProgress);
       }
     }
   }
 
   Stream<double> _downloadFileStream(
-      String videoId, String fileName, RootIsolateToken rootIsolateToken,
+      String videoId,
+      String fileName,
+      String? destinationDir,
+      RootIsolateToken rootIsolateToken,
+      int totalVideos,
       {bool isAudioOnly = false}) async* {
     BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
     final yt = YoutubeExplode();
@@ -85,10 +98,12 @@ class DownloadService {
       }
 
       final stream = yt.videos.streamsClient.get(streamInfo);
-      final path = await _getDownloadsPath(fileName, fileExtension);
+      final path =
+          await _getDownloadsPath(fileName, fileExtension, destinationDir);
       if (path == null) {
         throw Exception('Could not find the downloads directory');
       }
+
       final file = File(path);
       final fileStream = file.openWrite();
 
@@ -173,11 +188,16 @@ class DownloadService {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  Future<String?> _getDownloadsPath(String filename, String extension) async {
+  Future<String?> _getDownloadsPath(
+      String filename, String extension, String? destinationDir) async {
     // Get the directory for the app's files
     try {
-      //Directory? appDir = await getDownloadsDirectory();
-      Directory appDir = Directory('/storage/emulated/0/Download');
+      Directory appDir = Directory('/storage/emulated/0/Download/MyTube');
+
+      // If there are multiple videos, create a folder with the playlist name
+      if (destinationDir != null) {
+        appDir = Directory('${appDir.path}/$destinationDir');
+      }
 
       if (!await appDir.exists()) {
         await appDir.create(recursive: true);

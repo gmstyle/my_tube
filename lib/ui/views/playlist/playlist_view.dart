@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -48,6 +47,7 @@ class PlaylistView extends StatelessWidget {
                                         onTap: () {
                                           downloadService.download(
                                               videos: playlist!.videos!,
+                                              destinationDir: playlist.title,
                                               context: context);
                                           Navigator.of(context).pop();
                                         },
@@ -61,6 +61,7 @@ class PlaylistView extends StatelessWidget {
                                         onTap: () {
                                           downloadService.download(
                                               videos: playlist!.videos!,
+                                              destinationDir: playlist.title,
                                               context: context,
                                               isAudioOnly: true);
                                           Navigator.of(context).pop();
