@@ -210,11 +210,18 @@ class VideoView extends StatelessWidget {
                             tag: 'video_image_or_player',
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: AspectRatio(
-                                  aspectRatio: _setAspectRatio(mtPlayerService),
-                                  child: Chewie(
-                                      controller:
-                                          mtPlayerService.chewieController!)),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height * 0.4,
+                                ),
+                                child: AspectRatio(
+                                    aspectRatio:
+                                        _setAspectRatio(mtPlayerService),
+                                    child: Chewie(
+                                        controller:
+                                            mtPlayerService.chewieController!)),
+                              ),
                             ),
                           ),
                         ),
