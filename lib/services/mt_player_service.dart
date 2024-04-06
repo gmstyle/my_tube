@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/video_view/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
@@ -254,8 +255,10 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       }
 
       if (chewieController!.videoPlayerController.value.hasError) {
-        print(
-            'Errore di riproduzione: ${chewieController!.videoPlayerController.value.errorDescription}');
+        if (kDebugMode) {
+          print(
+              'Errore di riproduzione: ${chewieController!.videoPlayerController.value.errorDescription}');
+        }
       }
     });
   }
@@ -341,7 +344,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> clearQueue() async {
-    await _disposeControllers();
+    //await _disposeControllers();
     playlist.clear();
     queue.value.clear();
   }
