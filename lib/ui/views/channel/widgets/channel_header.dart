@@ -48,7 +48,7 @@ class ChannelHeader extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Flexible(
-                            child: Text(channel!.title ?? '',
+                            child: Text(channel!.title ?? 'Channel',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
