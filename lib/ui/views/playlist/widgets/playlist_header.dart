@@ -98,7 +98,7 @@ class PlaylistHeader extends StatelessWidget {
                     child: Row(
                       children: [
                         FloatingActionButton.small(
-                            heroTag: "add_playlist_to_queue",
+                            heroTag: "add_playlist_to_queue_${playlist!.id}",
                             backgroundColor:
                                 Theme.of(context).colorScheme.onPrimary,
                             onPressed: () {
@@ -106,7 +106,7 @@ class PlaylistHeader extends StatelessWidget {
                             },
                             child: const Icon(Icons.queue_music)),
                         FloatingActionButton.small(
-                            heroTag: "play_playlist",
+                            heroTag: "play_playlist_${playlist!.id}",
                             backgroundColor:
                                 Theme.of(context).colorScheme.onPrimary,
                             onPressed:
