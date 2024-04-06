@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -62,7 +63,12 @@ class DownloadService {
     int totalVideos = videos.length;
     List<double> progressList = List.filled(totalVideos, 0.0);
 
-    for (int i = 0; i < totalVideos; i++) {
+    // Create a queue of downloads
+    Queue<int> downloadQueue =
+        Queue<int>.from(Iterable<int>.generate(totalVideos));
+
+    // Function to start a download
+    Future<void> startDownload(int i) async {
       final video = videos[i];
       final stream = _downloadFileStream(video['id']!, video['title']!,
           destinationDir, rootIsolateToken, totalVideos,
@@ -73,7 +79,14 @@ class DownloadService {
             progressList.reduce((a, b) => a + b) / totalVideos;
         sendPort.send(totalProgress);
       }
+      // Start the next download when this one is finished
+      if (downloadQueue.isNotEmpty) {
+        startDownload(downloadQueue.removeFirst());
+      }
     }
+
+    // Start the first download
+    startDownload(downloadQueue.removeFirst());
   }
 
   Stream<double> _downloadFileStream(
@@ -169,7 +182,7 @@ class DownloadService {
 
             return Column(
               children: [
-                Text('Downloading:$title'),
+                Text('Downloading: $title'),
                 LinearProgressIndicator(value: progress),
               ],
             );
