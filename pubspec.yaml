@@ -42,14 +42,15 @@ dependencies:
   equatable: ^2.0.5
   go_router: ^13.2.2
   path_provider: ^2.1.2
-  chewie: ^1.7.5
-  video_player: ^2.8.3
+  chewie: ^1.8.1
+  video_player: ^2.8.5
   hive_flutter: ^1.1.0
   flutter_adaptive_scaffold: ^0.1.10+1
   audio_service: ^0.18.13
-  wakelock_plus: ^1.2.1
+  wakelock_plus: ^1.2.2
   hive_generator: ^2.0.1
   innertube_dart:
+    #path: ../innertube_dart
     git:
       url: https://github.com/gmstyle/innertube_dart.git
   flutter_carousel_widget: ^2.2.0
@@ -57,7 +58,7 @@ dependencies:
   skeletons: ^0.0.3
   disable_battery_optimization: ^1.1.1
   permission_handler: ^11.3.1
-  youtube_explode_dart: ^2.1.0
+  youtube_explode_dart: ^2.2.0
   device_info_plus: ^10.0.1
   open_file: ^3.3.2
   package_info_plus: ^6.0.0
