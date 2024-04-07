@@ -110,6 +110,18 @@ class Utils {
     return await Permission.requestInstallPackages.isGranted;
   }
 
+  // request permissions to show local notifications
+  static Future<bool> checkAndRequestNotificationPermissions() async {
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+      if (await Permission.notification.isDenied) {
+        await openAppSettings();
+      }
+    }
+
+    return await Permission.notification.isGranted;
+  }
+
   static String normalizeFileName(String fileName) {
     // remove special characters
     fileName = fileName

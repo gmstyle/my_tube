@@ -19,15 +19,18 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service-0.18.12/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.1.18/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service-0.18.13/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.1.19/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-10.0.1/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/disable_battery_optimization-1.1.1/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/google_sign_in_android-6.1.21/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-5.0.1/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.0.0/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/open_file-3.3.2/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-6.0.0/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.2/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.3.0/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_android-2.4.11/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.1.4/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler_android-12.0.5/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.3.3/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_android-2.4.12/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.2.2/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$USER_HOME$/flutter/packages/flutter_tools/gradle" />

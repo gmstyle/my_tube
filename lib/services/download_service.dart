@@ -1,12 +1,14 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/services/local_notification_helper.dart.dart';
 import 'package:my_tube/utils/utils.dart';
-import 'package:open_file/open_file.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class DownloadService {
@@ -23,9 +25,17 @@ class DownloadService {
       return;
     }
 
-    if (!context.mounted) {
+    //nask for permissions to show local notifications
+    final notificationPermissionsGranted =
+        await Utils.checkAndRequestNotificationPermissions();
+    if (!notificationPermissionsGranted) {
       return;
     }
+
+    if (destinationDir != null) {
+      destinationDir = Utils.normalizeFileName(destinationDir);
+    }
+
     RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
     final receivePort = ReceivePort();
 
@@ -50,7 +60,9 @@ class DownloadService {
       args,
     );
 
-    _showSnackbar(receivePort, context, destinationDir ?? videos.first.title!);
+    //_showSnackbar(receivePort, context, destinationDir ?? videos.first.title!);
+    _showNotification(receivePort, context,
+        destinationDir ?? videos.first.title!, destinationDir);
   }
 
   void _downloadFilesIsolate(Map<String, dynamic> args) async {
@@ -138,67 +150,39 @@ class DownloadService {
     }
   }
 
-  void _showSnackbar(
-    ReceivePort receivePort,
-    BuildContext context,
-    String title,
-  ) {
-    //Close the previous snackbar
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    // show snackbar with progress that comes from the isolate
-    final snackBar = SnackBar(
-      showCloseIcon: true,
-      duration: const Duration(days: 1),
-      content: StreamBuilder(
-        stream: receivePort.asBroadcastStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text('Preparing to download...');
-          }
-          if (snapshot.hasData) {
-            final progress = snapshot.data as double;
-            if (progress >= 1.0) {
-              Future.delayed(const Duration(seconds: 10), () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              });
-
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Flexible(
-                    child: Text('Download complete 🎉'),
-                  ),
-                  IconButton(
-                      onPressed: () async {
-                        await OpenFile.open('/storage/emulated/0/Download');
-                      },
-                      icon: Icon(
-                        Icons.folder,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ))
-                ],
-              );
-            }
-
-            return Column(
-              children: [
-                Text('Downloading: $title'),
-                LinearProgressIndicator(value: progress),
-              ],
-            );
-          } else if (snapshot.hasError) {
-            Future.delayed(const Duration(seconds: 5), () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            });
-            return Text('Error: ${snapshot.error}');
-          } else {
-            return const Text('Download failed!');
-          }
-        },
-      ),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  void _showNotification(ReceivePort receivePort, BuildContext context,
+      String title, String? destinationDir) {
+    StreamSubscription<double>? subscription;
+    subscription = receivePort.cast<double>().listen((progress) {
+      int intProgress = (progress * 100).toInt();
+      if (intProgress >= 100) {
+        subscription?.cancel();
+        LocalNotificationHelper.showDownloadNotification(
+            title: 'Download complete',
+            body:
+                'Download of $title is complete. Click to open ${destinationDir ?? 'Download'} folder',
+            progress: intProgress,
+            payload: destinationDir);
+      } else {
+        if (kDebugMode) {
+          print('Progress: $intProgress');
+        }
+        LocalNotificationHelper.showDownloadNotification(
+          title: 'Downloading',
+          body: 'Downloading $title',
+          progress: intProgress,
+        );
+      }
+    }, onError: (error, stacktrace) {
+      subscription?.cancel();
+      LocalNotificationHelper.showDownloadNotification(
+        title: 'Download failed',
+        body: 'Download of $title failed',
+        progress: 0,
+      );
+    }, onDone: () {
+      subscription?.cancel();
+    });
   }
 
   Future<String?> _getDownloadsPath(
