@@ -56,7 +56,7 @@ void main() async {
 
       Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
       Provider<MtPlayerService>(create: (context) => mtPlayerService),
-      Provider<DownloadService>(create: (context) => const DownloadService()),
+      Provider<DownloadService>(create: (context) => DownloadService()),
       Provider<UpdateProvider>(create: (context) => UpdateProvider()),
     ],
     child: MultiRepositoryProvider(

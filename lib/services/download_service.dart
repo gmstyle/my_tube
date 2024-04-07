@@ -12,7 +12,7 @@ import 'package:my_tube/utils/utils.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class DownloadService {
-  const DownloadService();
+  Isolate? _isolate;
 
   Future<void> download(
       {required List<ResourceMT> videos,
@@ -55,7 +55,7 @@ class DownloadService {
       'rootIsolateToken': rootIsolateToken,
     };
 
-    Isolate.spawn(
+    _isolate = await Isolate.spawn(
       _downloadFilesIsolate,
       args,
     );
@@ -153,25 +153,32 @@ class DownloadService {
   void _showNotification(ReceivePort receivePort, BuildContext context,
       String title, String? destinationDir) {
     StreamSubscription<double>? subscription;
+    int lastUpdateMillis = 0;
     subscription = receivePort.cast<double>().listen((progress) {
       int intProgress = (progress * 100).toInt();
-      if (intProgress >= 100) {
-        subscription?.cancel();
-        LocalNotificationHelper.showDownloadNotification(
-            title: 'Download complete',
-            body:
-                'Download of $title is complete. Click to open ${destinationDir ?? 'Download'} folder',
+      int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+      if (currentTimeMillis - lastUpdateMillis > 500 || intProgress >= 100) {
+        lastUpdateMillis = currentTimeMillis;
+        if (intProgress >= 100) {
+          subscription?.cancel();
+          LocalNotificationHelper.showDownloadNotification(
+              title: 'Download complete',
+              body: 'Download of $title is complete',
+              progress: intProgress,
+              payload: destinationDir);
+
+          _isolate?.kill();
+          _isolate = null;
+        } else {
+          if (kDebugMode) {
+            print('Progress: $intProgress');
+          }
+          LocalNotificationHelper.showDownloadNotification(
+            title: 'Downloading',
+            body: 'Downloading $title',
             progress: intProgress,
-            payload: destinationDir);
-      } else {
-        if (kDebugMode) {
-          print('Progress: $intProgress');
+          );
         }
-        LocalNotificationHelper.showDownloadNotification(
-          title: 'Downloading',
-          body: 'Downloading $title',
-          progress: intProgress,
-        );
       }
     }, onError: (error, stacktrace) {
       subscription?.cancel();
@@ -180,8 +187,13 @@ class DownloadService {
         body: 'Download of $title failed',
         progress: 0,
       );
+
+      _isolate?.kill();
+      _isolate = null;
     }, onDone: () {
       subscription?.cancel();
+      _isolate?.kill();
+      _isolate = null;
     });
   }
 
