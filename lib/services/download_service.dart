@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -247,7 +246,9 @@ class DownloadService {
         } on FileSystemException catch (e) {
           if (e.osError?.errorCode == 2) {
             // No such file or directory
-            print('Directory does not exist: ${dir.path}');
+            if (kDebugMode) {
+              print('Directory does not exist: ${dir.path}');
+            }
           } else {
             rethrow;
           }

@@ -29,13 +29,10 @@ class PlaylistTile extends StatelessWidget {
                           height: MediaQuery.of(context).size.height * 0.09,
                           width: MediaQuery.of(context).size.width * 0.2,
                           fit: BoxFit.cover,
-                          errorWidget: (context, url, error) =>
-                              const FlutterLogo())
+                        )
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: const SizedBox(
-                            child: FlutterLogo(),
-                          ),
+                          child: const SizedBox(child: Placeholder()),
                         ),
                   Container(
                     decoration: BoxDecoration(
