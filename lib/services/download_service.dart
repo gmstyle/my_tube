@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -13,6 +14,7 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class DownloadService {
   Isolate? _isolate;
+  StreamSubscription<void>? _cancelSubscription;
 
   Future<void> download(
       {required List<ResourceMT> videos,
@@ -59,6 +61,19 @@ class DownloadService {
       _downloadFilesIsolate,
       args,
     );
+
+    // Ascolta gli eventi di annullamento e annulla il download quando viene ricevuto un evento
+    _cancelSubscription =
+        LocalNotificationHelper.onCancelDownload.listen((_) async {
+      if (_isolate != null) {
+        _isolate?.kill(priority: Isolate.immediate);
+        _isolate = null;
+
+        // elimino i file parzialmente scaricati
+        // Aspetta che tutti i download siano completati
+        await _deletePartialFile(destinationDir);
+      }
+    });
 
     //_showSnackbar(receivePort, context, destinationDir ?? videos.first.title!);
     _showNotification(receivePort, context,
@@ -110,42 +125,41 @@ class DownloadService {
       {bool isAudioOnly = false}) async* {
     BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
     final yt = YoutubeExplode();
+
+    final manifest = await yt.videos.streamsClient.getManifest(videoId);
+    StreamInfo? streamInfo;
+    String fileExtension;
+    if (isAudioOnly) {
+      streamInfo = manifest.audioOnly.withHighestBitrate();
+      fileExtension = 'm4a';
+    } else {
+      streamInfo = manifest.muxed.bestQuality;
+      fileExtension = 'mp4';
+    }
+
+    final stream = yt.videos.streamsClient.get(streamInfo);
+    final path =
+        await _getDownloadsPath(fileName, fileExtension, destinationDir);
+    if (path == null) {
+      throw Exception('Could not find the downloads directory');
+    }
+
+    final file = File(path);
+    final fileStream = file.openWrite();
+
+    int receivedBytes = 0;
+    final totalBytes = streamInfo.size;
     try {
-      final manifest = await yt.videos.streamsClient.getManifest(videoId);
-      StreamInfo? streamInfo;
-      String fileExtension;
-      if (isAudioOnly) {
-        streamInfo = manifest.audioOnly.withHighestBitrate();
-        fileExtension = 'm4a';
-      } else {
-        streamInfo = manifest.muxed.bestQuality;
-        fileExtension = 'mp4';
-      }
-
-      final stream = yt.videos.streamsClient.get(streamInfo);
-      final path =
-          await _getDownloadsPath(fileName, fileExtension, destinationDir);
-      if (path == null) {
-        throw Exception('Could not find the downloads directory');
-      }
-
-      final file = File(path);
-      final fileStream = file.openWrite();
-
-      int receivedBytes = 0;
-      final totalBytes = streamInfo.size;
-
       await for (final data in stream) {
         fileStream.add(data);
         receivedBytes += data.length;
         yield receivedBytes / totalBytes.totalBytes;
       }
-
-      await fileStream.flush();
-      await fileStream.close();
     } on Exception catch (e) {
       throw Exception('DownloadError: $e');
     } finally {
+      await fileStream.flush();
+      await fileStream.close();
       yt.close();
     }
   }
@@ -182,6 +196,7 @@ class DownloadService {
       }
     }, onError: (error, stacktrace) {
       subscription?.cancel();
+      _cancelSubscription?.cancel();
       LocalNotificationHelper.showDownloadNotification(
         title: 'Download failed',
         body: 'Download of $title failed',
@@ -192,6 +207,7 @@ class DownloadService {
       _isolate = null;
     }, onDone: () {
       subscription?.cancel();
+      _cancelSubscription?.cancel();
       _isolate?.kill();
       _isolate = null;
     });
@@ -215,6 +231,28 @@ class DownloadService {
       return '${appDir.path}/${Utils.normalizeFileName(filename)}.$extension';
     } catch (e) {
       return Future.error('Error: $e: Could not get downloads directory');
+    }
+  }
+
+  Future<void> _deletePartialFile(String? destinationDir) async {
+    final directory = Directory('/storage/emulated/0/Download/MyTube');
+
+    // Elimina la cartella se esiste
+    if (destinationDir != null) {
+      final dir = Directory('${directory.path}/$destinationDir');
+      var dirExists = await dir.exists();
+      if (dirExists) {
+        try {
+          await dir.delete(recursive: true);
+        } on FileSystemException catch (e) {
+          if (e.osError?.errorCode == 2) {
+            // No such file or directory
+            print('Directory does not exist: ${dir.path}');
+          } else {
+            rethrow;
+          }
+        }
+      }
     }
   }
 }

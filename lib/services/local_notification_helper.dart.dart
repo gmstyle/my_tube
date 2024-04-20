@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:open_file/open_file.dart';
+
+final _cancelDownloadController = StreamController<void>.broadcast();
 
 @pragma('vm:entry-point')
 Future<void> notificationResponse(
@@ -10,6 +14,9 @@ Future<void> notificationResponse(
         ? '/storage/emulated/0/Download/MyTube/$destinationDir'
         : '/storage/emulated/0/Download/MyTube';
     await OpenFile.open(path);
+  } else if (notificationResponse.actionId == 'cancel_action') {
+    // Se l'azione di annullamento viene attivata, invia un evento al controller
+    _cancelDownloadController.add(null);
   }
 }
 
@@ -86,10 +93,15 @@ class LocalNotificationHelper {
             autoCancel: progress == 100,
             actions: progress == 100
                 ? [
-                    const AndroidNotificationAction('open_action', 'Open',
+                    const AndroidNotificationAction(
+                        'open_action', 'Open download directory',
                         showsUserInterface: true),
                   ]
-                : null);
+                : [
+                    const AndroidNotificationAction(
+                        'cancel_action', 'Cancel download',
+                        showsUserInterface: true),
+                  ]);
 
     NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidNotificationDetails, iOS: iOSNotificationDetails);
@@ -102,4 +114,7 @@ class LocalNotificationHelper {
       payload: payload,
     );
   }
+
+  // Aggiungi un metodo per ottenere lo stream di annullamento
+  static Stream<void> get onCancelDownload => _cancelDownloadController.stream;
 }
