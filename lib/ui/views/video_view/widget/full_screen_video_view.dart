@@ -30,8 +30,6 @@ class _FullScreenVideoViewState extends State<FullScreenVideoView> {
     // disable wakelock
     WakelockPlus.disable;
 
-    //widget.mtPlayerService.skipController.close();
-
     super.dispose();
   }
 

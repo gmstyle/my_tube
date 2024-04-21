@@ -28,9 +28,6 @@ import 'app_bloc_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //Force portrait mode
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
   await Hive.initFlutter();
   Hive.registerAdapter(ResourceMTAdapter());

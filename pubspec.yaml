@@ -64,6 +64,7 @@ dependencies:
   package_info_plus: ^6.0.0
   cached_network_image: ^3.3.1
   flutter_local_notifications: ^17.0.0
+  native_device_orientation: ^2.0.3
   
 dev_dependencies:
   flutter_test:
