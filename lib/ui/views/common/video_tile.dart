@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,13 +43,23 @@ class VideoTile extends StatelessWidget {
                                     MediaQuery.of(context).size.height * 0.09,
                                 width: MediaQuery.of(context).size.width * 0.2,
                                 fit: BoxFit.cover,
-                                errorWidget: (context, url, error) =>
-                                    const FlutterLogo())
+                                errorWidget: (context, url, error) {
+                                  // show base64 image if error
+                                  final Uint8List? bytes =
+                                      video.base64Thumbnail != null
+                                          ? base64Decode(video.base64Thumbnail!)
+                                          : null;
+                                  if (bytes != null) {
+                                    return Image.memory(
+                                      bytes,
+                                      fit: BoxFit.cover,
+                                    );
+                                  }
+                                  return const SizedBox();
+                                })
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: const SizedBox(
-                                  child: FlutterLogo(),
-                                ),
+                                child: const SizedBox(child: FlutterLogo()),
                               ),
                       ],
                     ),
