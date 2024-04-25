@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
@@ -63,7 +62,9 @@ void main() async {
             create: (context) => InnertubeRepository(
                 innertubeProvider: context.read<InnertubeProvider>())),
         RepositoryProvider<FavoriteRepository>(
-            create: (context) => FavoriteRepository()),
+            create: (context) => FavoriteRepository(
+                innertubeRepository: context.read<InnertubeRepository>())
+              ..migrateData()),
         RepositoryProvider<UpdateRepository>(
             create: (context) => UpdateRepository(
                 updateProvider: context.read<UpdateProvider>())),

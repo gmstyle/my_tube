@@ -1,8 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/respositories/innertube_repository.dart';
 
 class FavoriteRepository {
+  final InnertubeRepository innertubeRepository;
+
+  FavoriteRepository({required this.innertubeRepository});
+
   final favoriteVideosBox = Hive.box<ResourceMT>('favorites');
   final favoriteChannelsBox = Hive.box<ResourceMT>('channels');
   final favoritePlaylistsBox = Hive.box<ResourceMT>('playlists');
@@ -75,5 +80,25 @@ class FavoriteRepository {
       return favoritePlaylistsBox.containsKey(id);
     }
     return false;
+  }
+
+  Future<void> migrateData() async {
+    // Migrate favorite playlists with base64 thumbnails if they don't have one
+    final canMigrate = favoritePlaylists.isNotEmpty &&
+        favoritePlaylists.every((playlist) => playlist.base64Thumbnail == null);
+
+    if (canMigrate) {
+      final updatedPlaylists =
+          await Future.wait(favoritePlaylists.map((savedPlaylist) async {
+        final newPlaylist = await innertubeRepository
+            .getPlaylist(savedPlaylist.id!, getVideos: false);
+
+        var base64thumbnail = await innertubeRepository.innertubeProvider
+            .getBase64Image(newPlaylist.thumbnailUrl!);
+        return savedPlaylist.copyWith(base64Thumbnail: base64thumbnail);
+      }));
+      await favoritePlaylistsBox.clear();
+      await favoritePlaylistsBox.addAll(updatedPlaylists);
+    }
   }
 }

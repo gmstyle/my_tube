@@ -12,4 +12,15 @@ class BaseProvider {
       return Future.error('Error: $error');
     }
   }
+
+  //get an image from the url and return it as base64
+  Future<String> getBase64Image(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      final bytes = response.bodyBytes;
+      return base64Encode(bytes);
+    } catch (error) {
+      return Future.error('Error: $error');
+    }
+  }
 }

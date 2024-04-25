@@ -84,6 +84,9 @@ class ResourceMT extends Equatable with HiveObjectMixin {
   @HiveField(12)
   final String? videoCount;
 
+  @HiveField(13)
+  final String? base64Thumbnail;
+
   ResourceMT({
     required this.id,
     required this.title,
@@ -98,6 +101,7 @@ class ResourceMT extends Equatable with HiveObjectMixin {
     this.addedAt,
     this.subscriberCount,
     this.videoCount,
+    this.base64Thumbnail,
   });
 
   factory ResourceMT.fromJson(Map<String, dynamic> json) {
@@ -117,6 +121,7 @@ class ResourceMT extends Equatable with HiveObjectMixin {
           : DateTime.parse(json['addedAt'] as String),
       subscriberCount: json['subscriberCount'] as String?,
       videoCount: json['videoCount'] as String?,
+      base64Thumbnail: json['base64Thumbnail'] as String?,
     );
   }
 
@@ -135,6 +140,7 @@ class ResourceMT extends Equatable with HiveObjectMixin {
       'addedAt': addedAt?.toIso8601String(),
       'subscriberCount': subscriberCount,
       'videoCount': videoCount,
+      'base64Thumbnail': base64Thumbnail,
     };
   }
 
@@ -152,6 +158,7 @@ class ResourceMT extends Equatable with HiveObjectMixin {
     DateTime? addedAt,
     String? subscriberCount,
     String? videoCount,
+    String? base64Thumbnail,
   }) {
     return ResourceMT(
       id: id ?? this.id,
@@ -167,6 +174,7 @@ class ResourceMT extends Equatable with HiveObjectMixin {
       addedAt: addedAt ?? this.addedAt,
       subscriberCount: subscriberCount ?? this.subscriberCount,
       videoCount: videoCount ?? this.videoCount,
+      base64Thumbnail: base64Thumbnail ?? this.base64Thumbnail,
     );
   }
 

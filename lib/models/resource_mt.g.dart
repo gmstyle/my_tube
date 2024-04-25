@@ -30,13 +30,14 @@ class ResourceMTAdapter extends TypeAdapter<ResourceMT> {
       addedAt: fields[10] as DateTime?,
       subscriberCount: fields[11] as String?,
       videoCount: fields[12] as String?,
+      base64Thumbnail: fields[13] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ResourceMT obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,7 +63,9 @@ class ResourceMTAdapter extends TypeAdapter<ResourceMT> {
       ..writeByte(11)
       ..write(obj.subscriberCount)
       ..writeByte(12)
-      ..write(obj.videoCount);
+      ..write(obj.videoCount)
+      ..writeByte(13)
+      ..write(obj.base64Thumbnail);
   }
 
   @override

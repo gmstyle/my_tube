@@ -20,9 +20,11 @@ class InnertubeProvider extends BaseProvider {
     return video;
   }
 
-  Future<Playlist> getPlaylist(String playlistId) async {
+  Future<Playlist> getPlaylist(String playlistId,
+      {bool getVideos = true}) async {
     final innertube = await _client;
-    final playlist = await innertube.getPlaylist(playlistId: playlistId);
+    final playlist = await innertube.getPlaylist(
+        playlistId: playlistId, getVideos: getVideos);
     return playlist;
   }
 

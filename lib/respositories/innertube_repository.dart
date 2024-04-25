@@ -1,4 +1,8 @@
 import 'package:innertube_dart/enums/enums.dart';
+import 'package:innertube_dart/models/responses/playlist.dart';
+import 'package:innertube_dart/models/responses/video.dart';
+import 'package:innertube_dart/models/responses/channel.dart';
+
 import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/models/music_home_mt.dart';
 import 'package:my_tube/models/playlist_mt.dart';
@@ -10,8 +14,7 @@ class InnertubeRepository {
 
   final InnertubeProvider innertubeProvider;
 
-  Future<ResourceMT> getVideo(String videoId, {bool? withStreamUrl}) async {
-    final video = await innertubeProvider.getVideo(videoId, withStreamUrl);
+  Future<ResourceMT> _getResourceMTFromVideo(Video video) async {
     return ResourceMT(
       id: video.videoId,
       title: video.title,
@@ -23,29 +26,82 @@ class InnertubeRepository {
       playlistId: '',
       streamUrl: video.muxedStreamingUrl,
       duration: video.durationMs != null ? int.parse(video.durationMs!) : null,
+      base64Thumbnail: video.thumbnails?.last.url != null
+          ? await innertubeProvider.getBase64Image(video.thumbnails!.last.url!)
+          : null,
     );
+  }
+
+  Future<ResourceMT> _getResourceMTFromPlaylist(Playlist playlist) async {
+    return ResourceMT(
+      id: playlist.playlistId,
+      title: playlist.title,
+      description: playlist.description,
+      channelTitle: playlist.author,
+      thumbnailUrl: playlist.thumbnails?.last.url,
+      kind: 'playlist',
+      channelId: null,
+      playlistId: playlist.playlistId,
+      streamUrl: null,
+      duration: null,
+      videoCount: playlist.videoCount,
+      base64Thumbnail: playlist.thumbnails?.last.url != null
+          ? await innertubeProvider
+              .getBase64Image(playlist.thumbnails!.last.url!)
+          : null,
+    );
+  }
+
+  Future<ResourceMT> _getResourceMTFromChannel(Channel channel) async {
+    return ResourceMT(
+      id: channel.channelId,
+      title: channel.title,
+      description: channel.description,
+      channelTitle: channel.title,
+      thumbnailUrl: channel.thumbnails?.last.url,
+      kind: 'channel',
+      channelId: channel.channelId,
+      playlistId: null,
+      streamUrl: null,
+      duration: null,
+      subscriberCount: channel.subscriberCount,
+      videoCount: channel.videoCount,
+      base64Thumbnail: channel.thumbnails?.last.url != null
+          ? await innertubeProvider
+              .getBase64Image(channel.thumbnails!.last.url!)
+          : null,
+    );
+  }
+
+  Future<PlaylistMT> _getPlaylistMTFromPlaylist(Playlist playlist) async {
+    final videos = playlist.videos!
+        .map((video) async => _getResourceMTFromVideo(video))
+        .toList();
+
+    return PlaylistMT(
+      id: playlist.playlistId,
+      channelId: null,
+      title: playlist.title,
+      description: playlist.description,
+      thumbnailUrl: playlist.thumbnails?.last.url,
+      itemCount: int.tryParse(playlist.videoCount ?? '0'),
+      videos: await Future.wait(videos),
+    );
+  }
+
+  Future<ResourceMT> getVideo(String videoId, {bool? withStreamUrl}) async {
+    final video = await innertubeProvider.getVideo(videoId, withStreamUrl);
+    return _getResourceMTFromVideo(video);
   }
 
   Future<ResponseMT> getTrending(TrendingCategory trendingCategory) async {
     final response = await innertubeProvider.getTrending(trendingCategory);
     if (response.videos != null) {
       final resources = response.videos!
-          .map((video) => ResourceMT(
-                id: video.videoId,
-                title: video.title,
-                description: video.description,
-                channelTitle: video.author,
-                thumbnailUrl: video.thumbnails?.first.url,
-                kind: 'video',
-                channelId: video.channelId,
-                playlistId: '',
-                streamUrl: video.muxedStreamingUrl,
-                duration: video.durationMs != null
-                    ? int.parse(video.durationMs!)
-                    : null,
-              ))
+          .map((video) async => _getResourceMTFromVideo(video))
           .toList();
-      return ResponseMT(resources: resources, nextPageToken: null);
+      final videoResources = await Future.wait(resources);
+      return ResponseMT(resources: videoResources, nextPageToken: null);
     } else {
       return const ResponseMT(resources: [], nextPageToken: null);
     }
@@ -54,102 +110,40 @@ class InnertubeRepository {
   Future<MusicHomeMT> getMusicHome() async {
     final response = await innertubeProvider.getMusicHome();
     final carouselVideos = response.carouselVideos
-        ?.map((video) => ResourceMT(
-              id: video.videoId,
-              title: video.title,
-              description: video.description,
-              channelTitle: video.author,
-              thumbnailUrl: video.thumbnails?.last.url,
-              kind: 'video',
-              channelId: video.channelId,
-              playlistId: null,
-              streamUrl: video.muxedStreamingUrl,
-              duration: video.durationMs != null
-                  ? int.parse(video.durationMs!)
-                  : null,
-            ))
+        ?.map((video) async => _getResourceMTFromVideo(video))
         .toList();
-    final sections = response.sections!
-        .map((section) => SectionMT(
-              title: section.title,
-              playlistId: section.playlistId,
-              videos: section.videos
-                  ?.map((video) => ResourceMT(
-                        id: video.videoId,
-                        title: video.title,
-                        description: video.description,
-                        channelTitle: video.author,
-                        thumbnailUrl: video.thumbnails?.last.url,
-                        kind: null,
-                        channelId: video.channelId,
-                        playlistId: null,
-                        streamUrl: video.muxedStreamingUrl,
-                        duration: video.durationMs != null
-                            ? int.parse(video.durationMs!)
-                            : null,
-                      ))
-                  .toList(),
-              playlists: section.playlists
-                  ?.map((playlist) => PlaylistMT(
-                      id: playlist.playlistId,
-                      channelId: null,
-                      title: playlist.title,
-                      description: playlist.description,
-                      thumbnailUrl: playlist.thumbnails?.last.url,
-                      itemCount: int.tryParse(playlist.videoCount ?? '0'),
-                      videos: playlist.videos
-                          ?.map((video) => ResourceMT(
-                                id: video.videoId,
-                                title: video.title,
-                                description: video.description,
-                                channelTitle: video.author,
-                                thumbnailUrl: video.thumbnails?.last.url,
-                                kind: 'playlist',
-                                channelId: video.channelId,
-                                playlistId: '',
-                                streamUrl: video.muxedStreamingUrl,
-                                duration: video.durationMs != null
-                                    ? int.parse(video.durationMs!)
-                                    : null,
-                              ))
-                          .toList()))
-                  .toList(),
-            ))
-        .toList();
+    final sections = await Future.wait(response.sections!.map((section) async {
+      final videos = await Future.wait<ResourceMT>(section.videos
+              ?.map((video) async => _getResourceMTFromVideo(video))
+              .toList() ??
+          []);
+      final playlists = await Future.wait<PlaylistMT>(section.playlists
+              ?.map((playlist) async => _getPlaylistMTFromPlaylist(playlist))
+              .toList() ??
+          []);
+      return SectionMT(
+        title: section.title,
+        playlistId: section.playlistId,
+        videos: videos,
+        playlists: playlists,
+      );
+    }).toList());
+
+    final carouselResources =
+        carouselVideos != null ? await Future.wait(carouselVideos) : null;
     return MusicHomeMT(
       title: response.title,
       description: response.description,
-      carouselVideos: carouselVideos,
+      carouselVideos: carouselResources,
       sections: sections,
     );
   }
 
-  Future<PlaylistMT> getPlaylist(String playlistId) async {
-    final playlist = await innertubeProvider.getPlaylist(playlistId);
-    final resources = playlist.videos!
-        .map((video) => ResourceMT(
-              id: video.videoId,
-              title: video.title,
-              description: video.description,
-              channelTitle: video.author,
-              thumbnailUrl: video.thumbnails?.first.url,
-              kind: 'video',
-              channelId: video.channelId,
-              playlistId: playlist.playlistId,
-              streamUrl: video.muxedStreamingUrl,
-              duration: video.durationMs != null
-                  ? int.parse(video.durationMs!)
-                  : null,
-            ))
-        .toList();
-    return PlaylistMT(
-        id: playlist.playlistId,
-        channelId: null,
-        title: playlist.title,
-        description: playlist.description,
-        thumbnailUrl: playlist.thumbnails?.last.url,
-        itemCount: resources.length,
-        videos: resources);
+  Future<PlaylistMT> getPlaylist(String playlistId,
+      {bool getVideos = true}) async {
+    final playlist =
+        await innertubeProvider.getPlaylist(playlistId, getVideos: getVideos);
+    return _getPlaylistMTFromPlaylist(playlist);
   }
 
   Future<List<String>> getSearchSuggestions(String query) async {
@@ -164,61 +158,26 @@ class InnertubeRepository {
     final resources = <ResourceMT>[];
     if (response.videos != null) {
       final videos = response.videos!
-          .map((video) => ResourceMT(
-                id: video.videoId,
-                title: video.title,
-                description: video.description,
-                channelTitle: video.author,
-                thumbnailUrl: video.thumbnails?.last.url,
-                kind: 'video',
-                channelId: video.channelId,
-                playlistId: null,
-                streamUrl: video.muxedStreamingUrl,
-                duration: video.durationMs != null
-                    ? int.parse(video.durationMs!)
-                    : null,
-              ))
+          .map((video) async => _getResourceMTFromVideo(video))
           .toList();
-      resources.addAll(videos);
+      final videoResources = await Future.wait(videos);
+      resources.addAll(videoResources);
     }
 
     if (response.channels != null) {
       final channels = response.channels!
-          .map((channel) => ResourceMT(
-                id: channel.channelId,
-                title: channel.title,
-                description: channel.description,
-                channelTitle: channel.title,
-                thumbnailUrl: channel.thumbnails?.last.url,
-                kind: 'channel',
-                channelId: channel.channelId,
-                playlistId: null,
-                streamUrl: null,
-                duration: null,
-                subscriberCount: channel.subscriberCount,
-                videoCount: channel.videoCount,
-              ))
+          .map((channel) async => _getResourceMTFromChannel(channel))
           .toList();
-      resources.addAll(channels);
+      final channelResources = await Future.wait(channels);
+      resources.addAll(channelResources);
     }
 
     if (response.playlists != null) {
       final playlists = response.playlists!
-          .map((playlist) => ResourceMT(
-                id: playlist.playlistId,
-                title: playlist.title,
-                description: playlist.description,
-                channelTitle: playlist.author,
-                thumbnailUrl: playlist.thumbnails?.last.url,
-                kind: 'playlist',
-                channelId: null,
-                playlistId: playlist.playlistId,
-                streamUrl: null,
-                duration: null,
-                videoCount: playlist.videoCount,
-              ))
+          .map((playlist) async => _getResourceMTFromPlaylist(playlist))
           .toList();
-      resources.addAll(playlists);
+      final playlistResources = await Future.wait(playlists);
+      resources.addAll(playlistResources);
     }
 
     return ResponseMT(
@@ -227,69 +186,31 @@ class InnertubeRepository {
 
   Future<ChannelPageMT> getChannel(String channelId) async {
     final channel = await innertubeProvider.getChannel(channelId);
-    final sections = channel.sections
-        ?.map((section) => SectionMT(
-              title: section.title,
-              playlistId: section.playlistId,
-              videos: section.videos
-                  ?.map((video) => ResourceMT(
-                        id: video.videoId,
-                        title: video.title,
-                        description: video.description,
-                        channelTitle: video.author,
-                        thumbnailUrl: video.thumbnails?.last.url,
-                        kind: 'video',
-                        channelId: video.channelId,
-                        playlistId: '',
-                        streamUrl: video.muxedStreamingUrl,
-                        duration: video.durationMs != null
-                            ? int.parse(video.durationMs!)
-                            : null,
-                      ))
-                  .toList(),
-              playlists: section.playlists
-                  ?.map((playlist) => PlaylistMT(
-                      id: playlist.playlistId,
-                      channelId: null,
-                      title: playlist.title,
-                      description: playlist.description,
-                      thumbnailUrl: playlist.thumbnails?.last.url,
-                      itemCount: int.tryParse(playlist.videoCount ?? '0'),
-                      videos: playlist.videos
-                          ?.map((video) => ResourceMT(
-                                id: video.videoId,
-                                title: video.title,
-                                description: video.description,
-                                channelTitle: video.author,
-                                thumbnailUrl: video.thumbnails?.last.url,
-                                kind: 'playlist',
-                                channelId: video.channelId,
-                                playlistId: '',
-                                streamUrl: video.muxedStreamingUrl,
-                                duration: video.durationMs != null
-                                    ? int.parse(video.durationMs!)
-                                    : null,
-                              ))
-                          .toList()))
-                  .toList(),
-              channels: section.featuredChannels
-                  ?.map((channel) => ResourceMT(
-                        id: channel.channelId,
-                        title: channel.title,
-                        description: channel.description,
-                        channelTitle: channel.title,
-                        thumbnailUrl: channel.thumbnails?.last.url,
-                        kind: 'channel',
-                        channelId: channel.channelId,
-                        subscriberCount: channel.subscriberCount,
-                        videoCount: channel.videoCount,
-                        playlistId: null,
-                        streamUrl: null,
-                        duration: null,
-                      ))
-                  .toList(),
-            ))
-        .toList();
+    final sections =
+        await Future.wait<SectionMT>(channel.sections?.map((section) async {
+              final videos = section.videos != null
+                  ? await Future.wait<ResourceMT>(section.videos!
+                      .map((video) async => await _getResourceMTFromVideo(
+                            video,
+                          )))
+                  : <ResourceMT>[];
+              final playlists = section.playlists != null
+                  ? await Future.wait<PlaylistMT>(
+                      section.playlists!.map(_getPlaylistMTFromPlaylist))
+                  : <PlaylistMT>[];
+              final channels = section.featuredChannels != null
+                  ? await Future.wait<ResourceMT>(
+                      section.featuredChannels!.map(_getResourceMTFromChannel))
+                  : <ResourceMT>[];
+              return SectionMT(
+                title: section.title,
+                playlistId: section.playlistId,
+                videos: videos,
+                playlists: playlists,
+                channels: channels,
+              );
+            }).toList() ??
+            []);
 
     return ChannelPageMT(
       title: channel.title,
