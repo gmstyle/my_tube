@@ -14,63 +14,59 @@ class InnertubeRepository {
 
   final InnertubeProvider innertubeProvider;
 
+  Future<String?> _getBase64Thumbnail(String? url) async {
+    return url != null ? await innertubeProvider.getBase64Image(url) : null;
+  }
+
   Future<ResourceMT> _getResourceMTFromVideo(Video video) async {
     return ResourceMT(
-      id: video.videoId,
-      title: video.title,
-      description: video.description,
-      channelTitle: video.author,
-      thumbnailUrl: video.thumbnails?.last.url,
-      kind: 'video',
-      channelId: video.channelId,
-      playlistId: '',
-      streamUrl: video.muxedStreamingUrl,
-      duration: video.durationMs != null ? int.parse(video.durationMs!) : null,
-      base64Thumbnail: video.thumbnails?.last.url != null
-          ? await innertubeProvider.getBase64Image(video.thumbnails!.last.url!)
-          : null,
-    );
+        id: video.videoId,
+        title: video.title,
+        description: video.description,
+        channelTitle: video.author,
+        thumbnailUrl: video.thumbnails?.last.url,
+        kind: 'video',
+        channelId: video.channelId,
+        playlistId: '',
+        streamUrl: video.muxedStreamingUrl,
+        duration:
+            video.durationMs != null ? int.parse(video.durationMs!) : null,
+        base64Thumbnail: await _getBase64Thumbnail(video.thumbnails?.last.url));
   }
 
   Future<ResourceMT> _getResourceMTFromPlaylist(Playlist playlist) async {
     return ResourceMT(
-      id: playlist.playlistId,
-      title: playlist.title,
-      description: playlist.description,
-      channelTitle: playlist.author,
-      thumbnailUrl: playlist.thumbnails?.last.url,
-      kind: 'playlist',
-      channelId: null,
-      playlistId: playlist.playlistId,
-      streamUrl: null,
-      duration: null,
-      videoCount: playlist.videoCount,
-      base64Thumbnail: playlist.thumbnails?.last.url != null
-          ? await innertubeProvider
-              .getBase64Image(playlist.thumbnails!.last.url!)
-          : null,
-    );
+        id: playlist.playlistId,
+        title: playlist.title,
+        description: playlist.description,
+        channelTitle: playlist.author,
+        thumbnailUrl: playlist.thumbnails?.last.url,
+        kind: 'playlist',
+        channelId: null,
+        playlistId: playlist.playlistId,
+        streamUrl: null,
+        duration: null,
+        videoCount: playlist.videoCount,
+        base64Thumbnail:
+            await _getBase64Thumbnail(playlist.thumbnails?.last.url));
   }
 
   Future<ResourceMT> _getResourceMTFromChannel(Channel channel) async {
     return ResourceMT(
-      id: channel.channelId,
-      title: channel.title,
-      description: channel.description,
-      channelTitle: channel.title,
-      thumbnailUrl: channel.thumbnails?.last.url,
-      kind: 'channel',
-      channelId: channel.channelId,
-      playlistId: null,
-      streamUrl: null,
-      duration: null,
-      subscriberCount: channel.subscriberCount,
-      videoCount: channel.videoCount,
-      base64Thumbnail: channel.thumbnails?.last.url != null
-          ? await innertubeProvider
-              .getBase64Image(channel.thumbnails!.last.url!)
-          : null,
-    );
+        id: channel.channelId,
+        title: channel.title,
+        description: channel.description,
+        channelTitle: channel.title,
+        thumbnailUrl: channel.thumbnails?.last.url,
+        kind: 'channel',
+        channelId: channel.channelId,
+        playlistId: null,
+        streamUrl: null,
+        duration: null,
+        subscriberCount: channel.subscriberCount,
+        videoCount: channel.videoCount,
+        base64Thumbnail:
+            await _getBase64Thumbnail(channel.thumbnails?.last.url));
   }
 
   Future<PlaylistMT> _getPlaylistMTFromPlaylist(Playlist playlist) async {
