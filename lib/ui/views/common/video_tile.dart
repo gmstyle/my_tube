@@ -86,6 +86,7 @@ class VideoTile extends StatelessWidget {
                                           .colorScheme
                                           .onPrimary),
                               maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -93,14 +94,17 @@ class VideoTile extends StatelessWidget {
                       Row(
                         children: [
                           Flexible(
-                            child: Text(video.channelTitle ?? '',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary)),
+                            child: Text(
+                              video.channelTitle ?? '',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
