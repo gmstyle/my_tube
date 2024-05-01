@@ -94,6 +94,7 @@ class PlaylistTile extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onPrimary),
                         maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -101,13 +102,12 @@ class PlaylistTile extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(
-                      child: Text(playlist.channelTitle ?? '',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary)),
+                      child: Text(
+                        playlist.channelTitle ?? '',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -115,15 +115,13 @@ class PlaylistTile extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                          playlist.videoCount != null
-                              ? '${playlist.videoCount} videos'
-                              : '',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary)),
+                        playlist.videoCount != null
+                            ? '${playlist.videoCount} videos'
+                            : '',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
