@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/services/mt_player_service.dart';
@@ -13,6 +15,7 @@ class FullScreenVideoView extends StatefulWidget {
 }
 
 class _FullScreenVideoViewState extends State<FullScreenVideoView> {
+  late StreamSubscription _skipSubscription;
   @override
   void initState() {
     super.initState();
@@ -20,7 +23,7 @@ class _FullScreenVideoViewState extends State<FullScreenVideoView> {
     // enable wakelock
     WakelockPlus.enabled;
 
-    widget.mtPlayerService.onSkip.listen((_) {
+    _skipSubscription = widget.mtPlayerService.onSkip.listen((_) {
       setState(() {});
     });
   }
@@ -29,7 +32,7 @@ class _FullScreenVideoViewState extends State<FullScreenVideoView> {
   void dispose() {
     // disable wakelock
     WakelockPlus.disable;
-
+    _skipSubscription.cancel();
     super.dispose();
   }
 
