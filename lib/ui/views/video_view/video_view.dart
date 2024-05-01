@@ -322,20 +322,30 @@ class VideoView extends StatelessWidget {
   void _enterFullScreenOnOrientation(MtPlayerService mtPlayerService) {
     NativeDeviceOrientationCommunicator()
         .onOrientationChanged(useSensor: true)
-        .listen((event) {
+        .listen((event) async {
       final bool isPortrait = (event == NativeDeviceOrientation.portraitUp ||
-          event == NativeDeviceOrientation.portraitUp);
+          event == NativeDeviceOrientation.portraitDown);
       final bool isLandscape =
           (event == NativeDeviceOrientation.landscapeLeft ||
               event == NativeDeviceOrientation.landscapeRight);
+      const duration = Duration(milliseconds: 500);
 
-      if (isPortrait && mtPlayerService.chewieController!.isFullScreen) {
-        mtPlayerService.chewieController!.exitFullScreen();
-        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      if (isPortrait &&
+          mtPlayerService.chewieController!.isFullScreen &&
+          !_isQueueDraggableSheetOpen) {
+        await Future.delayed(duration);
+        if (mtPlayerService.chewieController!.isFullScreen) {
+          mtPlayerService.chewieController!.exitFullScreen();
+          SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+        }
       } else if (isLandscape &&
-          !mtPlayerService.chewieController!.isFullScreen) {
-        mtPlayerService.chewieController!.enterFullScreen();
-        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+          !mtPlayerService.chewieController!.isFullScreen &&
+          !_isQueueDraggableSheetOpen) {
+        await Future.delayed(duration);
+        if (!mtPlayerService.chewieController!.isFullScreen) {
+          mtPlayerService.chewieController!.enterFullScreen();
+          SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+        }
       }
     });
   }
@@ -348,4 +358,8 @@ class VideoView extends StatelessWidget {
         : mtPlayerService
             .chewieController!.videoPlayerController.value.aspectRatio;
   }
+
+  bool get _isQueueDraggableSheetOpen =>
+      queueDraggableController.isAttached &&
+      queueDraggableController.size == maxChildSize;
 }
