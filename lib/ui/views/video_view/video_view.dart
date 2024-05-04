@@ -1,6 +1,8 @@
 import 'dart:developer';
 
+import 'package:autorotation_check/autorotation_check.dart';
 import 'package:chewie/chewie.dart';
+import 'package:device_orientation/device_orientation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +20,6 @@ import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
-import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -320,31 +321,32 @@ class VideoView extends StatelessWidget {
   }
 
   void _enterFullScreenOnOrientation(MtPlayerService mtPlayerService) {
-    NativeDeviceOrientationCommunicator()
-        .onOrientationChanged(useSensor: true)
-        .listen((event) async {
-      final bool isPortrait = (event == NativeDeviceOrientation.portraitUp ||
-          event == NativeDeviceOrientation.portraitDown);
-      final bool isLandscape =
-          (event == NativeDeviceOrientation.landscapeLeft ||
-              event == NativeDeviceOrientation.landscapeRight);
+    final autorotationCheck = AutorotationCheck();
+    deviceOrientation$.listen((event) async {
+      final bool isPortrait = (event == DeviceOrientation.portraitUp ||
+          event == DeviceOrientation.portraitDown);
+      final bool isLandscape = (event == DeviceOrientation.landscapeLeft ||
+          event == DeviceOrientation.landscapeRight);
+      final isAutorotationEnabled =
+          await autorotationCheck.isAutorotationEnabled() ?? false;
       const duration = Duration(milliseconds: 500);
 
-      if (isPortrait &&
-          mtPlayerService.chewieController!.isFullScreen &&
-          !_isQueueDraggableSheetOpen) {
-        await Future.delayed(duration);
-        if (mtPlayerService.chewieController!.isFullScreen) {
-          mtPlayerService.chewieController!.exitFullScreen();
-          SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-        }
-      } else if (isLandscape &&
-          !mtPlayerService.chewieController!.isFullScreen &&
-          !_isQueueDraggableSheetOpen) {
-        await Future.delayed(duration);
-        if (!mtPlayerService.chewieController!.isFullScreen) {
-          mtPlayerService.chewieController!.enterFullScreen();
-          SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      if (isAutorotationEnabled) {
+        final isFullScreen = mtPlayerService.chewieController!.isFullScreen;
+        if (isPortrait && isFullScreen && !_isQueueDraggableSheetOpen) {
+          await Future.delayed(duration);
+          if (isFullScreen) {
+            mtPlayerService.chewieController!.exitFullScreen();
+            SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+          }
+        } else if (isLandscape &&
+            !isFullScreen &&
+            !_isQueueDraggableSheetOpen) {
+          await Future.delayed(duration);
+          if (!isFullScreen) {
+            mtPlayerService.chewieController!.enterFullScreen();
+            SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+          }
         }
       }
     });

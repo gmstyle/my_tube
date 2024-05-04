@@ -53,6 +53,9 @@ dependencies:
     #path: ../innertube_dart
     git:
       url: https://github.com/gmstyle/innertube_dart.git
+  autorotation_check:
+    git:
+      url: https://github.com/gmstyle/autorotation_check.git
   flutter_carousel_widget: ^2.2.0
   #material_design_icons_flutter: ^7.0.7296
   skeletons: ^0.0.3
@@ -64,7 +67,7 @@ dependencies:
   package_info_plus: ^7.0.0
   cached_network_image: ^3.3.1
   flutter_local_notifications: ^17.1.0
-  native_device_orientation: ^2.0.3
+  device_orientation: ^1.0.0
   
 dev_dependencies:
   flutter_test:
