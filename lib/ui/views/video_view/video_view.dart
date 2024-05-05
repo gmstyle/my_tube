@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:async';
 
 import 'package:autorotation_check/autorotation_check.dart';
 import 'package:chewie/chewie.dart';
@@ -24,16 +24,73 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
 
-class VideoView extends StatelessWidget {
+class VideoView extends StatefulWidget {
   const VideoView({
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final playerCubit = context.read<PlayerCubit>();
-    final mtPlayerService = playerCubit.mtPlayerService;
-    final downloadService = context.read<DownloadService>();
+  State<VideoView> createState() => _VideoViewState();
+}
+
+class _VideoViewState extends State<VideoView> {
+  late final PlayerCubit playerCubit;
+  late final MtPlayerService mtPlayerService;
+  late final DownloadService downloadService;
+  late final StreamSubscription<DeviceOrientation>
+      deviceOrientationSubscription;
+  final autorotationCheck = AutorotationCheck();
+
+  void _enterFullScreenOnOrientation(MtPlayerService mtPlayerService) {
+    deviceOrientationSubscription = deviceOrientation$.listen((event) async {
+      final bool isPortrait = (event == DeviceOrientation.portraitUp ||
+          event == DeviceOrientation.portraitDown);
+      final bool isLandscape = (event == DeviceOrientation.landscapeLeft ||
+          event == DeviceOrientation.landscapeRight);
+      final isAutorotationEnabled =
+          await autorotationCheck.isAutorotationEnabled() ?? false;
+      const duration = Duration(milliseconds: 500);
+
+      if (isAutorotationEnabled) {
+        final isFullScreen = mtPlayerService.chewieController!.isFullScreen;
+        if (isPortrait && !_isQueueDraggableSheetOpen) {
+          await Future.delayed(duration);
+
+          if (isFullScreen) {
+            mtPlayerService.chewieController!.exitFullScreen();
+            SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+          }
+        } else if (isLandscape && !_isQueueDraggableSheetOpen) {
+          await Future.delayed(duration);
+
+          if (!isFullScreen) {
+            mtPlayerService.chewieController!.enterFullScreen();
+            SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+          }
+        }
+      }
+    });
+  }
+
+  double _setAspectRatio(MtPlayerService mtPlayerService) {
+    return mtPlayerService
+                .chewieController!.videoPlayerController.value.aspectRatio <=
+            1
+        ? 1
+        : mtPlayerService
+            .chewieController!.videoPlayerController.value.aspectRatio;
+  }
+
+  bool get _isQueueDraggableSheetOpen =>
+      queueDraggableController.isAttached &&
+      queueDraggableController.size == maxChildSize;
+
+  @override
+  void initState() {
+    super.initState();
+    playerCubit = context.read<PlayerCubit>();
+    mtPlayerService = playerCubit.mtPlayerService;
+    downloadService = context.read<DownloadService>();
 
     mtPlayerService.chewieController?.videoPlayerController.addListener(() {
       WakelockPlus.toggle(
@@ -41,7 +98,16 @@ class VideoView extends StatelessWidget {
     });
 
     _enterFullScreenOnOrientation(mtPlayerService);
+  }
 
+  @override
+  void dispose() {
+    deviceOrientationSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MainGradient(
       child: StreamBuilder(
           stream: mtPlayerService.mediaItem,
@@ -225,19 +291,9 @@ class VideoView extends StatelessWidget {
                                 child: AspectRatio(
                                     aspectRatio:
                                         _setAspectRatio(mtPlayerService),
-                                    child: PopScope(
-                                      onPopInvoked: (didPop) async {
-                                        if (didPop) {
-                                          log('pop invoked');
-                                          await SystemChrome
-                                              .setPreferredOrientations(
-                                                  DeviceOrientation.values);
-                                        }
-                                      },
-                                      child: Chewie(
-                                          controller: mtPlayerService
-                                              .chewieController!),
-                                    )),
+                                    child: Chewie(
+                                        controller:
+                                            mtPlayerService.chewieController!)),
                               ),
                             ),
                           ),
@@ -319,49 +375,4 @@ class VideoView extends StatelessWidget {
           }),
     );
   }
-
-  void _enterFullScreenOnOrientation(MtPlayerService mtPlayerService) {
-    final autorotationCheck = AutorotationCheck();
-    deviceOrientation$.listen((event) async {
-      final bool isPortrait = (event == DeviceOrientation.portraitUp ||
-          event == DeviceOrientation.portraitDown);
-      final bool isLandscape = (event == DeviceOrientation.landscapeLeft ||
-          event == DeviceOrientation.landscapeRight);
-      final isAutorotationEnabled =
-          await autorotationCheck.isAutorotationEnabled() ?? false;
-      const duration = Duration(milliseconds: 500);
-
-      if (isAutorotationEnabled) {
-        final isFullScreen = mtPlayerService.chewieController!.isFullScreen;
-        if (isPortrait && isFullScreen && !_isQueueDraggableSheetOpen) {
-          await Future.delayed(duration);
-          if (isFullScreen) {
-            mtPlayerService.chewieController!.exitFullScreen();
-            SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-          }
-        } else if (isLandscape &&
-            !isFullScreen &&
-            !_isQueueDraggableSheetOpen) {
-          await Future.delayed(duration);
-          if (!isFullScreen) {
-            mtPlayerService.chewieController!.enterFullScreen();
-            SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-          }
-        }
-      }
-    });
-  }
-
-  double _setAspectRatio(MtPlayerService mtPlayerService) {
-    return mtPlayerService
-                .chewieController!.videoPlayerController.value.aspectRatio <=
-            1
-        ? 1
-        : mtPlayerService
-            .chewieController!.videoPlayerController.value.aspectRatio;
-  }
-
-  bool get _isQueueDraggableSheetOpen =>
-      queueDraggableController.isAttached &&
-      queueDraggableController.size == maxChildSize;
 }
