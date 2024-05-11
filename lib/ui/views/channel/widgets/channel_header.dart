@@ -20,10 +20,12 @@ class ChannelHeader extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                CachedNetworkImage(
-                    imageUrl: _setChannelBanner(channel!),
-                    fit: BoxFit.fill,
-                    errorWidget: (context, url, error) => const FlutterLogo()),
+                _setChannelBanner(channel!) != null
+                    ? CachedNetworkImage(
+                        imageUrl: _setChannelBanner(channel!)!,
+                        fit: BoxFit.fill,
+                      )
+                    : const SizedBox(),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -122,7 +124,7 @@ class ChannelHeader extends StatelessWidget {
     );
   }
 
-  String _setChannelBanner(ChannelPageMT channelPageMT) {
+  String? _setChannelBanner(ChannelPageMT channelPageMT) {
     if (channelPageMT.tvBannerUrl != null &&
         channelPageMT.tvBannerUrl!.isNotEmpty) {
       return channelPageMT.tvBannerUrl!;
@@ -130,7 +132,7 @@ class ChannelHeader extends StatelessWidget {
         channelPageMT.bannerUrl!.isNotEmpty) {
       return channelPageMT.bannerUrl!;
     } else {
-      return channelPageMT.avatarUrl!;
+      return channelPageMT.avatarUrl;
     }
   }
 }

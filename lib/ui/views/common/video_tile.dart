@@ -59,7 +59,15 @@ class VideoTile extends StatelessWidget {
                                 })
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: const SizedBox(child: FlutterLogo()),
+                                child: Container(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.09,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.2,
+                                ),
                               ),
                       ],
                     ),

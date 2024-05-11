@@ -16,10 +16,12 @@ class PlaylistGridItem extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              CachedNetworkImage(
-                  imageUrl: playlist.thumbnailUrl!,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => const FlutterLogo()),
+              playlist.thumbnailUrl != null
+                  ? CachedNetworkImage(
+                      imageUrl: playlist.thumbnailUrl!,
+                      fit: BoxFit.cover,
+                    )
+                  : const SizedBox(),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

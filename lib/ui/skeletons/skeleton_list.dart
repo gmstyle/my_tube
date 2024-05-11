@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/ui/skeletons/skeleton_video_tile.dart';
-import 'package:skeletons/skeletons.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
+import '../../models/resource_mt.dart';
+import '../views/common/video_tile.dart';
 
 class SkeletonList extends StatelessWidget {
   const SkeletonList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Skeleton(
-            shimmerGradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.tertiary,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            isLoading: true,
-            skeleton: const SkeletonVideoTile(),
-            child: const SizedBox(),
-          ),
-        );
-      },
+    return Skeletonizer(
+      enabled: true,
+      child: ListView.builder(
+          itemCount: 20,
+          itemBuilder: (context, index) {
+            return VideoTile(
+                video: ResourceMT(
+                    id: 'aaaa',
+                    title: BoneMock.longParagraph,
+                    description: BoneMock.paragraph,
+                    channelTitle: BoneMock.title,
+                    thumbnailUrl: null,
+                    kind: 'video',
+                    channelId: 'aaaa',
+                    playlistId: 'aaaa',
+                    streamUrl: '',
+                    duration: 100));
+          }),
     );
   }
 }

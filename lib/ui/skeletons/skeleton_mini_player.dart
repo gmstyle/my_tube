@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skeletons/skeletons.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class SkeletonMiniPlayer extends StatelessWidget {
   const SkeletonMiniPlayer({
@@ -15,54 +15,29 @@ class SkeletonMiniPlayer extends StatelessWidget {
         color: Theme.of(context).colorScheme.primaryContainer,
         height: 80,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Skeleton(
-          shimmerGradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.primaryContainer,
-            Colors.grey[400]!,
-          ], begin: Alignment.centerLeft, end: Alignment.centerRight),
-          isLoading: true,
-          skeleton: SkeletonItem(
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    height: 80,
-                    width: 80,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+        child: Skeletonizer(
+          enabled: true,
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: const Bone.square(
+                  size: 80,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        height: 16,
-                        width: double.infinity,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        height: 8,
-                        width: double.infinity,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Bone.multiText(lines: 3)],
                 ),
-                const SizedBox(width: 8),
-                const SkeletonAvatar(
-                  style: SkeletonAvatarStyle(
-                    shape: BoxShape.circle,
-                    width: 40,
-                    height: 40,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              const Bone.iconButton(
+                size: 40,
+              )
+            ],
           ),
-          child: const SizedBox(),
         ),
       ),
     );

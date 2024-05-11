@@ -27,12 +27,14 @@ class PlaylistHeader extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                CachedNetworkImage(
-                    imageUrl: playlist?.thumbnailUrl ?? '',
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    fit: BoxFit.fill,
-                    errorWidget: (context, url, error) => const FlutterLogo()),
+                playlist?.thumbnailUrl != null
+                    ? CachedNetworkImage(
+                        imageUrl: playlist!.thumbnailUrl!,
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        fit: BoxFit.fill,
+                      )
+                    : const SizedBox(),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(

@@ -27,10 +27,12 @@ class Carousel extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      CachedNetworkImage(
-                          imageUrl: video.thumbnailUrl!,
-                          fit: BoxFit.cover,
-                          errorWidget: (context, url, error) => const FlutterLogo()),
+                      video.thumbnailUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: video.thumbnailUrl!,
+                              fit: BoxFit.cover,
+                            )
+                          : const SizedBox(),
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(

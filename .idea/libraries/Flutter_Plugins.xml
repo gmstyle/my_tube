@@ -4,7 +4,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_windows-2.2.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service_web-0.1.2" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/native_device_orientation-2.0.3" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.5.6" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player-2.8.6" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.3.3" />
@@ -13,9 +12,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_foundation-2.3.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.1.19" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_android-2.4.12" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.2.4" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-7.0.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.1.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-10.1.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/disable_battery_optimization-1.1.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file-3.3.2" />
@@ -23,6 +19,11 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_web-2.3.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider-2.1.3" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sensors_plus-4.0.2" />
+      <root url="file://$USER_HOME$/.pub-cache/git/autorotation_check-b728e3ce3dd9a42fb76a215a47bae428b462735a" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-8.0.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.2.5" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.1.2" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
