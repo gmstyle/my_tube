@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
@@ -29,6 +30,29 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     NavigationDestination(
       icon: Icon(Icons.search),
       label: 'Search',
+    ),
+  ];
+
+  final _navigationRailDestinations = const [
+    NavigationRailDestination(
+      icon: Icon(Icons.explore),
+      selectedIcon: Icon(Icons.explore),
+      label: Text('Explore'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.music_note),
+      selectedIcon: Icon(Icons.music_note),
+      label: Text('Music'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.favorite),
+      selectedIcon: Icon(Icons.favorite),
+      label: Text('Favorites'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.search),
+      selectedIcon: Icon(Icons.search),
+      label: Text('Search'),
     ),
   ];
 
@@ -63,29 +87,65 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       },
       child: MainGradient(
         child: SafeArea(
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            resizeToAvoidBottomInset: false,
-            body: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: navigationShell,
-            ),
-            bottomNavigationBar: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const MiniPlayer(),
-                NavigationBar(
-                    elevation: 0,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    selectedIndex: navigationShell.currentIndex,
-                    destinations: _navBarItems,
-                    onDestinationSelected: onDestinationSelected,
-                    labelBehavior:
-                        NavigationDestinationLabelBehavior.onlyShowSelected),
-              ],
-            ),
-          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            final isTablet = constraints.smallest.shortestSide > 600;
+
+            if (isTablet) {
+              // Tablet layout with navigation rail on the left instead of bottom navigation bar
+              return Scaffold(
+                backgroundColor: Colors.transparent,
+                resizeToAvoidBottomInset: false,
+                body: Row(
+                  children: [
+                    NavigationRail(
+                      selectedIndex: navigationShell.currentIndex,
+                      destinations: _navigationRailDestinations,
+                      onDestinationSelected: onDestinationSelected,
+                      labelType: NavigationRailLabelType.selected,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 8.0,
+                          left: 8.0,
+                          right: 8.0,
+                        ),
+                        child: Column(
+                          children: [
+                            Expanded(child: navigationShell),
+                            const MiniPlayer(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return Scaffold(
+              backgroundColor: Colors.transparent,
+              resizeToAvoidBottomInset: false,
+              body: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: navigationShell,
+              ),
+              bottomNavigationBar: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const MiniPlayer(),
+                  NavigationBar(
+                      elevation: 0,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                      selectedIndex: navigationShell.currentIndex,
+                      destinations: _navBarItems,
+                      onDestinationSelected: onDestinationSelected,
+                      labelBehavior:
+                          NavigationDestinationLabelBehavior.onlyShowSelected),
+                ],
+              ),
+            );
+          }),
         ),
       ),
     );
