@@ -3,8 +3,6 @@ import 'package:my_tube/models/playlist_mt.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/resource_mt.dart';
-import '../views/common/play_pause_gesture_detector.dart';
-import '../views/common/video_menu_dialog.dart';
 import '../views/common/video_tile.dart';
 import '../views/playlist/widgets/playlist_header.dart';
 

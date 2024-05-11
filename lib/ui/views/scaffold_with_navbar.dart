@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
@@ -122,6 +121,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                 ),
               );
             }
+            // Mobile layout with bottom navigation bar
             return Scaffold(
               backgroundColor: Colors.transparent,
               resizeToAvoidBottomInset: false,
