@@ -23,7 +23,7 @@ class SeekBar extends StatelessWidget {
             builder: (context, snapshot) {
               final position = snapshot.data ?? Duration.zero;
               return Text(
-                Utils.fornmatDuration(position),
+                Utils.formatDuration(position),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: darkBackground
                           ? Theme.of(context).colorScheme.onPrimary
@@ -109,7 +109,7 @@ class SeekBar extends StatelessWidget {
                   builder: (context, snapshot) {
                     final duration = snapshot.data ?? Duration.zero;
                     return Text(
-                      Utils.fornmatDuration(duration - position),
+                      Utils.formatDuration(duration - position),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: darkBackground
                                 ? Theme.of(context).colorScheme.onPrimary

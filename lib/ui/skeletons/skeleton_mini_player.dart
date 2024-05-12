@@ -11,35 +11,63 @@ class SkeletonMiniPlayer extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      child: Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        height: 80,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Skeletonizer(
-          enabled: true,
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: const Bone.square(
-                  size: 80,
-                ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        final isTablet = constraints.maxWidth > 600;
+        if (isTablet) {
+          return Container(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            width: MediaQuery.of(context).size.width / 3,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Skeletonizer(
+              enabled: true,
+              child: Wrap(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height / 3,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                    ),
+                  ),
+                  Container(width: 8),
+                  const Bone.multiText(lines: 2),
+                ],
               ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Bone.multiText(lines: 3)],
-                ),
+            ),
+          );
+        } else {
+          return Container(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            height: 80,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Skeletonizer(
+              enabled: true,
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: const Bone.square(
+                      size: 80,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Bone.multiText(lines: 3)],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Bone.iconButton(
+                    size: 40,
+                  )
+                ],
               ),
-              const SizedBox(width: 8),
-              const Bone.iconButton(
-                size: 40,
-              )
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        }
+      }),
     );
   }
 }

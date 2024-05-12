@@ -47,7 +47,7 @@ class Utils {
     }
   }
 
-  static String fornmatDuration(Duration? duration) {
+  static String formatDuration(Duration? duration) {
     if (duration == null) {
       return '--:--';
     }

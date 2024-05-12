@@ -1,9 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chewie/chewie.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/skeletons/skeleton_mini_player.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
@@ -12,6 +16,15 @@ class MiniPlayer extends StatelessWidget {
   const MiniPlayer({
     super.key,
   });
+
+  double _setAspectRatio(MtPlayerService mtPlayerService) {
+    return mtPlayerService
+                .chewieController!.videoPlayerController.value.aspectRatio <=
+            1
+        ? 1
+        : mtPlayerService
+            .chewieController!.videoPlayerController.value.aspectRatio;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,53 +58,41 @@ class MiniPlayer extends StatelessWidget {
           child: ClipRRect(
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-            child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              height: 80,
-              child: HorizontalSwipeToSkip(
-                child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: Row(
+            child: LayoutBuilder(builder: (context, constraints) {
+              final isTablet = constraints.maxWidth > 600;
+              if (isTablet) {
+                return Container(
+                  width: MediaQuery.of(context).size.width / 3,
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Wrap(
                       children: [
-                        // Image
+                        // Video Image or Player
+                        Hero(
+                          tag: 'video_image_or_player',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: AspectRatio(
+                                aspectRatio: _setAspectRatio(
+                                    playerCubit.mtPlayerService),
+                                child: Chewie(
+                                    controller: playerCubit
+                                        .mtPlayerService.chewieController!)),
+                          ),
+                        ),
+                        Container(height: 16),
+                        // Video Title and Album
                         StreamBuilder(
                             stream: playerCubit.mtPlayerService.mediaItem,
                             builder: (context, snapshot) {
                               final mediaItem = snapshot.data;
-                              return Hero(
-                                tag: 'video_image_or_player',
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: mediaItem?.artUri != null
-                                      ? CachedNetworkImage(
-                                          height: 80,
-                                          width: 80,
-                                          fit: BoxFit.cover,
-                                          imageUrl:
-                                              mediaItem!.artUri.toString(),
-                                        )
-                                      : const SizedBox(
-                                          height: 80,
-                                          width: 80,
-                                        ),
-                                ),
-                              );
-                            }),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Wrap(
-                            children: [
-                              // Video Title and Album
-                              StreamBuilder(
-                                  stream: playerCubit.mtPlayerService.mediaItem,
-                                  builder: (context, snapshot) {
-                                    final mediaItem = snapshot.data;
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Hero(
+                              return Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Hero(
                                           tag: 'video_title',
                                           child: Text(
                                             mediaItem?.title ?? '',
@@ -102,60 +103,159 @@ class MiniPlayer extends StatelessWidget {
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
-                                        Hero(
-                                          tag: 'video_album',
-                                          child: Text(
-                                            mediaItem?.album ?? '',
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Hero(
+                                        tag: 'video_album',
+                                        child: Text(
+                                          mediaItem?.album ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 12,
                                           ),
                                         ),
-                                      ],
-                                    );
-                                  }),
-                              const SizedBox(height: 4),
-                              // SeekBar
-                              const SeekBar(
-                                darkBackground: false,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Play/Pause Button
-                        StreamBuilder(
-                            stream: playerCubit.mtPlayerService.playbackState
-                                .map((playbackState) => playbackState.playing)
-                                .distinct(),
-                            builder: (context, snapshot) {
-                              final isPlaying = snapshot.data ?? false;
-                              return Hero(
-                                tag: 'play_pause_button',
-                                child: IconButton(
-                                    iconSize:
-                                        MediaQuery.of(context).size.width * 0.1,
-                                    onPressed: () {
-                                      if (isPlaying) {
-                                        playerCubit.mtPlayerService.pause();
-                                      } else {
-                                        playerCubit.mtPlayerService.play();
-                                      }
-                                    },
-                                    icon: Icon(
-                                      isPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                    )),
+                                      ),
+                                      const Spacer(),
+                                      // Expand Button
+                                      IconButton(
+                                        onPressed: () {
+                                          context
+                                              .pushNamed(AppRoute.video.name);
+                                        },
+                                        icon:
+                                            const Icon(Icons.keyboard_arrow_up),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               );
                             }),
                       ],
-                    )),
-              ),
-            ),
+                    ),
+                  ),
+                );
+              } else {
+                return Container(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  height: 80,
+                  child: HorizontalSwipeToSkip(
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        child: Row(
+                          children: [
+                            // Image
+                            StreamBuilder(
+                                stream: playerCubit.mtPlayerService.mediaItem,
+                                builder: (context, snapshot) {
+                                  final mediaItem = snapshot.data;
+                                  return Hero(
+                                    tag: 'video_image_or_player',
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: mediaItem?.artUri != null
+                                          ? CachedNetworkImage(
+                                              height: 80,
+                                              width: 80,
+                                              fit: BoxFit.cover,
+                                              imageUrl:
+                                                  mediaItem!.artUri.toString(),
+                                            )
+                                          : const SizedBox(
+                                              height: 80,
+                                              width: 80,
+                                            ),
+                                    ),
+                                  );
+                                }),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Wrap(
+                                children: [
+                                  // Video Title and Album
+                                  StreamBuilder(
+                                      stream:
+                                          playerCubit.mtPlayerService.mediaItem,
+                                      builder: (context, snapshot) {
+                                        final mediaItem = snapshot.data;
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Hero(
+                                              tag: 'video_title',
+                                              child: Text(
+                                                mediaItem?.title ?? '',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Hero(
+                                              tag: 'video_album',
+                                              child: Text(
+                                                mediaItem?.album ?? '',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }),
+                                  const SizedBox(height: 4),
+                                  // SeekBar
+                                  const SeekBar(
+                                    darkBackground: false,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Play/Pause Button
+                            StreamBuilder(
+                                stream: playerCubit
+                                    .mtPlayerService.playbackState
+                                    .map((playbackState) =>
+                                        playbackState.playing)
+                                    .distinct(),
+                                builder: (context, snapshot) {
+                                  final isPlaying = snapshot.data ?? false;
+                                  return Hero(
+                                    tag: 'play_pause_button',
+                                    child: IconButton(
+                                        iconSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.1,
+                                        onPressed: () {
+                                          if (isPlaying) {
+                                            playerCubit.mtPlayerService.pause();
+                                          } else {
+                                            playerCubit.mtPlayerService.play();
+                                          }
+                                        },
+                                        icon: Icon(
+                                          isPlaying
+                                              ? Icons.pause
+                                              : Icons.play_arrow,
+                                        )),
+                                  );
+                                }),
+                          ],
+                        )),
+                  ),
+                );
+              }
+            }),
           ),
         );
       },

@@ -2,12 +2,15 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
+import 'package:my_tube/ui/views/video_view/video_view.dart';
+import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/media_item_list.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
@@ -94,29 +97,30 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               return Scaffold(
                 backgroundColor: Colors.transparent,
                 resizeToAvoidBottomInset: false,
-                body: Row(
+                body: Stack(
                   children: [
-                    NavigationRail(
-                      selectedIndex: navigationShell.currentIndex,
-                      destinations: _navigationRailDestinations,
-                      onDestinationSelected: onDestinationSelected,
-                      labelType: NavigationRailLabelType.selected,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 8.0,
-                          left: 8.0,
-                          right: 8.0,
+                    Row(
+                      children: [
+                        NavigationRail(
+                          selectedIndex: navigationShell.currentIndex,
+                          destinations: _navigationRailDestinations,
+                          onDestinationSelected: onDestinationSelected,
+                          labelType: NavigationRailLabelType.selected,
                         ),
-                        child: Column(
-                          children: [
-                            Expanded(child: navigationShell),
-                            const MiniPlayer(),
-                          ],
+                        Expanded(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8.0,
+                              left: 8.0,
+                              right: 8.0,
+                            ),
+                            child: navigationShell,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
+                    const Positioned(bottom: 0, right: 8, child: MiniPlayer())
                   ],
                 ),
               );
