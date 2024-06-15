@@ -6,16 +6,14 @@ import 'package:my_tube/ui/views/video_view/widget/mediaitem_tile.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/play_pause_gesture_detector_mediaitem.dart';
 
 class MediaItemList extends StatelessWidget {
-  const MediaItemList({super.key});
+  const MediaItemList({super.key, this.isTablet = false});
 
+  final bool isTablet;
   @override
   Widget build(BuildContext context) {
     final playerCubit = context.read<PlayerCubit>();
-    return Positioned(
-      top: 40,
-      bottom: 0,
-      left: 0,
-      right: 0,
+    return Padding(
+      padding: EdgeInsets.only(top: isTablet ? 8 : 40),
       child: StreamBuilder<List<MediaItem>>(
           stream: playerCubit.mtPlayerService.queue,
           builder: (context, snapshot) {

@@ -17,8 +17,11 @@ import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:my_tube/ui/views/video_view/screens/video_phone_screen.dart';
+import 'package:my_tube/ui/views/video_view/screens/video_tablet_screen.dart';
 import 'package:my_tube/ui/views/video_view/widget/controls.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/clear_queue_button.dart';
+import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/media_item_list.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -76,7 +79,7 @@ class _VideoViewState extends State<VideoView> {
     return mtPlayerService
                 .chewieController!.videoPlayerController.value.aspectRatio <=
             1
-        ? 1
+        ? 1.5
         : mtPlayerService
             .chewieController!.videoPlayerController.value.aspectRatio;
   }
@@ -272,105 +275,22 @@ class _VideoViewState extends State<VideoView> {
                 ],
               ),
               backgroundColor: Colors.transparent,
-              body: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      children: [
-                        HorizontalSwipeToSkip(
-                          child: Hero(
-                            tag: 'video_image_or_player',
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxHeight:
-                                      MediaQuery.of(context).size.height * 0.4,
-                                ),
-                                child: AspectRatio(
-                                    aspectRatio:
-                                        _setAspectRatio(mtPlayerService),
-                                    child: Chewie(
-                                        controller:
-                                            mtPlayerService.chewieController!)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                mediaItem?.title ?? '',
-                                maxLines: 2,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(mediaItem?.album ?? '',
-                                          maxLines: 2,
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          )),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 8,
-                                ),
-
-                                // Seek bar
-                                const SeekBar(
-                                  darkBackground: true,
-                                ),
-                                // controls
-                                const Controls(),
-
-                                // description
-                                if (mediaItem?.extras!['description'] != null &&
-                                    mediaItem?.extras!['description'] != '')
-                                  ExpandableText(
-                                    title: 'Description',
-                                    text:
-                                        mediaItem?.extras!['description'] ?? '',
-                                  ),
-                                const SizedBox(
-                                  height: 8,
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const QueueDraggableSheet()
-                ],
-              ),
+              body: LayoutBuilder(builder: (context, constraints) {
+                bool isTablet = constraints.maxWidth > 600;
+                if (isTablet) {
+                  return VideoTabletScreen(
+                    mtPlayerService: mtPlayerService,
+                    aspectRatio: _setAspectRatio(mtPlayerService),
+                    mediaItem: mediaItem,
+                  );
+                } else {
+                  return VideoPhoneScreen(
+                    mtPlayerService: mtPlayerService,
+                    aspectRatio: _setAspectRatio(mtPlayerService),
+                    mediaItem: mediaItem,
+                  );
+                }
+              }),
             );
           }),
     );
