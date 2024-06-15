@@ -17,7 +17,7 @@ class MediaitemTile extends StatelessWidget {
     final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
     return Dismissible(
       key: Key(mediaItem.id),
-      direction: DismissDirection.horizontal,
+      direction: DismissDirection.startToEnd,
       onDismissed: (direction) {
         playerCubit.removeFromQueue(mediaItem.id).then((value) {
           if (value == false) {
