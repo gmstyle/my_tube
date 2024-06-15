@@ -18,7 +18,7 @@ class InnertubeRepository {
     return url != null ? await innertubeProvider.getBase64Image(url) : null;
   }
 
-  Future<ResourceMT> _getResourceMTFromVideo(Video video) async {
+  Future<ResourceMT> getResourceMTFromVideo(Video video) async {
     return ResourceMT(
         id: video.videoId,
         title: video.title,
@@ -34,7 +34,7 @@ class InnertubeRepository {
         base64Thumbnail: await _getBase64Thumbnail(video.thumbnails?.last.url));
   }
 
-  Future<ResourceMT> _getResourceMTFromPlaylist(Playlist playlist) async {
+  Future<ResourceMT> getResourceMTFromPlaylist(Playlist playlist) async {
     return ResourceMT(
         id: playlist.playlistId,
         title: playlist.title,
@@ -51,7 +51,7 @@ class InnertubeRepository {
             await _getBase64Thumbnail(playlist.thumbnails?.last.url));
   }
 
-  Future<ResourceMT> _getResourceMTFromChannel(Channel channel) async {
+  Future<ResourceMT> getResourceMTFromChannel(Channel channel) async {
     return ResourceMT(
         id: channel.channelId,
         title: channel.title,
@@ -71,7 +71,7 @@ class InnertubeRepository {
 
   Future<PlaylistMT> _getPlaylistMTFromPlaylist(Playlist playlist) async {
     final videos = playlist.videos!
-        .map((video) async => _getResourceMTFromVideo(video))
+        .map((video) async => getResourceMTFromVideo(video))
         .toList();
 
     return PlaylistMT(
@@ -87,14 +87,14 @@ class InnertubeRepository {
 
   Future<ResourceMT> getVideo(String videoId, {bool? withStreamUrl}) async {
     final video = await innertubeProvider.getVideo(videoId, withStreamUrl);
-    return _getResourceMTFromVideo(video);
+    return getResourceMTFromVideo(video);
   }
 
   Future<ResponseMT> getTrending(TrendingCategory trendingCategory) async {
     final response = await innertubeProvider.getTrending(trendingCategory);
     if (response.videos != null) {
       final resources = response.videos!
-          .map((video) async => _getResourceMTFromVideo(video))
+          .map((video) async => getResourceMTFromVideo(video))
           .toList();
       final videoResources = await Future.wait(resources);
       return ResponseMT(resources: videoResources, nextPageToken: null);
@@ -106,11 +106,11 @@ class InnertubeRepository {
   Future<MusicHomeMT> getMusicHome() async {
     final response = await innertubeProvider.getMusicHome();
     final carouselVideos = response.carouselVideos
-        ?.map((video) async => _getResourceMTFromVideo(video))
+        ?.map((video) async => getResourceMTFromVideo(video))
         .toList();
     final sections = await Future.wait(response.sections!.map((section) async {
       final videos = await Future.wait<ResourceMT>(section.videos
-              ?.map((video) async => _getResourceMTFromVideo(video))
+              ?.map((video) async => getResourceMTFromVideo(video))
               .toList() ??
           []);
       final playlists = await Future.wait<PlaylistMT>(section.playlists
@@ -154,7 +154,7 @@ class InnertubeRepository {
     final resources = <ResourceMT>[];
     if (response.videos != null) {
       final videos = response.videos!
-          .map((video) async => _getResourceMTFromVideo(video))
+          .map((video) async => getResourceMTFromVideo(video))
           .toList();
       final videoResources = await Future.wait(videos);
       resources.addAll(videoResources);
@@ -162,7 +162,7 @@ class InnertubeRepository {
 
     if (response.channels != null) {
       final channels = response.channels!
-          .map((channel) async => _getResourceMTFromChannel(channel))
+          .map((channel) async => getResourceMTFromChannel(channel))
           .toList();
       final channelResources = await Future.wait(channels);
       resources.addAll(channelResources);
@@ -170,7 +170,7 @@ class InnertubeRepository {
 
     if (response.playlists != null) {
       final playlists = response.playlists!
-          .map((playlist) async => _getResourceMTFromPlaylist(playlist))
+          .map((playlist) async => getResourceMTFromPlaylist(playlist))
           .toList();
       final playlistResources = await Future.wait(playlists);
       resources.addAll(playlistResources);
@@ -186,7 +186,7 @@ class InnertubeRepository {
         await Future.wait<SectionMT>(channel.sections?.map((section) async {
               final videos = section.videos != null
                   ? await Future.wait<ResourceMT>(section.videos!
-                      .map((video) async => await _getResourceMTFromVideo(
+                      .map((video) async => await getResourceMTFromVideo(
                             video,
                           )))
                   : <ResourceMT>[];
@@ -196,7 +196,7 @@ class InnertubeRepository {
                   : <PlaylistMT>[];
               final channels = section.featuredChannels != null
                   ? await Future.wait<ResourceMT>(
-                      section.featuredChannels!.map(_getResourceMTFromChannel))
+                      section.featuredChannels!.map(getResourceMTFromChannel))
                   : <ResourceMT>[];
               return SectionMT(
                 title: section.title,
@@ -226,6 +226,7 @@ class InnertubeRepository {
           : null,
       sections: sections,
       subscriberCount: channel.subscriberCount,
+      videoCount: channel.videoCount,
     );
   }
 }

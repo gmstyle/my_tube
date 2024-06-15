@@ -11,6 +11,7 @@ class ChannelPageMT extends Equatable {
   final String? tvBannerUrl;
   final List<SectionMT>? sections;
   final String? subscriberCount;
+  final String? videoCount;
 
   const ChannelPageMT({
     this.title,
@@ -22,6 +23,7 @@ class ChannelPageMT extends Equatable {
     this.tvBannerUrl,
     this.sections,
     this.subscriberCount,
+    this.videoCount,
   });
 
   factory ChannelPageMT.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,7 @@ class ChannelPageMT extends Equatable {
       sections:
           (json['sections'] as List<dynamic>).map<SectionMT>((e) => e).toList(),
       subscriberCount: json['viewCount'],
+      videoCount: json['videoCount'],
     );
   }
 
@@ -50,6 +53,7 @@ class ChannelPageMT extends Equatable {
       'tvBannerUrl': tvBannerUrl,
       'sections': sections?.map((e) => e.toJson()).toList(),
       'viewCount': subscriberCount,
+      'videoCount': videoCount,
     };
   }
 
@@ -64,5 +68,6 @@ class ChannelPageMT extends Equatable {
         tvBannerUrl,
         sections,
         subscriberCount,
+        videoCount,
       ];
 }

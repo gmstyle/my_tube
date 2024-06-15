@@ -53,7 +53,11 @@ class ChannelView extends StatelessWidget {
                                   channelId: channelId,
                                   playlistId: null,
                                   duration: null,
-                                  streamUrl: null)));
+                                  streamUrl: null,
+                                videoCount: channel.videoCount,
+                                subscriberCount: channel.subscriberCount,
+
+                              )));
                         }
                       },
                       icon: favoriteChannelsBloc.favoritesRepository.channelIds
