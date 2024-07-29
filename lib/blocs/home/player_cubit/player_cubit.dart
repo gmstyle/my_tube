@@ -49,6 +49,10 @@ class PlayerCubit extends Cubit<PlayerState> {
         final futures = videos.map((e) => innertubeRepository.getVideo(e.id!));
         videos = await Future.wait(futures);
       }
+
+      // check if there are videos without streamUrl
+      // and remove them because they are not playable
+      videos.removeWhere((element) => element.streamUrl == null);
       await _startPlayingPlaylist(videos);
     } on Exception catch (e) {
       emit(PlayerState.error(e.toString()));

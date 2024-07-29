@@ -13,7 +13,6 @@ import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/search/widgets/empty_search.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 // ignore: must_be_immutable
 class SearchView extends StatelessWidget {
@@ -210,7 +209,7 @@ class SearchView extends StatelessWidget {
                             } else {
                               // Loader alla fine della lista se la lista è maggiore di 20
                               if (state.result!.resources.length >= 20) {
-                                return SizedBox(
+                                return const SizedBox(
                                   height: 80,
                                   child: Center(
                                     child: CircularProgressIndicator(),
