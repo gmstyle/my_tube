@@ -9,7 +9,8 @@ import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
 
 class PlaylistFavorites extends StatelessWidget {
-  const PlaylistFavorites({super.key});
+  const PlaylistFavorites({super.key, required this.searchQuery});
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,13 @@ class PlaylistFavorites extends StatelessWidget {
         case FavoritesPlaylistStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesPlaylistStatus.success:
-          final favorites = state.resources!.reversed.toList();
+          final favorites = state.resources!
+              .where((playlist) => playlist.title!
+                  .toLowerCase()
+                  .contains(searchQuery.toLowerCase()))
+              .toList()
+              .reversed
+              .toList();
 
           return Column(
             children: [

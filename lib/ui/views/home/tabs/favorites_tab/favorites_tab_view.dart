@@ -4,8 +4,21 @@ import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/channel_favorit
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/playlist_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/video_favorites.dart';
 
-class FavoritesTabView extends StatelessWidget {
+class FavoritesTabView extends StatefulWidget {
   const FavoritesTabView({super.key});
+
+  @override
+  State<FavoritesTabView> createState() => _FavoritesTabViewState();
+}
+
+class _FavoritesTabViewState extends State<FavoritesTabView> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +26,16 @@ class FavoritesTabView extends StatelessWidget {
       length: 3,
       child: Column(
         children: [
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search favorites...',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onChanged: (query) {
+              setState(() {});
+            },
+          ),
           TabBar(
               dividerColor: Colors.transparent,
               indicatorSize: TabBarIndicatorSize.tab,
@@ -37,12 +60,14 @@ class FavoritesTabView extends StatelessWidget {
                 ),
               ]),
           const SizedBox(height: 16),
-          const Expanded(
+          Expanded(
             child: TabBarView(
               children: [
-                VideoFavorites(),
-                ChannelFavorites(),
-                PlaylistFavorites()
+                VideoFavorites(searchQuery: _searchController.text),
+                ChannelFavorites(searchQuery: _searchController.text),
+                PlaylistFavorites(
+                  searchQuery: _searchController.text,
+                )
               ],
             ),
           ),
