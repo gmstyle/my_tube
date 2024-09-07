@@ -23,9 +23,12 @@ class VideoFavorites extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         case FavoritesStatus.success:
           final favorites = state.resources!
-              .where((video) => video.title!
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase()))
+              .where((video) {
+                final title = video.title?.toLowerCase();
+                final channelTitle = video.channelTitle?.toLowerCase();
+                final query = searchQuery.toLowerCase();
+                return title!.contains(query) || channelTitle!.contains(query);
+              })
               .toList()
               .reversed
               .toList();

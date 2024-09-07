@@ -26,15 +26,34 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
       length: 3,
       child: Column(
         children: [
-          TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search favorites...',
-              prefixIcon: Icon(Icons.search),
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: TextField(
+              controller: _searchController,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                isDense: true,
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.primaryContainer,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    setState(() {
+                      _searchController.clear();
+                      FocusScope.of(context).unfocus();
+                    });
+                  },
+                ),
+                hintText: 'Search for favorites videos, channels, playlists',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none),
+              ),
+              onChanged: (query) {
+                setState(() {});
+              },
             ),
-            onChanged: (query) {
-              setState(() {});
-            },
           ),
           TabBar(
               dividerColor: Colors.transparent,

@@ -5,6 +5,7 @@ import 'package:my_tube/respositories/update_repository.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:open_file_platform_interface/src/types/open_result.dart';
 
 part 'update_event.dart';
 part 'update_state.dart';

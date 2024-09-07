@@ -2,15 +2,12 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
-import 'package:my_tube/ui/views/video_view/video_view.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/media_item_list.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
