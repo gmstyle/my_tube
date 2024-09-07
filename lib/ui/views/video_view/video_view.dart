@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:autorotation_check/autorotation_check.dart';
-import 'package:chewie/chewie.dart';
 import 'package:device_orientation/device_orientation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,15 +12,10 @@ import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
-import 'package:my_tube/ui/views/common/expandable_text.dart';
-import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
-import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video_view/screens/video_phone_screen.dart';
 import 'package:my_tube/ui/views/video_view/screens/video_tablet_screen.dart';
-import 'package:my_tube/ui/views/video_view/widget/controls.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/clear_queue_button.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/media_item_list.dart';
 import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -52,7 +46,7 @@ class _VideoViewState extends State<VideoView> {
           event == DeviceOrientation.landscapeRight);
       final isAutorotationEnabled =
           await autorotationCheck.isAutorotationEnabled() ?? false;
-      const duration = Duration(milliseconds: 500);
+      const duration = Duration(seconds: 1);
 
       if (isAutorotationEnabled) {
         final isFullScreen = mtPlayerService.chewieController!.isFullScreen;
