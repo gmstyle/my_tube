@@ -43,7 +43,6 @@ dependencies:
   go_router: ^14.2.7
   path_provider: ^2.1.4
   chewie: ^1.8.4
-  video_player: ^2.9.1
   hive_flutter: ^1.1.0
   #flutter_adaptive_scaffold: ^0.1.10+2
   audio_service: ^0.18.15
@@ -62,11 +61,11 @@ dependencies:
   disable_battery_optimization: ^1.1.1
   permission_handler: ^11.3.1
   youtube_explode_dart: ^2.2.1
-  device_info_plus: ^10.1.1
-  open_file: ^3.3.2
-  package_info_plus: ^8.0.1
-  cached_network_image: ^3.4.0
-  flutter_local_notifications: ^17.2.1+2
+  device_info_plus: ^10.1.2
+  open_file: ^3.5.3
+  package_info_plus: ^8.0.2
+  cached_network_image: ^3.4.1
+  flutter_local_notifications: ^17.2.2
   device_orientation: ^1.0.0
   
 dev_dependencies:
