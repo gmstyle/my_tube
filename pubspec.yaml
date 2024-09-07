@@ -40,14 +40,14 @@ dependencies:
   provider: ^6.1.2
   http: ^1.2.2
   equatable: ^2.0.5
-  go_router: ^14.2.3
+  go_router: ^14.2.7
   path_provider: ^2.1.4
-  chewie: ^1.8.3
+  chewie: ^1.8.4
   video_player: ^2.9.1
   hive_flutter: ^1.1.0
   #flutter_adaptive_scaffold: ^0.1.10+2
   audio_service: ^0.18.15
-  wakelock_plus: ^1.2.7
+  wakelock_plus: ^1.2.8
   hive_generator: ^2.0.1
   innertube_dart:
     #path: ../innertube_dart
@@ -58,7 +58,7 @@ dependencies:
       url: https://github.com/gmstyle/autorotation_check.git
   flutter_carousel_widget: ^2.3.0
   #material_design_icons_flutter: ^7.0.7296
-  skeletonizer: ^1.4.1+1
+  skeletonizer: ^1.4.2
   disable_battery_optimization: ^1.1.1
   permission_handler: ^11.3.1
   youtube_explode_dart: ^2.2.1
