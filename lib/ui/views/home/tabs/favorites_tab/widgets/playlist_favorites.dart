@@ -24,10 +24,10 @@ class PlaylistFavorites extends StatelessWidget {
         case FavoritesPlaylistStatus.success:
           final favorites = state.resources!
               .where((playlist) {
-                final title = playlist.title?.toLowerCase();
-                final channelTitle = playlist.channelTitle?.toLowerCase();
+                final title = playlist.title?.toLowerCase() ?? '';
+                final channelTitle = playlist.channelTitle?.toLowerCase() ?? '';
                 final query = searchQuery.toLowerCase();
-                return title!.contains(query) || channelTitle!.contains(query);
+                return title.contains(query) || channelTitle.contains(query);
               })
               .toList()
               .reversed

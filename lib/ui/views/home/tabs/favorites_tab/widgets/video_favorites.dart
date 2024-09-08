@@ -24,10 +24,10 @@ class VideoFavorites extends StatelessWidget {
         case FavoritesStatus.success:
           final favorites = state.resources!
               .where((video) {
-                final title = video.title?.toLowerCase();
-                final channelTitle = video.channelTitle?.toLowerCase();
+                final title = video.title?.toLowerCase() ?? '';
+                final channelTitle = video.channelTitle?.toLowerCase() ?? '';
                 final query = searchQuery.toLowerCase();
-                return title!.contains(query) || channelTitle!.contains(query);
+                return title.contains(query) || channelTitle.contains(query);
               })
               .toList()
               .reversed
