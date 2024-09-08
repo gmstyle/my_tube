@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_tube/utils/enums.dart';
 part 'resource_mt.g.dart';
 
 class ResponseMT extends Equatable {
@@ -185,7 +186,7 @@ class ResourceMT extends Equatable with HiveObjectMixin {
       description: mediaItem.extras!['description'],
       channelTitle: mediaItem.album,
       thumbnailUrl: mediaItem.artUri?.toString(),
-      kind: 'video',
+      kind: Kind.video.name,
       channelId: null,
       playlistId: null,
       streamUrl: mediaItem.extras!['streamUrl'],

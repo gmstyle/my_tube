@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
+import 'package:my_tube/utils/enums.dart';
 
 part 'favorites_video_event.dart';
 part 'favorites_video_state.dart';
@@ -53,7 +54,7 @@ class FavoritesVideoBloc
       AddToFavorites event, Emitter<FavoritesVideoState> emit) async {
     emit(const FavoritesVideoState.loading());
     try {
-      await favoritesRepository.add(event.video, 'video');
+      await favoritesRepository.add(event.video, Kind.video);
       final favorites = favoritesRepository.favoriteVideos;
 
       emit(FavoritesVideoState.success(favorites));
@@ -66,7 +67,7 @@ class FavoritesVideoBloc
       RemoveFromFavorites event, Emitter<FavoritesVideoState> emit) async {
     emit(const FavoritesVideoState.loading());
     try {
-      await favoritesRepository.remove(event.id, 'video');
+      await favoritesRepository.remove(event.id, Kind.video);
       final favorites = favoritesRepository.favoriteVideos;
 
       emit(FavoritesVideoState.success(favorites));
@@ -79,7 +80,7 @@ class FavoritesVideoBloc
       ClearFavorites event, Emitter<FavoritesVideoState> emit) async {
     emit(const FavoritesVideoState.loading());
     try {
-      await favoritesRepository.clear('video');
+      await favoritesRepository.clear(Kind.video);
       final favorites = favoritesRepository.favoriteVideos;
 
       emit(FavoritesVideoState.success(favorites));

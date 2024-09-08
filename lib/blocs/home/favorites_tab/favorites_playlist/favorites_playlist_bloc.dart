@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/utils/enums.dart';
 
 part 'favorites_playlist_event.dart';
 part 'favorites_playlist_state.dart';
@@ -50,7 +51,7 @@ class FavoritesPlaylistBloc
   Future<void> _onAddToFavoritesPlaylist(AddToFavoritesPlaylist event,
       Emitter<FavoritesPlaylistState> emit) async {
     try {
-      await favoritesRepository.add(event.playlist, 'playlist');
+      await favoritesRepository.add(event.playlist, Kind.playlist);
       final favorites = favoritesRepository.favoritePlaylists;
       emit(FavoritesPlaylistState.success(favorites));
     } catch (e) {
@@ -61,7 +62,7 @@ class FavoritesPlaylistBloc
   Future<void> _onRemoveFromFavoritesPlaylist(RemoveFromFavoritesPlaylist event,
       Emitter<FavoritesPlaylistState> emit) async {
     try {
-      await favoritesRepository.remove(event.id, 'playlist');
+      await favoritesRepository.remove(event.id, Kind.playlist);
       final favorites = favoritesRepository.favoritePlaylists;
       emit(FavoritesPlaylistState.success(favorites));
     } catch (e) {
@@ -72,7 +73,7 @@ class FavoritesPlaylistBloc
   Future<void> _onClearFavoritesPlaylist(ClearFavoritesPlaylist event,
       Emitter<FavoritesPlaylistState> emit) async {
     try {
-      await favoritesRepository.clear('playlist');
+      await favoritesRepository.clear(Kind.playlist);
       final favorites = favoritesRepository.favoritePlaylists;
       emit(FavoritesPlaylistState.success(favorites));
     } catch (e) {

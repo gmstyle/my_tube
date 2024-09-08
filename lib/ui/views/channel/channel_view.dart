@@ -11,6 +11,7 @@ import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/featured_channels_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/video_section.dart';
+import 'package:my_tube/utils/enums.dart';
 
 class ChannelView extends StatelessWidget {
   const ChannelView({super.key, required this.channelId});
@@ -42,22 +43,21 @@ class ChannelView extends StatelessWidget {
                           favoriteChannelsBloc
                               .add(RemoveFromFavoritesChannel(channelId));
                         } else {
-                          favoriteChannelsBloc.add(AddToFavoritesChannel(
-                              ResourceMT(
-                                  id: channelId,
-                                  title: channel!.title,
-                                  description: channel.description,
-                                  channelTitle: channel.title,
-                                  thumbnailUrl: channel.avatarUrl,
-                                  kind: 'channel',
-                                  channelId: channelId,
-                                  playlistId: null,
-                                  duration: null,
-                                  streamUrl: null,
-                                videoCount: channel.videoCount,
-                                subscriberCount: channel.subscriberCount,
-
-                              )));
+                          favoriteChannelsBloc
+                              .add(AddToFavoritesChannel(ResourceMT(
+                            id: channelId,
+                            title: channel!.title,
+                            description: channel.description,
+                            channelTitle: channel.title,
+                            thumbnailUrl: channel.avatarUrl,
+                            kind: Kind.channel.name,
+                            channelId: channelId,
+                            playlistId: null,
+                            duration: null,
+                            streamUrl: null,
+                            videoCount: channel.videoCount,
+                            subscriberCount: channel.subscriberCount,
+                          )));
                         }
                       },
                       icon: favoriteChannelsBloc.favoritesRepository.channelIds

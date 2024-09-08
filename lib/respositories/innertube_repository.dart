@@ -8,6 +8,7 @@ import 'package:my_tube/models/music_home_mt.dart';
 import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
+import 'package:my_tube/utils/enums.dart';
 
 class InnertubeRepository {
   InnertubeRepository({required this.innertubeProvider});
@@ -25,7 +26,7 @@ class InnertubeRepository {
         description: video.description,
         channelTitle: video.author,
         thumbnailUrl: video.thumbnails?.last.url,
-        kind: 'video',
+        kind: Kind.video.name,
         channelId: video.channelId,
         playlistId: '',
         streamUrl: video.muxedStreamingUrl,
@@ -41,7 +42,7 @@ class InnertubeRepository {
         description: playlist.description,
         channelTitle: playlist.author,
         thumbnailUrl: playlist.thumbnails?.last.url,
-        kind: 'playlist',
+        kind: Kind.playlist.name,
         channelId: null,
         playlistId: playlist.playlistId,
         streamUrl: null,
@@ -58,7 +59,7 @@ class InnertubeRepository {
         description: channel.description,
         channelTitle: channel.title,
         thumbnailUrl: channel.thumbnails?.last.url,
-        kind: 'channel',
+        kind: Kind.channel.name,
         channelId: channel.channelId,
         playlistId: null,
         streamUrl: null,

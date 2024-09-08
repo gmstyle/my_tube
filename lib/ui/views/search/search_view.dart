@@ -13,6 +13,7 @@ import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/search/widgets/empty_search.dart';
+import 'package:my_tube/utils/enums.dart';
 
 // ignore: must_be_immutable
 class SearchView extends StatelessWidget {
@@ -249,14 +250,14 @@ class SearchView extends StatelessWidget {
   }
 
   Widget _setTile(BuildContext context, ResourceMT result) {
-    if (result.kind == 'video') {
+    if (result.kind == Kind.video.name) {
       return PlayPauseGestureDetector(
           resource: result,
           child:
               VideoMenuDialog(video: result, child: VideoTile(video: result)));
     }
 
-    if (result.kind == 'channel') {
+    if (result.kind == Kind.channel.name) {
       return GestureDetector(
           onTap: () {
             context.goNamed(AppRoute.channel.name,
@@ -264,11 +265,11 @@ class SearchView extends StatelessWidget {
           },
           child: ChannelPlaylistMenuDialog(
               resource: result,
-              kind: 'channel',
+              kind: Kind.channel,
               child: ChannelTile(channel: result)));
     }
 
-    if (result.kind == 'playlist') {
+    if (result.kind == Kind.playlist.name) {
       return GestureDetector(
           onTap: () {
             context.goNamed(AppRoute.playlist.name, extra: {
@@ -278,7 +279,7 @@ class SearchView extends StatelessWidget {
           },
           child: ChannelPlaylistMenuDialog(
               resource: result,
-              kind: 'playlist',
+              kind: Kind.playlist,
               child: PlaylistTile(playlist: result)));
     }
 

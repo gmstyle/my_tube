@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/utils/enums.dart';
 
 class ChannelPlaylistMenuDialog extends StatelessWidget {
   const ChannelPlaylistMenuDialog(
@@ -12,7 +13,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
       required this.kind,
       required this.child});
   final ResourceMT resource;
-  final String kind;
+  final Kind kind;
   final Widget child;
 
   @override
@@ -32,7 +33,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // show the option to remove Channel from the favorites if it is in the favorites
-                    if (kind == 'channel' &&
+                    if (kind == Kind.video &&
                         favoritesChannelBloc.favoritesRepository.channelIds
                             .contains(resource.id))
                       ListTile(
@@ -46,7 +47,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
                       ),
 
                     // show the option to add Channel to the favorites if it is not in the favorites
-                    if (kind == 'channel' &&
+                    if (kind == Kind.channel &&
                         !favoritesChannelBloc.favoritesRepository.channelIds
                             .contains(resource.id))
                       ListTile(
@@ -61,7 +62,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
                       ),
 
                     // show the option to remove Playlist from the favorites if it is in the favorites
-                    if (kind == 'playlist' &&
+                    if (kind == Kind.playlist &&
                         favoritesPlaylistBloc.favoritesRepository.playlistIds
                             .contains(resource.id))
                       ListTile(
@@ -76,7 +77,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
                       ),
 
                     // show the option to add Playlist to the favorites if it is not in the favorites
-                    if (kind == 'playlist' &&
+                    if (kind == Kind.playlist &&
                         !favoritesPlaylistBloc.favoritesRepository.playlistIds
                             .contains(resource.id))
                       ListTile(

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/utils/enums.dart';
 
 class FavoriteRepository {
   final InnertubeRepository innertubeRepository;
@@ -28,55 +29,55 @@ class FavoriteRepository {
   ValueListenable<Box<ResourceMT>> get favoritePlaylistsListenable =>
       favoritePlaylistsBox.listenable();
 
-  Future<void> add(ResourceMT favorite, String kind) async {
-    if (kind == 'video') {
+  Future<void> add(ResourceMT favorite, Kind kind) async {
+    if (kind == Kind.video) {
       await favoriteVideosBox.add(favorite);
-    } else if (kind == 'channel') {
+    } else if (kind == Kind.channel) {
       await favoriteChannelsBox.add(favorite);
-    } else if (kind == 'playlist') {
+    } else if (kind == Kind.playlist) {
       await favoritePlaylistsBox.add(favorite);
     }
   }
 
-  Future<void> addAll(List<ResourceMT> favorites, String kind) async {
-    if (kind == 'video') {
+  Future<void> addAll(List<ResourceMT> favorites, Kind kind) async {
+    if (kind == Kind.video) {
       await favoriteVideosBox.addAll(favorites);
-    } else if (kind == 'channel') {
+    } else if (kind == Kind.channel) {
       await favoriteChannelsBox.addAll(favorites);
-    } else if (kind == 'playlist') {
+    } else if (kind == Kind.playlist) {
       await favoritePlaylistsBox.addAll(favorites);
     }
   }
 
-  Future<void> remove(String id, String kind) async {
-    if (kind == 'video') {
+  Future<void> remove(String id, Kind kind) async {
+    if (kind == Kind.video) {
       final index = favoriteVideos.indexWhere((element) => element.id == id);
       await favoriteVideosBox.deleteAt(index);
-    } else if (kind == 'channel') {
+    } else if (kind == Kind.channel) {
       final index = favoriteChannels.indexWhere((element) => element.id == id);
       await favoriteChannelsBox.deleteAt(index);
-    } else if (kind == 'playlist') {
+    } else if (kind == Kind.playlist) {
       final index = favoritePlaylists.indexWhere((element) => element.id == id);
       await favoritePlaylistsBox.deleteAt(index);
     }
   }
 
-  Future<void> clear(String kind) async {
-    if (kind == 'video') {
+  Future<void> clear(Kind kind) async {
+    if (kind == Kind.video) {
       await favoriteVideosBox.clear();
-    } else if (kind == 'channel') {
+    } else if (kind == Kind.channel) {
       await favoriteChannelsBox.clear();
-    } else if (kind == 'playlist') {
+    } else if (kind == Kind.playlist) {
       await favoritePlaylistsBox.clear();
     }
   }
 
-  Future<bool> contains(String? id, String kind) async {
-    if (kind == 'video') {
+  Future<bool> contains(String? id, Kind kind) async {
+    if (kind == Kind.video) {
       return favoriteVideosBox.containsKey(id);
-    } else if (kind == 'channel') {
+    } else if (kind == Kind.channel) {
       return favoriteChannelsBox.containsKey(id);
-    } else if (kind == 'playlist') {
+    } else if (kind == Kind.playlist) {
       return favoritePlaylistsBox.containsKey(id);
     }
     return false;

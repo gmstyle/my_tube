@@ -7,6 +7,7 @@ import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
+import 'package:my_tube/utils/enums.dart';
 
 class PlaylistFavorites extends StatelessWidget {
   const PlaylistFavorites({super.key, required this.searchQuery});
@@ -55,7 +56,7 @@ class PlaylistFavorites extends StatelessWidget {
                             },
                             child: ChannelPlaylistMenuDialog(
                                 resource: playlist,
-                                kind: 'playlist',
+                                kind: Kind.playlist,
                                 child: PlaylistTile(playlist: playlist)),
                           );
                         },
