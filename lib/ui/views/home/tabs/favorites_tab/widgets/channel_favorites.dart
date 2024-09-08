@@ -7,9 +7,12 @@ import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
+import 'package:my_tube/utils/enums.dart';
 
 class ChannelFavorites extends StatelessWidget {
-  const ChannelFavorites({super.key});
+  const ChannelFavorites({super.key, required this.searchQuery});
+
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +24,13 @@ class ChannelFavorites extends StatelessWidget {
         case FavoritesChannelStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesChannelStatus.success:
-          final favorites = state.resources!.reversed.toList();
+          final favorites = state.resources!
+              .where((channel) => channel.title!
+                  .toLowerCase()
+                  .contains(searchQuery.toLowerCase()))
+              .toList()
+              .reversed
+              .toList();
 
           return Column(
             children: [
@@ -42,7 +51,7 @@ class ChannelFavorites extends StatelessWidget {
                             },
                             child: ChannelPlaylistMenuDialog(
                                 resource: channel,
-                                kind: 'channel',
+                                kind: Kind.channel,
                                 child: ChannelTile(channel: channel)),
                           );
                         },

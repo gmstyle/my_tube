@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/utils/enums.dart';
 
 part 'favorites_channel_event.dart';
 part 'favorites_channel_state.dart';
@@ -50,7 +51,7 @@ class FavoritesChannelBloc
   Future<void> _onAddToFavoritesChannel(
       AddToFavoritesChannel event, Emitter<FavoritesChannelState> emit) async {
     try {
-      await favoritesRepository.add(event.channel, 'channel');
+      await favoritesRepository.add(event.channel, Kind.channel);
       final favorites = favoritesRepository.favoriteChannels;
       emit(FavoritesChannelState.success(favorites));
     } catch (e) {
@@ -61,7 +62,7 @@ class FavoritesChannelBloc
   Future<void> _onRemoveFromFavoritesChannel(RemoveFromFavoritesChannel event,
       Emitter<FavoritesChannelState> emit) async {
     try {
-      await favoritesRepository.remove(event.id, 'channel');
+      await favoritesRepository.remove(event.id, Kind.channel);
       final favorites = favoritesRepository.favoriteChannels;
       emit(FavoritesChannelState.success(favorites));
     } catch (e) {
@@ -72,7 +73,7 @@ class FavoritesChannelBloc
   Future<void> _onClearFavoritesChannel(
       ClearFavoritesChannel event, Emitter<FavoritesChannelState> emit) async {
     try {
-      await favoritesRepository.clear('channel');
+      await favoritesRepository.clear(Kind.channel);
       final favorites = favoritesRepository.favoriteChannels;
       emit(FavoritesChannelState.success(favorites));
     } catch (e) {

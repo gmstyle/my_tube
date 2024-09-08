@@ -1,6 +1,5 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';

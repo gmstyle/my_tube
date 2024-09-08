@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/utils/enums.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/music_home_mt.dart';
@@ -127,7 +128,7 @@ class SkeletonChannel extends StatelessWidget {
         description: BoneMock.paragraph,
         channelTitle: BoneMock.title,
         thumbnailUrl: null,
-        kind: 'video',
+        kind: Kind.video.name,
         channelId: 'aaaa',
         playlistId: 'aaaa',
         streamUrl: '',

@@ -47,15 +47,6 @@ class VideoGridItem extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        /*  Icon(
-                          Icons.audiotrack_rounded,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ), */
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
                         Expanded(
                           child: Text(
                             video.title!,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
-import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
+import 'package:my_tube/utils/enums.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../models/resource_mt.dart';
@@ -32,7 +31,7 @@ class SkeletonList extends StatelessWidget {
                       description: BoneMock.paragraph,
                       channelTitle: BoneMock.title,
                       thumbnailUrl: null,
-                      kind: 'video',
+                      kind: Kind.video.name,
                       channelId: 'aaaa',
                       playlistId: 'aaaa',
                       streamUrl: '',
@@ -50,7 +49,7 @@ class SkeletonList extends StatelessWidget {
                       description: BoneMock.paragraph,
                       channelTitle: BoneMock.title,
                       thumbnailUrl: null,
-                      kind: 'video',
+                      kind: Kind.video.name,
                       channelId: 'aaaa',
                       playlistId: 'aaaa',
                       streamUrl: '',

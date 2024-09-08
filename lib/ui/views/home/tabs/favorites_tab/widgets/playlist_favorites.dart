@@ -7,9 +7,11 @@ import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
+import 'package:my_tube/utils/enums.dart';
 
 class PlaylistFavorites extends StatelessWidget {
-  const PlaylistFavorites({super.key});
+  const PlaylistFavorites({super.key, required this.searchQuery});
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,16 @@ class PlaylistFavorites extends StatelessWidget {
         case FavoritesPlaylistStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesPlaylistStatus.success:
-          final favorites = state.resources!.reversed.toList();
+          final favorites = state.resources!
+              .where((playlist) {
+                final title = playlist.title?.toLowerCase() ?? '';
+                final channelTitle = playlist.channelTitle?.toLowerCase() ?? '';
+                final query = searchQuery.toLowerCase();
+                return title.contains(query) || channelTitle.contains(query);
+              })
+              .toList()
+              .reversed
+              .toList();
 
           return Column(
             children: [
@@ -45,7 +56,7 @@ class PlaylistFavorites extends StatelessWidget {
                             },
                             child: ChannelPlaylistMenuDialog(
                                 resource: playlist,
-                                kind: 'playlist',
+                                kind: Kind.playlist,
                                 child: PlaylistTile(playlist: playlist)),
                           );
                         },
