@@ -95,7 +95,7 @@ class Carousel extends StatelessWidget {
                 ),
               )
           ],
-          options: CarouselOptions(
+          options: FlutterCarouselOptions(
             autoPlayAnimationDuration: const Duration(milliseconds: 500),
             autoPlay: true,
             enableInfiniteScroll: true,
