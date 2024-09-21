@@ -77,12 +77,15 @@ class InnertubeRepository {
         .map((video) async => await getResourceMTFromVideo(video))
         .toList();
 
+    final base64thumbnail =
+        await _getBase64Thumbnail(playlist.thumbnails?.last.url);
     return PlaylistMT(
       id: playlist.playlistId,
       channelId: null,
       title: playlist.title,
       description: playlist.description,
       thumbnailUrl: playlist.thumbnails?.last.url,
+      base64Thumbnail: base64thumbnail,
       itemCount: int.tryParse(playlist.videoCount ?? '0'),
       videos: await Future.wait(videos),
     );

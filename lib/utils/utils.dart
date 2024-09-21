@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/utils/constants.dart';
@@ -131,5 +134,26 @@ class Utils {
         .replaceAll(' ', '_');
 
     return fileName;
+  }
+
+  static Widget buildImage(String? base64Image, BuildContext context) {
+    final Uint8List? bytes =
+        base64Image != null ? base64Decode(base64Image) : null;
+    if (bytes != null) {
+      return Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+      );
+    } else {
+      // show a placeholder image
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          height: MediaQuery.of(context).size.height * 0.09,
+          width: MediaQuery.of(context).size.width * 0.2,
+        ),
+      );
+    }
   }
 }

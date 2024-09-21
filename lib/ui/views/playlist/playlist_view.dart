@@ -93,6 +93,7 @@ class PlaylistView extends StatelessWidget {
                                       description: playlist.description,
                                       channelTitle: null,
                                       thumbnailUrl: playlist.thumbnailUrl,
+                                      base64Thumbnail: playlist.base64Thumbnail,
                                       kind: 'playlist',
                                       channelId: playlist.channelId,
                                       playlistId: playlistId,

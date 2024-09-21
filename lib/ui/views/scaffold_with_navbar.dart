@@ -62,16 +62,24 @@ class ScaffoldWithNavbarView extends StatelessWidget {
   }
 
   Future<void> disableBatteryOptimization() async {
-    final isDisabled =
-        await DisableBatteryOptimization.isAllBatteryOptimizationDisabled;
-    if (isDisabled == false) {
-      await DisableBatteryOptimization.showDisableBatteryOptimizationSettings();
+    try {
+      final isDisabled =
+          await DisableBatteryOptimization.isAllBatteryOptimizationDisabled;
+      if (isDisabled == false) {
+        await DisableBatteryOptimization
+            .showDisableBatteryOptimizationSettings();
+      }
+    } catch (e) {
+      log('Error disabling battery optimization: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    disableBatteryOptimization();
+    // Spostare la chiamata a disableBatteryOptimization in un metodo di inizializzazione
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await disableBatteryOptimization();
+    });
 
     return BlocListener<UpdateBloc, UpdateState>(
       listener: (context, state) {

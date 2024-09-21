@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class VideoTile extends StatelessWidget {
   const VideoTile({super.key, required this.video});
@@ -45,18 +43,15 @@ class VideoTile extends StatelessWidget {
                                 fit: BoxFit.cover,
                                 errorWidget: (context, url, error) {
                                   // show base64 image if error
-                                  final Uint8List? bytes =
-                                      video.base64Thumbnail != null
-                                          ? base64Decode(video.base64Thumbnail!)
-                                          : null;
-                                  if (bytes != null) {
-                                    return Image.memory(
-                                      bytes,
-                                      fit: BoxFit.cover,
-                                    );
-                                  }
-                                  return const SizedBox();
-                                })
+                                  return Utils.buildImage(
+                                      video.base64Thumbnail, context);
+                                },
+                                placeholder: (context, url) {
+                                  // show base64 image while loading
+                                  return Utils.buildImage(
+                                      video.base64Thumbnail, context);
+                                },
+                              )
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Container(

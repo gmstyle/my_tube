@@ -114,6 +114,7 @@ class SkeletonChannel extends StatelessWidget {
                     title: BoneMock.longParagraph,
                     description: BoneMock.paragraph,
                     thumbnailUrl: null,
+                    base64Thumbnail: null,
                     itemCount: 20,
                     videos: List.generate(10, (index) => _buildFakeVideo()))),
             channels: List.generate(20, (index) => _buildFakeVideo()),

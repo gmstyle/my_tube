@@ -49,6 +49,7 @@ class PlaylistMT extends Equatable {
   final String? title;
   final String? description;
   final String? thumbnailUrl;
+  final String? base64Thumbnail;
   final int? itemCount;
   final List<ResourceMT>? videos;
 
@@ -58,6 +59,7 @@ class PlaylistMT extends Equatable {
     required this.title,
     required this.description,
     required this.thumbnailUrl,
+    required this.base64Thumbnail,
     required this.itemCount,
     required this.videos,
   });
@@ -69,6 +71,7 @@ class PlaylistMT extends Equatable {
       title: json['title'],
       description: json['description'],
       thumbnailUrl: json['thumbnailUrl'],
+      base64Thumbnail: json['base64Thumbnail'],
       itemCount: json['itemCount'],
       videos: json['videos'],
     );
@@ -81,6 +84,7 @@ class PlaylistMT extends Equatable {
       'title': title,
       'description': description,
       'thumbnailUrl': thumbnailUrl,
+      'base64Thumbnail': base64Thumbnail,
       'itemCount': itemCount,
       'videos': videos,
     };

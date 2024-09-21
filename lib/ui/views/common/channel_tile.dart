@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -28,20 +25,20 @@ class ChannelTile extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorWidget: (context, url, error) {
                       // show base64 image if error
-                      final Uint8List? bytes = channel.base64Thumbnail != null
-                          ? base64Decode(channel.base64Thumbnail!)
-                          : null;
-                      if (bytes != null) {
-                        return Image.memory(
-                          bytes,
-                          fit: BoxFit.cover,
-                        );
-                      }
-                      return const SizedBox();
-                    })
+                      return Utils.buildImage(channel.base64Thumbnail, context);
+                    },
+                    placeholder: (context, url) {
+                      // show base64 image while loading
+                      return Utils.buildImage(channel.base64Thumbnail, context);
+                    },
+                  )
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: const SizedBox(child: FlutterLogo()),
+                    child: Container(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      height: MediaQuery.of(context).size.height * 0.09,
+                      width: MediaQuery.of(context).size.width * 0.2,
+                    ),
                   ),
           ),
           Expanded(
