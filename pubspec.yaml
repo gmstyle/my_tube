@@ -43,6 +43,7 @@ dependencies:
   go_router: ^14.2.8
   path_provider: ^2.1.4
   chewie: ^1.8.5
+  video_player: ^2.9.2
   hive_flutter: ^1.1.0
   #flutter_adaptive_scaffold: ^0.1.10+2
   audio_service: ^0.18.15
@@ -67,10 +68,10 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   device_orientation: ^1.0.0
   
-dependency_overrides:
+#dependency_overrides:
   # Uso la versione 2.7.1 di video_player_android come workaround per il bug di riproduzione in backround con flutter 3.24.x
   # v 2.7.5 non funziona ancora. verificare la situazione con la versione 2.7.6
-  video_player_android: 2.7.1
+  #video_player_android: 2.7.1
 
 dev_dependencies:
   flutter_test:
