@@ -94,69 +94,74 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       },
       child: MainGradient(
         child: SafeArea(
-          child: LayoutBuilder(builder: (context, constraints) {
-            final isTablet = constraints.smallest.shortestSide > 600;
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isTablet = constraints.smallest.shortestSide > 600;
 
-            if (isTablet) {
-              // Tablet layout with navigation rail on the left instead of bottom navigation bar
               return Scaffold(
                 backgroundColor: Colors.transparent,
                 resizeToAvoidBottomInset: false,
-                body: Stack(
-                  children: [
-                    Row(
-                      children: [
-                        NavigationRail(
-                          selectedIndex: navigationShell.currentIndex,
-                          destinations: _navigationRailDestinations,
-                          onDestinationSelected: onDestinationSelected,
-                          labelType: NavigationRailLabelType.selected,
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              top: 8.0,
-                              left: 8.0,
-                              right: 8.0,
-                            ),
-                            child: navigationShell,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Positioned(bottom: 0, right: 8, child: MiniPlayer())
-                  ],
-                ),
+                body: isTablet ? _buildTabletLayout() : _buildMobileLayout(),
+                bottomNavigationBar:
+                    !isTablet ? _buildMobileNavBar(context) : null,
               );
-            }
-            // Mobile layout with bottom navigation bar
-            return Scaffold(
-              backgroundColor: Colors.transparent,
-              resizeToAvoidBottomInset: false,
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: navigationShell,
-              ),
-              bottomNavigationBar: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const MiniPlayer(),
-                  NavigationBar(
-                      elevation: 0,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primaryContainer,
-                      selectedIndex: navigationShell.currentIndex,
-                      destinations: _navBarItems,
-                      onDestinationSelected: onDestinationSelected,
-                      labelBehavior:
-                          NavigationDestinationLabelBehavior.onlyShowSelected),
-                ],
-              ),
-            );
-          }),
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTabletLayout() {
+    return Stack(
+      children: [
+        Row(
+          children: [
+            NavigationRail(
+              selectedIndex: navigationShell.currentIndex,
+              destinations: _navigationRailDestinations,
+              onDestinationSelected: onDestinationSelected,
+              labelType: NavigationRailLabelType.selected,
+            ),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 8.0,
+                  left: 8.0,
+                  right: 8.0,
+                ),
+                child: navigationShell,
+              ),
+            ),
+          ],
+        ),
+        const Positioned(bottom: 0, right: 8, child: MiniPlayer()),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: navigationShell,
+    );
+  }
+
+  Widget _buildMobileNavBar(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const MiniPlayer(),
+        NavigationBar(
+          elevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          selectedIndex: navigationShell.currentIndex,
+          destinations: _navBarItems,
+          onDestinationSelected: onDestinationSelected,
+          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        ),
+      ],
     );
   }
 }
