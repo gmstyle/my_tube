@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class VideoGridItem extends StatelessWidget {
   const VideoGridItem({super.key, required this.video});
@@ -24,8 +25,21 @@ class VideoGridItem extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: video.thumbnailUrl!,
                       fit: BoxFit.cover,
+                      errorWidget: (context, url, error) {
+                        return Utils.buildImage(video.base64Thumbnail, context);
+                      },
+                      placeholder: (context, url) {
+                        return Utils.buildImage(video.base64Thumbnail, context);
+                      },
                     )
-                  : const SizedBox(),
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        height: MediaQuery.of(context).size.height * 0.09,
+                        width: MediaQuery.of(context).size.width * 0.2,
+                      ),
+                    ),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
