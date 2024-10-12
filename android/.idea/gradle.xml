@@ -15,25 +15,27 @@
             </builds>
           </compositeBuild>
         </compositeConfiguration>
+        <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service-0.18.13/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.1.19/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-10.1.0/android" />
+            <option value="$USER_HOME$/.pub-cache/git/autorotation_check-b728e3ce3dd9a42fb76a215a47bae428b462735a/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service-0.18.15/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.1.21/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-10.1.2/android" />
             <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/disable_battery_optimization-1.1.1/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.1.0/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/native_device_orientation-2.0.3/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/open_file-3.3.2/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-7.0.0/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.2/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler_android-12.0.5/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.3.3/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_android-2.4.12/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.2.4/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-17.2.3/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/open_file_android-1.0.5/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-8.0.3/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.12/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler_android-12.0.12/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sensors_plus-4.0.2/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_android-2.4.0/android" />
+            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.2.8/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/../../video_player_android-2.7.1/android" />
             <option value="$USER_HOME$/flutter/packages/flutter_tools/gradle" />
           </set>
         </option>

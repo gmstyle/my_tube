@@ -68,10 +68,12 @@ dependencies:
   flutter_local_notifications: ^17.2.3
   device_orientation: ^1.0.0
   
-#dependency_overrides:
+dependency_overrides:
   # Uso la versione 2.7.1 di video_player_android come workaround per il bug di riproduzione in backround con flutter 3.24.x
   # v 2.7.5 non funziona ancora. verificare la situazione con la versione 2.7.6
   #video_player_android: 2.7.1
+  video_player_android:
+    path: ../video_player_android-2.7.1
 
 dev_dependencies:
   flutter_test:
