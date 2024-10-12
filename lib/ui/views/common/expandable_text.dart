@@ -17,6 +17,7 @@ class ExpandableText extends StatelessWidget {
         dividerColor: Colors.transparent,
       ),
       child: ExpansionTile(
+          initiallyExpanded: true,
           collapsedIconColor: Theme.of(context).colorScheme.onPrimary,
           iconColor: Theme.of(context).colorScheme.onPrimary,
           title: Text(
