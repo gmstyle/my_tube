@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_tube/ui/views/home/tabs/explore_tab_view.dart';
 
 class SingleSelectionButtons extends StatefulWidget {
   const SingleSelectionButtons({
@@ -8,9 +9,9 @@ class SingleSelectionButtons extends StatefulWidget {
     required this.onSelected,
   });
 
-  final List<String> items;
+  final List<CategoryEnum> items;
   final List<IconData>? icons;
-  final Function(int, String) onSelected;
+  final Function(int, CategoryEnum) onSelected;
 
   @override
   State<SingleSelectionButtons> createState() => _SingleSelectionButtonsState();
@@ -38,7 +39,7 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
             avatar: icons != null && selected != entry.key
                 ? icons![entry.key]
                 : null,
-            label: Text(entry.value),
+            label: Text(entry.value.name),
             onSelected: (value) => setState(() {
               selected = entry.key;
               widget.onSelected(entry.key, entry.value);

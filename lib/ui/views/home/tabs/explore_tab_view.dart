@@ -20,7 +20,7 @@ class ExploreTabView extends StatelessWidget {
     Icons.videogame_asset
   ];
 
-  String _selectedCategory = CategoryEnum.Now.name;
+  CategoryEnum _selectedCategory = CategoryEnum.Now;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class ExploreTabView extends StatelessWidget {
       children: [
         StatefulBuilder(builder: (context, setState) {
           return SingleSelectionButtons(
-            items: CategoryEnum.values.map((e) => e.name).toList(),
+            items: CategoryEnum.values,
             icons: icons,
             onSelected: (selectedIndex, selectedValue) {
               if (_selectedCategory != selectedValue) {
@@ -124,7 +124,7 @@ class ExploreTabView extends StatelessWidget {
 
   CategoryEnum _getCategory() {
     return CategoryEnum.values
-        .where((element) => element.name == _selectedCategory)
+        .where((element) => element == _selectedCategory)
         .first;
   }
 }

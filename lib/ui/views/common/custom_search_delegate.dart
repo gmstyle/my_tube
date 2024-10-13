@@ -1,9 +1,9 @@
-/* import 'dart:developer';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_tube/blocs/home/mini_player_cubit/mini_player_cubit.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -24,32 +24,33 @@ class CustomSearchDelegate extends SearchDelegate {
       required this.searchSuggestionCubit,
       required this.playerCubit});
 
-// per cambiare il testo nella barra di ricerca
+  // per cambiare il testo nella barra di ricerca
   @override
-  String? get searchFieldLabel => 'Search...';
+  String? get searchFieldLabel => 'Search in MyTube';
 
-// per cambiare il colore del testo nella barra di ricerca
+  // per cambiare il colore del testo nella barra di ricerca
   @override
   ThemeData appBarTheme(BuildContext context) {
-    final ThemeData theme = Theme.of(context).copyWith(
+    final ThemeData theme = Theme.of(context);
+    return theme.copyWith(
+      appBarTheme: AppBarTheme(
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
+        actionsIconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
+      ),
       hintColor: Theme.of(context).colorScheme.onPrimary,
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: Theme.of(context).colorScheme.onPrimary,
-        selectionColor: Colors.grey[600],
+        selectionColor: Theme.of(context).colorScheme.onPrimary,
       ),
-      textTheme: const TextTheme(
-        titleLarge: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 18),
+      textTheme: TextTheme(
+        titleLarge: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary, fontSize: 18),
       ),
-      inputDecorationTheme: const InputDecorationTheme(
+      inputDecorationTheme: InputDecorationTheme(
         border: InputBorder.none,
-      ),
-    );
-    return theme.copyWith(
-      appBarTheme: AppBarTheme(
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 0,
-        actionsIconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-        iconTheme: const IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }
@@ -81,9 +82,10 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     if (query.isEmpty) {
-      return const MainGradient(
+      return MainGradient(
         child: Center(
-          child: Text('No results', style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+          child: Text('No results',
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
         ),
       );
     }
@@ -155,14 +157,16 @@ class CustomSearchDelegate extends SearchDelegate {
                       color: Theme.of(context).colorScheme.onPrimary,
                     ),
                     title: Text(suggestion,
-                        style: const TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary)),
                     trailing: state.isQueryHistory
                         ? IconButton(
                             onPressed: () {
                               searchSuggestionCubit
                                   .deleteQueryFromHistory(suggestion);
                             },
-                            icon: const Icon(Icons.close, color: Theme.of(context).colorScheme.onPrimary),
+                            icon: Icon(Icons.close,
+                                color: Theme.of(context).colorScheme.onPrimary),
                           )
                         : null,
                     onTap: () {
@@ -175,8 +179,8 @@ class CustomSearchDelegate extends SearchDelegate {
     );
   }
 
-  void _playOrNavigateTo(ResourceMT result, PlayerCubit playerCubit,
-      BuildContext context) {
+  void _playOrNavigateTo(
+      ResourceMT result, PlayerCubit playerCubit, BuildContext context) {
     if (result.kind == 'video') {
       if (playerCubit.mtPlayerService.mediaItem.value?.id != result.id) {
         playerCubit.startPlaying(result.id!);
@@ -210,4 +214,3 @@ class CustomSearchDelegate extends SearchDelegate {
     return Container();
   }
 }
- */

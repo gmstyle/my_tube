@@ -27,10 +27,6 @@ class ChannelTile extends StatelessWidget {
                       // show base64 image if error
                       return Utils.buildImage(channel.base64Thumbnail, context);
                     },
-                    placeholder: (context, url) {
-                      // show base64 image while loading
-                      return Utils.buildImage(channel.base64Thumbnail, context);
-                    },
                   )
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(8),

@@ -28,9 +28,6 @@ class VideoGridItem extends StatelessWidget {
                       errorWidget: (context, url, error) {
                         return Utils.buildImage(video.base64Thumbnail, context);
                       },
-                      placeholder: (context, url) {
-                        return Utils.buildImage(video.base64Thumbnail, context);
-                      },
                     )
                   : ClipRRect(
                       borderRadius: BorderRadius.circular(8),

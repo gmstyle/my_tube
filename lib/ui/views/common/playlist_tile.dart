@@ -35,11 +35,6 @@ class PlaylistTile extends StatelessWidget {
                               return Utils.buildImage(
                                   playlist.base64Thumbnail, context);
                             },
-                            placeholder: (context, url) {
-                              // show base64 image while loading
-                              return Utils.buildImage(
-                                  playlist.base64Thumbnail, context);
-                            },
                           )
                         : ClipRRect(
                             borderRadius: BorderRadius.circular(8),

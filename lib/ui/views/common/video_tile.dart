@@ -46,11 +46,6 @@ class VideoTile extends StatelessWidget {
                                   return Utils.buildImage(
                                       video.base64Thumbnail, context);
                                 },
-                                placeholder: (context, url) {
-                                  // show base64 image while loading
-                                  return Utils.buildImage(
-                                      video.base64Thumbnail, context);
-                                },
                               )
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
