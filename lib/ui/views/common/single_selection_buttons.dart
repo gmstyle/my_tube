@@ -31,8 +31,8 @@ class _SingleSelectionButtonsState extends State<SingleSelectionButtons> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
+    return Align(
+      alignment: Alignment.topLeft,
       child: Wrap(spacing: 8, children: [
         for (var entry in widget.items.asMap().entries)
           FilterChip(
