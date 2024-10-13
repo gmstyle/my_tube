@@ -2,8 +2,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/ui/views/video_view/widget/mediaitem_tile.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/play_pause_gesture_detector_mediaitem.dart';
+import 'package:my_tube/ui/views/video/widget/mediaitem_tile.dart';
+import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/play_pause_gesture_detector_mediaitem.dart';
 
 class MediaItemList extends StatelessWidget {
   const MediaItemList({super.key, this.isTablet = false});

@@ -6,7 +6,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/ui/views/video_view/widget/full_screen_video_view.dart';
+import 'package:my_tube/ui/views/video/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 
 class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {

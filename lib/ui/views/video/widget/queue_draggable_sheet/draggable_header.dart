@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
+import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 
 class DraggableHeader extends StatelessWidget {
   const DraggableHeader({super.key, required this.controller});

@@ -5,8 +5,8 @@ import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
-import 'package:my_tube/ui/views/video_view/widget/controls.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
+import 'package:my_tube/ui/views/video/widget/controls.dart';
+import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 
 class VideoPhoneScreen extends StatelessWidget {
   const VideoPhoneScreen(

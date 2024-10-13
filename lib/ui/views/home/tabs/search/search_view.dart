@@ -12,7 +12,7 @@ import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
-import 'package:my_tube/ui/views/search/widgets/empty_search.dart';
+import 'package:my_tube/ui/views/home/tabs/search/widgets/empty_search.dart';
 import 'package:my_tube/utils/enums.dart';
 
 // ignore: must_be_immutable

@@ -13,10 +13,10 @@ import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
-import 'package:my_tube/ui/views/video_view/screens/video_phone_screen.dart';
-import 'package:my_tube/ui/views/video_view/screens/video_tablet_screen.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/clear_queue_button.dart';
-import 'package:my_tube/ui/views/video_view/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
+import 'package:my_tube/ui/views/video/screens/video_phone_screen.dart';
+import 'package:my_tube/ui/views/video/screens/video_tablet_screen.dart';
+import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_button.dart';
+import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();

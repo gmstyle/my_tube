@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
+import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
@@ -99,6 +101,15 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               final isTablet = constraints.smallest.shortestSide > 600;
 
               return Scaffold(
+                appBar: CustomAppbar(
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.settings),
+                      onPressed: () =>
+                          context.pushNamed(AppRoute.settings.name),
+                    ),
+                  ],
+                ),
                 backgroundColor: Colors.transparent,
                 resizeToAvoidBottomInset: false,
                 body: isTablet ? _buildTabletLayout() : _buildMobileLayout(),
@@ -143,7 +154,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   Widget _buildMobileLayout() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: navigationShell,
     );
   }
