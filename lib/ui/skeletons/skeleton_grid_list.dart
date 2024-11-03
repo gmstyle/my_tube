@@ -6,8 +6,8 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../../models/resource_mt.dart';
 import '../views/common/video_tile.dart';
 
-class SkeletonList extends StatelessWidget {
-  const SkeletonList({super.key});
+class SkeletonGridList extends StatelessWidget {
+  const SkeletonGridList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +19,8 @@ class SkeletonList extends StatelessWidget {
           return GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              mainAxisSpacing: 36,
-              crossAxisSpacing: 24,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
             ),
             itemCount: 20,
             itemBuilder: (context, index) {

@@ -20,7 +20,7 @@ class VideoTabletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -31,14 +31,21 @@ class VideoTabletScreen extends StatelessWidget {
                 //crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // video player
-                  Hero(
-                    tag: 'video_image_or_player',
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AspectRatio(
-                          aspectRatio: aspectRatio,
-                          child: Chewie(
-                              controller: mtPlayerService.chewieController!)),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height - 200),
+                    child: SizedBox.expand(
+                      child: Hero(
+                        tag: 'video_image_or_player',
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: AspectRatio(
+                              aspectRatio: aspectRatio,
+                              child: Chewie(
+                                  controller:
+                                      mtPlayerService.chewieController!)),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -90,7 +97,7 @@ class VideoTabletScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(
-            width: 16,
+            width: 4,
           ),
           Expanded(
             child: Column(

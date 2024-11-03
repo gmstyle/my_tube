@@ -28,7 +28,8 @@ class MediaItemList extends StatelessWidget {
                   return PlayPauseGestureDetectorMediaitem(
                       key: Key(mediaItem.id),
                       mediaItem: mediaItem,
-                      child: MediaitemTile(mediaItem: mediaItem));
+                      child: MediaitemTile(
+                          mediaItem: mediaItem, darkBackground: isTablet));
                 },
                 onReorder: (int oldIndex, int newIndex) async {
                   await playerCubit.mtPlayerService

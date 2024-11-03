@@ -7,6 +7,7 @@ import 'package:my_tube/router/pages/music_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
+import 'package:my_tube/router/pages/settings_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
 
 class AppRouter {
@@ -23,6 +24,13 @@ class AppRouter {
       name: AppRoute.video.name,
       path: AppRoute.video.path,
       pageBuilder: (context, state) => const VideoPage(),
+    ),
+    // Settings
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      name: AppRoute.settings.name,
+      path: AppRoute.settings.path,
+      pageBuilder: (context, state) => const SettingsPage(),
     ),
     // Shell
     StatefulShellRoute.indexedStack(
@@ -110,6 +118,7 @@ enum AppRoute {
   playlist('playlist'),
   playlistFavorites('playlistFavorite'),
   favorites('/favorites'),
+  settings('/settings'),
   video('/video');
 
   final String path;

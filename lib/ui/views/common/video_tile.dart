@@ -15,136 +15,82 @@ class VideoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
-    return Container(
-      height: 70,
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.03),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        video.thumbnailUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: video.thumbnailUrl!,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.09,
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                fit: BoxFit.cover,
-                                errorWidget: (context, url, error) {
-                                  // show base64 image if error
-                                  return Utils.buildImage(
-                                      video.base64Thumbnail, context);
-                                },
-                              )
-                            : ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.09,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.2,
-                                ),
-                              ),
-                      ],
+
+    return ListTile(
+      leading: SizedBox(
+        width: 90,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              video.thumbnailUrl != null
+                  ? CachedNetworkImage(
+                      imageUrl: video.thumbnailUrl!,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) {
+                        // show base64 image if error
+                        return Utils.buildImage(video.base64Thumbnail, context);
+                      },
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              video.title ?? '',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+              // overlay gradient per video selected
+              StreamBuilder(
+                  stream: playerCubit.mtPlayerService.mediaItem,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final currentVideoId = snapshot.data!.id;
+                      if (currentVideoId == video.id) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.4),
+                                Colors.black.withOpacity(0.6),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
                           ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              video.channelTitle ?? '',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            // overlay gradient per video selected
-            StreamBuilder(
-                stream: playerCubit.mtPlayerService.mediaItem,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final currentVideoId = snapshot.data!.id;
-                    if (currentVideoId == video.id) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.4),
-                              Colors.black.withOpacity(0.6),
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                        ),
-                      );
+                        );
+                      }
                     }
-                  }
-                  return const SizedBox();
-                }),
+                    return const SizedBox();
+                  }),
 
-            // audio spectrum icon in posizione centrale rispetto all'immagine
-
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: SpectrumPlayingIcon(videoId: video.id!),
-            )
-          ],
+              // audio spectrum icon in posizione centrale rispetto all'immagine
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                left: 0,
+                child: SpectrumPlayingIcon(videoId: video.id!),
+              )
+            ],
+          ),
         ),
+      ),
+      title: Text(
+        video.title ?? '',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        video.channelTitle ?? '',
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

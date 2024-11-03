@@ -10,7 +10,93 @@ class PlaylistTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ListTile(
+      leading: SizedBox(
+        height: 90,
+        width: 90,
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                playlist.thumbnailUrl != null
+                    ? CachedNetworkImage(
+                        imageUrl: playlist.thumbnailUrl!,
+                        fit: BoxFit.cover,
+                        errorWidget: (context, url, error) {
+                          // show base64 image if error
+                          return Utils.buildImage(
+                              playlist.base64Thumbnail, context);
+                        },
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                        ),
+                      ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.4),
+                        Colors.black.withOpacity(0.9),
+                      ],
+                      begin: Alignment.centerRight,
+                      end: Alignment.centerLeft,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  left: 4,
+                  child: Icon(
+                    Icons.album_rounded,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                )
+              ],
+            )),
+      ),
+      title: Text(
+        playlist.title ?? '',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (playlist.channelTitle != null)
+            Flexible(
+              child: Text(
+                playlist.channelTitle!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          Flexible(
+            child: Text(
+              playlist.videoCount != null
+                  ? '${playlist.videoCount} videos'
+                  : '',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+    /* return Container(
       height: 90,
       margin: const EdgeInsets.only(bottom: 16),
       padding: EdgeInsets.symmetric(
@@ -124,6 +210,6 @@ class PlaylistTile extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ); */
   }
 }

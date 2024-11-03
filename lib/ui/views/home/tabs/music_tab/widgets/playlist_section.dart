@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/playlist_mt.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
+import 'package:my_tube/ui/views/common/playlistmt_grid_item.dart';
 
 class PlaylistSection extends StatelessWidget {
   const PlaylistSection({super.key, required this.playlists});
@@ -22,7 +22,7 @@ class PlaylistSection extends StatelessWidget {
             childrenDelegate: SliverChildBuilderDelegate((context, index) {
               final playlist = playlists[index];
               return GestureDetector(
-                child: PlaylistGridItem(playlist: playlist),
+                child: PlaylistMTGridItem(playlist: playlist),
                 onTap: () {
                   context.pushNamed(AppRoute.playlist.name,
                       extra: {'playlistId': playlist.id});

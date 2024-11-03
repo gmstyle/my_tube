@@ -5,11 +5,14 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/skeletons/skeleton_list.dart';
+import 'package:my_tube/ui/skeletons/skeleton_grid_list.dart';
+import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
+import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
+import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/search/widgets/empty_search.dart';
@@ -179,7 +182,7 @@ class SearchView extends StatelessWidget {
             builder: (_, SearchState state) {
           switch (state.status) {
             case SearchStatus.loading:
-              return const SkeletonList();
+              return const SkeletonGridList();
             case SearchStatus.success:
               return NotificationListener<ScrollNotification>(
                 onNotification: (scrollInfo) {
@@ -194,40 +197,62 @@ class SearchView extends StatelessWidget {
                   return false;
                 },
                 child: state.result!.resources.isNotEmpty
-                    ? ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        itemCount: state.result!.resources.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index < state.result!.resources.length) {
-                            final result = state.result!.resources[index];
-                            return _setTile(context, result);
-                          } else {
-                            // Loader alla fine della lista se la lista è maggiore di 20
-                            if (state.result!.resources.length >= 20) {
-                              return const SizedBox(
-                                height: 80,
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ); /*Skeletonizer(
-                                  enabled: true,
-                                  child: VideoTile(
-                                      video: ResourceMT(
-                                          id: 'aaaa',
-                                          title: BoneMock.longParagraph,
-                                          description: BoneMock.paragraph,
-                                          channelTitle: BoneMock.title,
-                                          thumbnailUrl: null,
-                                          kind: 'video',
-                                          channelId: 'aaaa',
-                                          playlistId: 'aaaa',
-                                          streamUrl: '',
-                                          duration: 100)));*/
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          }
-                        })
+                    ? LayoutBuilder(builder: (context, constraints) {
+                        final isTablet = constraints.maxWidth > 600;
+                        if (isTablet) {
+                          return GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                            ),
+                            itemCount: state.result!.resources.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index < state.result!.resources.length) {
+                                final result = state.result!.resources[index];
+                                return _setTile(context, result, isTablet);
+                              } else {
+                                if (state.result!.resources.length >= 20) {
+                                  return ListLoader();
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              }
+                            },
+                          );
+                        } else {
+                          return ListView.builder(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              itemCount: state.result!.resources.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index < state.result!.resources.length) {
+                                  final result = state.result!.resources[index];
+                                  return _setTile(context, result, isTablet);
+                                } else {
+                                  // Loader alla fine della lista se la lista è maggiore di 20
+                                  if (state.result!.resources.length >= 20) {
+                                    return ListLoader(); /*Skeletonizer(
+                                      enabled: true,
+                                      child: VideoTile(
+                                          video: ResourceMT(
+                                              id: 'aaaa',
+                                              title: BoneMock.longParagraph,
+                                              description: BoneMock.paragraph,
+                                              channelTitle: BoneMock.title,
+                                              thumbnailUrl: null,
+                                              kind: 'video',
+                                              channelId: 'aaaa',
+                                              playlistId: 'aaaa',
+                                              streamUrl: '',
+                                              duration: 100)));*/
+                                  } else {
+                                    return const SizedBox.shrink();
+                                  }
+                                }
+                              });
+                        }
+                      })
                     : const Center(child: Text('No results found')),
               );
             case SearchStatus.failure:
@@ -249,12 +274,15 @@ class SearchView extends StatelessWidget {
     FocusScope.of(context).unfocus();
   }
 
-  Widget _setTile(BuildContext context, ResourceMT result) {
+  Widget _setTile(BuildContext context, ResourceMT result, bool isTablet) {
     if (result.kind == Kind.video.name) {
       return PlayPauseGestureDetector(
           resource: result,
-          child:
-              VideoMenuDialog(video: result, child: VideoTile(video: result)));
+          child: VideoMenuDialog(
+              video: result,
+              child: isTablet
+                  ? VideoGridItem(video: result)
+                  : VideoTile(video: result)));
     }
 
     if (result.kind == Kind.channel.name) {
@@ -266,7 +294,9 @@ class SearchView extends StatelessWidget {
           child: ChannelPlaylistMenuDialog(
               resource: result,
               kind: Kind.channel,
-              child: ChannelTile(channel: result)));
+              child: isTablet
+                  ? ChannelGridItem(channel: result)
+                  : ChannelTile(channel: result)));
     }
 
     if (result.kind == Kind.playlist.name) {
@@ -280,9 +310,30 @@ class SearchView extends StatelessWidget {
           child: ChannelPlaylistMenuDialog(
               resource: result,
               kind: Kind.playlist,
-              child: PlaylistTile(playlist: result)));
+              child: isTablet
+                  ? PlaylistGridItem(playlist: result)
+                  : PlaylistTile(playlist: result)));
     }
 
     return Container();
+  }
+}
+
+class ListLoader extends StatelessWidget {
+  const ListLoader({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 80,
+      child: Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.onPrimary,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        ),
+      ),
+    );
   }
 }

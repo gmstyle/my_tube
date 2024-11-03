@@ -15,22 +15,28 @@ class VideoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final miniplayerCubit = context.read<PlayerCubit>();
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final double size = isLandscape ? screenHeight * 0.4 : screenHeight * 0.2;
+    final double minSize = 100.0; // Dimensione minima per smartphone
+    final double maxSize = 150.0; // Dimensione massima per tablet
+
+    final double gridHeight = size.clamp(minSize, maxSize);
+    final mainAxisExtent = isLandscape ? screenHeight - 64 : screenWidth - 64;
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.25,
+      height: gridHeight,
       child: GridView.builder(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
           physics: const ClampingScrollPhysics(),
-          //padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: videos.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisSpacing: 8,
               crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 8,
-              mainAxisExtent: crossAxisCount > 1
-                  ? MediaQuery.of(context).size.width - 64
-                  : null),
+              crossAxisSpacing: 8,
+              mainAxisExtent: mainAxisExtent),
           itemBuilder: (context, index) {
             final video = videos[index];
             return PlayPauseGestureDetector(

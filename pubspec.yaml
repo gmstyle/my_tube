@@ -45,7 +45,7 @@ dependencies:
   chewie: ^1.8.5
   video_player: ^2.9.2
   hive_flutter: ^1.1.0
-  #flutter_adaptive_scaffold: ^0.1.10+2
+  flutter_adaptive_scaffold: ^0.3.1
   audio_service: ^0.18.15
   wakelock_plus: ^1.2.8
   hive_generator: ^2.0.1
@@ -56,14 +56,14 @@ dependencies:
   autorotation_check:
     git:
       url: https://github.com/gmstyle/autorotation_check.git
-  flutter_carousel_widget: ^3.0.1
+  flutter_carousel_widget: ^3.1.0
   #material_design_icons_flutter: ^7.0.7296
   skeletonizer: ^1.4.2
   disable_battery_optimization: ^1.1.1
   permission_handler: ^11.3.1
   device_info_plus: ^10.1.2
-  open_file: ^3.5.7
-  package_info_plus: ^8.0.2
+  open_file: ^3.5.9
+  package_info_plus: ^8.1.0
   cached_network_image: ^3.4.1
   flutter_local_notifications: ^17.2.3
   device_orientation: ^1.0.0

@@ -29,7 +29,10 @@ import 'app_bloc_observer.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // set edge to edge rendering
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+  //Only portrait mode
+  //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Hive.initFlutter();
   Hive.registerAdapter(ResourceMTAdapter());

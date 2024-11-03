@@ -10,109 +10,65 @@ class ChannelHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double size =
+        screenWidth * 0.3; // Dimensione per mantenere il widget circolare
+    final double minSize = 100.0; // Dimensione minima per smartphone
+    final double maxSize = 200.0; // Dimensione massima per tablet
+
+    final double avatarSize = size.clamp(minSize, maxSize);
+
     return Column(
       children: [
         // Channel info
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.25,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                _setChannelBanner(channel!) != null
-                    ? CachedNetworkImage(
-                        imageUrl: _setChannelBanner(channel!)!,
-                        fit: BoxFit.fill,
-                      )
-                    : const SizedBox(),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.8),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+        CircleAvatar(
+          radius: avatarSize / 2,
+          backgroundImage: channel!.avatarUrl != null
+              ? CachedNetworkImageProvider(channel!.avatarUrl!)
+              : null,
+          child: channel!.avatarUrl == null
+              ? const Icon(Icons.person, size: 50)
+              : null,
+        ),
+        const SizedBox(height: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              channel!.title ?? '',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            if (channel!.channelHandleText != null)
+              Text(
+                '${channel!.channelHandleText}',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+              ),
+            const SizedBox(height: 4),
+            if (channel!.subscriberCount != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.remove_red_eye,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  Flexible(
+                    child: Text(
+                      ' Subscribers: ${channel!.subscriberCount!}',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary),
                     ),
                   ),
-                ),
-                Positioned(
-                  left: 8,
-                  right: 8,
-                  bottom: 16,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Text(channel!.title ?? '',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                          ),
-                        ],
-                      ),
-                      if (channel!.channelHandleText != null)
-                        Row(
-                          children: [
-                            Text(
-                              '${channel!.channelHandleText}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: 4),
-                      /* Row(
-                        children: [
-                          const Icon(
-                            Icons.music_note_rounded,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          Text(
-                            ' Tracks: ${channel!.videos?.length}',
-                            style: const TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                          ),
-                        ],
-                      ), */
-                      const SizedBox(width: 4),
-                      if (channel!.subscriberCount != null)
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.remove_red_eye,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                            Text(
-                              ' Subscribers: ${channel!.subscriberCount!}',
-                              style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+          ],
         ),
 
         // Description
@@ -122,17 +78,5 @@ class ChannelHeader extends StatelessWidget {
         ],
       ],
     );
-  }
-
-  String? _setChannelBanner(ChannelPageMT channelPageMT) {
-    if (channelPageMT.tvBannerUrl != null &&
-        channelPageMT.tvBannerUrl!.isNotEmpty) {
-      return channelPageMT.tvBannerUrl!;
-    } else if (channelPageMT.bannerUrl != null &&
-        channelPageMT.bannerUrl!.isNotEmpty) {
-      return channelPageMT.bannerUrl!;
-    } else {
-      return channelPageMT.avatarUrl;
-    }
   }
 }

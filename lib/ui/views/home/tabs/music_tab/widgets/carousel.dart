@@ -13,7 +13,9 @@ class Carousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.25,
+      height: MediaQuery.orientationOf(context) == Orientation.landscape
+          ? MediaQuery.of(context).size.height * 0.5
+          : MediaQuery.of(context).size.height * 0.3,
       width: MediaQuery.of(context).size.width,
       child: FlutterCarousel(
           items: [

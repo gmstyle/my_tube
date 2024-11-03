@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
-import 'package:my_tube/ui/skeletons/skeleton_list.dart';
+import 'package:my_tube/ui/skeletons/skeleton_grid_list.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/single_selection_buttons.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
@@ -49,7 +49,7 @@ class ExploreTabView extends StatelessWidget {
             builder: (context, state) {
               switch (state.status) {
                 case YoutubeStatus.loading:
-                  return const SkeletonList();
+                  return const SkeletonGridList();
 
                 case YoutubeStatus.loaded:
                   return LayoutBuilder(
@@ -69,8 +69,8 @@ class ExploreTabView extends StatelessWidget {
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
-                              mainAxisSpacing: 36,
-                              crossAxisSpacing: 24,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
                             ),
                             itemCount: state.response!.resources.length,
                             itemBuilder: (context, index) {

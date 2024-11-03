@@ -47,7 +47,7 @@ class ChannelFavorites extends StatelessWidget {
                           return GestureDetector(
                             onTap: () {
                               context.goNamed(AppRoute.channelFavorites.name,
-                                  extra: {'channelId': channel.channelId!});
+                                  extra: {'channelId': channel.channelId});
                             },
                             child: ChannelPlaylistMenuDialog(
                                 resource: channel,

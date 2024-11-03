@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/models/playlist_mt.dart';
 
-class PlaylistGridItem extends StatelessWidget {
-  const PlaylistGridItem({super.key, required this.playlist});
+class PlaylistMTGridItem extends StatelessWidget {
+  const PlaylistMTGridItem({super.key, required this.playlist});
 
-  final ResourceMT playlist;
+  final PlaylistMT playlist;
 
   @override
   Widget build(BuildContext context) {

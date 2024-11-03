@@ -18,10 +18,23 @@ class PlaylistHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final miniplayerCubit = context.read<PlayerCubit>();
     final playlistState = context.watch<PlaylistBloc>().state;
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double size = screenWidth * 0.6;
+    final double minSize = 200.0; // Dimensione minima per smartphone
+    final double maxSize = 400.0; // Dimensione massima per tablet
+
+    final double imageSize = size.clamp(minSize, maxSize);
+
     return Column(
       children: [
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.25,
+          height: isLandscape
+              ? MediaQuery.of(context).size.height * 0.5
+              : imageSize,
+          width: imageSize,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Stack(
@@ -30,9 +43,9 @@ class PlaylistHeader extends StatelessWidget {
                 playlist?.thumbnailUrl != null
                     ? CachedNetworkImage(
                         imageUrl: playlist!.thumbnailUrl!,
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        fit: BoxFit.fill,
+                        height: imageSize,
+                        width: imageSize,
+                        fit: BoxFit.cover,
                       )
                     : const SizedBox(),
                 Container(
