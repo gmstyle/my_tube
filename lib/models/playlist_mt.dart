@@ -50,7 +50,7 @@ class PlaylistMT extends Equatable {
   final String? description;
   final String? thumbnailUrl;
   final String? base64Thumbnail;
-  final int? itemCount;
+  final String? itemCount;
   final List<ResourceMT>? videos;
 
   const PlaylistMT({

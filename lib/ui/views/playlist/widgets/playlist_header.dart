@@ -30,113 +30,114 @@ class PlaylistHeader extends StatelessWidget {
 
     return Column(
       children: [
-        SizedBox(
-          height: isLandscape
-              ? MediaQuery.of(context).size.height * 0.5
-              : imageSize,
-          width: imageSize,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                playlist?.thumbnailUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: playlist!.thumbnailUrl!,
-                        height: imageSize,
-                        width: imageSize,
-                        fit: BoxFit.cover,
-                      )
-                    : const SizedBox(),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.8),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.end,
+          runSpacing: 8,
+          children: [
+            FloatingActionButton.small(
+                elevation: 0,
+                heroTag: "add_playlist_to_queue_${playlist!.id}",
+                backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                onPressed: () {
+                  miniplayerCubit.addAllToQueue(playlist!.videos!);
+                },
+                child: const Icon(Icons.queue_music)),
+            const SizedBox(width: 8),
+            SizedBox(
+              height: isLandscape
+                  ? MediaQuery.of(context).size.height * 0.5
+                  : imageSize,
+              width: imageSize,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    playlist?.thumbnailUrl != null
+                        ? CachedNetworkImage(
+                            imageUrl: playlist!.thumbnailUrl!,
+                            height: imageSize,
+                            width: imageSize,
+                            fit: BoxFit.cover,
+                          )
+                        : const SizedBox(),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.8),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Positioned(
-                  left: 8,
-                  right: 8,
-                  bottom: 16,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    Positioned(
+                      left: 8,
+                      right: 8,
+                      bottom: 16,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
-                            child: Text(
-                              playlist?.title ?? '',
-                              maxLines: 2,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.music_note_rounded,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          Text(
-                            ' Tracks: ${playlist!.itemCount}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  playlist?.title ?? '',
+                                  maxLines: 2,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
                                 ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.music_note_rounded,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                              Text(
+                                playlist!.itemCount ?? '',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Positioned(
-                    right: 16,
-                    bottom: 16,
-                    child: Row(
-                      children: [
-                        FloatingActionButton.small(
-                            heroTag: "add_playlist_to_queue_${playlist!.id}",
-                            backgroundColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                            onPressed: () {
-                              miniplayerCubit.addAllToQueue(playlist!.videos!);
-                            },
-                            child: const Icon(Icons.queue_music)),
-                        FloatingActionButton.small(
-                            heroTag: "play_playlist_${playlist!.id}",
-                            backgroundColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                            onPressed:
-                                playlistState.status == PlaylistStatus.loaded
-                                    ? () {
-                                        miniplayerCubit.startPlayingPlaylist(
-                                            playlist!.videos!);
-                                      }
-                                    : null,
-                            child: const Icon(Icons.playlist_play)),
-                      ],
-                    ))
-              ],
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+            FloatingActionButton.small(
+                elevation: 0,
+                heroTag: "play_playlist_${playlist!.id}",
+                backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                onPressed: playlistState.status == PlaylistStatus.loaded
+                    ? () {
+                        miniplayerCubit.startPlayingPlaylist(playlist!.videos!);
+                      }
+                    : null,
+                child: const Icon(Icons.playlist_play)),
+          ],
         ),
         if (playlist!.description != null) ...[
           const SizedBox(height: 8),

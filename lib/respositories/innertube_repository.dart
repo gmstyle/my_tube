@@ -86,7 +86,7 @@ class InnertubeRepository {
       description: playlist.description,
       thumbnailUrl: playlist.thumbnails?.last.url,
       base64Thumbnail: base64thumbnail,
-      itemCount: int.tryParse(playlist.videoCount ?? '0'),
+      itemCount: playlist.videoCount,
       videos: await Future.wait(videos),
     );
   }

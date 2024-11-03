@@ -33,10 +33,12 @@ class ChannelHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               channel!.title ?? '',
               textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
@@ -45,6 +47,7 @@ class ChannelHeader extends StatelessWidget {
             if (channel!.channelHandleText != null)
               Text(
                 '${channel!.channelHandleText}',
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,

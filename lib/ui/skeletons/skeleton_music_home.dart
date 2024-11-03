@@ -85,7 +85,7 @@ class SkeletonMusicHhome extends StatelessWidget {
                     description: BoneMock.paragraph,
                     thumbnailUrl: null,
                     base64Thumbnail: null,
-                    itemCount: 10,
+                    itemCount: '10',
                     videos: null)),
             channels: null,
           ),
