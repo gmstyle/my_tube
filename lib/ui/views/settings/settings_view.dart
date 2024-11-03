@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/settings/cubit/settings_cubit.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
-import 'package:my_tube/ui/views/video/video_view.dart';
 import 'package:my_tube/utils/constants.dart';
 
 class SettingsView extends StatelessWidget {
