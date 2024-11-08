@@ -125,7 +125,8 @@ class DownloadService {
     BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
     final yt = YoutubeExplode();
 
-    final manifest = await yt.videos.streamsClient.getManifest(videoId);
+    final manifest = await yt.videos.streamsClient
+        .getManifest(videoId, ytClients: [YoutubeApiClient.androidVr]);
     StreamInfo? streamInfo;
     String fileExtension;
     if (isAudioOnly) {
