@@ -97,8 +97,8 @@ class VideoPhoneScreen extends StatelessWidget {
                           title: 'Description',
                           text: mediaItem?.extras!['description'] ?? '',
                         ),
-                      const SizedBox(
-                        height: 8,
+                      SizedBox(
+                        height: MediaQuery.sizeOf(context).height * 0.08,
                       ),
                     ],
                   ),

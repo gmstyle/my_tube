@@ -68,7 +68,10 @@ class MusicTabView extends StatelessWidget {
                             ],
                           ),
                         ],
-                      )
+                      ),
+                    const SizedBox(
+                      height: 80,
+                    ),
                   ],
                 ),
               ));
