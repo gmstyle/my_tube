@@ -81,5 +81,9 @@
         android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/file_paths"/>
     </provider>
+    <!--Android Auto support-->
+    <meta-data
+        android:name="com.google.android.gms.car.application"
+        android:resource="@xml/automotive_app_desc" />
     </application>
 </manifest>
