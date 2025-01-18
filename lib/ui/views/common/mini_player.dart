@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -65,7 +65,7 @@ class MiniPlayer extends StatelessWidget {
                       child: Row(
                         children: [
                           // Video
-                          /* ConstrainedBox(
+                          ConstrainedBox(
                             constraints: const BoxConstraints(
                                 maxHeight: 80, maxWidth: 80),
                             child: Hero(
@@ -83,9 +83,9 @@ class MiniPlayer extends StatelessWidget {
                                     ))),
                               ),
                             ),
-                          ), */
+                          ),
                           // Image
-                          StreamBuilder(
+                          /* StreamBuilder(
                               stream: playerCubit.mtPlayerService.mediaItem,
                               builder: (context, snapshot) {
                                 final mediaItem = snapshot.data;
@@ -97,7 +97,43 @@ class MiniPlayer extends StatelessWidget {
                                         ? CachedNetworkImage(
                                             height: 80,
                                             width: 80,
-                                            fit: BoxFit.cover,
+                                  ConstrainedBox(
+                            constraints: const BoxConstraints(
+                                maxHeight: 80, maxWidth: 80),
+                            child: Hero(
+                              tag: 'video_image_or_player',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: AspectRatio(
+                                    aspectRatio: _setAspectRatio(
+                                        playerCubit.mtPlayerService),
+                                    child: Chewie(
+                                        controller: playerCubit
+                                  ConstrainedBox(
+                            constraints: const BoxConstraints(
+                                maxHeight: 80, maxWidth: 80),
+                            child: Hero(
+                              tag: 'video_image_or_player',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: AspectRatio(
+                                    aspectRatio: _setAspectRatio(
+                                        playerCubit.mtPlayerService),
+                                    child: Chewie(
+                                        controller: playerCubit
+                                            .mtPlayerService.chewieController!
+                                            .copyWith(
+                                      showControls: false,
+                                    ))),
+                              ),
+                            ),
+                          ),          .mtPlayerService.chewieController!
+                                            .copyWith(
+                                      showControls: false,
+                                    ))),
+                              ),
+                            ),
+                          ),          fit: BoxFit.cover,
                                             imageUrl:
                                                 mediaItem!.artUri.toString(),
                                           )
@@ -107,7 +143,7 @@ class MiniPlayer extends StatelessWidget {
                                           ),
                                   ),
                                 );
-                              }),
+                              }), */
                           const SizedBox(width: 8),
                           Expanded(
                             child: Wrap(
