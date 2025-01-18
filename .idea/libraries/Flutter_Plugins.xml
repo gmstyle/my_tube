@@ -4,19 +4,13 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sensors_plus-4.0.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.2.8" />
       <root url="file://$USER_HOME$/.pub-cache/git/autorotation_check-b728e3ce3dd9a42fb76a215a47bae428b462735a" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service-0.18.15" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/disable_battery_optimization-1.1.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service_web-0.1.3" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler-11.3.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.1.21" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler_html-0.1.3+2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player-2.9.2" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.6.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_android-2.4.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.12" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file_ios-1.0.3" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-5.0.0" />
@@ -29,10 +23,16 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file_windows-0.0.3" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.4.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_darwin-2.4.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-8.1.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-11.1.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file-3.5.10" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider-2.1.5" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.1.23" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.6.5" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_service-0.18.16" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler_html-0.1.3+5" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-8.1.2" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-11.2.0" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
