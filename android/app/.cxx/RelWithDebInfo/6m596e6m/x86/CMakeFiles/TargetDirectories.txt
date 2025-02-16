@@ -1,0 +1,2 @@
+/home/gmstyle/VisualStudioCodeProjects/my_tube/android/app/.cxx/RelWithDebInfo/6m596e6m/x86/CMakeFiles/edit_cache.dir
+/home/gmstyle/VisualStudioCodeProjects/my_tube/android/app/.cxx/RelWithDebInfo/6m596e6m/x86/CMakeFiles/rebuild_cache.dir
