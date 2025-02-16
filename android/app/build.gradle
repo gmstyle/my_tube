@@ -30,9 +30,9 @@ def keystoreProperties = new Properties()
 
 android {
     namespace "it.gmstyle.my_tube"
-    compileSdkVersion 34
-    //ndkVersion flutter.ndkVersion
-    ndkVersion = "25.1.8937393"
+    compileSdkVersion 35
+    ndkVersion flutter.ndkVersion
+    //ndkVersion = "25.1.8937393"
 
     compileOptions {
         // Required by flutter_local_notifications

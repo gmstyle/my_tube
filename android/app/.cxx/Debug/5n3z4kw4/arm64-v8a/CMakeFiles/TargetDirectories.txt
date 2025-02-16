@@ -1,0 +1,2 @@
+/home/gmstyle/VisualStudioCodeProjects/my_tube/android/app/.cxx/Debug/5n3z4kw4/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/gmstyle/VisualStudioCodeProjects/my_tube/android/app/.cxx/Debug/5n3z4kw4/arm64-v8a/CMakeFiles/rebuild_cache.dir

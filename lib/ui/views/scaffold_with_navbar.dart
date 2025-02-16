@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,10 +43,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   Future<void> disableBatteryOptimization() async {
     try {
-      final isDisabled =
-          await DisableBatteryOptimization.isAllBatteryOptimizationDisabled;
+      final isDisabled = await DisableBatteryOptimizationLatest
+          .isAllBatteryOptimizationDisabled;
       if (isDisabled == false) {
-        await DisableBatteryOptimization
+        await DisableBatteryOptimizationLatest
             .showDisableBatteryOptimizationSettings();
       }
     } catch (e) {
