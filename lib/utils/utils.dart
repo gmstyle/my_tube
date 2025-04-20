@@ -55,19 +55,19 @@ class Utils {
       return '--:--';
     }
 
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
     final hours = duration.inHours;
 
     final minutesStr = minutes.toString().padLeft(2, '0');
     final secondsStr = seconds.toString().padLeft(2, '0');
-    final hoursStr = hours.toString().padLeft(2, '0');
+    final hoursStr = hours.toString().padLeft(1, '0');
 
-    if (hours == 0) {
-      return '$minutesStr:$secondsStr';
+    if (hours > 0) {
+      return '$hoursStr:$minutesStr:$secondsStr';
     }
 
-    return '$hoursStr:$minutesStr:$secondsStr';
+    return '$minutesStr:$secondsStr';
   }
 
   static Locale getLocaleFromCountryCode(String countryCode) {
