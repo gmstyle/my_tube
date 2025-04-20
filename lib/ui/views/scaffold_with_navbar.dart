@@ -21,10 +21,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       icon: Icon(Icons.explore),
       label: 'Explore',
     ),
-    NavigationDestination(
+    /*NavigationDestination(
       icon: Icon(Icons.music_note),
       label: 'Music',
-    ),
+    ),*/
     NavigationDestination(
       icon: Icon(Icons.favorite),
       label: 'Favorites',

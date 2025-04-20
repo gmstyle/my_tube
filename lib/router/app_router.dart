@@ -13,7 +13,7 @@ import 'package:my_tube/router/pages/video_page.dart';
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final exploreKey = GlobalKey<NavigatorState>();
-  static final musicKey = GlobalKey<NavigatorState>();
+  //static final musicKey = GlobalKey<NavigatorState>();
   static final searchKey = GlobalKey<NavigatorState>();
   static final favoritesKey = GlobalKey<NavigatorState>();
 
@@ -46,12 +46,12 @@ class AppRouter {
           ]),
 
           // Tab Music
-          StatefulShellBranch(navigatorKey: musicKey, routes: [
+          /*StatefulShellBranch(navigatorKey: musicKey, routes: [
             GoRoute(
                 name: AppRoute.music.name,
                 path: AppRoute.music.path,
                 pageBuilder: (context, state) => const MusicTabPAge())
-          ]),
+          ]),*/
 
           // Tab Favorites
           StatefulShellBranch(navigatorKey: favoritesKey, routes: [
