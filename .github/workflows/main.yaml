@@ -15,6 +15,7 @@ permissions:
 jobs:
   build_and_release:
     runs-on: ubuntu-latest # Useremo un runner Linux per il build Android
+    environment: production # Usa l'environment production per i secrets
 
     steps:
       - name: Checkout Repository
@@ -32,6 +33,19 @@ jobs:
 
       - name: Get Dependencies
         run: flutter pub get
+
+      - name: Setup Android Keystore for Release
+        # Questo step configura il keystore per la firma di release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # Crea il file keystore dal secret base64
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+          
+          # Crea il file key.properties con i dati dal secret
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
 
       - name: Analyze Code
         run: flutter analyze
@@ -74,13 +88,20 @@ jobs:
             --build-name=${{ steps.get_version.outputs.APP_VERSION }} \
             --build-number=${{ steps.get_version.outputs.BUILD_NUMBER }}
 
+      - name: Rename APK with version
+        # Rinomina l'APK includendo la versione nel nome del file
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.APP_VERSION }}.apk
+
       - name: Upload Android APK as Artifact
         # Questo step viene eseguito solo quando si fa un push sul branch 'main'
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: app-release-${{ steps.get_version.outputs.APP_VERSION }}-apk
+          path: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.APP_VERSION }}.apk
 
       - name: Create Git Tag and GitHub Release
         # Questo step viene eseguito solo quando si fa un push sul branch 'main'
@@ -100,6 +121,6 @@ jobs:
             Download l'APK qui sotto.
           draft: false # Metti a true se vuoi che la release sia una bozza all'inizio
           prerelease: false # Metti a true se è una pre-release (es. beta)
-          files: build/app/outputs/flutter-apk/app-release.apk # Allega l'APK alla release
+          files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.APP_VERSION }}.apk # Allega l'APK alla release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Necessario per creare la release
