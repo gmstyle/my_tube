@@ -72,7 +72,9 @@ dependencies:
 dependency_overrides:
   # Uso la versione 2.7.1 di video_player_android come workaround per il bug di riproduzione in backround.
   # v2.7.12 non funziona ancora causa bug https://github.com/flutter/flutter/issues/156488
-  video_player_android: 2.7.1
+  #video_player_android: 2.7.1
+  video_player_android:
+    path: video_player_android-2.7.1
 
 dev_dependencies:
   flutter_test:
