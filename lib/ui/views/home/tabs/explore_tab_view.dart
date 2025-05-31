@@ -8,7 +8,7 @@ import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
-enum CategoryEnum { Now, Music, Film, Gaming }
+enum CategoryEnum { now, music, film, gaming }
 
 class ExploreTabView extends StatefulWidget {
   const ExploreTabView({super.key});
@@ -25,7 +25,7 @@ class _ExploreTabViewState extends State<ExploreTabView> {
     Icons.videogame_asset
   ];
 
-  CategoryEnum _selectedCategory = CategoryEnum.Now;
+  CategoryEnum _selectedCategory = CategoryEnum.now;
 
   @override
   Widget build(BuildContext context) {
