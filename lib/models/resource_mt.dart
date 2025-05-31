@@ -45,6 +45,7 @@ class ResponseMT extends Equatable {
 }
 
 @HiveType(typeId: 1)
+// ignore: must_be_immutable
 class ResourceMT extends Equatable with HiveObjectMixin {
   @HiveField(0)
   final String? id;

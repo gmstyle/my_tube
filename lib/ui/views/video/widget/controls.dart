@@ -32,7 +32,7 @@ class Controls extends StatelessWidget {
                         : Theme.of(context)
                             .colorScheme
                             .onPrimary
-                            .withOpacity(0.5),
+                            .withValues(alpha: 0.5),
                   ),
                   onPressed: () async {
                     await mtPlayerService.setShuffleMode(shuffleEnabled
@@ -152,7 +152,7 @@ class Controls extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .onPrimary
-                          .withOpacity(0.5)),
+                          .withValues(alpha: 0.5)),
                 ];
                 const cycleModes = [
                   AudioServiceRepeatMode.all,

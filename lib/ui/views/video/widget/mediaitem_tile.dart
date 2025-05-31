@@ -22,7 +22,7 @@ class MediaitemTile extends StatelessWidget {
         direction: DismissDirection.startToEnd,
         onDismissed: (direction) {
           playerCubit.removeFromQueue(mediaItem.id).then((value) {
-            if (value == false) {
+            if (value == false && context.mounted) {
               context.pop();
             }
           });
@@ -61,8 +61,8 @@ class MediaitemTile extends StatelessWidget {
                                 gradient: LinearGradient(
                                   colors: [
                                     Colors.transparent,
-                                    Colors.black.withOpacity(0.3),
-                                    Colors.black.withOpacity(0.5),
+                                    Colors.black.withValues(alpha: 0.3),
+                                    Colors.black.withValues(alpha: 0.5),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,

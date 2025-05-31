@@ -146,7 +146,7 @@ class VideoTabletScreen extends StatelessWidget {
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onPrimary
-                                    .withOpacity(0.5)),
+                                    .withValues(alpha: 0.5)),
                           ];
                           const cycleModes = [
                             AudioServiceRepeatMode.all,

@@ -67,7 +67,7 @@ class SearchView extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primaryContainer
-                            .withOpacity(0.8),
+                            .withValues(alpha: 0.8),
                         clipBehavior: Clip.antiAlias,
                         shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(

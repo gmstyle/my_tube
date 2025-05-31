@@ -38,7 +38,7 @@ class SettingsView extends StatelessWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSecondary
-                                .withOpacity(0.6))),
+                                .withValues(alpha: 0.6))),
                     trailing: Text(country,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary)),

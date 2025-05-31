@@ -53,7 +53,7 @@ class ClearQueueButton extends StatelessWidget {
                     )),
               ],
             )).then((value) => {
-          if (value == true)
+          if (value == true && context.mounted)
             {playerCubit.stopPlayingAndClearQueue(), context.pop()}
         });
   }

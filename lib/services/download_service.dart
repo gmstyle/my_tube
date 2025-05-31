@@ -74,9 +74,10 @@ class DownloadService {
       }
     });
 
-    //_showSnackbar(receivePort, context, destinationDir ?? videos.first.title!);
-    _showNotification(receivePort, context,
-        destinationDir ?? videos.first.title!, destinationDir);
+    if (context.mounted) {
+      _showNotification(receivePort, context,
+          destinationDir ?? videos.first.title!, destinationDir);
+    }
   }
 
   void _downloadFilesIsolate(Map<String, dynamic> args) async {

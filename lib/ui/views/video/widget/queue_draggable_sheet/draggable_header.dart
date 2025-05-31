@@ -24,7 +24,7 @@ class DraggableHeader extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(2)),
               ),
             ],
@@ -42,7 +42,10 @@ class DraggableHeader extends StatelessWidget {
             },
             child: Icon(
               Icons.queue_music,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.5),
             ),
           )
         ]),

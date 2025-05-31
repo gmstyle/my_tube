@@ -10,9 +10,14 @@ import 'package:my_tube/ui/views/common/video_tile.dart';
 
 enum CategoryEnum { Now, Music, Film, Gaming }
 
-class ExploreTabView extends StatelessWidget {
-  ExploreTabView({super.key});
+class ExploreTabView extends StatefulWidget {
+  const ExploreTabView({super.key});
 
+  @override
+  State<ExploreTabView> createState() => _ExploreTabViewState();
+}
+
+class _ExploreTabViewState extends State<ExploreTabView> {
   final icons = const [
     Icons.whatshot,
     Icons.music_note,
@@ -29,20 +34,18 @@ class ExploreTabView extends StatelessWidget {
 
     return Column(
       children: [
-        StatefulBuilder(builder: (context, setState) {
-          return SingleSelectionButtons(
-            items: CategoryEnum.values,
-            icons: icons,
-            onSelected: (selectedIndex, selectedValue) {
-              if (_selectedCategory != selectedValue) {
-                setState(() {
-                  _selectedCategory = selectedValue;
-                });
-                exploreTabBloc.add(GetTrendingVideos(category: _getCategory()));
-              }
-            },
-          );
-        }),
+        SingleSelectionButtons(
+          items: CategoryEnum.values,
+          icons: icons,
+          onSelected: (selectedIndex, selectedValue) {
+            if (_selectedCategory != selectedValue) {
+              setState(() {
+                _selectedCategory = selectedValue;
+              });
+              exploreTabBloc.add(GetTrendingVideos(category: _getCategory()));
+            }
+          },
+        ),
         const SizedBox(height: 8),
         Expanded(
           child: BlocBuilder<ExploreTabBloc, ExploreTabState>(

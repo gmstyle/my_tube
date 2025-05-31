@@ -40,8 +40,8 @@ class PlaylistTile extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.4),
-                        Colors.black.withOpacity(0.9),
+                        Colors.black.withValues(alpha: 0.4),
+                        Colors.black.withValues(alpha: 0.9),
                       ],
                       begin: Alignment.centerRight,
                       end: Alignment.centerLeft,
@@ -137,8 +137,8 @@ class PlaylistTile extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.4),
-                            Colors.black.withOpacity(0.9),
+                            Colors.black.withValues(alpha:0.4),
+                            Colors.black.withValues(alpha:0.9),
                           ],
                           begin: Alignment.centerRight,
                           end: Alignment.centerLeft,

@@ -42,7 +42,7 @@ class VideoGridItem extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                     begin: Alignment.centerRight,
                     end: Alignment.centerLeft,
@@ -107,8 +107,8 @@ class VideoGridItem extends StatelessWidget {
                             gradient: LinearGradient(
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.4),
-                                Colors.black.withOpacity(0.6),
+                                Colors.black.withValues(alpha: 0.4),
+                                Colors.black.withValues(alpha: 0.6),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,

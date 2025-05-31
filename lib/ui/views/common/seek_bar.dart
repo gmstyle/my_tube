@@ -56,11 +56,11 @@ class SeekBar extends StatelessWidget {
                               ? Theme.of(context)
                                   .colorScheme
                                   .onPrimary
-                                  .withOpacity(0.3)
+                                  .withValues(alpha: 0.3)
                               : Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                           thumbColor: darkBackground
                               ? Theme.of(context).colorScheme.onPrimary
                               : Theme.of(context).colorScheme.primary,
@@ -68,11 +68,11 @@ class SeekBar extends StatelessWidget {
                               ? Theme.of(context)
                                   .colorScheme
                                   .onPrimary
-                                  .withOpacity(0.3)
+                                  .withValues(alpha: 0.3)
                               : Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                           trackHeight: 4,
                           thumbShape: const RoundSliderThumbShape(
                               enabledThumbRadius: 5),
