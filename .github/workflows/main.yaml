@@ -1,0 +1,105 @@
+name: Flutter Android Build and Release
+
+on:
+  push:
+    branches:
+      - main # Esegui questo workflow quando si fa un push su 'main'
+  pull_request:
+    branches:
+      - main # Esegui questo workflow quando si apre una PR su 'main'
+    types: [opened, synchronize, reopened] # Per attivare su apertura, aggiornamento o riapertura PR
+
+permissions:
+  contents: write # Questo darà al GITHUB_TOKEN i permessi di scrittura sui contenuti del repository, inclusi release e tag.
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest # Useremo un runner Linux per il build Android
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # Questo è importante per creare tag e release!
+          # Richiede un token con permessi di scrittura sui contenuti del repository.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          #flutter-version: '3.19.6' # Sostituisci con la versione specifica di Flutter che usi (es. 3.19.6, 3.22.0, etc.)
+          channel: stable # o beta/master se usi un canale diverso
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Analyze Code
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Get App Version
+        id: get_version
+        run: |
+          # Estrai la versione dal pubspec.yaml
+          # Esempio: version: 1.0.0+1
+          # Otteniamo "1.0.0" come APP_VERSION e "1" come BUILD_NUMBER (se presente)
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          APP_VERSION=$(echo $VERSION | cut -d'+' -f1)
+          BUILD_NUMBER=$(echo $VERSION | cut -d'+' -f2)
+
+          if [ -z "$BUILD_NUMBER" ]; then
+            BUILD_NUMBER="0" # Valore di default se non c'è build number
+          fi
+
+          # Incrementa automaticamente il BUILD_NUMBER per il tag e la release
+          # Ogni volta che questo workflow viene eseguito sul branch main, il build_number aumenterà
+          # Questo implica che il pubspec.yaml *non* rifletterà questo incremento
+          # Se vuoi che il pubspec.yaml rifletta l'incremento, avresti bisogno di un'azione
+          # che modifichi il file, ma questo complica un po' le cose.
+          # Per una release esterna, è più pratico aggiornare manualmente la versione nel pubspec.yaml
+          # prima del push finale, o usare un approccio più sofisticato per la gestione delle versioni.
+
+          # Per ora, usiamo la versione dal pubspec.yaml
+          echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_OUTPUT"
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Build Android Release APK
+        # Questo step viene eseguito solo quando si fa un push sul branch 'main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          flutter build apk --release \
+            --build-name=${{ steps.get_version.outputs.APP_VERSION }} \
+            --build-number=${{ steps.get_version.outputs.BUILD_NUMBER }}
+
+      - name: Upload Android APK as Artifact
+        # Questo step viene eseguito solo quando si fa un push sul branch 'main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Create Git Tag and GitHub Release
+        # Questo step viene eseguito solo quando si fa un push sul branch 'main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          # Il tag sarà v<versione_app> (es. v1.0.0)
+          tag_name: v${{ steps.get_version.outputs.APP_VERSION }}+${{ steps.get_version.outputs.BUILD_NUMBER }}
+          name: Release v${{ steps.get_version.outputs.APP_VERSION }} (${{ steps.get_version.outputs.BUILD_NUMBER }})
+          body: |
+            ## Release v${{ steps.get_version.outputs.APP_VERSION }} (${{ steps.get_version.outputs.BUILD_NUMBER }})
+            Questa è la versione ufficiale di My Tube
+
+            Versione: ${{ steps.get_version.outputs.APP_VERSION }}
+            Build: ${{ steps.get_version.outputs.BUILD_NUMBER }}
+
+            Download l'APK qui sotto.
+          draft: false # Metti a true se vuoi che la release sia una bozza all'inizio
+          prerelease: false # Metti a true se è una pre-release (es. beta)
+          files: build/app/outputs/flutter-apk/app-release.apk # Allega l'APK alla release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Necessario per creare la release
