@@ -34,7 +34,7 @@ class UpdateProvider {
     }
 
     final url =
-        'https://github.com/gmstyle/my_tube/releases/download/$releaseVersion/app-release-$cleanVersion.apk';
+        'https://github.com/gmstyle/my_tube/releases/download/$cleanVersion/app-release-$cleanVersion.apk';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
