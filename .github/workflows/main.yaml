@@ -67,18 +67,66 @@ jobs:
             BUILD_NUMBER="0" # Valore di default se non c'è build number
           fi
 
-          # Incrementa automaticamente il BUILD_NUMBER per il tag e la release
-          # Ogni volta che questo workflow viene eseguito sul branch main, il build_number aumenterà
-          # Questo implica che il pubspec.yaml *non* rifletterà questo incremento
-          # Se vuoi che il pubspec.yaml rifletta l'incremento, avresti bisogno di un'azione
-          # che modifichi il file, ma questo complica un po' le cose.
-          # Per una release esterna, è più pratico aggiornare manualmente la versione nel pubspec.yaml
-          # prima del push finale, o usare un approccio più sofisticato per la gestione delle versioni.
-
           # Per ora, usiamo la versione dal pubspec.yaml
           echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_OUTPUT"
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
         shell: bash
+
+      - name: Generate Release Notes
+        id: release_notes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          # Ottieni l'ultimo tag di release per confrontare le modifiche
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$LAST_TAG" ]; then
+            # Se non ci sono tag precedenti, prendi tutti i commit dell'ultimo mese
+            COMMITS=$(git log --since="1 month ago" --pretty=format:"- %s (%an)" --no-merges)
+            echo "CHANGELOG<<EOF" >> "$GITHUB_OUTPUT"
+            echo "## 🎉 Prima Release" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+            echo "### 📝 Commit principali:" >> "$GITHUB_OUTPUT"
+            echo "$COMMITS" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            # Ottieni i commit dal last tag ad ora
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%an)" --no-merges)
+            
+            # Separa i commit per tipo
+            FEATURES=$(echo "$COMMITS" | grep -i "feat\|add\|new" || echo "")
+            FIXES=$(echo "$COMMITS" | grep -i "fix\|bug\|patch" || echo "")
+            IMPROVEMENTS=$(echo "$COMMITS" | grep -i "improve\|update\|enhance\|refactor" || echo "")
+            OTHERS=$(echo "$COMMITS" | grep -v -i "feat\|add\|new\|fix\|bug\|patch\|improve\|update\|enhance\|refactor" || echo "")
+            
+            echo "CHANGELOG<<EOF" >> "$GITHUB_OUTPUT"
+            echo "## 🚀 Cosa c'è di nuovo" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+            
+            if [ ! -z "$FEATURES" ]; then
+              echo "### ✨ Nuove Funzionalità" >> "$GITHUB_OUTPUT"
+              echo "$FEATURES" >> "$GITHUB_OUTPUT"
+              echo "" >> "$GITHUB_OUTPUT"
+            fi
+            
+            if [ ! -z "$FIXES" ]; then
+              echo "### 🐛 Bug Fix" >> "$GITHUB_OUTPUT"
+              echo "$FIXES" >> "$GITHUB_OUTPUT"
+              echo "" >> "$GITHUB_OUTPUT"
+            fi
+            
+            if [ ! -z "$IMPROVEMENTS" ]; then
+              echo "### 🔧 Miglioramenti" >> "$GITHUB_OUTPUT"
+              echo "$IMPROVEMENTS" >> "$GITHUB_OUTPUT"
+              echo "" >> "$GITHUB_OUTPUT"
+            fi
+            
+            if [ ! -z "$OTHERS" ]; then
+              echo "### 📝 Altri Cambiamenti" >> "$GITHUB_OUTPUT"
+              echo "$OTHERS" >> "$GITHUB_OUTPUT"
+              echo "" >> "$GITHUB_OUTPUT"
+            fi
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build Android Release APK
         # Questo step viene eseguito solo quando si fa un push sul branch 'main'
@@ -112,13 +160,28 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.APP_VERSION }}+${{ steps.get_version.outputs.BUILD_NUMBER }}
           name: Release v${{ steps.get_version.outputs.APP_VERSION }} (${{ steps.get_version.outputs.BUILD_NUMBER }})
           body: |
-            ## Release v${{ steps.get_version.outputs.APP_VERSION }} (${{ steps.get_version.outputs.BUILD_NUMBER }})
-            Questa è la versione ufficiale di My Tube
-
-            Versione: ${{ steps.get_version.outputs.APP_VERSION }}
-            Build: ${{ steps.get_version.outputs.BUILD_NUMBER }}
-
-            Download l'APK qui sotto.
+            # My Tube v${{ steps.get_version.outputs.APP_VERSION }}
+            
+            **Versione:** ${{ steps.get_version.outputs.APP_VERSION }}  
+            **Build:** ${{ steps.get_version.outputs.BUILD_NUMBER }}  
+            **Data:** ${{ github.event.head_commit.timestamp }}
+            
+            ---
+            
+            ${{ steps.release_notes.outputs.CHANGELOG }}
+            
+            ---
+            
+            ## 📱 Download
+            Scarica l'APK qui sotto per installare My Tube sul tuo dispositivo Android.
+            
+            ## 🔧 Installazione
+            1. Scarica il file APK
+            2. Abilita "Sorgenti sconosciute" nelle impostazioni Android
+            3. Installa l'APK
+            
+            ## 🐛 Bug Report
+            Se riscontri problemi, apri una [issue](https://github.com/${{ github.repository }}/issues) su GitHub.
           draft: false # Metti a true se vuoi che la release sia una bozza all'inizio
           prerelease: false # Metti a true se è una pre-release (es. beta)
           files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.APP_VERSION }}.apk # Allega l'APK alla release

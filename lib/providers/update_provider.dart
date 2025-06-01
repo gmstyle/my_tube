@@ -19,8 +19,22 @@ class UpdateProvider {
   }
 
   Future<Uint8List> downloadLatestRelease(String releaseVersion) async {
+    // Estrai solo la versione dal tag (rimuovi 'v' e build number se presenti)
+    // Esempi: "v1.5.7+1" -> "1.5.7", "1.5.6" -> "1.5.6"
+    String cleanVersion = releaseVersion;
+
+    // Rimuovi il prefisso 'v' se presente
+    if (cleanVersion.startsWith('v')) {
+      cleanVersion = cleanVersion.substring(1);
+    }
+
+    // Rimuovi il build number se presente (tutto dopo il '+')
+    if (cleanVersion.contains('+')) {
+      cleanVersion = cleanVersion.split('+')[0];
+    }
+
     final url =
-        'https://github.com/gmstyle/my_tube/releases/download/$releaseVersion/app-release-$releaseVersion.apk';
+        'https://github.com/gmstyle/my_tube/releases/download/$releaseVersion/app-release-$cleanVersion.apk';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
