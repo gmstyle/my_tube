@@ -20,10 +20,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       icon: Icon(Icons.explore),
       label: 'Explore',
     ),
-    /*NavigationDestination(
-      icon: Icon(Icons.music_note),
-      label: 'Music',
-    ),*/
     NavigationDestination(
       icon: Icon(Icons.favorite),
       label: 'Favorites',
@@ -40,10 +36,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       icon: Icon(Icons.explore),
       label: Text('Explore'),
     ),
-    /*NavigationRailDestination(
-      icon: Icon(Icons.music_note),
-      label: Text('Music'),
-    ),*/
     NavigationRailDestination(
       icon: Icon(Icons.favorite),
       label: Text('Favorites'),
@@ -75,7 +67,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Spostare la chiamata a disableBatteryOptimization in un metodo di inizializzazione
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await disableBatteryOptimization();
     });
@@ -83,7 +74,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     return BlocListener<UpdateBloc, UpdateState>(
       listener: (context, state) {
         if (state.status == UpdateStatus.updateAvailable) {
-          // Show update dialog
           showDialog(
               context: context,
               builder: (context) {
@@ -95,7 +85,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // Use NavigationRail for larger screens (tablets/desktop)
               final bool useNavigationRail = constraints.maxWidth >= 640;
 
               if (useNavigationRail) {
@@ -110,7 +99,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     );
   }
 
-  // Layout for larger screens with NavigationRail
   Widget _buildNavigationRailLayout(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(
@@ -124,7 +112,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       backgroundColor: Colors.transparent,
       body: Row(
         children: [
-          // NavigationRail
           NavigationRail(
             selectedIndex: navigationShell.currentIndex,
             onDestinationSelected: onDestinationSelected,
@@ -152,7 +139,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             ),
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          // Main content
           Expanded(
             child: MainGradient(
               child: Stack(
@@ -176,7 +162,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     );
   }
 
-  // Layout for smaller screens with NavigationBar
   Widget _buildNavigationBarLayout(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(

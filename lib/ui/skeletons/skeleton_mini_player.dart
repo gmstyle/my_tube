@@ -12,7 +12,7 @@ class SkeletonMiniPlayer extends StatelessWidget {
         borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(10), topRight: Radius.circular(10)),
         child: Container(
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
           height: 80,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Skeletonizer(

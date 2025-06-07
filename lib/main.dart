@@ -12,7 +12,9 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
+import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/providers/innertube_provider.dart';
 import 'package:my_tube/providers/update_provider.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
@@ -99,6 +101,7 @@ void main() async {
                 updateProvider: context.read<UpdateProvider>())),
       ],
       child: MultiBlocProvider(providers: [
+        BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()..init()),
         BlocProvider<SearchBloc>(
             create: (context) => SearchBloc(
                 innertubeRepository: context.read<InnertubeRepository>())),
@@ -148,15 +151,18 @@ class MyApp extends StatelessWidget {
       context.read<UpdateBloc>().add(const CheckForUpdate());
     });
 
-    const mainColor = Color.fromARGB(255, 66, 24, 150);
+    return BlocBuilder<ThemeCubit, ThemeSettings>(
+      builder: (context, themeSettings) {
+        final themeCubit = context.read<ThemeCubit>();
 
-    return MaterialApp.router(
-      title: 'My Tube',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: mainColor),
-        useMaterial3: true,
-      ),
-      routerConfig: router,
+        return MaterialApp.router(
+          title: 'My Tube',
+          theme: themeCubit.lightTheme,
+          darkTheme: themeCubit.darkTheme,
+          themeMode: themeCubit.flutterThemeMode,
+          routerConfig: router,
+        );
+      },
     );
   }
 }

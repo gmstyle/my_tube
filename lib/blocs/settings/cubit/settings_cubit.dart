@@ -1,22 +1,72 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart' as flutter_material;
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_tube/models/theme_settings.dart';
 
-class SettingsCubit extends Cubit<dynamic> {
-  SettingsCubit() : super(null);
+class SettingsState {
+  final String country;
+  final ThemeSettings themeSettings;
+
+  const SettingsState({
+    required this.country,
+    required this.themeSettings,
+  });
+
+  SettingsState copyWith({
+    String? country,
+    ThemeSettings? themeSettings,
+  }) {
+    return SettingsState(
+      country: country ?? this.country,
+      themeSettings: themeSettings ?? this.themeSettings,
+    );
+  }
+}
+
+class SettingsCubit extends Cubit<SettingsState> {
+  SettingsCubit()
+      : super(const SettingsState(
+          country: 'US',
+          themeSettings: ThemeSettings(),
+        ));
 
   final settingsBox = Hive.box('settings');
 
   void init() {
-    getCountry();
-  }
-
-  void getCountry() {
     final countryCode = settingsBox.get('countryCode', defaultValue: 'US');
-    emit(countryCode);
+    final themeSettingsJson = settingsBox.get('themeSettings');
+
+    final themeSettings = themeSettingsJson != null
+        ? ThemeSettings.fromJson(Map<String, dynamic>.from(themeSettingsJson))
+        : const ThemeSettings();
+
+    emit(SettingsState(
+      country: countryCode,
+      themeSettings: themeSettings,
+    ));
   }
 
   void setCountry(String countryCode) {
     settingsBox.put('countryCode', countryCode);
-    emit(countryCode);
+    emit(state.copyWith(country: countryCode));
+  }
+
+  void setThemeMode(ThemeMode themeMode) {
+    final newThemeSettings = state.themeSettings.copyWith(themeMode: themeMode);
+    settingsBox.put('themeSettings', newThemeSettings.toJson());
+    emit(state.copyWith(themeSettings: newThemeSettings));
+  }
+
+  void setPrimaryColor(flutter_material.Color color) {
+    final newThemeSettings = state.themeSettings.copyWith(primaryColor: color);
+    settingsBox.put('themeSettings', newThemeSettings.toJson());
+    emit(state.copyWith(themeSettings: newThemeSettings));
+  }
+
+  void setEnableGradient(bool enabled) {
+    final newThemeSettings =
+        state.themeSettings.copyWith(enableGradient: enabled);
+    settingsBox.put('themeSettings', newThemeSettings.toJson());
+    emit(state.copyWith(themeSettings: newThemeSettings));
   }
 }
