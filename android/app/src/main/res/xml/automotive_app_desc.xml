@@ -1,3 +1,6 @@
 <automotiveApp>
     <uses name="media" />
+    <!-- Configurazione specifica per compatibilità Android Auto -->
+    <uses name="audio" />
+    <uses name="notification" />
 </automotiveApp>

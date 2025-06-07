@@ -42,12 +42,35 @@ void main() async {
   await Hive.openBox<ResourceMT>('playlists');
   await LocalNotificationHelper.init();
 
-  final mtPlayerService = await AudioService.init(
-      builder: () => MtPlayerService(),
-      config: const AudioServiceConfig(
-          androidNotificationChannelId: 'mytube_channel',
-          androidNotificationChannelName: 'MyTube',
-          androidNotificationOngoing: true));
+  // Inizializza AudioService con gestione degli errori per Android Auto
+  late MtPlayerService mtPlayerService;
+  try {
+    mtPlayerService = await AudioService.init(
+        builder: () => MtPlayerService(),
+        config: const AudioServiceConfig(
+            androidNotificationChannelId: 'mytube_channel',
+            androidNotificationChannelName: 'MyTube',
+            androidNotificationOngoing:
+                false, // Must be false with androidStopForegroundOnPause: false
+            androidStopForegroundOnPause: false, // Importante per Android Auto
+            artDownscaleWidth: 256,
+            artDownscaleHeight: 256,
+            fastForwardInterval: Duration(seconds: 10),
+            rewindInterval: Duration(seconds: 10)));
+
+    // Inizializza il rilevamento di Android Auto dopo l'inizializzazione di AudioService
+    await mtPlayerService.initializeAndroidAutoDetection();
+  } catch (e) {
+    log('Errore durante l\'inizializzazione di AudioService: $e');
+    // Fallback: crea un'istanza diretta se AudioService non si inizializza
+    mtPlayerService = MtPlayerService();
+    // Inizializza Android Auto anche nel fallback
+    try {
+      await mtPlayerService.initializeAndroidAutoDetection();
+    } catch (autoError) {
+      log('Errore durante l\'inizializzazione di Android Auto nel fallback: $autoError');
+    }
+  }
 
   /// Bloc observer
   Bloc.observer = AppBlocObserver();
