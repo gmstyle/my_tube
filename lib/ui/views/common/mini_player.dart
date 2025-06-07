@@ -41,7 +41,8 @@ class MiniPlayer extends StatelessWidget {
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10), topRight: Radius.circular(10)),
             child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
               height: 80,
               child: Center(
                 child: Text(state.message!),
@@ -56,7 +57,10 @@ class MiniPlayer extends StatelessWidget {
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               child: Container(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.8),
                 height: 80,
                 child: HorizontalSwipeToSkip(
                   child: Container(
