@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/utils/utils.dart';
@@ -19,33 +18,35 @@ class PlaylistTile extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                playlist.thumbnailUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: playlist.thumbnailUrl!,
-                        fit: BoxFit.cover,
-                        errorWidget: (context, url, error) {
-                          // show base64 image if error
-                          return Utils.buildImage(
-                              playlist.base64Thumbnail, context);
-                        },
-                      )
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
+                playlist.thumbnailUrl != null ||
+                        playlist.base64Thumbnail != null
+                    ? Utils.buildImageWithFallback(
+                        thumbnailUrl: playlist.thumbnailUrl,
+                        base64Thumbnail: playlist.base64Thumbnail,
+                        context: context,
+                        placeholder: Container(
                           color: Theme.of(context).colorScheme.primaryContainer,
+                          child: Icon(
+                            Icons.playlist_play,
+                            size: 32,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.playlist_play,
+                          size: 32,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                 Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.4),
-                        Colors.black.withValues(alpha: 0.9),
-                      ],
-                      begin: Alignment.centerRight,
-                      end: Alignment.centerLeft,
-                    ),
+                    gradient: Utils.getOverlayGradient(context),
                   ),
                 ),
                 Positioned(

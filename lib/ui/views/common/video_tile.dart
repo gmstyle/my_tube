@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,19 +23,27 @@ class VideoTile extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              video.thumbnailUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: video.thumbnailUrl!,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) {
-                        // show base64 image if error
-                        return Utils.buildImage(video.base64Thumbnail, context);
-                      },
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
+              video.thumbnailUrl != null || video.base64Thumbnail != null
+                  ? Utils.buildImageWithFallback(
+                      thumbnailUrl: video.thumbnailUrl,
+                      base64Thumbnail: video.base64Thumbnail,
+                      context: context,
+                      placeholder: Container(
                         color: Theme.of(context).colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.play_circle_outline,
+                          size: 32,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.play_circle_outline,
+                        size: 32,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
               // overlay gradient per video selected
@@ -51,8 +58,14 @@ class VideoTile extends StatelessWidget {
                             gradient: LinearGradient(
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withValues(alpha: 0.4),
-                                Colors.black.withValues(alpha: 0.6),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .shadow
+                                    .withValues(alpha: 0.4),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .shadow
+                                    .withValues(alpha: 0.6),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,

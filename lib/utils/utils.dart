@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/utils/constants.dart';
@@ -155,5 +156,72 @@ class Utils {
         ),
       );
     }
+  }
+
+  // Helper method for building images with robust fallback
+  static Widget buildImageWithFallback({
+    required String? thumbnailUrl,
+    required String? base64Thumbnail,
+    required BuildContext context,
+    BoxFit fit = BoxFit.cover,
+    Widget? placeholder,
+    bool isCircular = false,
+  }) {
+    // Custom placeholder or default
+    final Widget defaultPlaceholder = placeholder ??
+        Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: Icon(
+            Icons.image,
+            size: 24,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        );
+
+    if (thumbnailUrl != null && thumbnailUrl.isNotEmpty) {
+      return CachedNetworkImage(
+        imageUrl: thumbnailUrl,
+        fit: fit,
+        placeholder: (context, url) => defaultPlaceholder,
+        errorWidget: (context, url, error) {
+          // Fallback to base64 image if network fails
+          return _buildBase64Image(
+              base64Thumbnail, context, fit, defaultPlaceholder);
+        },
+      );
+    } else {
+      // No network URL, try base64
+      return _buildBase64Image(
+          base64Thumbnail, context, fit, defaultPlaceholder);
+    }
+  }
+
+  static Widget _buildBase64Image(
+      String? base64Image, BuildContext context, BoxFit fit, Widget fallback) {
+    if (base64Image != null && base64Image.isNotEmpty) {
+      try {
+        final bytes = base64Decode(base64Image);
+        return Image.memory(
+          bytes,
+          fit: fit,
+        );
+      } catch (e) {
+        return fallback;
+      }
+    }
+    return fallback;
+  }
+
+  // Helper method for themed gradients
+  static LinearGradient getOverlayGradient(BuildContext context) {
+    return LinearGradient(
+      colors: [
+        Colors.transparent,
+        Theme.of(context).colorScheme.shadow.withValues(alpha: 0.4),
+        Theme.of(context).colorScheme.shadow.withValues(alpha: 0.8),
+      ],
+      begin: Alignment.centerRight,
+      end: Alignment.centerLeft,
+    );
   }
 }

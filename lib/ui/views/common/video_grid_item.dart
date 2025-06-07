@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -21,32 +20,32 @@ class VideoGridItem extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              video.thumbnailUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: video.thumbnailUrl!,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) {
-                        return Utils.buildImage(video.base64Thumbnail, context);
-                      },
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
+              video.thumbnailUrl != null || video.base64Thumbnail != null
+                  ? Utils.buildImageWithFallback(
+                      thumbnailUrl: video.thumbnailUrl,
+                      base64Thumbnail: video.base64Thumbnail,
+                      context: context,
+                      placeholder: Container(
                         color: Theme.of(context).colorScheme.primaryContainer,
-                        height: MediaQuery.of(context).size.height * 0.09,
-                        width: MediaQuery.of(context).size.width * 0.2,
+                        child: Icon(
+                          Icons.play_circle_outline,
+                          size: 32,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.play_circle_outline,
+                        size: 32,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
               Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.centerRight,
-                    end: Alignment.centerLeft,
-                  ),
+                  gradient: Utils.getOverlayGradient(context),
                 ),
               ),
               Positioned(
@@ -79,7 +78,7 @@ class VideoGridItem extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            ' ${video.channelTitle ?? ''}',
+                            video.channelTitle ?? '',
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -107,8 +106,14 @@ class VideoGridItem extends StatelessWidget {
                             gradient: LinearGradient(
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withValues(alpha: 0.4),
-                                Colors.black.withValues(alpha: 0.6),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .shadow
+                                    .withValues(alpha: 0.4),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .shadow
+                                    .withValues(alpha: 0.6),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,

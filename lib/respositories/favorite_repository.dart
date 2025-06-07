@@ -85,10 +85,10 @@ class FavoriteRepository {
 
   Future<void> migrateData() async {
     // Migrate favorite playlists with base64 thumbnails if they don't have one
-    final canMigrate = favoritePlaylists.isNotEmpty &&
+    final canMigratePlaylist = favoritePlaylists.isNotEmpty &&
         favoritePlaylists.every((playlist) => playlist.base64Thumbnail == null);
 
-    if (canMigrate) {
+    if (canMigratePlaylist) {
       final updatedPlaylists =
           await Future.wait(favoritePlaylists.map((savedPlaylist) async {
         final newPlaylist = await innertubeRepository
@@ -100,6 +100,43 @@ class FavoriteRepository {
       }));
       await favoritePlaylistsBox.clear();
       await favoritePlaylistsBox.addAll(updatedPlaylists);
+    }
+
+    // Migrate favorite channels with base64 thumbnails if they don't have one
+    final canMigrateChannels = favoriteChannels.isNotEmpty &&
+        favoriteChannels.any((channel) =>
+            channel.base64Thumbnail == null ||
+            channel.base64Thumbnail!.isEmpty);
+
+    if (canMigrateChannels) {
+      final updatedChannels =
+          await Future.wait(favoriteChannels.map((savedChannel) async {
+        try {
+          // Only migrate channels that don't have base64Thumbnail
+          if (savedChannel.base64Thumbnail == null ||
+              savedChannel.base64Thumbnail!.isEmpty) {
+            final channelDetails =
+                await innertubeRepository.getChannel(savedChannel.channelId!);
+
+            // Get the image URL, prioritizing avatarUrl from channel details
+            final imageUrl =
+                channelDetails.avatarUrl ?? savedChannel.thumbnailUrl;
+
+            if (imageUrl != null && imageUrl.isNotEmpty) {
+              var base64thumbnail = await innertubeRepository.innertubeProvider
+                  .getBase64Image(imageUrl);
+
+              return savedChannel.copyWith(base64Thumbnail: base64thumbnail);
+            }
+          }
+          return savedChannel; // Return unchanged if already has base64Thumbnail or no valid URL
+        } catch (e) {
+          // If migration fails for a specific channel, return the original
+          return savedChannel;
+        }
+      }));
+      await favoriteChannelsBox.clear();
+      await favoriteChannelsBox.addAll(updatedChannels);
     }
   }
 }

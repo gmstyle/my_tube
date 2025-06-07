@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class PlaylistGridItem extends StatelessWidget {
   const PlaylistGridItem({super.key, required this.playlist});
@@ -16,22 +16,32 @@ class PlaylistGridItem extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              playlist.thumbnailUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: playlist.thumbnailUrl!,
-                      fit: BoxFit.cover,
+              playlist.thumbnailUrl != null || playlist.base64Thumbnail != null
+                  ? Utils.buildImageWithFallback(
+                      thumbnailUrl: playlist.thumbnailUrl,
+                      base64Thumbnail: playlist.base64Thumbnail,
+                      context: context,
+                      placeholder: Container(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.playlist_play,
+                          size: 32,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
                     )
-                  : const SizedBox(),
+                  : Container(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Icon(
+                        Icons.playlist_play,
+                        size: 32,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
               Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.centerRight,
-                    end: Alignment.centerLeft,
-                  ),
+                  gradient: Utils.getOverlayGradient(context),
                 ),
               ),
               Positioned(
@@ -60,13 +70,55 @@ class PlaylistGridItem extends StatelessWidget {
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary),
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
+                    if (playlist.channelTitle != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              playlist.channelTitle!,
+                              maxLines: 1,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (playlist.videoCount != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              '${playlist.videoCount} videos',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontSize: 10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               )

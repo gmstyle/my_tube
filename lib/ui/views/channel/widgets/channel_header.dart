@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class ChannelHeader extends StatelessWidget {
   const ChannelHeader({super.key, required this.channel});
@@ -21,14 +21,22 @@ class ChannelHeader extends StatelessWidget {
     return Column(
       children: [
         // Channel info
-        CircleAvatar(
-          radius: avatarSize / 2,
-          backgroundImage: channel!.avatarUrl != null
-              ? CachedNetworkImageProvider(channel!.avatarUrl!)
-              : null,
-          child: channel!.avatarUrl == null
-              ? const Icon(Icons.person, size: 50)
-              : null,
+        ClipOval(
+          child: SizedBox(
+            width: avatarSize,
+            height: avatarSize,
+            child: Utils.buildImageWithFallback(
+              thumbnailUrl: channel!.avatarUrl,
+              base64Thumbnail: null, // ChannelPageMT doesn't have base64 field
+              context: context,
+              fit: BoxFit.cover,
+              placeholder: Icon(
+                Icons.person,
+                size: avatarSize * 0.4,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 8),
         Column(
@@ -59,14 +67,17 @@ class ChannelHeader extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.remove_red_eye,
+                    Icons.people,
+                    size: 16,
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),
+                  const SizedBox(width: 4),
                   Flexible(
                     child: Text(
-                      ' Subscribers: ${channel!.subscriberCount!}',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary),
+                      'Subscribers: ${channel!.subscriberCount!}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                     ),
                   ),
                 ],

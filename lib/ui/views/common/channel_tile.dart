@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/resource_mt.dart';
@@ -7,6 +8,39 @@ class ChannelTile extends StatelessWidget {
   const ChannelTile({super.key, required this.channel});
 
   final ResourceMT channel;
+
+  // Helper method to build circular image from base64 data
+  Widget _buildCircularImage(String? base64Image, BuildContext context) {
+    if (base64Image != null) {
+      try {
+        final bytes = base64Decode(base64Image);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        // If base64 decoding fails, return placeholder
+        return Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          child: Icon(
+            Icons.person,
+            size: 24,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        );
+      }
+    } else {
+      // No base64 data available, return placeholder
+      return Container(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: Icon(
+          Icons.person,
+          size: 24,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,15 +59,11 @@ class ChannelTile extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorWidget: (context, url, error) {
                     // show base64 image if error
-                    return Utils.buildImage(channel.base64Thumbnail, context);
+                    return _buildCircularImage(
+                        channel.base64Thumbnail, context);
                   },
                 )
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                  ),
-                ),
+              : _buildCircularImage(channel.base64Thumbnail, context),
         ),
       ),
       title: Text(
