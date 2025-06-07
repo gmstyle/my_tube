@@ -4,7 +4,7 @@ import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/ui/skeletons/skeleton_channel.dart';
+import 'package:my_tube/ui/widgets/custom_skeletons.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
@@ -75,7 +75,7 @@ class ChannelView extends StatelessWidget {
           builder: (context, state) {
             switch (state.status) {
               case ChannelPageStatus.loading:
-                return const SkeletonChannel();
+                return const CustomSkeletonChannel();
 
               case ChannelPageStatus.loaded:
                 final channel = state.channel;

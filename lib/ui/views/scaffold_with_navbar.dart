@@ -194,7 +194,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         onDestinationSelected: onDestinationSelected,
         destinations: _navBarItems,
         backgroundColor:
-            Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
         indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
         shadowColor: Theme.of(context).colorScheme.shadow,
         elevation: 8,

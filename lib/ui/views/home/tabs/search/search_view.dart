@@ -5,7 +5,7 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/skeletons/skeleton_grid_list.dart';
+import 'package:my_tube/ui/widgets/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
@@ -182,7 +182,7 @@ class SearchView extends StatelessWidget {
             builder: (_, SearchState state) {
           switch (state.status) {
             case SearchStatus.loading:
-              return const SkeletonGridList();
+              return const CustomSkeletonGridList();
             case SearchStatus.success:
               return NotificationListener<ScrollNotification>(
                 onNotification: (scrollInfo) {
@@ -232,20 +232,7 @@ class SearchView extends StatelessWidget {
                                 } else {
                                   // Loader alla fine della lista se la lista è maggiore di 20
                                   if (state.result!.resources.length >= 20) {
-                                    return ListLoader(); /*Skeletonizer(
-                                      enabled: true,
-                                      child: VideoTile(
-                                          video: ResourceMT(
-                                              id: 'aaaa',
-                                              title: BoneMock.longParagraph,
-                                              description: BoneMock.paragraph,
-                                              channelTitle: BoneMock.title,
-                                              thumbnailUrl: null,
-                                              kind: 'video',
-                                              channelId: 'aaaa',
-                                              playlistId: 'aaaa',
-                                              streamUrl: '',
-                                              duration: 100)));*/
+                                    return ListLoader();
                                   } else {
                                     return const SizedBox.shrink();
                                   }

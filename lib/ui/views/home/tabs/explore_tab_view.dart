@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
-import 'package:my_tube/ui/skeletons/skeleton_grid_list.dart';
+import 'package:my_tube/ui/widgets/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/single_selection_buttons.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
@@ -52,7 +52,7 @@ class _ExploreTabViewState extends State<ExploreTabView> {
             builder: (context, state) {
               switch (state.status) {
                 case YoutubeStatus.loading:
-                  return const SkeletonGridList();
+                  return const CustomSkeletonGridList();
 
                 case YoutubeStatus.loaded:
                   return LayoutBuilder(

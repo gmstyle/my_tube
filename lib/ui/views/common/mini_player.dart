@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_service.dart';
-import 'package:my_tube/ui/skeletons/skeleton_mini_player.dart';
+import 'package:my_tube/ui/widgets/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 
@@ -30,7 +30,7 @@ class MiniPlayer extends StatelessWidget {
     return BlocBuilder<PlayerCubit, PlayerState>(
       builder: (context, state) {
         if (state.status == PlayerStatus.loading) {
-          return const SkeletonMiniPlayer();
+          return const CustomSkeletonMiniPlayer();
         }
         if (state.status == PlayerStatus.hidden) {
           return const SizedBox.shrink();
@@ -42,7 +42,7 @@ class MiniPlayer extends StatelessWidget {
                 topLeft: Radius.circular(10), topRight: Radius.circular(10)),
             child: Container(
               color:
-                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
               height: 80,
               child: Center(
                 child: Text(state.message!),
@@ -60,7 +60,7 @@ class MiniPlayer extends StatelessWidget {
                 color: Theme.of(context)
                     .colorScheme
                     .surface
-                    .withValues(alpha: 0.8),
+                    .withValues(alpha: 0.9),
                 height: 80,
                 child: HorizontalSwipeToSkip(
                   child: Container(

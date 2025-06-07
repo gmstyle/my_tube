@@ -28,7 +28,7 @@ class ThemeSettings {
   Map<String, dynamic> toJson() {
     return {
       'themeMode': themeMode.index,
-      'primaryColor': primaryColor.value,
+      'primaryColor': primaryColor.toARGB32(),
       'enableGradient': enableGradient,
     };
   }
@@ -36,8 +36,8 @@ class ThemeSettings {
   factory ThemeSettings.fromJson(Map<String, dynamic> json) {
     return ThemeSettings(
       themeMode: ThemeMode.values[json['themeMode'] ?? 2],
-      primaryColor: flutter_material.Color(
-          json['primaryColor'] ?? flutter_material.Colors.deepPurple.value),
+      primaryColor: flutter_material.Color(json['primaryColor'] ??
+          flutter_material.Colors.deepPurple.toARGB32()),
       enableGradient: json['enableGradient'] ?? true,
     );
   }

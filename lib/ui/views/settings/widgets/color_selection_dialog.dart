@@ -30,7 +30,7 @@ class ColorSelectionDialog extends flutter_material.StatelessWidget {
           itemCount: ThemeSettings.predefinedColors.length,
           itemBuilder: (context, index) {
             final color = ThemeSettings.predefinedColors[index];
-            final isSelected = color.value == currentColor.value;
+            final isSelected = color.toARGB32() == currentColor.toARGB32();
 
             return flutter_material.GestureDetector(
               onTap: () => onColorSelected(color),

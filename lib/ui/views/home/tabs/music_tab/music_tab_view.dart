@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
-import 'package:my_tube/ui/skeletons/skeleton_music_home.dart';
+import 'package:my_tube/ui/widgets/custom_skeletons.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/carousel.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/video_section.dart';
@@ -15,7 +15,7 @@ class MusicTabView extends StatelessWidget {
     return BlocBuilder<MusicTabBloc, MusicTabState>(builder: (context, state) {
       switch (state.status) {
         case FavoritesStatus.loading:
-          return const SkeletonMusicHhome();
+          return const CustomSkeletonMusicHome();
         case FavoritesStatus.success:
           return RefreshIndicator(
               onRefresh: () async {
