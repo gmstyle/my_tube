@@ -45,18 +45,22 @@ class ChannelTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: ClipOval(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: 48,
-            minWidth: 48,
-            maxHeight: 70,
-            maxWidth: 70,
-          ),
+      leading: SizedBox(
+        height: 48,
+        width: 48,
+        child: ClipOval(
           child: channel.thumbnailUrl != null
               ? CachedNetworkImage(
                   imageUrl: channel.thumbnailUrl!,
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(
+                      Icons.person,
+                      size: 24,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
                   errorWidget: (context, url, error) {
                     // show base64 image if error
                     return _buildCircularImage(
