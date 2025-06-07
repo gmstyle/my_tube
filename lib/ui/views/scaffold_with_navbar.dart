@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_adaptive_scaffold/flutter_adaptive_scaffold.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
@@ -32,6 +31,26 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     NavigationDestination(
       icon: Icon(Icons.search),
       label: 'Search',
+    ),
+  ];
+
+  // NavigationRail destinations for larger screens
+  final _railDestinations = const [
+    NavigationRailDestination(
+      icon: Icon(Icons.explore),
+      label: Text('Explore'),
+    ),
+    /*NavigationRailDestination(
+      icon: Icon(Icons.music_note),
+      label: Text('Music'),
+    ),*/
+    NavigationRailDestination(
+      icon: Icon(Icons.favorite),
+      label: Text('Favorites'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.search),
+      label: Text('Search'),
     ),
   ];
 
@@ -74,32 +93,126 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       },
       child: MainGradient(
         child: SafeArea(
-            child: AdaptiveScaffold(
-          appBar: CustomAppbar(
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () => context.pushNamed(AppRoute.settings.name),
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Use NavigationRail for larger screens (tablets/desktop)
+              final bool useNavigationRail = constraints.maxWidth >= 640;
+
+              if (useNavigationRail) {
+                return _buildNavigationRailLayout(context);
+              } else {
+                return _buildNavigationBarLayout(context);
+              }
+            },
           ),
-          selectedIndex: navigationShell.currentIndex,
-          destinations: _navBarItems,
-          onSelectedIndexChange: onDestinationSelected,
-          body: (context) {
-            return MainGradient(
-                child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: navigationShell,
-                ),
-                const Positioned(
-                    bottom: 0, left: 0, right: 0, child: MiniPlayer()),
-              ],
-            ));
-          },
-        )),
+        ),
+      ),
+    );
+  }
+
+  // Layout for larger screens with NavigationRail
+  Widget _buildNavigationRailLayout(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppbar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.pushNamed(AppRoute.settings.name),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.transparent,
+      body: Row(
+        children: [
+          // NavigationRail
+          NavigationRail(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: onDestinationSelected,
+            labelType: NavigationRailLabelType.all,
+            backgroundColor: Colors.transparent,
+            destinations: _railDestinations,
+            selectedIconTheme: IconThemeData(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            selectedLabelTextStyle: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+            unselectedIconTheme: IconThemeData(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.6),
+            ),
+            unselectedLabelTextStyle: TextStyle(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.6),
+            ),
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          // Main content
+          Expanded(
+            child: MainGradient(
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: navigationShell,
+                  ),
+                  const Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: MiniPlayer(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Layout for smaller screens with NavigationBar
+  Widget _buildNavigationBarLayout(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppbar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.pushNamed(AppRoute.settings.name),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.transparent,
+      body: MainGradient(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: navigationShell,
+            ),
+            const Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: MiniPlayer(),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: onDestinationSelected,
+        destinations: _navBarItems,
+        backgroundColor:
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+        indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
+        shadowColor: Theme.of(context).colorScheme.shadow,
+        elevation: 8,
       ),
     );
   }
