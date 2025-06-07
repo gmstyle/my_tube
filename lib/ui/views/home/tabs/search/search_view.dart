@@ -5,7 +5,7 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
-import 'package:my_tube/ui/widgets/custom_skeletons.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';

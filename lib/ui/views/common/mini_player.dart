@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_service.dart';
-import 'package:my_tube/ui/widgets/custom_skeletons.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 

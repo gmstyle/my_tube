@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
-import 'package:my_tube/ui/widgets/custom_skeletons.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/carousel.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/video_section.dart';

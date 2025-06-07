@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/ui/widgets/custom_shimmer.dart';
+import 'package:my_tube/ui/skeletons/custom_shimmer.dart';
 
 /// Skeleton personalizzato per liste e grid di video/contenuti
 class CustomSkeletonGridList extends StatelessWidget {

@@ -4,7 +4,7 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_pl
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/download_service.dart';
-import 'package:my_tube/ui/widgets/custom_skeletons.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
