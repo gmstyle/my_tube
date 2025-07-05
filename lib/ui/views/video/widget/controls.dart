@@ -40,7 +40,7 @@ class Controls extends StatelessWidget {
                         : AudioServiceShuffleMode.all);
                   },
                 );
-              }),
+            }),
           /*  // seek backward
           IconButton(
             icon: Icon(
@@ -66,7 +66,7 @@ class Controls extends StatelessWidget {
                     Icons.skip_previous,
                     color: isEnabled
                         ? Theme.of(context).colorScheme.onPrimary
-                        : null,
+                        : Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.5),
                   ),
                   onPressed: isEnabled
                       ? () async {
@@ -74,7 +74,7 @@ class Controls extends StatelessWidget {
                         }
                       : null,
                 );
-              })),
+            })),
 
           // Play/Pause
           StreamBuilder(
@@ -114,7 +114,7 @@ class Controls extends StatelessWidget {
                     Icons.skip_next,
                     color: isEnable
                         ? Theme.of(context).colorScheme.onPrimary
-                        : null,
+                        : Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.5),
                   ),
                   onPressed: isEnable
                       ? () async {
@@ -122,7 +122,7 @@ class Controls extends StatelessWidget {
                         }
                       : null,
                 );
-              })),
+            })),
 
           /* // seek forward
           IconButton(
