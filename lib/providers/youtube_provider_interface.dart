@@ -5,7 +5,6 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 abstract class YouTubeProviderInterface {
   // Metodi base per video
   Future<Video> getVideo(String videoId, bool? withStreamUrl);
-  Future<List<Video>> searchVideos(String query, {int limit = 20});
 
   // Metodi per playlist
   Future<Playlist> getPlaylist(String playlistId, {bool getVideos = true});
@@ -15,9 +14,8 @@ abstract class YouTubeProviderInterface {
   Future<Channel> getChannel(String channelId);
   Future<List<Video>> getChannelUploads(String channelId, {int limit = 50});
 
-  // Metodi per ricerca
-  Future<List<SearchChannel>> searchChannels(String query, {int limit = 10});
-  Future<List<SearchPlaylist>> searchPlaylists(String query, {int limit = 10});
+  // Metodo di ricerca unificato (sostituisce searchVideos, searchChannels, searchPlaylists)
+  Future<List<dynamic>> searchContent(String query, {int limit = 50});
   Future<List<String>> getSearchSuggestions(String query);
 
   // Metodi simulati per funzionalità mancanti

@@ -26,8 +26,6 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final searchBloc = context.read<SearchBloc>();
-
     return LayoutBuilder(builder: (context, constraints) {
       return Column(children: [
         StatefulBuilder(builder: (context, setState) {
@@ -184,67 +182,34 @@ class SearchView extends StatelessWidget {
             case SearchStatus.loading:
               return const CustomSkeletonGridList();
             case SearchStatus.success:
-              return NotificationListener<ScrollNotification>(
-                onNotification: (scrollInfo) {
-                  if (state.result?.nextPageToken != null) {
-                    if (scrollInfo.metrics.pixels ==
-                        scrollInfo.metrics.maxScrollExtent) {
-                      searchBloc.add(GetNextPageSearchContents(
-                          query: searchController.text,
-                          nextPageToken: state.result!.nextPageToken!));
-                    }
-                  }
-                  return false;
-                },
-                child: state.result!.resources.isNotEmpty
-                    ? LayoutBuilder(builder: (context, constraints) {
-                        final isTablet = constraints.maxWidth > 600;
-                        if (isTablet) {
-                          return GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              mainAxisSpacing: 8,
-                              crossAxisSpacing: 8,
-                            ),
-                            itemCount: state.result!.resources.length +
-                                (state.result!.nextPageToken != null ? 1 : 0),
+              return state.result!.resources.isNotEmpty
+                  ? LayoutBuilder(builder: (context, constraints) {
+                      final isTablet = constraints.maxWidth > 600;
+                      if (isTablet) {
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                          ),
+                          itemCount: state.result!.resources.length,
+                          itemBuilder: (context, index) {
+                            final result = state.result!.resources[index];
+                            return _setTile(context, result, isTablet);
+                          },
+                        );
+                      } else {
+                        return ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            itemCount: state.result!.resources.length,
                             itemBuilder: (context, index) {
-                              if (index < state.result!.resources.length) {
-                                final result = state.result!.resources[index];
-                                return _setTile(context, result, isTablet);
-                              } else {
-                                // Mostra il loader solo se c'è un nextPageToken
-                                if (state.result!.nextPageToken != null) {
-                                  return const ListLoader();
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              }
-                            },
-                          );
-                        } else {
-                          return ListView.builder(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              itemCount: state.result!.resources.length +
-                                  (state.result!.nextPageToken != null ? 1 : 0),
-                              itemBuilder: (context, index) {
-                                if (index < state.result!.resources.length) {
-                                  final result = state.result!.resources[index];
-                                  return _setTile(context, result, isTablet);
-                                } else {
-                                  // Mostra il loader solo se c'è un nextPageToken
-                                  if (state.result!.nextPageToken != null) {
-                                    return const ListLoader();
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                }
-                              });
-                        }
-                      })
-                    : const Center(child: Text('No results found')),
-              );
+                              final result = state.result!.resources[index];
+                              return _setTile(context, result, isTablet);
+                            });
+                      }
+                    })
+                  : const Center(child: Text('No results found'));
             case SearchStatus.failure:
               return Center(child: Text(state.error!));
 

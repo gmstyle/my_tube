@@ -145,6 +145,28 @@ class YoutubeExplodeRepository {
     );
   }
 
+  /// Converte un SearchVideo completo di youtube_explode_dart in ResourceMT
+  Future<ResourceMT> getResourceMTFromSearchVideo(SearchVideo video) async {
+    return ResourceMT(
+      id: video.id.value,
+      title: video.title,
+      description: video.description,
+      channelTitle: video.author,
+      thumbnailUrl: video.thumbnails.isNotEmpty
+          ? _normalizeUrl(video.thumbnails.first.url.toString())
+          : null,
+      kind: Kind.video.name,
+      channelId: video.channelId,
+      playlistId: null,
+      streamUrl: null,
+      duration: int.tryParse(video.duration),
+      videoCount: null,
+      base64Thumbnail: await _getBase64Thumbnail(video.thumbnails.isNotEmpty
+          ? video.thumbnails.first.url.toString()
+          : null),
+    );
+  }
+
   /// Converte un Channel completo di youtube_explode_dart in ResourceMT
   Future<ResourceMT> getResourceMTFromChannel(Channel channel) async {
     return ResourceMT(
@@ -338,36 +360,41 @@ class YoutubeExplodeRepository {
     }
   }
 
-  /// Ricerca contenuti (video, canali, playlist)
-  Future<ResponseMT> searchContents(
-      {required String query, String? nextPageToken}) async {
+  /// Ricerca contenuti unificata (video, canali, playlist)
+  Future<ResponseMT> searchContents({required String query}) async {
     try {
       final resources = <ResourceMT>[];
 
-      // Cerca canali
-      final channels =
-          await youtubeExplodeProvider.searchChannels(query, limit: 5);
-      final channelResources = await Future.wait(
-          channels.map((channel) => getResourceMTFromSearchChannel(channel)));
-      resources.addAll(channelResources);
+      // Usa il nuovo metodo unificato di ricerca
+      final searchResults =
+          await youtubeExplodeProvider.searchContent(query, limit: 50);
 
-      // Cerca playlist
-      final playlists =
-          await youtubeExplodeProvider.searchPlaylists(query, limit: 5);
-      final playlistResources = await Future.wait(playlists
-          .map((playlist) => getResourceMTFromSearchPlaylist(playlist)));
-      resources.addAll(playlistResources);
-
-      // Cerca video
-      final videos =
-          await youtubeExplodeProvider.searchVideos(query, limit: 15);
-      final videoResources = await Future.wait(
-          videos.map((video) => getResourceMTFromVideo(video)));
-      resources.addAll(videoResources);
+      // Processa i risultati in base al tipo
+      for (final result in searchResults) {
+        try {
+          if (result is SearchVideo) {
+            final videoResource = await getResourceMTFromSearchVideo(result);
+            resources.add(videoResource);
+          } else if (result is SearchChannel) {
+            final channelResource =
+                await getResourceMTFromSearchChannel(result);
+            resources.add(channelResource);
+          } else if (result is SearchPlaylist) {
+            final playlistResource =
+                await getResourceMTFromSearchPlaylist(result);
+            resources.add(playlistResource);
+          }
+        } catch (e) {
+          // Se c'è un errore nella conversione di un singolo risultato,
+          // continua con il prossimo senza interrompere tutta la ricerca
+          log('Errore nella conversione di un risultato di ricerca: $e');
+          continue;
+        }
+      }
 
       return ResponseMT(
         resources: resources,
-        nextPageToken: null, // Per ora non implementiamo la paginazione
+        nextPageToken: null, // Rimossa la paginazione
       );
     } catch (e) {
       log('Errore durante la ricerca dei contenuti: $e');

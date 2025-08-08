@@ -18,10 +18,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchContents>((event, emit) async {
       await _onSearchContents(event, emit);
     });
-
-    on<GetNextPageSearchContents>((event, emit) async {
-      await _onGetNextPageSearchContents(event, emit);
-    });
   }
 
   Future<void> _onSearchContents(
@@ -31,34 +27,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final result =
           await youtubeExplodeRepository.searchContents(query: event.query);
 
-      log('Prima ricerca completata: ${result.resources.length} risorse, nextPageToken: ${result.nextPageToken}');
+      log('Ricerca completata: ${result.resources.length} risorse');
 
       _saveQueryHistory(event);
       emit(SearchState.success(result));
-    } catch (e) {
-      emit(SearchState.failure(e.toString()));
-    }
-  }
-
-  Future<void> _onGetNextPageSearchContents(
-      GetNextPageSearchContents event, Emitter<SearchState> emit) async {
-    try {
-      final List<ResourceMT> videos = state.status == SearchStatus.success
-          ? state.result!.resources
-          : const <ResourceMT>[];
-
-      final result = await youtubeExplodeRepository.searchContents(
-          query: event.query, nextPageToken: event.nextPageToken);
-
-      final newVideos = result.resources;
-
-      // Add new videos directly to the existing list
-      videos.addAll(newVideos);
-
-      emit(SearchState.success(ResponseMT(
-        resources: videos,
-        nextPageToken: result.nextPageToken,
-      )));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
     }

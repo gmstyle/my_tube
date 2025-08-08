@@ -39,50 +39,10 @@ class YoutubeExplodeProvider extends BaseProvider
   }
 
   @override
-  Future<List<Video>> searchVideos(String query, {int limit = 20}) async {
-    final searchResult =
-        await _yt.search.search(query, filter: TypeFilters.video);
-    final videos = <Video>[];
-
-    // Prendi i primi 'limit' video dalla prima pagina
-    final firstBatch = searchResult.take(limit > 20 ? 20 : limit).toList();
-    videos.addAll(firstBatch);
-
-    // Se servono più video, carica le pagine successive
-    if (limit > 20 && videos.length < limit) {
-      var currentPage = searchResult;
-      while (videos.length < limit) {
-        final nextPage = await currentPage.nextPage();
-        if (nextPage == null) break;
-
-        final remaining = limit - videos.length;
-        final nextBatch = nextPage.take(remaining).toList();
-        videos.addAll(nextBatch);
-        currentPage = nextPage;
-      }
-    }
-
-    return videos;
-  }
-
-  @override
-  Future<List<SearchChannel>> searchChannels(String query,
-      {int limit = 10}) async {
-    final searchResult =
-        await _yt.search.searchContent(query, filter: TypeFilters.channel);
-    final channels =
-        searchResult.whereType<SearchChannel>().take(limit).toList();
-    return channels;
-  }
-
-  @override
-  Future<List<SearchPlaylist>> searchPlaylists(String query,
-      {int limit = 10}) async {
-    final searchResult =
-        await _yt.search.searchContent(query, filter: TypeFilters.playlist);
-    final playlists =
-        searchResult.whereType<SearchPlaylist>().take(limit).toList();
-    return playlists;
+  Future<List<dynamic>> searchContent(String query, {int limit = 50}) async {
+    final searchResult = await _yt.search.searchContent(query);
+    final allContent = searchResult.take(limit).toList();
+    return allContent;
   }
 
   @override
