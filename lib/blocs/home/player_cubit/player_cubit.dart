@@ -15,7 +15,7 @@ class PlayerCubit extends Cubit<PlayerState> {
       {required this.innertubeRepository, required this.mtPlayerService})
       : super(const PlayerState.hidden());
 
-  init() {
+  void init() {
     mtPlayerService.queue.listen((value) {
       if (value.isEmpty) {
         emit(const PlayerState.hidden());

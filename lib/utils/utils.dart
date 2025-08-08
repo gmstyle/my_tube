@@ -80,7 +80,7 @@ class Utils {
     }
   }
 
-  static checkIfStringIsOnlyNumeric(String string) {
+  static bool checkIfStringIsOnlyNumeric(String string) {
     return int.tryParse(string) != null;
   }
 
