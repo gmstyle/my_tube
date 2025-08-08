@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/utils/enums.dart';
 
@@ -11,10 +10,8 @@ part 'favorites_video_state.dart';
 class FavoritesVideoBloc
     extends Bloc<FavoritesVideoEvent, FavoritesVideoState> {
   final FavoriteRepository favoritesRepository;
-  final InnertubeRepository innertubeRepository;
   FavoritesVideoBloc({
     required this.favoritesRepository,
-    required this.innertubeRepository,
   }) : super(const FavoritesVideoState.initial()) {
     // ascolto il cambiamento della coda e aggiorno lo stato
     // quando viene aggiunto o rimosso un video

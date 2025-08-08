@@ -1,15 +1,15 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/channel_page_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 
 part 'channel_page_event.dart';
 part 'channel_page_state.dart';
 
 class ChannelPageBloc extends Bloc<ChannelPageEvent, ChannelPageState> {
-  final InnertubeRepository innertubeRepository;
+  final YoutubeExplodeRepository youtubeExplodeRepository;
 
-  ChannelPageBloc({required this.innertubeRepository})
+  ChannelPageBloc({required this.youtubeExplodeRepository})
       : super(const ChannelPageState.initial()) {
     on<GetChannelDetails>((event, emit) async {
       await _onGetChannelDetails(event, emit);
@@ -21,7 +21,7 @@ class ChannelPageBloc extends Bloc<ChannelPageEvent, ChannelPageState> {
     emit(const ChannelPageState.loading());
     try {
       final channelDetails =
-          await innertubeRepository.getChannel(event.channelId);
+          await youtubeExplodeRepository.getChannel(event.channelId);
       emit(ChannelPageState.loaded(channelDetails));
     } catch (e) {
       emit(const ChannelPageState.failure(error: 'Failed to load channel'));

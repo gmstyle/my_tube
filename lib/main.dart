@@ -12,12 +12,13 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
+import 'package:my_tube/blocs/test_youtube_explode/test_youtube_explode_bloc.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/models/theme_settings.dart';
-import 'package:my_tube/providers/innertube_provider.dart';
+import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/providers/update_provider.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/update_repository.dart';
 import 'package:my_tube/router/app_router.dart';
@@ -81,7 +82,10 @@ void main() async {
     providers: [
       /// Providers and services
 
-      Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
+      /// Provider YouTube Explode - Nuovo provider basato su youtube_explode_dart
+      Provider<YoutubeExplodeProvider>(
+          create: (context) => YoutubeExplodeProvider()),
+
       Provider<MtPlayerService>(create: (context) => mtPlayerService),
       Provider<DownloadService>(create: (context) => DownloadService()),
       Provider<UpdateProvider>(create: (context) => UpdateProvider()),
@@ -89,12 +93,14 @@ void main() async {
     child: MultiRepositoryProvider(
       /// Repositories
       providers: [
-        RepositoryProvider<InnertubeRepository>(
-            create: (context) => InnertubeRepository(
-                innertubeProvider: context.read<InnertubeProvider>())),
+        RepositoryProvider<YoutubeExplodeRepository>(
+            create: (context) => YoutubeExplodeRepository(
+                youtubeExplodeProvider:
+                    context.read<YoutubeExplodeProvider>())),
         RepositoryProvider<FavoriteRepository>(
             create: (context) => FavoriteRepository(
-                innertubeRepository: context.read<InnertubeRepository>())
+                youtubeExplodeRepository:
+                    context.read<YoutubeExplodeRepository>())
               ..migrateData()),
         RepositoryProvider<UpdateRepository>(
             create: (context) => UpdateRepository(
@@ -104,36 +110,37 @@ void main() async {
         BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()..init()),
         BlocProvider<SearchBloc>(
             create: (context) => SearchBloc(
-                innertubeRepository: context.read<InnertubeRepository>())),
+                youtubeExplodeRepository:
+                    context.read<YoutubeExplodeRepository>())),
         BlocProvider<SearchSuggestionCubit>(
             create: (context) => SearchSuggestionCubit(
-                innertubeRepository: context.read<InnertubeRepository>())),
-        BlocProvider<SearchSuggestionCubit>(
-            create: (context) => SearchSuggestionCubit(
-                innertubeRepository: context.read<InnertubeRepository>())),
+                youtubeExplodeRepository:
+                    context.read<YoutubeExplodeRepository>())),
         BlocProvider<PlayerCubit>(
             create: (context) => PlayerCubit(
-                  innertubeRepository: context.read<InnertubeRepository>(),
+                  youtubeExplodeRepository:
+                      context.read<YoutubeExplodeRepository>(),
                   mtPlayerService: context.read<MtPlayerService>(),
                 )),
         BlocProvider<FavoritesVideoBloc>(
             create: (context) => FavoritesVideoBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),
-                  innertubeRepository: context.read<InnertubeRepository>(),
                 )),
         BlocProvider<FavoritesChannelBloc>(
             create: (context) => FavoritesChannelBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),
-                  innertubeRepository: context.read<InnertubeRepository>(),
                 )),
         BlocProvider<FavoritesPlaylistBloc>(
             create: (context) => FavoritesPlaylistBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),
-                  innertubeRepository: context.read<InnertubeRepository>(),
                 )),
         BlocProvider<UpdateBloc>(
             create: (context) =>
                 UpdateBloc(updateRepository: context.read<UpdateRepository>())),
+        BlocProvider<TestYoutubeExplodeBloc>(
+            create: (context) => TestYoutubeExplodeBloc(
+                youtubeExplodeRepository:
+                    context.read<YoutubeExplodeRepository>())),
       ], child: const MyApp()),
     ),
   ));

@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/utils/enums.dart';
 
 class FavoriteRepository {
-  final InnertubeRepository innertubeRepository;
+  final YoutubeExplodeRepository youtubeExplodeRepository;
 
-  FavoriteRepository({required this.innertubeRepository});
+  FavoriteRepository({required this.youtubeExplodeRepository});
 
   final favoriteVideosBox = Hive.box<ResourceMT>('favorites');
   final favoriteChannelsBox = Hive.box<ResourceMT>('channels');
@@ -91,10 +91,11 @@ class FavoriteRepository {
     if (canMigratePlaylist) {
       final updatedPlaylists =
           await Future.wait(favoritePlaylists.map((savedPlaylist) async {
-        final newPlaylist = await innertubeRepository
+        final newPlaylist = await youtubeExplodeRepository
             .getPlaylist(savedPlaylist.id!, getVideos: false);
 
-        var base64thumbnail = await innertubeRepository.innertubeProvider
+        var base64thumbnail = await youtubeExplodeRepository
+            .youtubeExplodeProvider
             .getBase64Image(newPlaylist.thumbnailUrl!);
         return savedPlaylist.copyWith(base64Thumbnail: base64thumbnail);
       }));
@@ -115,15 +116,16 @@ class FavoriteRepository {
           // Only migrate channels that don't have base64Thumbnail
           if (savedChannel.base64Thumbnail == null ||
               savedChannel.base64Thumbnail!.isEmpty) {
-            final channelDetails =
-                await innertubeRepository.getChannel(savedChannel.channelId!);
+            final channelDetails = await youtubeExplodeRepository
+                .getChannel(savedChannel.channelId!);
 
             // Get the image URL, prioritizing avatarUrl from channel details
             final imageUrl =
                 channelDetails.avatarUrl ?? savedChannel.thumbnailUrl;
 
             if (imageUrl != null && imageUrl.isNotEmpty) {
-              var base64thumbnail = await innertubeRepository.innertubeProvider
+              var base64thumbnail = await youtubeExplodeRepository
+                  .youtubeExplodeProvider
                   .getBase64Image(imageUrl);
 
               return savedChannel.copyWith(base64Thumbnail: base64thumbnail);

@@ -47,6 +47,26 @@ class SettingsView extends StatelessWidget {
                         ),
                       ),
 
+                      // YouTube Explode Test
+                      ListTile(
+                        leading: Icon(Icons.science,
+                            color: Theme.of(context).colorScheme.onPrimary),
+                        title: Text('Test YouTube Explode',
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onPrimary)),
+                        subtitle: Text(
+                            'Test del nuovo provider YouTube Explode',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondary
+                                    .withValues(alpha: 0.6))),
+                        trailing: Icon(Icons.arrow_forward_ios,
+                            color: Theme.of(context).colorScheme.onPrimary),
+                        onTap: () => context.pushNamed('testYoutubeExplode'),
+                      ),
+
                       // Theme Mode Setting
                       ListTile(
                         leading: Icon(Icons.dark_mode,

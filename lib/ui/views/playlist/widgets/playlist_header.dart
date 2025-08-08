@@ -59,8 +59,33 @@ class PlaylistHeader extends StatelessWidget {
                             height: imageSize,
                             width: imageSize,
                             fit: BoxFit.cover,
+                            errorWidget: (context, url, error) {
+                              // Fallback se l'immagine non carica
+                              return Container(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                child: Icon(
+                                  Icons.playlist_play,
+                                  size: imageSize * 0.3,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
+                                ),
+                              );
+                            },
                           )
-                        : const SizedBox(),
+                        : Container(
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            child: Icon(
+                              Icons.playlist_play,
+                              size: imageSize * 0.3,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                            ),
+                          ),
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(

@@ -207,14 +207,16 @@ class SearchView extends StatelessWidget {
                               mainAxisSpacing: 8,
                               crossAxisSpacing: 8,
                             ),
-                            itemCount: state.result!.resources.length + 1,
+                            itemCount: state.result!.resources.length +
+                                (state.result!.nextPageToken != null ? 1 : 0),
                             itemBuilder: (context, index) {
                               if (index < state.result!.resources.length) {
                                 final result = state.result!.resources[index];
                                 return _setTile(context, result, isTablet);
                               } else {
-                                if (state.result!.resources.length >= 20) {
-                                  return ListLoader();
+                                // Mostra il loader solo se c'è un nextPageToken
+                                if (state.result!.nextPageToken != null) {
+                                  return const ListLoader();
                                 } else {
                                   return const SizedBox.shrink();
                                 }
@@ -224,15 +226,16 @@ class SearchView extends StatelessWidget {
                         } else {
                           return ListView.builder(
                               padding: const EdgeInsets.only(bottom: 16),
-                              itemCount: state.result!.resources.length + 1,
+                              itemCount: state.result!.resources.length +
+                                  (state.result!.nextPageToken != null ? 1 : 0),
                               itemBuilder: (context, index) {
                                 if (index < state.result!.resources.length) {
                                   final result = state.result!.resources[index];
                                   return _setTile(context, result, isTablet);
                                 } else {
-                                  // Loader alla fine della lista se la lista è maggiore di 20
-                                  if (state.result!.resources.length >= 20) {
-                                    return ListLoader();
+                                  // Mostra il loader solo se c'è un nextPageToken
+                                  if (state.result!.nextPageToken != null) {
+                                    return const ListLoader();
                                   } else {
                                     return const SizedBox.shrink();
                                   }

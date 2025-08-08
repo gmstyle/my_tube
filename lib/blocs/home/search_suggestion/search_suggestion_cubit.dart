@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 
 part 'search_suggestion_state.dart';
 
 class SearchSuggestionCubit extends Cubit<SearchSuggestionState> {
-  final InnertubeRepository innertubeRepository;
+  final YoutubeExplodeRepository youtubeExplodeRepository;
   final Box settingsBox = Hive.box('settings');
-  SearchSuggestionCubit({required this.innertubeRepository})
+  SearchSuggestionCubit({required this.youtubeExplodeRepository})
       : super(const SearchSuggestionState(suggestions: []));
 
   Future<void> getSuggestions(String query) async {
-    final response = await innertubeRepository.getSearchSuggestions(query);
+    final response = await youtubeExplodeRepository.getSearchSuggestions(query);
     emit(SearchSuggestionState(suggestions: response));
   }
 

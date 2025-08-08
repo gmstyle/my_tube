@@ -1,18 +1,19 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final InnertubeRepository innertubeRepository;
+  final YoutubeExplodeRepository youtubeExplodeRepository;
   final settingsBox = Hive.box('settings');
-  SearchBloc({required this.innertubeRepository})
+  SearchBloc({required this.youtubeExplodeRepository})
       : super(const SearchState.initial()) {
     on<SearchContents>((event, emit) async {
       await _onSearchContents(event, emit);
@@ -28,7 +29,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit(const SearchState.loading());
     try {
       final result =
-          await innertubeRepository.searchContents(query: event.query);
+          await youtubeExplodeRepository.searchContents(query: event.query);
+
+      log('Prima ricerca completata: ${result.resources.length} risorse, nextPageToken: ${result.nextPageToken}');
 
       _saveQueryHistory(event);
       emit(SearchState.success(result));
@@ -44,7 +47,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           ? state.result!.resources
           : const <ResourceMT>[];
 
-      final result = await innertubeRepository.searchContents(
+      final result = await youtubeExplodeRepository.searchContents(
           query: event.query, nextPageToken: event.nextPageToken);
 
       final newVideos = result.resources;

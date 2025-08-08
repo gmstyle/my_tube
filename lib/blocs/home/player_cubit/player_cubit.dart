@@ -1,18 +1,18 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 
 part 'player_state.dart';
 
 class PlayerCubit extends Cubit<PlayerState> {
-  final InnertubeRepository innertubeRepository;
+  final YoutubeExplodeRepository youtubeExplodeRepository;
 
   final MtPlayerService mtPlayerService;
 
   PlayerCubit(
-      {required this.innertubeRepository, required this.mtPlayerService})
+      {required this.youtubeExplodeRepository, required this.mtPlayerService})
       : super(const PlayerState.hidden());
 
   void init() {
@@ -26,7 +26,8 @@ class PlayerCubit extends Cubit<PlayerState> {
   Future<void> startPlaying(String id) async {
     emit(const PlayerState.loading());
 
-    final response = await innertubeRepository.getVideo(id);
+    final response =
+        await youtubeExplodeRepository.getVideo(id, withStreamUrl: true);
 
     try {
       await _startPlaying(response);
@@ -46,7 +47,8 @@ class PlayerCubit extends Cubit<PlayerState> {
       // se lo streamUrl è null, vuol dire arrivo da una channel page
       // e cioè dal pulsante play all di una section i video
       if (videos.first.streamUrl == null || renewStreamUrls) {
-        final futures = videos.map((e) => innertubeRepository.getVideo(e.id!));
+        final futures = videos.map((e) =>
+            youtubeExplodeRepository.getVideo(e.id!, withStreamUrl: true));
         videos = await Future.wait(futures);
       }
 
@@ -88,13 +90,15 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   Future<void> addToQueue(String id) async {
-    final video = await innertubeRepository.getVideo(id);
+    final video =
+        await youtubeExplodeRepository.getVideo(id, withStreamUrl: true);
     await mtPlayerService.addToQueue(video);
     emit(const PlayerState.shown());
   }
 
   Future<void> addAllToQueue(List<ResourceMT> videos) async {
-    final futures = videos.map((e) => innertubeRepository.getVideo(e.id!));
+    final futures = videos.map(
+        (e) => youtubeExplodeRepository.getVideo(e.id!, withStreamUrl: true));
     videos = await Future.wait(futures);
     await mtPlayerService.addAllToQueue(videos);
     emit(const PlayerState.shown());

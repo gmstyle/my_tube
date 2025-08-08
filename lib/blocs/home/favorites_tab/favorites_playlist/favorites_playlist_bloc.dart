@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/utils/enums.dart';
 
 part 'favorites_playlist_event.dart';
@@ -11,10 +10,8 @@ part 'favorites_playlist_state.dart';
 class FavoritesPlaylistBloc
     extends Bloc<FavoritesPlaylistEvent, FavoritesPlaylistState> {
   final FavoriteRepository favoritesRepository;
-  final InnertubeRepository innertubeRepository;
 
-  FavoritesPlaylistBloc(
-      {required this.favoritesRepository, required this.innertubeRepository})
+  FavoritesPlaylistBloc({required this.favoritesRepository})
       : super(const FavoritesPlaylistState.initial()) {
     favoritesRepository.favoritePlaylistsListenable.addListener(() {
       add(const GetFavoritesPlaylist());
