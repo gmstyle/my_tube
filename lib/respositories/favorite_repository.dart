@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/adapters.dart';
 import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/utils/enums.dart';

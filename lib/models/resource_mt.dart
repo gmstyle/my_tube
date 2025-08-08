@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:my_tube/utils/enums.dart';
 part 'resource_mt.g.dart';
 

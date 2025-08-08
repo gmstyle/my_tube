@@ -1,4 +1,4 @@
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:innertube_dart/enums/enums.dart';
 import 'package:innertube_dart/innertube.dart';
 import 'package:innertube_dart/models/responses/channel.dart';
