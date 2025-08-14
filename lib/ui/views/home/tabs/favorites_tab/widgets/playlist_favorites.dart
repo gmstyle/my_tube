@@ -23,10 +23,10 @@ class PlaylistFavorites extends StatelessWidget {
         case FavoritesPlaylistStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesPlaylistStatus.success:
-          final favorites = state.resources!
+          final favorites = state.playlists!
               .where((playlist) {
-                final title = playlist.title?.toLowerCase() ?? '';
-                final channelTitle = playlist.channelTitle?.toLowerCase() ?? '';
+                final title = playlist.title.toLowerCase();
+                final channelTitle = playlist.author?.toLowerCase() ?? '';
                 final query = searchQuery.toLowerCase();
                 return title.contains(query) || channelTitle.contains(query);
               })
@@ -34,11 +34,14 @@ class PlaylistFavorites extends StatelessWidget {
               .reversed
               .toList();
 
+          final List<String> ids =
+              favorites.map((playlist) => playlist.id).toList();
+
           return Column(
             children: [
               FavoritesHeader(
                 title: 'Playlists',
-                favorites: favorites,
+                ids: ids,
               ),
               Expanded(
                 child: favorites.isNotEmpty
@@ -49,13 +52,10 @@ class PlaylistFavorites extends StatelessWidget {
                           return GestureDetector(
                             onTap: () {
                               context.goNamed(AppRoute.playlistFavorites.name,
-                                  extra: {
-                                    'playlist': playlist.title!,
-                                    'playlistId': playlist.playlistId!
-                                  });
+                                  extra: {'playlistId': playlist.id});
                             },
                             child: ChannelPlaylistMenuDialog(
-                                resource: playlist,
+                                id: playlist.id,
                                 kind: Kind.playlist,
                                 child: PlaylistTile(playlist: playlist)),
                           );

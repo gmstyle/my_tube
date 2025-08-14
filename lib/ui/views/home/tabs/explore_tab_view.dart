@@ -75,13 +75,17 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                               mainAxisSpacing: 8,
                               crossAxisSpacing: 8,
                             ),
-                            itemCount: state.response!.resources.length,
+                            itemCount: state.videos!.length,
                             itemBuilder: (context, index) {
-                              final video = state.response?.resources[index];
+                              final video = state.videos![index];
+                              final quickVideo = {
+                                'id': video.id,
+                                'title': video.title
+                              };
                               return PlayPauseGestureDetector(
-                                resource: video!,
+                                id: video.id,
                                 child: VideoMenuDialog(
-                                    video: video,
+                                    quickVideo: quickVideo,
                                     child: VideoGridItem(video: video)),
                               );
                             },
@@ -95,13 +99,17 @@ class _ExploreTabViewState extends State<ExploreTabView> {
                                 GetTrendingVideos(category: _getCategory()));
                           },
                           child: ListView.builder(
-                            itemCount: state.response!.resources.length,
+                            itemCount: state.videos!.length,
                             itemBuilder: (context, index) {
-                              final video = state.response?.resources[index];
+                              final video = state.videos![index];
+                              final quickVideo = {
+                                'id': video.id,
+                                'title': video.title
+                              };
                               return PlayPauseGestureDetector(
-                                resource: video!,
+                                id: video.id,
                                 child: VideoMenuDialog(
-                                    video: video,
+                                    quickVideo: quickVideo,
                                     child: VideoTile(video: video)),
                               );
                             },

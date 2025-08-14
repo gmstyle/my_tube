@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/services/mt_player_service.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 part 'player_state.dart';
 
@@ -26,11 +26,8 @@ class PlayerCubit extends Cubit<PlayerState> {
   Future<void> startPlaying(String id) async {
     emit(const PlayerState.loading());
 
-    final response =
-        await youtubeExplodeRepository.getVideo(id, withStreamUrl: true);
-
     try {
-      await _startPlaying(response);
+      await _startPlaying(id);
     } on Exception catch (e) {
       emit(PlayerState.error(e.toString()));
     }
@@ -38,24 +35,12 @@ class PlayerCubit extends Cubit<PlayerState> {
     emit(const PlayerState.shown());
   }
 
-  Future<void> startPlayingPlaylist(List<ResourceMT> videos,
-      {bool renewStreamUrls = false}) async {
+  Future<void> startPlayingPlaylist(List<String> ids) async {
     emit(const PlayerState.loading());
     // svuoto la coda
     try {
       await mtPlayerService.clearQueue();
-      // se lo streamUrl è null, vuol dire arrivo da una channel page
-      // e cioè dal pulsante play all di una section i video
-      if (videos.first.streamUrl == null || renewStreamUrls) {
-        final futures = videos.map((e) =>
-            youtubeExplodeRepository.getVideo(e.id!, withStreamUrl: true));
-        videos = await Future.wait(futures);
-      }
-
-      // check if there are videos without streamUrl
-      // and remove them because they are not playable
-      videos.removeWhere((element) => element.streamUrl == null);
-      await _startPlayingPlaylist(videos);
+      await _startPlayingPlaylist(ids);
     } on Exception catch (e) {
       emit(PlayerState.error(e.toString()));
     }
@@ -81,26 +66,21 @@ class PlayerCubit extends Cubit<PlayerState> {
     emit(const PlayerState.shown());
   }
 
-  Future<void> _startPlaying(ResourceMT video) async {
-    await mtPlayerService.startPlaying(video);
+  Future<void> _startPlaying(String id) async {
+    await mtPlayerService.startPlaying(id);
   }
 
-  Future<void> _startPlayingPlaylist(List<ResourceMT> videos) async {
-    await mtPlayerService.startPlayingPlaylist(videos);
+  Future<void> _startPlayingPlaylist(List<String> ids) async {
+    await mtPlayerService.startPlayingPlaylist(ids);
   }
 
   Future<void> addToQueue(String id) async {
-    final video =
-        await youtubeExplodeRepository.getVideo(id, withStreamUrl: true);
-    await mtPlayerService.addToQueue(video);
+    await mtPlayerService.addToQueue(id);
     emit(const PlayerState.shown());
   }
 
-  Future<void> addAllToQueue(List<ResourceMT> videos) async {
-    final futures = videos.map(
-        (e) => youtubeExplodeRepository.getVideo(e.id!, withStreamUrl: true));
-    videos = await Future.wait(futures);
-    await mtPlayerService.addAllToQueue(videos);
+  Future<void> addAllToQueue(List<String> ids) async {
+    await mtPlayerService.addAllToQueue(ids);
     emit(const PlayerState.shown());
   }
 

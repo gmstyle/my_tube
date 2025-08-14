@@ -8,7 +8,6 @@ import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/search_page.dart';
 import 'package:my_tube/router/pages/settings_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
-import 'package:my_tube/router/pages/test_youtube_explode_page.dart';
 
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -32,13 +31,7 @@ class AppRouter {
       path: AppRoute.settings.path,
       pageBuilder: (context, state) => const SettingsPage(),
     ),
-    // Test YouTube Explode
-    GoRoute(
-      parentNavigatorKey: rootNavigatorKey,
-      name: AppRoute.testYoutubeExplode.name,
-      path: AppRoute.testYoutubeExplode.path,
-      pageBuilder: (context, state) => const TestYoutubeExplodePageWrapper(),
-    ),
+
     // Shell
     StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>

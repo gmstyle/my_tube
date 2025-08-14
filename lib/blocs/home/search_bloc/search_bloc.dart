@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 
 part 'search_event.dart';
@@ -27,7 +26,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final result =
           await youtubeExplodeRepository.searchContents(query: event.query);
 
-      log('Ricerca completata: ${result.resources.length} risorse');
+      log('Ricerca completata: ${result.length} risorse');
 
       _saveQueryHistory(event);
       emit(SearchState.success(result));

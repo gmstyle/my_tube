@@ -1,4 +1,4 @@
-part of 'music_tab_bloc.dart';
+/* part of 'music_tab_bloc.dart';
 
 sealed class MusicTabEvent extends Equatable {
   const MusicTabEvent();
@@ -19,3 +19,4 @@ class GetNextPageMusic extends MusicTabEvent {
   @override
   List<Object> get props => [nextPageToken];
 }
+ */

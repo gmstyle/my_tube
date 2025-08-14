@@ -5,17 +5,16 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_pl
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/models/resource_mt.dart';
 
 class FavoritesHeader extends StatelessWidget {
   const FavoritesHeader({
     super.key,
     required this.title,
-    required this.favorites,
+    required this.ids,
   });
 
   final String title;
-  final List<ResourceMT> favorites;
+  final List<String> ids;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +34,15 @@ class FavoritesHeader extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
           ),
-          if (favorites.isNotEmpty) ...[
+          if (ids.isNotEmpty) ...[
             const Spacer(),
             if (title == 'Videos')
               IconButton(
                   color: Theme.of(context).colorScheme.onPrimary,
                   onPressed: () {
-                    miniplayerCubit.startPlayingPlaylist(favorites,
-                        renewStreamUrls: true);
+                    miniplayerCubit.startPlayingPlaylist(
+                      ids,
+                    );
                   },
                   icon: const Icon(Icons.playlist_play)),
             IconButton(

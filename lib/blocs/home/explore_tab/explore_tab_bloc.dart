@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/models/tiles.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/ui/views/home/tabs/explore_tab_view.dart';
 

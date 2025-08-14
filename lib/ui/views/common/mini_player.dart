@@ -88,66 +88,7 @@ class MiniPlayer extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // Image
-                          /* StreamBuilder(
-                              stream: playerCubit.mtPlayerService.mediaItem,
-                              builder: (context, snapshot) {
-                                final mediaItem = snapshot.data;
-                                return Hero(
-                                  tag: 'video_image_or_player',
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: mediaItem?.artUri != null
-                                        ? CachedNetworkImage(
-                                            height: 80,
-                                            width: 80,
-                                  ConstrainedBox(
-                            constraints: const BoxConstraints(
-                                maxHeight: 80, maxWidth: 80),
-                            child: Hero(
-                              tag: 'video_image_or_player',
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: AspectRatio(
-                                    aspectRatio: _setAspectRatio(
-                                        playerCubit.mtPlayerService),
-                                    child: Chewie(
-                                        controller: playerCubit
-                                  ConstrainedBox(
-                            constraints: const BoxConstraints(
-                                maxHeight: 80, maxWidth: 80),
-                            child: Hero(
-                              tag: 'video_image_or_player',
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: AspectRatio(
-                                    aspectRatio: _setAspectRatio(
-                                        playerCubit.mtPlayerService),
-                                    child: Chewie(
-                                        controller: playerCubit
-                                            .mtPlayerService.chewieController!
-                                            .copyWith(
-                                      showControls: false,
-                                    ))),
-                              ),
-                            ),
-                          ),          .mtPlayerService.chewieController!
-                                            .copyWith(
-                                      showControls: false,
-                                    ))),
-                              ),
-                            ),
-                          ),          fit: BoxFit.cover,
-                                            imageUrl:
-                                                mediaItem!.artUri.toString(),
-                                          )
-                                        : const SizedBox(
-                                            height: 80,
-                                            width: 80,
-                                          ),
-                                  ),
-                                );
-                              }), */
+
                           const SizedBox(width: 8),
                           Expanded(
                             child: Wrap(

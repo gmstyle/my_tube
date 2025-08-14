@@ -24,19 +24,21 @@ class ChannelFavorites extends StatelessWidget {
         case FavoritesChannelStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesChannelStatus.success:
-          final favorites = state.resources!
-              .where((channel) => channel.title!
+          final favorites = state.channels!
+              .where((channel) => channel.title
                   .toLowerCase()
                   .contains(searchQuery.toLowerCase()))
               .toList()
               .reversed
               .toList();
 
+          final ids = favorites.map((channel) => channel.id).toList();
+
           return Column(
             children: [
               FavoritesHeader(
                 title: 'Channels',
-                favorites: favorites,
+                ids: ids,
               ),
               Expanded(
                 child: favorites.isNotEmpty
@@ -47,10 +49,10 @@ class ChannelFavorites extends StatelessWidget {
                           return GestureDetector(
                             onTap: () {
                               context.goNamed(AppRoute.channelFavorites.name,
-                                  extra: {'channelId': channel.channelId});
+                                  extra: {'channelId': channel.id});
                             },
                             child: ChannelPlaylistMenuDialog(
-                                resource: channel,
+                                id: channel.id,
                                 kind: Kind.channel,
                                 child: ChannelTile(channel: channel)),
                           );

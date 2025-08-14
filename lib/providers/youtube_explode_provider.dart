@@ -1,10 +1,7 @@
 import 'package:hive_ce/hive.dart';
-import 'package:my_tube/providers/base_provider.dart';
-import 'package:my_tube/providers/youtube_provider_interface.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
-class YoutubeExplodeProvider extends BaseProvider
-    implements YouTubeProviderInterface {
+class YoutubeExplodeProvider {
   final settingsBox = Hive.box('settings');
   late final YoutubeExplode _yt;
 
@@ -15,65 +12,58 @@ class YoutubeExplodeProvider extends BaseProvider
   // Getter per accedere al client YoutubeExplode
   YoutubeExplode get client => _yt;
 
-  @override
-  Future<Video> getVideo(String videoId, bool? withStreamUrl) async {
+  Future<Video> getVideo(String videoId) async {
     final video = await _yt.videos.get(videoId);
     return video;
   }
 
-  @override
-  Future<Playlist> getPlaylist(String playlistId,
-      {bool getVideos = true}) async {
-    final playlist = await _yt.playlists.get(playlistId);
-    return playlist;
-  }
-
-  @override
-  Future<List<Video>> getPlaylistVideos(String playlistId,
-      {int limit = 50}) async {
-    final videos = <Video>[];
-    await for (final video in _yt.playlists.getVideos(playlistId).take(limit)) {
-      videos.add(video);
-    }
-    return videos;
-  }
-
-  @override
-  Future<List<dynamic>> searchContent(String query, {int limit = 50}) async {
-    final searchResult = await _yt.search.searchContent(query);
-    final allContent = searchResult.take(limit).toList();
-    return allContent;
-  }
-
-  @override
   Future<Channel> getChannel(String channelId) async {
     final channel = await _yt.channels.get(channelId);
     return channel;
   }
 
-  @override
-  Future<List<Video>> getChannelUploads(String channelId,
-      {int limit = 50}) async {
-    final uploads = <Video>[];
-    await for (final video in _yt.channels.getUploads(channelId).take(limit)) {
-      uploads.add(video);
+  Future<Playlist> getPlaylist(String playlistId) async {
+    final playlist = await _yt.playlists.get(playlistId);
+    return playlist;
+  }
+
+  Future<List<Video>> getPlaylistVideos(String playlistId) async {
+    final videos = <Video>[];
+    await for (final video in _yt.playlists.getVideos(playlistId)) {
+      videos.add(video);
     }
+    return videos;
+  }
+
+  Future<SearchList> searchContent(String query) async {
+    final searchResult = await _yt.search.searchContent(query);
+    return searchResult;
+  }
+
+  Future<ChannelAbout> getChannelPage(String channelId) async {
+    final channel = await _yt.channels.getAboutPage(channelId);
+    return channel;
+  }
+
+  Future<ChannelUploadsList> getChannelVideos(String channelId) async {
+    final uploads = await _yt.channels.getUploadsFromPage(channelId);
     return uploads;
   }
 
-  @override
+  Future<List<dynamic>?> getNextSearchContent(SearchList searchList) async {
+    final nextPage = await searchList.nextPage();
+    return nextPage;
+  }
+
   Future<StreamManifest> getVideoStreamManifest(String videoId) async {
-    final manifest = await _yt.videos.streamsClient
+    final manifest = await _yt.videos.streams
         .getManifest(videoId, ytClients: [YoutubeApiClient.androidVr]);
     return manifest;
   }
 
-  @override
   Future<List<Video>> getTrendingSimulated(String category) async {
     // Simuliamo i trending con ricerche predefinite per categoria
     final queries = _getTrendingQueries(category);
-    print('getTrendingSimulated chiamato con categoria: $category');
-    print('Query da utilizzare: $queries');
     final results = <Video>[];
 
     for (int i = 0; i < queries.length; i++) {
@@ -88,9 +78,7 @@ class YoutubeExplodeProvider extends BaseProvider
             await _yt.search.search(query, filter: TypeFilters.video);
         final videos = searchResult.take(15).toList(); // Più video per query
         results.addAll(videos);
-        print('Query "$query" ha restituito ${videos.length} video');
       } catch (e) {
-        print('Errore con query "$query": $e');
         // Continua con la prossima query se una fallisce
         continue;
       }
@@ -107,10 +95,9 @@ class YoutubeExplodeProvider extends BaseProvider
       }
     }
 
-    return uniqueResults.take(50).toList();
+    return uniqueResults;
   }
 
-  @override
   Future<List<Video>> getMusicHomeSimulated() async {
     // Simuliamo la music home con query musicali predefinite
     final musicQueries = [
@@ -125,8 +112,7 @@ class YoutubeExplodeProvider extends BaseProvider
 
     for (final query in musicQueries) {
       try {
-        final searchResult =
-            await _yt.search.search(query, filter: TypeFilters.video);
+        final searchResult = await _yt.search.search(query);
         final videos = searchResult.take(8).toList();
         results.addAll(videos);
       } catch (e) {
@@ -148,7 +134,6 @@ class YoutubeExplodeProvider extends BaseProvider
     return uniqueResults;
   }
 
-  @override
   Future<List<String>> getSearchSuggestions(String query) async {
     try {
       // Usiamo l'API nativa di youtube_explode_dart per i suggerimenti
@@ -216,7 +201,6 @@ class YoutubeExplodeProvider extends BaseProvider
     return suggestions.take(10).toList();
   }
 
-  @override
   void close() {
     _yt.close();
   }

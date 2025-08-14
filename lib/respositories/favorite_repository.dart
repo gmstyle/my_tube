@@ -1,144 +1,89 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_ce_flutter/adapters.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
-import 'package:my_tube/utils/enums.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 
 class FavoriteRepository {
   final YoutubeExplodeRepository youtubeExplodeRepository;
 
   FavoriteRepository({required this.youtubeExplodeRepository});
 
-  final favoriteVideosBox = Hive.box<ResourceMT>('favorites');
-  final favoriteChannelsBox = Hive.box<ResourceMT>('channels');
-  final favoritePlaylistsBox = Hive.box<ResourceMT>('playlists');
+  final favoriteVideosBox = Hive.box<String>('favoriteVideos');
+  final favoriteChannelsBox = Hive.box<String>('favoriteChannels');
+  final favoritePlaylistsBox = Hive.box<String>('favoritePlaylists');
 
-  List<ResourceMT> get favoriteVideos => favoriteVideosBox.values.toList();
-  List<ResourceMT> get favoriteChannels => favoriteChannelsBox.values.toList();
-  List<ResourceMT> get favoritePlaylists =>
-      favoritePlaylistsBox.values.toList();
+  Future<List<models.VideoTile>> get favoriteVideos async =>
+      await Future.wait(favoriteVideosBox.values.toList().map((id) async {
+        return await youtubeExplodeRepository.getVideoMetadata(id);
+      }));
+  Future<List<models.ChannelTile>> get favoriteChannels async =>
+      await Future.wait(favoriteChannelsBox.values.toList().map((id) async {
+        return await youtubeExplodeRepository.getChannelMetadata(id);
+      }));
+  Future<List<models.PlaylistTile>> get favoritePlaylists async =>
+      await Future.wait(favoritePlaylistsBox.values.toList().map((id) async {
+        return await youtubeExplodeRepository.getPlaylistMetadata(id);
+      }));
 
-  List<String> get videoIds => favoriteVideos.map((e) => e.id!).toList();
-  List<String> get channelIds => favoriteChannels.map((e) => e.id!).toList();
-  List<String> get playlistIds => favoritePlaylists.map((e) => e.id!).toList();
+  List<String> get videoIds => favoriteVideosBox.values.toList();
+  List<String> get channelIds => favoriteChannelsBox.values.toList();
+  List<String> get playlistIds => favoritePlaylistsBox.values.toList();
 
-  ValueListenable<Box<ResourceMT>> get favoriteVideosListenable =>
+  ValueListenable<Box<String>> get favoriteVideosListenable =>
       favoriteVideosBox.listenable();
-  ValueListenable<Box<ResourceMT>> get favoriteChannelsListenable =>
+  ValueListenable<Box<String>> get favoriteChannelsListenable =>
       favoriteChannelsBox.listenable();
-  ValueListenable<Box<ResourceMT>> get favoritePlaylistsListenable =>
+  ValueListenable<Box<String>> get favoritePlaylistsListenable =>
       favoritePlaylistsBox.listenable();
 
-  Future<void> add(ResourceMT favorite, Kind kind) async {
-    if (kind == Kind.video) {
-      await favoriteVideosBox.add(favorite);
-    } else if (kind == Kind.channel) {
-      await favoriteChannelsBox.add(favorite);
-    } else if (kind == Kind.playlist) {
-      await favoritePlaylistsBox.add(favorite);
-    }
+  Future<void> addVideo(String id) async {
+    await favoriteVideosBox.add(id);
   }
 
-  Future<void> addAll(List<ResourceMT> favorites, Kind kind) async {
-    if (kind == Kind.video) {
-      await favoriteVideosBox.addAll(favorites);
-    } else if (kind == Kind.channel) {
-      await favoriteChannelsBox.addAll(favorites);
-    } else if (kind == Kind.playlist) {
-      await favoritePlaylistsBox.addAll(favorites);
-    }
+  Future<void> addChannel(String id) async {
+    await favoriteChannelsBox.add(id);
   }
 
-  Future<void> remove(String id, Kind kind) async {
-    if (kind == Kind.video) {
-      final index = favoriteVideos.indexWhere((element) => element.id == id);
-      await favoriteVideosBox.deleteAt(index);
-    } else if (kind == Kind.channel) {
-      final index = favoriteChannels.indexWhere((element) => element.id == id);
-      await favoriteChannelsBox.deleteAt(index);
-    } else if (kind == Kind.playlist) {
-      final index = favoritePlaylists.indexWhere((element) => element.id == id);
-      await favoritePlaylistsBox.deleteAt(index);
-    }
+  Future<void> addPlaylist(String id) async {
+    await favoritePlaylistsBox.add(id);
   }
 
-  Future<void> clear(Kind kind) async {
-    if (kind == Kind.video) {
-      await favoriteVideosBox.clear();
-    } else if (kind == Kind.channel) {
-      await favoriteChannelsBox.clear();
-    } else if (kind == Kind.playlist) {
-      await favoritePlaylistsBox.clear();
-    }
+  Future<void> addAllVideos(List<String> favorites) async {
+    await favoriteVideosBox.addAll(favorites);
   }
 
-  Future<bool> contains(String? id, Kind kind) async {
-    if (kind == Kind.video) {
-      return favoriteVideosBox.containsKey(id);
-    } else if (kind == Kind.channel) {
-      return favoriteChannelsBox.containsKey(id);
-    } else if (kind == Kind.playlist) {
-      return favoritePlaylistsBox.containsKey(id);
-    }
-    return false;
+  Future<void> addAllChannels(List<String> favorites) async {
+    await favoriteChannelsBox.addAll(favorites);
   }
 
-  Future<void> migrateData() async {
-    // Migrate favorite playlists with base64 thumbnails if they don't have one
-    final canMigratePlaylist = favoritePlaylists.isNotEmpty &&
-        favoritePlaylists.every((playlist) => playlist.base64Thumbnail == null);
+  Future<void> addAllPlaylists(List<String> favorites) async {
+    await favoritePlaylistsBox.addAll(favorites);
+  }
 
-    if (canMigratePlaylist) {
-      final updatedPlaylists =
-          await Future.wait(favoritePlaylists.map((savedPlaylist) async {
-        final newPlaylist = await youtubeExplodeRepository
-            .getPlaylist(savedPlaylist.id!, getVideos: false);
+  Future<void> removeVideo(String id) async {
+    final index = favoriteVideosBox.keys.toList().indexOf(id);
+    await favoriteVideosBox.deleteAt(index);
+  }
 
-        var base64thumbnail = await youtubeExplodeRepository
-            .youtubeExplodeProvider
-            .getBase64Image(newPlaylist.thumbnailUrl!);
-        return savedPlaylist.copyWith(base64Thumbnail: base64thumbnail);
-      }));
-      await favoritePlaylistsBox.clear();
-      await favoritePlaylistsBox.addAll(updatedPlaylists);
-    }
+  Future<void> removeChannel(String id) async {
+    final index = favoriteChannelsBox.keys.toList().indexOf(id);
+    await favoriteChannelsBox.deleteAt(index);
+  }
 
-    // Migrate favorite channels with base64 thumbnails if they don't have one
-    final canMigrateChannels = favoriteChannels.isNotEmpty &&
-        favoriteChannels.any((channel) =>
-            channel.base64Thumbnail == null ||
-            channel.base64Thumbnail!.isEmpty);
+  Future<void> removePlaylist(String id) async {
+    final index = favoritePlaylistsBox.keys.toList().indexOf(id);
+    await favoritePlaylistsBox.deleteAt(index);
+  }
 
-    if (canMigrateChannels) {
-      final updatedChannels =
-          await Future.wait(favoriteChannels.map((savedChannel) async {
-        try {
-          // Only migrate channels that don't have base64Thumbnail
-          if (savedChannel.base64Thumbnail == null ||
-              savedChannel.base64Thumbnail!.isEmpty) {
-            final channelDetails = await youtubeExplodeRepository
-                .getChannel(savedChannel.channelId!);
+  Future<void> clearVideos() async {
+    await favoriteVideosBox.clear();
+  }
 
-            // Get the image URL, prioritizing avatarUrl from channel details
-            final imageUrl =
-                channelDetails.avatarUrl ?? savedChannel.thumbnailUrl;
+  Future<void> clearChannels() async {
+    await favoriteChannelsBox.clear();
+  }
 
-            if (imageUrl != null && imageUrl.isNotEmpty) {
-              var base64thumbnail = await youtubeExplodeRepository
-                  .youtubeExplodeProvider
-                  .getBase64Image(imageUrl);
-
-              return savedChannel.copyWith(base64Thumbnail: base64thumbnail);
-            }
-          }
-          return savedChannel; // Return unchanged if already has base64Thumbnail or no valid URL
-        } catch (e) {
-          // If migration fails for a specific channel, return the original
-          return savedChannel;
-        }
-      }));
-      await favoriteChannelsBox.clear();
-      await favoriteChannelsBox.addAll(updatedChannels);
-    }
+  Future<void> clearPlaylists() async {
+    await favoritePlaylistsBox.clear();
   }
 }

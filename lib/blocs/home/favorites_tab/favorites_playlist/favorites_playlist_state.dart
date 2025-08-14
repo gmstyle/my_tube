@@ -4,10 +4,10 @@ enum FavoritesPlaylistStatus { initial, loading, success, failure }
 
 class FavoritesPlaylistState extends Equatable {
   const FavoritesPlaylistState._(
-      {required this.status, this.resources, this.error});
+      {required this.status, this.playlists, this.error});
 
   final FavoritesPlaylistStatus status;
-  final List<ResourceMT>? resources;
+  final List<PlaylistTile>? playlists;
   final String? error;
 
   const FavoritesPlaylistState.initial()
@@ -16,12 +16,12 @@ class FavoritesPlaylistState extends Equatable {
   const FavoritesPlaylistState.loading()
       : this._(status: FavoritesPlaylistStatus.loading);
 
-  const FavoritesPlaylistState.success(List<ResourceMT>? queue)
-      : this._(status: FavoritesPlaylistStatus.success, resources: queue);
+  const FavoritesPlaylistState.success(List<PlaylistTile>? queue)
+      : this._(status: FavoritesPlaylistStatus.success, playlists: queue);
 
   const FavoritesPlaylistState.failure(String error)
       : this._(status: FavoritesPlaylistStatus.failure, error: error);
 
   @override
-  List<Object?> get props => [status, resources, error];
+  List<Object?> get props => [status, playlists, error];
 }

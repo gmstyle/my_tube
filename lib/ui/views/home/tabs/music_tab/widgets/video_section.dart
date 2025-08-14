@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:my_tube/models/resource_mt.dart';
+/* import 'package:flutter/material.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class VideoSection extends StatelessWidget {
   const VideoSection(
       {super.key, required this.videos, this.crossAxisCount = 1});
-  final List<ResourceMT> videos;
+  final List<Video> videos;
   final int crossAxisCount;
 
   @override
@@ -38,7 +38,7 @@ class VideoSection extends StatelessWidget {
           itemBuilder: (context, index) {
             final video = videos[index];
             return PlayPauseGestureDetector(
-              resource: video,
+              id: video,
               child: crossAxisCount > 1
                   ? VideoMenuDialog(
                       video: video, child: VideoTile(video: video))
@@ -49,3 +49,4 @@ class VideoSection extends StatelessWidget {
     );
   }
 }
+ */

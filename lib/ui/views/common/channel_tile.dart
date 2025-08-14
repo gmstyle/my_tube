@@ -1,46 +1,11 @@
-import 'dart:convert';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/utils/utils.dart';
 
 class ChannelTile extends StatelessWidget {
   const ChannelTile({super.key, required this.channel});
 
-  final ResourceMT channel;
-
-  // Helper method to build circular image from base64 data
-  Widget _buildCircularImage(String? base64Image, BuildContext context) {
-    if (base64Image != null) {
-      try {
-        final bytes = base64Decode(base64Image);
-        return Image.memory(
-          bytes,
-          fit: BoxFit.cover,
-        );
-      } catch (e) {
-        // If base64 decoding fails, return placeholder
-        return Container(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(
-            Icons.person,
-            size: 24,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        );
-      }
-    } else {
-      // No base64 data available, return placeholder
-      return Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        child: Icon(
-          Icons.person,
-          size: 24,
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
-        ),
-      );
-    }
-  }
+  final models.ChannelTile channel;
 
   @override
   Widget build(BuildContext context) {
@@ -49,29 +14,11 @@ class ChannelTile extends StatelessWidget {
         height: 48,
         width: 48,
         child: ClipOval(
-          child: channel.thumbnailUrl != null
-              ? CachedNetworkImage(
-                  imageUrl: channel.thumbnailUrl!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.person,
-                      size: 24,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                  errorWidget: (context, url, error) {
-                    // show base64 image if error
-                    return _buildCircularImage(
-                        channel.base64Thumbnail, context);
-                  },
-                )
-              : _buildCircularImage(channel.base64Thumbnail, context),
-        ),
+            child: Utils.buildImageWithFallback(
+                thumbnailUrl: channel.thumbnailUrl, context: context)),
       ),
       title: Text(
-        channel.channelTitle ?? '',
+        channel.title,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
@@ -83,20 +30,7 @@ class ChannelTile extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              channel.subscriberCount ?? '',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Flexible(
-            child: Text(
-              channel.videoCount != null &&
-                      Utils.checkIfStringIsOnlyNumeric(channel.videoCount!)
-                  ? '${channel.videoCount} videos'
-                  : channel.videoCount ?? '',
+              channel.subscriberCount.toString(),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,

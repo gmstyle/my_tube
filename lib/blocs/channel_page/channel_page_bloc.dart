@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 
 part 'channel_page_event.dart';

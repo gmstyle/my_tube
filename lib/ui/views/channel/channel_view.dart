@@ -3,15 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/channel/widgets/channel_header.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
-import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/featured_channels_section.dart';
-import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/playlist_section.dart';
-import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/video_section.dart';
-import 'package:my_tube/utils/enums.dart';
+import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/models/tiles.dart' as models;
+
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class ChannelView extends StatelessWidget {
   const ChannelView({super.key, required this.channelId});
@@ -30,7 +29,6 @@ class ChannelView extends StatelessWidget {
             BlocBuilder<ChannelPageBloc, ChannelPageState>(
                 builder: (context, state) {
               if (state.status == ChannelPageStatus.loaded) {
-                final channel = state.channel;
                 return BlocBuilder<FavoritesChannelBloc, FavoritesChannelState>(
                     builder: (context, state) {
                   final favoriteChannelsBloc =
@@ -44,20 +42,7 @@ class ChannelView extends StatelessWidget {
                               .add(RemoveFromFavoritesChannel(channelId));
                         } else {
                           favoriteChannelsBloc
-                              .add(AddToFavoritesChannel(ResourceMT(
-                            id: channelId,
-                            title: channel!.title,
-                            description: channel.description,
-                            channelTitle: channel.title,
-                            thumbnailUrl: channel.avatarUrl,
-                            kind: Kind.channel.name,
-                            channelId: channelId,
-                            playlistId: null,
-                            duration: null,
-                            streamUrl: null,
-                            videoCount: channel.videoCount,
-                            subscriberCount: channel.subscriberCount,
-                          )));
+                              .add(AddToFavoritesChannel(channelId));
                         }
                       },
                       icon: favoriteChannelsBloc.favoritesRepository.channelIds
@@ -78,8 +63,50 @@ class ChannelView extends StatelessWidget {
                 return const CustomSkeletonChannel();
 
               case ChannelPageStatus.loaded:
-                final channel = state.channel;
-                return SingleChildScrollView(
+                final channel = state.data?['channel'] as ChannelAbout;
+                final videos = state.data?['videos'] as List<models.VideoTile>?;
+                final ids = videos?.map((video) => video.id).toList();
+                if (videos != null && videos.isNotEmpty) {
+                  return SingleChildScrollView(
+                      child: Column(
+                    children: [
+                      ChannelHeader(channel: channel),
+                      Row(
+                        children: [
+                          // add to queue
+                          IconButton(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              onPressed: ids != null
+                                  ? () {
+                                      miniplayerCubit.addAllToQueue(ids);
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.queue_music)),
+                          IconButton(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              onPressed: ids != null
+                                  ? () {
+                                      miniplayerCubit.startPlayingPlaylist(ids);
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.playlist_play)),
+                        ],
+                      ),
+                      Expanded(
+                          child: ListView.builder(
+                              itemCount: videos.length,
+                              itemBuilder: (context, index) {
+                                final video = videos[index];
+                                return VideoTile(video: video);
+                              }))
+                    ],
+                  ));
+                } else {
+                  return const Center(
+                    child: Text('No videos available'),
+                  );
+                }
+              /* return SingleChildScrollView(
                   child: Column(
                     children: [
                       ChannelHeader(channel: channel),
@@ -147,10 +174,7 @@ class ChannelView extends StatelessWidget {
                             const SizedBox(height: 8),
                             if (section.videos != null &&
                                 section.videos!.isNotEmpty)
-                              VideoSection(
-                                videos: section.videos!,
-                                crossAxisCount: 2,
-                              ),
+                              
                             if (section.playlists != null &&
                                 section.playlists!.isNotEmpty)
                               PlaylistSection(playlists: section.playlists!),
@@ -163,7 +187,7 @@ class ChannelView extends StatelessWidget {
                         )
                     ],
                   ),
-                );
+                ); */
 
               case ChannelPageStatus.failure:
                 return Center(

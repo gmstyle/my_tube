@@ -6,12 +6,16 @@ import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/services/android_auto_detection_service.dart';
 import 'package:my_tube/ui/views/video/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
+  MtPlayerService({required this.youtubeExplodeProvider});
+
+  final YoutubeExplodeProvider youtubeExplodeProvider;
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
   int currentIndex = -1;
@@ -218,9 +222,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Inizializza il player per la riproduzione singola
-  Future<void> startPlaying(ResourceMT video) async {
+  Future<void> startPlaying(String id) async {
     // inizializza il media item da passare riprodurre
-    final item = _createMediaItem(video);
+    final item = await _createMediaItem(id);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -233,9 +237,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Inizializza il player per la riproduzione di una coda di video
-  Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
+  Future<void> startPlayingPlaylist(List<String> ids) async {
     // inizializza la playlist ed il primo brano
-    final list = videos.map(_createMediaItem).toList();
+    final list = await Future.wait(ids.map(_createMediaItem));
 
     for (final item in list) {
       // aggiungi il brano alla coda se non è già presente
@@ -404,8 +408,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
   }
 
-  Future<void> addToQueue(ResourceMT video) async {
-    final item = _createMediaItem(video);
+  Future<void> addToQueue(String id) async {
+    final item = await _createMediaItem(id);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -420,8 +424,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  Future<void> addAllToQueue(List<ResourceMT> videos) async {
-    final list = videos.map(_createMediaItem).toList();
+  Future<void> addAllToQueue(List<String> ids) async {
+    final list = await Future.wait(ids.map(_createMediaItem));
 
     int? firstAddedIndex;
     for (final item in list) {
@@ -508,19 +512,20 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  MediaItem _createMediaItem(ResourceMT video) {
+  Future<MediaItem> _createMediaItem(String id) async {
+    final video = await youtubeExplodeProvider.getVideo(id);
+    final manifest = await youtubeExplodeProvider.getVideoStreamManifest(id);
+    final muxedStream = manifest.muxed.withHighestBitrate();
+
     return MediaItem(
-        id: video.id ?? 'unknown',
-        title: video.title ?? 'Unknown Title',
-        album: video.channelTitle ?? 'Unknown Channel',
-        artUri:
-            video.thumbnailUrl != null ? Uri.parse(video.thumbnailUrl!) : null,
-        duration: video.duration != null
-            ? Duration(milliseconds: video.duration!)
-            : null,
+        id: video.id.value,
+        title: video.title,
+        album: video.musicData.isNotEmpty ? video.musicData.first.album : null,
+        artUri: Uri.parse(video.thumbnails.highResUrl),
+        duration: video.duration,
         extras: {
-          'streamUrl': video.streamUrl ?? '',
-          'description': video.description ?? '',
+          'streamUrl': muxedStream.url.toString(),
+          'description': video.description,
         });
   }
 

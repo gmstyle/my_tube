@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/utils/utils.dart';
 
 class PlaylistTile extends StatelessWidget {
   const PlaylistTile({super.key, required this.playlist});
 
-  final ResourceMT playlist;
+  final models.PlaylistTile playlist;
 
   @override
   Widget build(BuildContext context) {
@@ -18,32 +18,18 @@ class PlaylistTile extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                playlist.thumbnailUrl != null ||
-                        playlist.base64Thumbnail != null
-                    ? Utils.buildImageWithFallback(
-                        thumbnailUrl: playlist.thumbnailUrl,
-                        base64Thumbnail: playlist.base64Thumbnail,
-                        context: context,
-                        placeholder: Container(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          child: Icon(
-                            Icons.playlist_play,
-                            size: 32,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.playlist_play,
-                          size: 32,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
+                Utils.buildImageWithFallback(
+                  thumbnailUrl: playlist.thumbnailUrl,
+                  context: context,
+                  placeholder: Container(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(
+                      Icons.playlist_play,
+                      size: 32,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
                 Container(
                   decoration: BoxDecoration(
                     gradient: Utils.getOverlayGradient(context),
@@ -61,7 +47,7 @@ class PlaylistTile extends StatelessWidget {
             )),
       ),
       title: Text(
-        playlist.title ?? '',
+        playlist.title,
         style: TextStyle(
           fontWeight: FontWeight.bold,
           color: Theme.of(context).colorScheme.onPrimary,
@@ -73,10 +59,10 @@ class PlaylistTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (playlist.channelTitle != null)
+          if (playlist.author != null)
             Flexible(
               child: Text(
-                playlist.channelTitle!,
+                playlist.author!,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),

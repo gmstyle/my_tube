@@ -3,18 +3,10 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/video_category_mt.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class Utils {
-  static String getMusicVideoCategoryId(dynamic categories) {
-    final categoriesMT = categories
-        .map((category) => VideoCategoryMT.fromJson(category))
-        .toList();
-    return categoriesMT.firstWhere((element) => element.title == 'Music').id;
-  }
-
   static int? parseDurationStringToMilliseconds(String? isoFormatDuration) {
     if (isoFormatDuration != null) {
       RegExp regExp = RegExp(r"PT(\d+H)?(\d+M)?(\d+S)?");
@@ -161,7 +153,6 @@ class Utils {
   // Helper method for building images with robust fallback
   static Widget buildImageWithFallback({
     required String? thumbnailUrl,
-    required String? base64Thumbnail,
     required BuildContext context,
     BoxFit fit = BoxFit.cover,
     Widget? placeholder,
@@ -184,32 +175,12 @@ class Utils {
         fit: fit,
         placeholder: (context, url) => defaultPlaceholder,
         errorWidget: (context, url, error) {
-          // Fallback to base64 image if network fails
-          return _buildBase64Image(
-              base64Thumbnail, context, fit, defaultPlaceholder);
+          return defaultPlaceholder;
         },
       );
     } else {
-      // No network URL, try base64
-      return _buildBase64Image(
-          base64Thumbnail, context, fit, defaultPlaceholder);
+      return defaultPlaceholder;
     }
-  }
-
-  static Widget _buildBase64Image(
-      String? base64Image, BuildContext context, BoxFit fit, Widget fallback) {
-    if (base64Image != null && base64Image.isNotEmpty) {
-      try {
-        final bytes = base64Decode(base64Image);
-        return Image.memory(
-          bytes,
-          fit: fit,
-        );
-      } catch (e) {
-        return fallback;
-      }
-    }
-    return fallback;
   }
 
   // Helper method for themed gradients

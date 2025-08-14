@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_grid_item.dart';
@@ -17,6 +16,7 @@ import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/search/widgets/empty_search.dart';
 import 'package:my_tube/utils/enums.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 
 // ignore: must_be_immutable
 class SearchView extends StatelessWidget {
@@ -182,7 +182,7 @@ class SearchView extends StatelessWidget {
             case SearchStatus.loading:
               return const CustomSkeletonGridList();
             case SearchStatus.success:
-              return state.result!.resources.isNotEmpty
+              return state.result!.isNotEmpty
                   ? LayoutBuilder(builder: (context, constraints) {
                       final isTablet = constraints.maxWidth > 600;
                       if (isTablet) {
@@ -193,18 +193,18 @@ class SearchView extends StatelessWidget {
                             mainAxisSpacing: 8,
                             crossAxisSpacing: 8,
                           ),
-                          itemCount: state.result!.resources.length,
+                          itemCount: state.result!.length,
                           itemBuilder: (context, index) {
-                            final result = state.result!.resources[index];
+                            final result = state.result![index];
                             return _setTile(context, result, isTablet);
                           },
                         );
                       } else {
                         return ListView.builder(
                             padding: const EdgeInsets.only(bottom: 16),
-                            itemCount: state.result!.resources.length,
+                            itemCount: state.result!.length,
                             itemBuilder: (context, index) {
-                              final result = state.result!.resources[index];
+                              final result = state.result![index];
                               return _setTile(context, result, isTablet);
                             });
                       }
@@ -229,41 +229,40 @@ class SearchView extends StatelessWidget {
     FocusScope.of(context).unfocus();
   }
 
-  Widget _setTile(BuildContext context, ResourceMT result, bool isTablet) {
-    if (result.kind == Kind.video.name) {
+  Widget _setTile(BuildContext context, dynamic result, bool isTablet) {
+    if (result is models.VideoTile) {
+      final quickVideo = {'id': result.id, 'title': result.title};
       return PlayPauseGestureDetector(
-          resource: result,
+          id: result.id,
           child: VideoMenuDialog(
-              video: result,
+              quickVideo: quickVideo,
               child: isTablet
                   ? VideoGridItem(video: result)
                   : VideoTile(video: result)));
     }
 
-    if (result.kind == Kind.channel.name) {
+    if (result is models.ChannelTile) {
       return GestureDetector(
           onTap: () {
             context.goNamed(AppRoute.channel.name,
-                extra: {'channelId': result.channelId!});
+                extra: {'channelId': result.id});
           },
           child: ChannelPlaylistMenuDialog(
-              resource: result,
+              id: result.id,
               kind: Kind.channel,
               child: isTablet
                   ? ChannelGridItem(channel: result)
                   : ChannelTile(channel: result)));
     }
 
-    if (result.kind == Kind.playlist.name) {
+    if (result is models.PlaylistTile) {
       return GestureDetector(
           onTap: () {
-            context.goNamed(AppRoute.playlist.name, extra: {
-              'playlist': result.title!,
-              'playlistId': result.playlistId!
-            });
+            context.goNamed(AppRoute.playlist.name,
+                extra: {'playlistId': result.id});
           },
           child: ChannelPlaylistMenuDialog(
-              resource: result,
+              id: result.id,
               kind: Kind.playlist,
               child: isTablet
                   ? PlaylistGridItem(playlist: result)

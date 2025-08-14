@@ -7,7 +7,7 @@ class PlayerState extends Equatable {
 
   final PlayerStatus status;
 
-  final ResourceMT? video;
+  final Video? video;
   final String? message;
 
   const PlayerState.loading() : this._(status: PlayerStatus.loading);

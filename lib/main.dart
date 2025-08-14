@@ -12,15 +12,13 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
-import 'package:my_tube/blocs/test_youtube_explode/test_youtube_explode_bloc.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/providers/update_provider.dart';
-import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/update_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
@@ -38,18 +36,20 @@ void main() async {
   //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Hive.initFlutter();
-  Hive.registerAdapter(ResourceMTAdapter());
   await Hive.openBox('settings');
-  await Hive.openBox<ResourceMT>('favorites');
-  await Hive.openBox<ResourceMT>('channels');
-  await Hive.openBox<ResourceMT>('playlists');
+  await Hive.openBox<String>('favoriteVideos');
+  await Hive.openBox<String>('favoriteChannels');
+  await Hive.openBox<String>('favoritePlaylists');
   await LocalNotificationHelper.init();
 
   // Inizializza AudioService con gestione degli errori per Android Auto
   late MtPlayerService mtPlayerService;
+  final YoutubeExplodeProvider youtubeExplodeProvider =
+      YoutubeExplodeProvider();
   try {
     mtPlayerService = await AudioService.init(
-        builder: () => MtPlayerService(),
+        builder: () =>
+            MtPlayerService(youtubeExplodeProvider: youtubeExplodeProvider),
         config: const AudioServiceConfig(
             androidNotificationChannelId: 'mytube_channel',
             androidNotificationChannelName: 'MyTube',
@@ -66,7 +66,8 @@ void main() async {
   } catch (e) {
     log('Errore durante l\'inizializzazione di AudioService: $e');
     // Fallback: crea un'istanza diretta se AudioService non si inizializza
-    mtPlayerService = MtPlayerService();
+    mtPlayerService =
+        MtPlayerService(youtubeExplodeProvider: youtubeExplodeProvider);
     // Inizializza Android Auto anche nel fallback
     try {
       await mtPlayerService.initializeAndroidAutoDetection();
@@ -83,10 +84,9 @@ void main() async {
       /// Providers and services
 
       /// Provider YouTube Explode - Nuovo provider basato su youtube_explode_dart
-      Provider<YoutubeExplodeProvider>(
-          create: (context) => YoutubeExplodeProvider()),
+      Provider<YoutubeExplodeProvider>.value(value: youtubeExplodeProvider),
 
-      Provider<MtPlayerService>(create: (context) => mtPlayerService),
+      Provider<MtPlayerService>.value(value: mtPlayerService),
       Provider<DownloadService>(create: (context) => DownloadService()),
       Provider<UpdateProvider>(create: (context) => UpdateProvider()),
     ],
@@ -100,8 +100,7 @@ void main() async {
         RepositoryProvider<FavoriteRepository>(
             create: (context) => FavoriteRepository(
                 youtubeExplodeRepository:
-                    context.read<YoutubeExplodeRepository>())
-              ..migrateData()),
+                    context.read<YoutubeExplodeRepository>())),
         RepositoryProvider<UpdateRepository>(
             create: (context) => UpdateRepository(
                 updateProvider: context.read<UpdateProvider>())),
@@ -137,10 +136,6 @@ void main() async {
         BlocProvider<UpdateBloc>(
             create: (context) =>
                 UpdateBloc(updateRepository: context.read<UpdateRepository>())),
-        BlocProvider<TestYoutubeExplodeBloc>(
-            create: (context) => TestYoutubeExplodeBloc(
-                youtubeExplodeRepository:
-                    context.read<YoutubeExplodeRepository>())),
       ], child: const MyApp()),
     ),
   ));

@@ -4,10 +4,10 @@ enum FavoritesChannelStatus { initial, loading, success, failure }
 
 class FavoritesChannelState extends Equatable {
   const FavoritesChannelState._(
-      {required this.status, this.resources, this.error});
+      {required this.status, this.channels, this.error});
 
   final FavoritesChannelStatus status;
-  final List<ResourceMT>? resources;
+  final List<ChannelTile>? channels;
   final String? error;
 
   const FavoritesChannelState.initial()
@@ -16,12 +16,12 @@ class FavoritesChannelState extends Equatable {
   const FavoritesChannelState.loading()
       : this._(status: FavoritesChannelStatus.loading);
 
-  const FavoritesChannelState.success(List<ResourceMT>? queue)
-      : this._(status: FavoritesChannelStatus.success, resources: queue);
+  const FavoritesChannelState.success(List<ChannelTile>? channels)
+      : this._(status: FavoritesChannelStatus.success, channels: channels);
 
   const FavoritesChannelState.failure(String error)
       : this._(status: FavoritesChannelStatus.failure, error: error);
 
   @override
-  List<Object?> get props => [status, resources, error];
+  List<Object?> get props => [status, channels, error];
 }

@@ -1,4 +1,4 @@
-part of 'music_tab_bloc.dart';
+/* part of 'music_tab_bloc.dart';
 
 enum FavoritesStatus { initial, loading, success, error }
 
@@ -25,3 +25,4 @@ class MusicTabState extends Equatable {
   @override
   List<Object?> get props => [status, error, response];
 }
+ */

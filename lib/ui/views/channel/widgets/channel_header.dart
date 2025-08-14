@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/channel_page_mt.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/utils/utils.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class ChannelHeader extends StatelessWidget {
   const ChannelHeader({super.key, required this.channel});
 
-  final ChannelPageMT? channel;
+  final ChannelAbout channel;
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +26,7 @@ class ChannelHeader extends StatelessWidget {
             width: avatarSize,
             height: avatarSize,
             child: Utils.buildImageWithFallback(
-              thumbnailUrl: channel!.avatarUrl,
-              base64Thumbnail: null, // ChannelPageMT doesn't have base64 field
+              thumbnailUrl: channel.thumbnails.first.url.toString(),
               context: context,
               fit: BoxFit.cover,
               placeholder: Icon(
@@ -44,7 +43,7 @@ class ChannelHeader extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              channel!.title ?? '',
+              channel.title,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -52,9 +51,9 @@ class ChannelHeader extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            if (channel!.channelHandleText != null)
+            if (channel.channelLinks.isNotEmpty)
               Text(
-                '${channel!.channelHandleText}',
+                '${channel.channelLinks.first.url}',
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -62,7 +61,7 @@ class ChannelHeader extends StatelessWidget {
                     ),
               ),
             const SizedBox(height: 4),
-            if (channel!.subscriberCount != null)
+            if (channel.viewCount != null)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -74,7 +73,7 @@ class ChannelHeader extends StatelessWidget {
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(
-                      'Subscribers: ${channel!.subscriberCount!}',
+                      'Views: ${channel.viewCount!}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
@@ -86,9 +85,9 @@ class ChannelHeader extends StatelessWidget {
         ),
 
         // Description
-        if (channel!.description != null && channel!.description != '') ...[
+        if (channel.description != null && channel.description != '') ...[
           const SizedBox(height: 8),
-          ExpandableText(title: 'Description', text: channel!.description ?? '')
+          ExpandableText(title: 'Description', text: channel.description ?? '')
         ],
       ],
     );

@@ -22,10 +22,10 @@ class VideoFavorites extends StatelessWidget {
         case FavoritesStatus.loading:
           return const Center(child: CircularProgressIndicator());
         case FavoritesStatus.success:
-          final favorites = state.resources!
+          final favorites = state.videos!
               .where((video) {
-                final title = video.title?.toLowerCase() ?? '';
-                final channelTitle = video.channelTitle?.toLowerCase() ?? '';
+                final title = video.title.toLowerCase();
+                final channelTitle = video.artist?.toLowerCase() ?? '';
                 final query = searchQuery.toLowerCase();
                 return title.contains(query) || channelTitle.contains(query);
               })
@@ -33,11 +33,13 @@ class VideoFavorites extends StatelessWidget {
               .reversed
               .toList();
 
+          final ids = favorites.map((video) => video.id).toList();
+
           return Column(
             children: [
               FavoritesHeader(
                 title: 'Videos',
-                favorites: favorites,
+                ids: ids,
               ),
               Expanded(
                 child: favorites.isNotEmpty
@@ -45,10 +47,14 @@ class VideoFavorites extends StatelessWidget {
                         itemCount: favorites.length,
                         itemBuilder: (context, index) {
                           final video = favorites[index];
+                          final quickVideo = {
+                            'id': video.id,
+                            'title': video.title,
+                          };
                           return PlayPauseGestureDetector(
-                              resource: video,
+                              id: video.id,
                               child: VideoMenuDialog(
-                                  video: video,
+                                  quickVideo: quickVideo,
                                   child: VideoTile(video: video)));
                         },
                       )

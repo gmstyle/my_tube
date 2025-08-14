@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
 import 'package:my_tube/utils/utils.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 
 class VideoTile extends StatelessWidget {
   const VideoTile({super.key, required this.video});
 
-  final ResourceMT video;
+  final models.VideoTile video;
 
   @override
   Widget build(BuildContext context) {
@@ -23,29 +23,18 @@ class VideoTile extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              video.thumbnailUrl != null || video.base64Thumbnail != null
-                  ? Utils.buildImageWithFallback(
-                      thumbnailUrl: video.thumbnailUrl,
-                      base64Thumbnail: video.base64Thumbnail,
-                      context: context,
-                      placeholder: Container(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.play_circle_outline,
-                          size: 32,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      child: Icon(
-                        Icons.play_circle_outline,
-                        size: 32,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    ),
+              Utils.buildImageWithFallback(
+                thumbnailUrl: video.thumbnailUrl,
+                context: context,
+                placeholder: Container(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: Icon(
+                    Icons.play_circle_outline,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
               // overlay gradient per video selected
               StreamBuilder(
                   stream: playerCubit.mtPlayerService.mediaItem,
@@ -83,14 +72,14 @@ class VideoTile extends StatelessWidget {
                 bottom: 0,
                 right: 0,
                 left: 0,
-                child: SpectrumPlayingIcon(videoId: video.id!),
+                child: SpectrumPlayingIcon(videoId: video.id),
               )
             ],
           ),
         ),
       ),
       title: Text(
-        video.title ?? '',
+        video.title,
         style: TextStyle(
           fontWeight: FontWeight.bold,
           color: Theme.of(context).colorScheme.onPrimary,
@@ -98,13 +87,15 @@ class VideoTile extends StatelessWidget {
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text(
-        video.channelTitle ?? '',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
-        overflow: TextOverflow.ellipsis,
-      ),
+      subtitle: video.artist != null
+          ? Text(
+              video.artist!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            )
+          : null,
     );
   }
 }

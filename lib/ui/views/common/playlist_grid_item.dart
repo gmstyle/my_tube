@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/utils/utils.dart';
 
 class PlaylistGridItem extends StatelessWidget {
   const PlaylistGridItem({super.key, required this.playlist});
 
-  final ResourceMT playlist;
+  final models.PlaylistTile playlist;
 
   @override
   Widget build(BuildContext context) {
@@ -16,29 +16,18 @@ class PlaylistGridItem extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              playlist.thumbnailUrl != null || playlist.base64Thumbnail != null
-                  ? Utils.buildImageWithFallback(
-                      thumbnailUrl: playlist.thumbnailUrl,
-                      base64Thumbnail: playlist.base64Thumbnail,
-                      context: context,
-                      placeholder: Container(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.playlist_play,
-                          size: 32,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      child: Icon(
-                        Icons.playlist_play,
-                        size: 32,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    ),
+              Utils.buildImageWithFallback(
+                thumbnailUrl: playlist.thumbnailUrl,
+                context: context,
+                placeholder: Container(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: Icon(
+                    Icons.playlist_play,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   gradient: Utils.getOverlayGradient(context),
@@ -64,7 +53,7 @@ class PlaylistGridItem extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            playlist.title!,
+                            playlist.title,
                             maxLines: 2,
                             style: Theme.of(context)
                                 .textTheme
@@ -78,13 +67,13 @@ class PlaylistGridItem extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (playlist.channelTitle != null) ...[
+                    if (playlist.author != null) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
                           Flexible(
                             child: Text(
-                              playlist.channelTitle!,
+                              playlist.author!,
                               maxLines: 1,
                               style: Theme.of(context)
                                   .textTheme
