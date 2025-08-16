@@ -40,8 +40,8 @@ class YoutubeExplodeProvider {
     return searchResult;
   }
 
-  Future<ChannelAbout> getChannelPage(String channelId) async {
-    final channel = await _yt.channels.getAboutPage(channelId);
+  Future<Channel> getChannelPage(String channelId) async {
+    final channel = await _yt.channels.get(channelId);
     return channel;
   }
 
@@ -56,8 +56,8 @@ class YoutubeExplodeProvider {
   }
 
   Future<StreamManifest> getVideoStreamManifest(String videoId) async {
-    final manifest = await _yt.videos.streams
-        .getManifest(videoId, ytClients: [YoutubeApiClient.androidVr]);
+    final manifest = await _yt.videos.streams.getManifest(videoId,
+        ytClients: [YoutubeApiClient.androidVr, YoutubeApiClient.ios]);
     return manifest;
   }
 
@@ -66,22 +66,23 @@ class YoutubeExplodeProvider {
     final queries = _getTrendingQueries(category);
     final results = <Video>[];
 
+    final futures = <Future<VideoSearchList>>[];
     for (int i = 0; i < queries.length; i++) {
       final query = queries[i];
-      try {
-        // Aggiungi un piccolo delay tra le richieste per evitare rate limiting
-        if (i > 0) {
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
+      final future = _yt.search.search(query, filter: TypeFilters.video);
+      futures.add(future);
+    }
 
-        final searchResult =
-            await _yt.search.search(query, filter: TypeFilters.video);
-        final videos = searchResult.take(15).toList(); // Più video per query
+    try {
+      // attendi tutte le ricerche e accumula i video nei risultati
+      final searchResults = await Future.wait(futures);
+      for (final VideoSearchList searchResult in searchResults) {
+        final videos = searchResult.toList(); // Più video per query
         results.addAll(videos);
-      } catch (e) {
-        // Continua con la prossima query se una fallisce
-        continue;
       }
+    } catch (e) {
+      // Gestisci l'errore
+      throw Exception('Errore durante il recupero dei video: $e');
     }
 
     // Rimuovi duplicati basati sull'ID
@@ -148,20 +149,15 @@ class YoutubeExplodeProvider {
   List<String> _getTrendingQueries(String category) {
     switch (category.toLowerCase()) {
       case 'music':
-        return ['trending music', 'top songs', 'new music', 'viral songs'];
+        return ['trending music', 'top songs', 'new music'];
       case 'gaming':
         return ['gaming', 'gameplay'];
       case 'film':
       case 'movies':
-        return ['new movies', 'movie trailers', 'film reviews', 'cinema'];
+        return ['new movies', 'movie trailers', 'film reviews'];
       case 'now':
       default:
-        return [
-          'trending now',
-          'viral videos',
-          'popular videos',
-          'trending today'
-        ];
+        return ['trending videos', 'popular videos', 'trending today'];
     }
   }
 

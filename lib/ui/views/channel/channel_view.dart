@@ -63,44 +63,63 @@ class ChannelView extends StatelessWidget {
                 return const CustomSkeletonChannel();
 
               case ChannelPageStatus.loaded:
-                final channel = state.data?['channel'] as ChannelAbout;
+                final channel = state.data?['channel'] as Channel;
                 final videos = state.data?['videos'] as List<models.VideoTile>?;
                 final ids = videos?.map((video) => video.id).toList();
                 if (videos != null && videos.isNotEmpty) {
-                  return SingleChildScrollView(
-                      child: Column(
-                    children: [
-                      ChannelHeader(channel: channel),
-                      Row(
-                        children: [
-                          // add to queue
-                          IconButton(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              onPressed: ids != null
-                                  ? () {
-                                      miniplayerCubit.addAllToQueue(ids);
-                                    }
-                                  : null,
-                              icon: const Icon(Icons.queue_music)),
-                          IconButton(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              onPressed: ids != null
-                                  ? () {
-                                      miniplayerCubit.startPlayingPlaylist(ids);
-                                    }
-                                  : null,
-                              icon: const Icon(Icons.playlist_play)),
-                        ],
+                  return CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(child: ChannelHeader(channel: channel)),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                children: [
+                                  // add to queue
+                                  IconButton(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      onPressed: ids != null
+                                          ? () {
+                                              miniplayerCubit
+                                                  .addAllToQueue(ids);
+                                            }
+                                          : null,
+                                      icon: const Icon(Icons.queue_music)),
+                                  IconButton(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      onPressed: ids != null
+                                          ? () {
+                                              miniplayerCubit
+                                                  .startPlayingPlaylist(ids);
+                                            }
+                                          : null,
+                                      icon: const Icon(Icons.playlist_play)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
                       ),
-                      Expanded(
-                          child: ListView.builder(
-                              itemCount: videos.length,
-                              itemBuilder: (context, index) {
-                                final video = videos[index];
-                                return VideoTile(video: video);
-                              }))
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final video = videos[index];
+                            return VideoTile(video: video);
+                          },
+                          childCount: videos.length,
+                        ),
+                      ),
                     ],
-                  ));
+                  );
                 } else {
                   return const Center(
                     child: Text('No videos available'),

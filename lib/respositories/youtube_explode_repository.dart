@@ -145,12 +145,12 @@ class YoutubeExplodeRepository {
       final playlists = <PlaylistTile>[];
 
       for (final result in searchResults) {
-        if (result is Video) {
-          videos.add(VideoTile.fromVideo(result as Video));
-        } else if (result is Channel) {
-          channels.add(ChannelTile.fromChannel(result as Channel));
-        } else if (result is Playlist) {
-          playlists.add(PlaylistTile.fromPlaylist(result as Playlist));
+        if (result is SearchVideo) {
+          videos.add(VideoTile.fromSearchVideo(result));
+        } else if (result is SearchChannel) {
+          channels.add(ChannelTile.fromSearchChannel(result));
+        } else if (result is SearchPlaylist) {
+          playlists.add(PlaylistTile.fromSearchPlaylist(result));
         }
       }
 
@@ -164,14 +164,13 @@ class YoutubeExplodeRepository {
   /// Recupera informazioni di un canale
   Future<Map<String, dynamic>> getChannel(String channelId) async {
     try {
-      final channelPage =
-          await youtubeExplodeProvider.getChannelPage(channelId);
+      final channel = await youtubeExplodeProvider.getChannelPage(channelId);
       final uploads = await youtubeExplodeProvider.getChannelVideos(channelId);
       final videoTiles =
           uploads.map((video) => VideoTile.fromVideo(video)).toList();
 
       return {
-        'channel': channelPage,
+        'channel': channel,
         'videos': videoTiles,
       };
     } catch (e) {

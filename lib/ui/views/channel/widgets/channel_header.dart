@@ -6,7 +6,7 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 class ChannelHeader extends StatelessWidget {
   const ChannelHeader({super.key, required this.channel});
 
-  final ChannelAbout channel;
+  final Channel channel;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class ChannelHeader extends StatelessWidget {
             width: avatarSize,
             height: avatarSize,
             child: Utils.buildImageWithFallback(
-              thumbnailUrl: channel.thumbnails.first.url.toString(),
+              thumbnailUrl: channel.logoUrl,
               context: context,
               fit: BoxFit.cover,
               placeholder: Icon(
@@ -51,17 +51,8 @@ class ChannelHeader extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            if (channel.channelLinks.isNotEmpty)
-              Text(
-                '${channel.channelLinks.first.url}',
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-              ),
             const SizedBox(height: 4),
-            if (channel.viewCount != null)
+            if (channel.subscribersCount != null)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -73,7 +64,7 @@ class ChannelHeader extends StatelessWidget {
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(
-                      'Views: ${channel.viewCount!}',
+                      'Subscribers: ${channel.subscribersCount!}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
@@ -83,12 +74,6 @@ class ChannelHeader extends StatelessWidget {
               ),
           ],
         ),
-
-        // Description
-        if (channel.description != null && channel.description != '') ...[
-          const SizedBox(height: 8),
-          ExpandableText(title: 'Description', text: channel.description ?? '')
-        ],
       ],
     );
   }

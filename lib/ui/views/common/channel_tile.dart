@@ -30,7 +30,9 @@ class ChannelTile extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              channel.subscriberCount.toString(),
+              channel.subscriberCount != null
+                  ? '${channel.subscriberCount} subscribers'
+                  : '',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,

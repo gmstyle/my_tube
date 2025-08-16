@@ -133,7 +133,7 @@ class SettingsView extends StatelessWidget {
                         value: themeSettings.enableGradient,
                         onChanged: (value) =>
                             themeCubit.updateGradientEnabled(value),
-                        activeColor: Colors.white,
+                        activeThumbColor: Colors.white,
                         activeTrackColor: Theme.of(context).colorScheme.primary,
                         inactiveThumbColor: Colors.grey[400],
                         inactiveTrackColor: Colors.grey[700],
