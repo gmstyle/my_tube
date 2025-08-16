@@ -515,7 +515,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<MediaItem> _createMediaItem(String id) async {
     final video = await youtubeExplodeProvider.getVideo(id);
     final manifest = await youtubeExplodeProvider.getVideoStreamManifest(id);
-    final muxedStream = manifest.muxed.withHighestBitrate();
+    final String muxedStream = manifest.muxed.isNotEmpty
+        ? manifest.muxed.withHighestBitrate().url.toString()
+        : manifest.audioOnly.withHighestBitrate().url.toString();
 
     return MediaItem(
         id: video.id.value,
@@ -524,7 +526,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         artUri: Uri.parse(video.thumbnails.highResUrl),
         duration: video.duration,
         extras: {
-          'streamUrl': muxedStream.url.toString(),
+          'streamUrl': muxedStream,
           'description': video.description,
         });
   }
