@@ -30,7 +30,7 @@ def keystoreProperties = new Properties()
 
 android {
     namespace "it.gmstyle.my_tube"
-    compileSdkVersion 35
+    compileSdkVersion 36
     ndkVersion flutter.ndkVersion
     //ndkVersion = "25.1.8937393"
 
