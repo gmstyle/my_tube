@@ -123,15 +123,54 @@ class YoutubeExplodeRepository {
   }
 
   /// Ricerca contenuti unificata (video, canali, playlist)
-  Future<List<dynamic>> searchContents({required String query}) async {
+  /// Ricerca contenuti unificata (video, canali, playlist).
+  ///
+  /// Restituisce una mappa con due chiavi:
+  /// - 'items': la lista di tiles convertite
+  /// - 'searchList': l'oggetto [SearchList] restituito dalla libreria
+  ///
+  /// Lo [SearchList] può essere usato successivamente per richiedere
+  /// altre pagine tramite [nextSearchContents].
+  Future<Map<String, dynamic>> searchContents({required String query}) async {
     try {
-      // Usa il nuovo metodo unificato di ricerca
       final searchResults = await youtubeExplodeProvider.searchContent(query);
       final videos = <VideoTile>[];
       final channels = <ChannelTile>[];
       final playlists = <PlaylistTile>[];
 
       for (final result in searchResults) {
+        if (result is SearchVideo) {
+          videos.add(VideoTile.fromSearchVideo(result));
+        } else if (result is SearchChannel) {
+          channels.add(ChannelTile.fromSearchChannel(result));
+        } else if (result is SearchPlaylist && result.videoCount > 0) {
+          playlists.add(PlaylistTile.fromSearchPlaylist(result));
+        }
+      }
+
+      return {
+        'items': [...channels, ...videos, ...playlists],
+        'searchList': searchResults,
+      };
+    } catch (e) {
+      log('Errore durante la ricerca dei contenuti: $e');
+      rethrow;
+    }
+  }
+
+  /// Richiede la pagina successiva a partire dallo [SearchList] fornito.
+  /// Restituisce `null` se non ci sono più risultati.
+  Future<List<dynamic>?> nextSearchContents(SearchList searchList) async {
+    try {
+      final nextPage =
+          await youtubeExplodeProvider.getNextSearchContent(searchList);
+      if (nextPage == null) return null;
+
+      final videos = <VideoTile>[];
+      final channels = <ChannelTile>[];
+      final playlists = <PlaylistTile>[];
+
+      for (final result in nextPage) {
         if (result is SearchVideo) {
           videos.add(VideoTile.fromSearchVideo(result));
         } else if (result is SearchChannel) {
@@ -143,7 +182,7 @@ class YoutubeExplodeRepository {
 
       return [...videos, ...channels, ...playlists];
     } catch (e) {
-      log('Errore durante la ricerca dei contenuti: $e');
+      log('Errore durante il recupero della pagina successiva: $e');
       rethrow;
     }
   }

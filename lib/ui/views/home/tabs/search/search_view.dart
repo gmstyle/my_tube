@@ -182,31 +182,71 @@ class SearchView extends StatelessWidget {
             case SearchStatus.loading:
               return const CustomSkeletonGridList();
             case SearchStatus.success:
-              return state.result!.isNotEmpty
+              return (state.items != null && state.items!.isNotEmpty)
                   ? LayoutBuilder(builder: (context, constraints) {
                       final isTablet = constraints.maxWidth > 600;
                       if (isTablet) {
-                        return GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            mainAxisSpacing: 8,
-                            crossAxisSpacing: 8,
-                          ),
-                          itemCount: state.result!.length,
-                          itemBuilder: (context, index) {
-                            final result = state.result![index];
-                            return _setTile(context, result, isTablet);
+                        return NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification.metrics.axis == Axis.vertical) {
+                              final maxScroll =
+                                  notification.metrics.maxScrollExtent;
+                              final current = notification.metrics.pixels;
+                              // quando mancano meno di 300px al fondo, richiedi altri risultati
+                              if (maxScroll - current < 300) {
+                                context
+                                    .read<SearchBloc>()
+                                    .add(const LoadMoreSearchContents());
+                              }
+                            }
+                            return false;
                           },
+                          child: GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              mainAxisSpacing: 8,
+                              crossAxisSpacing: 8,
+                            ),
+                            itemCount: state.items!.length +
+                                (state.isLoadingMore ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index >= state.items!.length) {
+                                return const ListLoader();
+                              }
+                              final result = state.items![index];
+                              return _setTile(context, result, isTablet);
+                            },
+                          ),
                         );
                       } else {
-                        return ListView.builder(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            itemCount: state.result!.length,
-                            itemBuilder: (context, index) {
-                              final result = state.result![index];
-                              return _setTile(context, result, isTablet);
-                            });
+                        return NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification.metrics.axis == Axis.vertical) {
+                              final maxScroll =
+                                  notification.metrics.maxScrollExtent;
+                              final current = notification.metrics.pixels;
+                              if (maxScroll - current < 300) {
+                                context
+                                    .read<SearchBloc>()
+                                    .add(const LoadMoreSearchContents());
+                              }
+                            }
+                            return false;
+                          },
+                          child: ListView.builder(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              itemCount: state.items!.length +
+                                  (state.isLoadingMore ? 1 : 0),
+                              itemBuilder: (context, index) {
+                                if (index >= state.items!.length) {
+                                  return const ListLoader();
+                                }
+
+                                final result = state.items![index];
+                                return _setTile(context, result, isTablet);
+                              }),
+                        );
                       }
                     })
                   : const Center(child: Text('No results found'));

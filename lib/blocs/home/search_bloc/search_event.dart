@@ -15,3 +15,10 @@ class SearchContents extends SearchEvent {
   @override
   List<Object> get props => [query];
 }
+
+class LoadMoreSearchContents extends SearchEvent {
+  const LoadMoreSearchContents();
+
+  @override
+  List<Object> get props => [];
+}

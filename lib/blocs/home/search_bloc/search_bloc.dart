@@ -17,19 +17,57 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchContents>((event, emit) async {
       await _onSearchContents(event, emit);
     });
+    on<LoadMoreSearchContents>((event, emit) async {
+      await _onLoadMore(event, emit);
+    });
   }
 
   Future<void> _onSearchContents(
       SearchContents event, Emitter<SearchState> emit) async {
     emit(const SearchState.loading());
     try {
-      final result =
+      final map =
           await youtubeExplodeRepository.searchContents(query: event.query);
 
-      log('Ricerca completata: ${result.length} risorse');
+      final List<dynamic> items = map['items'] as List<dynamic>;
+      final searchList = map['searchList'];
+
+      log('Ricerca completata: ${items.length} risorse');
 
       _saveQueryHistory(event);
-      emit(SearchState.success(result));
+      emit(SearchState.success(items: items, searchList: searchList));
+    } catch (e) {
+      emit(SearchState.failure(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadMore(
+      LoadMoreSearchContents event, Emitter<SearchState> emit) async {
+    final current = state;
+
+    // Only load more if we have a successful result and not already loading
+    if (current.status != SearchStatus.success || current.isLoadingMore) return;
+
+    final searchList = current.searchList;
+    if (searchList == null) return;
+
+    // set loading-more flag
+    emit(current.copyWith(isLoadingMore: true));
+
+    try {
+      // repository expects the concrete SearchList type; pass-through opaque object
+      final nextItems = await youtubeExplodeRepository
+          .nextSearchContents(searchList as dynamic /* SearchList */);
+
+      // if null -> no more results
+      if (nextItems == null || nextItems.isEmpty) {
+        emit(current.copyWith(isLoadingMore: false));
+        return;
+      }
+
+      final combined = [...?current.items, ...nextItems];
+
+      emit(current.copyWith(items: combined, isLoadingMore: false));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
     }
