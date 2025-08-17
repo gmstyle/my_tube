@@ -215,21 +215,27 @@ class SettingsView extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Theme Mode'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ThemeMode.values.map((mode) {
-            return RadioListTile<ThemeMode>(
-              title: Text(ThemeSettings.getThemeModeDisplayName(mode)),
-              value: mode,
-              groupValue: currentMode,
-              onChanged: (value) {
-                if (value != null) {
-                  themeCubit.updateThemeMode(value);
-                  Navigator.of(context).pop();
-                }
-              },
-            );
-          }).toList(),
+        content: RadioGroup<ThemeMode>(
+          groupValue: currentMode,
+          onChanged: (value) {
+            if (value != null) {
+              themeCubit.updateThemeMode(value);
+              Navigator.of(context).pop();
+            }
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ThemeMode.values.map((mode) {
+              // Using RadioListTile's groupValue/onChanged is deprecated in
+              // newer Flutter versions; a migration to RadioGroup is recommended.
+              // For now we suppress the deprecation to keep behavior unchanged.
+              // ignore: deprecated_member_use
+              return RadioListTile<ThemeMode>(
+                title: Text(ThemeSettings.getThemeModeDisplayName(mode)),
+                value: mode,
+              );
+            }).toList(),
+          ),
         ),
         actions: [
           TextButton(

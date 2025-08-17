@@ -169,8 +169,10 @@ class Utils {
           ),
         );
 
+    Widget result;
+
     if (thumbnailUrl != null && thumbnailUrl.isNotEmpty) {
-      return CachedNetworkImage(
+      result = CachedNetworkImage(
         imageUrl: thumbnailUrl,
         fit: fit,
         placeholder: (context, url) => defaultPlaceholder,
@@ -179,8 +181,14 @@ class Utils {
         },
       );
     } else {
-      return defaultPlaceholder;
+      result = defaultPlaceholder;
     }
+
+    if (isCircular) {
+      return ClipOval(child: result);
+    }
+
+    return result;
   }
 
   // Helper method for themed gradients

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 

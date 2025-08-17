@@ -86,7 +86,7 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                 ),
                 // favorites playlists
                 Tab(
-                  icon: Icon(Icons.album,
+                  icon: Icon(Icons.queue_play_next,
                       color: Theme.of(context).colorScheme.onPrimary),
                 ),
               ]),

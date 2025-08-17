@@ -39,12 +39,14 @@ class VideoTile extends Equatable {
 class ChannelTile extends Equatable {
   final String id;
   final String title;
+  final String? description;
   final String thumbnailUrl;
   final int? subscriberCount;
 
   const ChannelTile({
     required this.id,
     required this.title,
+    required this.description,
     required this.thumbnailUrl,
     required this.subscriberCount,
   });
@@ -53,6 +55,7 @@ class ChannelTile extends Equatable {
     return ChannelTile(
       id: channel.id.value,
       title: channel.title,
+      description: '',
       thumbnailUrl: channel.logoUrl,
       subscriberCount: channel.subscribersCount,
     );
@@ -62,6 +65,7 @@ class ChannelTile extends Equatable {
     return ChannelTile(
       id: channel.id.value,
       title: channel.name,
+      description: channel.description,
       thumbnailUrl: channel.thumbnails.first.url.toString(),
       subscriberCount: null,
     );

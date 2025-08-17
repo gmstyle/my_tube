@@ -1,11 +1,11 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class MediaitemTile extends StatelessWidget {
   const MediaitemTile(
@@ -30,26 +30,41 @@ class MediaitemTile extends StatelessWidget {
         background: const DismissibleBackgroud(),
         child: ListTile(
           leading: SizedBox(
-            width: 90,
+            width: 110,
+            height: 70,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  mediaItem.artUri != null
-                      ? CachedNetworkImage(
-                          imageUrl: mediaItem.artUri!.toString(),
-                          height: MediaQuery.of(context).size.height * 0.09,
-                          width: MediaQuery.of(context).size.width * 0.2,
-                          fit: BoxFit.cover,
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: const SizedBox(
-                            child: FlutterLogo(),
-                          ),
-                        ),
-                  // overlay gradient per video selected
+                  Utils.buildImageWithFallback(
+                    thumbnailUrl: mediaItem.artUri?.toString(),
+                    context: context,
+                    fit: BoxFit.cover,
+                    placeholder: Container(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: const Center(child: FlutterLogo()),
+                    ),
+                  ),
+
+                  // subtle dark gradient
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          Theme.of(context)
+                              .colorScheme
+                              .shadow
+                              .withValues(alpha: 0.35),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+
+                  // overlay when selected
                   StreamBuilder(
                       stream: playerCubit.mtPlayerService.mediaItem,
                       builder: (context, snapshot) {
@@ -57,55 +72,50 @@ class MediaitemTile extends StatelessWidget {
                           final currentVideoId = snapshot.data!.id;
                           if (currentVideoId == mediaItem.id) {
                             return Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withValues(alpha: 0.3),
-                                    Colors.black.withValues(alpha: 0.5),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                              ),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .shadow
+                                  .withValues(alpha: 0.32),
                             );
                           }
                         }
-                        return const SizedBox();
+                        return const SizedBox.shrink();
                       }),
-                  // audio spectrum icon
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    child: Center(
-                      child: SpectrumPlayingIcon(videoId: mediaItem.id),
+
+                  // center spectrum icon
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: SpectrumPlayingIcon(videoId: mediaItem.id),
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
           ),
           title: Text(
             mediaItem.title,
-            style: TextStyle(
-              color: darkBackground
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: darkBackground
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
             maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
             mediaItem.album ?? '',
-            style: TextStyle(
-                color: darkBackground
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.onSurface),
-          ),
-          trailing: const Icon(
-            Icons.drag_handle,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: darkBackground
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+            overflow: TextOverflow.ellipsis,
           ),
         ));
   }

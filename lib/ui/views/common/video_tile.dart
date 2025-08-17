@@ -17,7 +17,8 @@ class VideoTile extends StatelessWidget {
 
     return ListTile(
       leading: SizedBox(
-        width: 90,
+        width: 110,
+        height: 70,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Stack(
@@ -28,71 +29,81 @@ class VideoTile extends StatelessWidget {
                 context: context,
                 placeholder: Container(
                   color: Theme.of(context).colorScheme.primaryContainer,
+                  alignment: Alignment.center,
                   child: Icon(
                     Icons.play_circle_outline,
-                    size: 32,
+                    size: 28,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
               ),
-              // overlay gradient per video selected
+
+              // subtle dark gradient for legibility
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Theme.of(context)
+                          .colorScheme
+                          .shadow
+                          .withValues(alpha: 0.35),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+
+              // overlay when selected (from player)
               StreamBuilder(
                   stream: playerCubit.mtPlayerService.mediaItem,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       final currentVideoId = snapshot.data!.id;
                       if (currentVideoId == video.id) {
+                        // show a subtle dark overlay without colored border
                         return Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.transparent,
-                                Theme.of(context)
-                                    .colorScheme
-                                    .shadow
-                                    .withValues(alpha: 0.4),
-                                Theme.of(context)
-                                    .colorScheme
-                                    .shadow
-                                    .withValues(alpha: 0.6),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .shadow
+                              .withValues(alpha: 0.32),
                         );
                       }
                     }
-                    return const SizedBox();
+                    return const SizedBox.shrink();
                   }),
 
-              // audio spectrum icon in posizione centrale rispetto all'immagine
-              Positioned(
-                top: 0,
-                bottom: 0,
-                right: 0,
-                left: 0,
-                child: SpectrumPlayingIcon(videoId: video.id),
-              )
+              // center small playing/spectrum icon
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: SpectrumPlayingIcon(videoId: video.id),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
       title: Text(
         video.title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: video.artist != null
           ? Text(
               video.artist!,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
               overflow: TextOverflow.ellipsis,
             )
           : null,

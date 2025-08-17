@@ -9,20 +9,7 @@ class YoutubeExplodeRepository {
 
   final YoutubeExplodeProvider youtubeExplodeProvider;
 
-  /// Normalizza l'URL rimuovendo doppi protocolli
-  String? _normalizeUrl(String? url) {
-    if (url == null || url.isEmpty) return null;
-
-    // Rimuovi doppi protocolli come "https:https://"
-    if (url.startsWith('https:https://')) {
-      return url.substring(6); // Rimuovi il primo "https:"
-    }
-    if (url.startsWith('http:http://')) {
-      return url.substring(5); // Rimuovi il primo "http:"
-    }
-
-    return url;
-  }
+  // Removed unused _normalizeUrl helper (was unused and triggered analyzer warning)
 
   Future<VideoTile> getVideoMetadata(String id) async {
     final video = await youtubeExplodeProvider.getVideo(id);
