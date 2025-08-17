@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
+import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/channel_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/playlist_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/video_favorites.dart';
+import 'package:provider/provider.dart';
 
 class FavoritesTabView extends StatefulWidget {
   const FavoritesTabView({super.key});
@@ -13,6 +17,14 @@ class FavoritesTabView extends StatefulWidget {
 
 class _FavoritesTabViewState extends State<FavoritesTabView> {
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<FavoritesVideoBloc>().add(const GetFavorites());
+    context.read<FavoritesChannelBloc>().add(const GetFavoritesChannel());
+    context.read<FavoritesPlaylistBloc>().add(const GetFavoritesPlaylist());
+  }
 
   @override
   void dispose() {

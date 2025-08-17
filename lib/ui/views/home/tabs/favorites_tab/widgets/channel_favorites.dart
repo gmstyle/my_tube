@@ -16,8 +16,6 @@ class ChannelFavorites extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<FavoritesChannelBloc>().add(const GetFavoritesChannel());
-
     return BlocBuilder<FavoritesChannelBloc, FavoritesChannelState>(
         builder: (context, state) {
       switch (state.status) {

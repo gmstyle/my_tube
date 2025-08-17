@@ -15,8 +15,6 @@ class PlaylistFavorites extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<FavoritesPlaylistBloc>().add(const GetFavoritesPlaylist());
-
     return BlocBuilder<FavoritesPlaylistBloc, FavoritesPlaylistState>(
         builder: (context, state) {
       switch (state.status) {

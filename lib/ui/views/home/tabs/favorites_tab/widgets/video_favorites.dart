@@ -14,8 +14,6 @@ class VideoFavorites extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<FavoritesVideoBloc>().add(const GetFavorites());
-
     return BlocBuilder<FavoritesVideoBloc, FavoritesVideoState>(
         builder: (context, state) {
       switch (state.status) {
