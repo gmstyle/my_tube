@@ -42,8 +42,9 @@ class ChannelPageBloc extends Bloc<ChannelPageEvent, ChannelPageState> {
       LoadMoreChannelVideos event, Emitter<ChannelPageState> emit) async {
     final current = state;
 
-    if (current.status != ChannelPageStatus.loaded || current.isLoadingMore)
+    if (current.status != ChannelPageStatus.loaded || current.isLoadingMore) {
       return;
+    }
 
     final uploadsList = current.uploadsList;
     if (uploadsList == null) return;
