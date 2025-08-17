@@ -6,7 +6,6 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/local_notification_helper.dart.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -16,7 +15,7 @@ class DownloadService {
   StreamSubscription<void>? _cancelSubscription;
 
   Future<void> download(
-      {required List<ResourceMT> videos,
+      {required List<Map<String, String>> videos,
       required BuildContext context,
       String? destinationDir,
       bool isAudioOnly = false}) async {
@@ -41,15 +40,9 @@ class DownloadService {
     final receivePort = ReceivePort();
 
     // crea una nuova lista di video da passare all'isolato ma per ogni video prendi solo l'id e il titolo
-    final List<Map<String, String>> newVideos = videos.map((video) {
-      return {
-        'id': video.id!,
-        'title': video.title!,
-      };
-    }).toList();
 
     final args = {
-      'videos': newVideos,
+      'videos': videos,
       'destinationDir': destinationDir,
       'isAudioOnly': isAudioOnly,
       'sendPort': receivePort.sendPort,
@@ -76,7 +69,7 @@ class DownloadService {
 
     if (context.mounted) {
       _showNotification(receivePort, context,
-          destinationDir ?? videos.first.title!, destinationDir);
+          destinationDir ?? videos.first['title']!, destinationDir);
     }
   }
 

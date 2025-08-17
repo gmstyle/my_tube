@@ -6,12 +6,16 @@ import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/services/android_auto_detection_service.dart';
 import 'package:my_tube/ui/views/video/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
+  MtPlayerService({required this.youtubeExplodeProvider});
+
+  final YoutubeExplodeProvider youtubeExplodeProvider;
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
   int currentIndex = -1;
@@ -40,25 +44,30 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> initializeAndroidAutoDetection() async {
     try {
       await AndroidAutoDetectionService.initialize();
-      _isAndroidAutoActive = await AndroidAutoDetectionService.isAndroidAutoActive();
+      _isAndroidAutoActive =
+          await AndroidAutoDetectionService.isAndroidAutoActive();
       dev.log('Android Auto stato iniziale: $_isAndroidAutoActive');
-      
+
       // Aggiorna periodicamente lo stato di Android Auto
       Timer.periodic(const Duration(seconds: 5), (timer) async {
         try {
-          final newState = await AndroidAutoDetectionService.isAndroidAutoActive();
+          final newState =
+              await AndroidAutoDetectionService.isAndroidAutoActive();
           if (newState != _isAndroidAutoActive) {
-            dev.log('Cambio stato Android Auto: $_isAndroidAutoActive -> $newState');
+            dev.log(
+                'Cambio stato Android Auto: $_isAndroidAutoActive -> $newState');
             _isAndroidAutoActive = newState;
             // Aggiorna la configurazione audio se necessario
             await _updateAudioConfigurationForAndroidAuto();
           }
         } catch (e) {
-          dev.log('Errore durante l\'aggiornamento dello stato Android Auto: $e');
+          dev.log(
+              'Errore durante l\'aggiornamento dello stato Android Auto: $e');
         }
       });
     } catch (e) {
-      dev.log('Errore durante l\'inizializzazione del rilevamento Android Auto: $e');
+      dev.log(
+          'Errore durante l\'inizializzazione del rilevamento Android Auto: $e');
       _isAndroidAutoActive = false;
     }
   }
@@ -70,7 +79,11 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         dev.log('Configurazione audio per Android Auto attivata');
         // Configura le impostazioni audio specifiche per Android Auto
         playbackState.add(playbackState.value.copyWith(
-          androidCompactActionIndices: const [0, 1, 3], // Azioni compatte per Android Auto
+          androidCompactActionIndices: const [
+            0,
+            1,
+            3
+          ], // Azioni compatte per Android Auto
           systemActions: const {
             MediaAction.seek,
             MediaAction.skipToPrevious,
@@ -79,7 +92,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         ));
       }
     } catch (e) {
-      dev.log('Errore durante l\'aggiornamento della configurazione audio per Android Auto: $e');
+      dev.log(
+          'Errore durante l\'aggiornamento della configurazione audio per Android Auto: $e');
     }
   }
 
@@ -89,11 +103,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   /// Forza l'aggiornamento dello stato di Android Auto
   Future<void> refreshAndroidAutoState() async {
     try {
-      _isAndroidAutoActive = await AndroidAutoDetectionService.refreshAndroidAutoState();
+      _isAndroidAutoActive =
+          await AndroidAutoDetectionService.refreshAndroidAutoState();
       dev.log('Stato Android Auto aggiornato: $_isAndroidAutoActive');
       await _updateAudioConfigurationForAndroidAuto();
     } catch (e) {
-      dev.log('Errore durante l\'aggiornamento forzato dello stato Android Auto: $e');
+      dev.log(
+          'Errore durante l\'aggiornamento forzato dello stato Android Auto: $e');
     }
   }
 
@@ -206,9 +222,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Inizializza il player per la riproduzione singola
-  Future<void> startPlaying(ResourceMT video) async {
+  Future<void> startPlaying(String id) async {
     // inizializza il media item da passare riprodurre
-    final item = _createMediaItem(video);
+    final item = await _createMediaItem(id);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -221,9 +237,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Inizializza il player per la riproduzione di una coda di video
-  Future<void> startPlayingPlaylist(List<ResourceMT> videos) async {
+  Future<void> startPlayingPlaylist(List<String> ids) async {
     // inizializza la playlist ed il primo brano
-    final list = videos.map(_createMediaItem).toList();
+    final list = await Future.wait(ids.map(_createMediaItem));
 
     for (final item in list) {
       // aggiungi il brano alla coda se non è già presente
@@ -253,7 +269,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       }
 
       // Protezione per Android Auto - evita errori quando il controller non è disponibile
-      if (chewieController == null || 
+      if (chewieController == null ||
           !chewieController!.videoPlayerController.value.isInitialized) {
         playbackState.add(playbackState.value.copyWith(
           processingState: AudioProcessingState.idle,
@@ -282,7 +298,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           ],
           processingState: audioProcessingState(),
           playing: isPlaying(),
-          updatePosition: chewieController!.videoPlayerController.value.position,
+          updatePosition:
+              chewieController!.videoPlayerController.value.position,
           speed: chewieController!.videoPlayerController.value.playbackSpeed,
           queueIndex: currentIndex));
     } catch (e) {
@@ -312,66 +329,66 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         await videoPlayerController!.initialize();
       }
 
-    // inizializza il chewie controller per la riproduzione del video
-    chewieController = ChewieController(
-      videoPlayerController: videoPlayerController!,
-      autoPlay: true,
-      showOptions: false,
-      routePageBuilder: (context, animation, __, ___) {
-        // uso un widget per il full screen personalizzato
-        // per poter gestire il cambio di brano anche in full screen
-        return FullScreenVideoView(
-          mtPlayerService: this,
-        );
-      },
-      deviceOrientationsAfterFullScreen: [
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ],
-    );
+      // inizializza il chewie controller per la riproduzione del video
+      chewieController = ChewieController(
+        videoPlayerController: videoPlayerController!,
+        autoPlay: true,
+        showOptions: false,
+        routePageBuilder: (context, animation, __, ___) {
+          // uso un widget per il full screen personalizzato
+          // per poter gestire il cambio di brano anche in full screen
+          return FullScreenVideoView(
+            mtPlayerService: this,
+          );
+        },
+        deviceOrientationsAfterFullScreen: [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ],
+      );
 
-    // aggiungi il brano alla coda
-    queue.add(playlist);
-    // aggiungi il brano al media item per la notifica
-    mediaItem.add(currentTrack);
+      // aggiungi il brano alla coda
+      queue.add(playlist);
+      // aggiungi il brano al media item per la notifica
+      mediaItem.add(currentTrack);
 
-    // propaga lo stato del player ad audio_service e a tutti i listeners
+      // propaga lo stato del player ad audio_service e a tutti i listeners
 
-    chewieController?.videoPlayerController.addListener(() {
-      _broadcastState();
-      // verifica che il video sia finito
-      if (chewieController!.videoPlayerController.value.duration ==
-          chewieController!.videoPlayerController.value.position) {
-        // verifica che ci siano altri brani nella coda
-        if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
-          skipToNextInShuffleMode();
-        } else if (isShuffleModeEnabled) {
-          // Caso in cui è attivo solo lo shuffle mode
-          if (allVideosPlayed) {
-            stop();
-          } else {
+      chewieController?.videoPlayerController.addListener(() {
+        _broadcastState();
+        // verifica che il video sia finito
+        if (chewieController!.videoPlayerController.value.duration ==
+            chewieController!.videoPlayerController.value.position) {
+          // verifica che ci siano altri brani nella coda
+          if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
             skipToNextInShuffleMode();
-          }
-        } else if (isRepeatModeAllEnabled) {
-          // Caso in cui è attivo solo il repeat all mode
-          skipToNextInRepeatModeAll();
-        } else {
-          // Caso in cui sono entrambi disattivi
-          if (hasNextVideo) {
-            skipToNext();
+          } else if (isShuffleModeEnabled) {
+            // Caso in cui è attivo solo lo shuffle mode
+            if (allVideosPlayed) {
+              stop();
+            } else {
+              skipToNextInShuffleMode();
+            }
+          } else if (isRepeatModeAllEnabled) {
+            // Caso in cui è attivo solo il repeat all mode
+            skipToNextInRepeatModeAll();
           } else {
-            stop();
+            // Caso in cui sono entrambi disattivi
+            if (hasNextVideo) {
+              skipToNext();
+            } else {
+              stop();
+            }
           }
         }
-      }
 
-      if (chewieController!.videoPlayerController.value.hasError) {
-        if (kDebugMode) {
-          print(
-              'Errore di riproduzione: ${chewieController!.videoPlayerController.value.errorDescription}');
+        if (chewieController!.videoPlayerController.value.hasError) {
+          if (kDebugMode) {
+            print(
+                'Errore di riproduzione: ${chewieController!.videoPlayerController.value.errorDescription}');
+          }
         }
-      }
-    });
+      });
     } catch (e) {
       dev.log('Errore durante _playCurrentTrack: $e');
       // Fallback per Android Auto - tenta playback semplificato
@@ -391,8 +408,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
   }
 
-  Future<void> addToQueue(ResourceMT video) async {
-    final item = _createMediaItem(video);
+  Future<void> addToQueue(String id) async {
+    final item = await _createMediaItem(id);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -407,8 +424,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  Future<void> addAllToQueue(List<ResourceMT> videos) async {
-    final list = videos.map(_createMediaItem).toList();
+  Future<void> addAllToQueue(List<String> ids) async {
+    final list = await Future.wait(ids.map(_createMediaItem));
 
     int? firstAddedIndex;
     for (final item in list) {
@@ -495,15 +512,21 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  MediaItem _createMediaItem(ResourceMT video) {
+  Future<MediaItem> _createMediaItem(String id) async {
+    final video = await youtubeExplodeProvider.getVideo(id);
+    final manifest = await youtubeExplodeProvider.getVideoStreamManifest(id);
+    final String muxedStream = manifest.muxed.isNotEmpty
+        ? manifest.muxed.withHighestBitrate().url.toString()
+        : manifest.audioOnly.withHighestBitrate().url.toString();
+
     return MediaItem(
-        id: video.id!,
-        title: video.title!,
-        album: video.channelTitle!,
-        artUri: Uri.parse(video.thumbnailUrl!),
-        duration: Duration(milliseconds: video.duration!),
+        id: video.id.value,
+        title: video.title,
+        album: video.musicData.isNotEmpty ? video.musicData.first.album : null,
+        artUri: Uri.parse(video.thumbnails.highResUrl),
+        duration: video.duration,
         extras: {
-          'streamUrl': video.streamUrl!,
+          'streamUrl': muxedStream,
           'description': video.description,
         });
   }

@@ -1,16 +1,16 @@
-import 'package:bloc/bloc.dart';
+/* import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/music_home_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 
 part 'musci_tab_event.dart';
 part 'music_tab_state.dart';
 
 class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
-  final InnertubeRepository innertubeRepository;
+  final YoutubeExplodeRepository youtubeExplodeRepository;
   final Box settingsBox = Hive.box('settings');
-  MusicTabBloc({required this.innertubeRepository})
+  MusicTabBloc({required this.youtubeExplodeRepository})
       : super(const MusicTabState.loading()) {
     on<GetMusicHome>((event, emit) async {
       await _onGetFavorites(event, emit);
@@ -25,7 +25,7 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       GetMusicHome event, Emitter<MusicTabState> emit) async {
     emit(const MusicTabState.loading());
     try {
-      final response = await innertubeRepository.getMusicHome();
+      final response = await youtubeExplodeRepository.getMusicHome();
 
       emit(MusicTabState.loaded(response: response));
     } catch (error) {
@@ -59,3 +59,4 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
     } */
   }
 }
+ */

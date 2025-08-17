@@ -31,6 +31,7 @@ class AppRouter {
       path: AppRoute.settings.path,
       pageBuilder: (context, state) => const SettingsPage(),
     ),
+
     // Shell
     StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -118,7 +119,8 @@ enum AppRoute {
   playlistFavorites('playlistFavorite'),
   favorites('/favorites'),
   settings('/settings'),
-  video('/video');
+  video('/video'),
+  testYoutubeExplode('/test-youtube-explode');
 
   final String path;
 

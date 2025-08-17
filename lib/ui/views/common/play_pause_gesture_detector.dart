@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/models/resource_mt.dart';
 
 class PlayPauseGestureDetector extends StatelessWidget {
   const PlayPauseGestureDetector(
-      {super.key, required this.resource, required this.child});
+      {super.key, required this.id, required this.child});
 
-  final ResourceMT resource;
+  final String id;
   final Widget child;
 
   @override
@@ -23,8 +22,8 @@ class PlayPauseGestureDetector extends StatelessWidget {
             onTap: () {
               // se la traccia corrente è diversa da quella che si vuole riprodurre
               // si avvia la riproduzione
-              if (playerCubit.mtPlayerService.currentTrack?.id != resource.id) {
-                playerCubit.startPlaying(resource.id!);
+              if (playerCubit.mtPlayerService.currentTrack?.id != id) {
+                playerCubit.startPlaying(id);
               } else {
                 // altrimenti si mette in pausa o si riprende la riproduzione
                 if (isPlaying) {

@@ -48,10 +48,6 @@ dependencies:
   hive_ce_flutter: ^2.3.1
   audio_service: ^0.18.18
   wakelock_plus: ^1.3.2
-  innertube_dart:
-    #path: ../innertube_dart
-    git:
-      url: https://github.com/gmstyle/innertube_dart.git
   autorotation_check:
     git:
       url: https://github.com/gmstyle/autorotation_check.git

@@ -48,31 +48,57 @@ class ThemeCubit extends Cubit<ThemeSettings> {
   }
 
   flutter_material.ThemeData get lightTheme {
+    final cs = flutter_material.ColorScheme.fromSeed(
+      seedColor: state.primaryColor,
+      brightness: flutter_material.Brightness.light,
+    );
+
     return flutter_material.ThemeData(
-      colorScheme: flutter_material.ColorScheme.fromSeed(
-        seedColor: state.primaryColor,
-        brightness: flutter_material.Brightness.light,
-      ),
+      colorScheme: cs,
       useMaterial3: true,
-      scaffoldBackgroundColor: flutter_material.Colors.transparent,
-      appBarTheme: const flutter_material.AppBarTheme(
-        backgroundColor: flutter_material.Colors.transparent,
+      scaffoldBackgroundColor: cs.surface,
+      appBarTheme: flutter_material.AppBarTheme(
+        backgroundColor: cs.surface,
         elevation: 0,
+        foregroundColor: cs.onSurface,
+      ),
+      tabBarTheme: flutter_material.TabBarThemeData(
+        labelColor: cs.onPrimary,
+        unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
+        indicator: flutter_material.UnderlineTabIndicator(
+          borderSide: flutter_material.BorderSide(color: cs.primary, width: 3),
+        ),
+        indicatorSize: flutter_material.TabBarIndicatorSize.label,
+        labelStyle: flutter_material.TextStyle(
+            fontWeight: flutter_material.FontWeight.w600),
       ),
     );
   }
 
   flutter_material.ThemeData get darkTheme {
+    final cs = flutter_material.ColorScheme.fromSeed(
+      seedColor: state.primaryColor,
+      brightness: flutter_material.Brightness.dark,
+    );
+
     return flutter_material.ThemeData(
-      colorScheme: flutter_material.ColorScheme.fromSeed(
-        seedColor: state.primaryColor,
-        brightness: flutter_material.Brightness.dark,
-      ),
+      colorScheme: cs,
       useMaterial3: true,
-      scaffoldBackgroundColor: flutter_material.Colors.transparent,
-      appBarTheme: const flutter_material.AppBarTheme(
-        backgroundColor: flutter_material.Colors.transparent,
+      scaffoldBackgroundColor: cs.surface,
+      appBarTheme: flutter_material.AppBarTheme(
+        backgroundColor: cs.surface,
         elevation: 0,
+        foregroundColor: cs.onSurface,
+      ),
+      tabBarTheme: flutter_material.TabBarThemeData(
+        labelColor: cs.onPrimary,
+        unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
+        indicator: flutter_material.UnderlineTabIndicator(
+          borderSide: flutter_material.BorderSide(color: cs.primary, width: 3),
+        ),
+        indicatorSize: flutter_material.TabBarIndicatorSize.label,
+        labelStyle: flutter_material.TextStyle(
+            fontWeight: flutter_material.FontWeight.w600),
       ),
     );
   }

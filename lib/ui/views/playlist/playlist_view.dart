@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
@@ -11,6 +10,8 @@ import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/playlist/widgets/playlist_header.dart';
+import 'package:my_tube/models/tiles.dart' as models;
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class PlaylistView extends StatelessWidget {
   const PlaylistView({super.key, required this.playlistId});
@@ -28,7 +29,15 @@ class PlaylistView extends StatelessWidget {
           actions: [
             BlocBuilder<PlaylistBloc, PlaylistState>(builder: (context, state) {
               if (state.status == PlaylistStatus.loaded) {
-                final playlist = state.response;
+                final playlist = state.response!['playlist'] as Playlist;
+                final videos =
+                    state.response!['videos'] as List<models.VideoTile>;
+                final quickVideos = videos.map<Map<String, String>>((video) {
+                  return {
+                    'id': video.id,
+                    'title': video.title,
+                  };
+                }).toList();
                 return Wrap(
                   children: [
                     IconButton(
@@ -46,7 +55,7 @@ class PlaylistView extends StatelessWidget {
                                         title: const Text('Download'),
                                         onTap: () {
                                           downloadService.download(
-                                              videos: playlist!.videos!,
+                                              videos: quickVideos,
                                               destinationDir: playlist.title,
                                               context: context);
                                           Navigator.of(context).pop();
@@ -60,7 +69,7 @@ class PlaylistView extends StatelessWidget {
                                             const Text('Download audio only'),
                                         onTap: () {
                                           downloadService.download(
-                                              videos: playlist!.videos!,
+                                              videos: quickVideos,
                                               destinationDir: playlist.title,
                                               context: context,
                                               isAudioOnly: true);
@@ -86,20 +95,8 @@ class PlaylistView extends StatelessWidget {
                               favoritesPlaylistBloc
                                   .add(RemoveFromFavoritesPlaylist(playlistId));
                             } else {
-                              favoritesPlaylistBloc.add(AddToFavoritesPlaylist(
-                                  ResourceMT(
-                                      id: playlistId,
-                                      title: playlist!.title,
-                                      description: playlist.description,
-                                      channelTitle: null,
-                                      thumbnailUrl: playlist.thumbnailUrl,
-                                      base64Thumbnail: playlist.base64Thumbnail,
-                                      kind: 'playlist',
-                                      channelId: playlist.channelId,
-                                      playlistId: playlistId,
-                                      videoCount: playlist.itemCount.toString(),
-                                      duration: null,
-                                      streamUrl: null)));
+                              favoritesPlaylistBloc
+                                  .add(AddToFavoritesPlaylist(playlistId));
                             }
                           },
                           icon: favoritesPlaylistBloc
@@ -124,22 +121,30 @@ class PlaylistView extends StatelessWidget {
                 return const CustomSkeletonPlaylist();
 
               case PlaylistStatus.loaded:
-                final playlist = state.response;
+                final playlist = state.response!['playlist'] as Playlist;
+                final videos =
+                    state.response!['videos'] as List<models.VideoTile>;
+                final videoIds = videos.map((video) => video.id).toList();
                 return SingleChildScrollView(
                   child: Column(
                     children: [
-                      PlaylistHeader(playlist: playlist),
+                      PlaylistHeader(playlist: playlist, videoIds: videoIds),
                       const SizedBox(height: 16),
                       ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: playlist?.videos!.length,
+                          itemCount: videos.length,
                           itemBuilder: (context, index) {
-                            final video = playlist?.videos![index];
+                            final video = videos[index];
+                            final quickVideo = {
+                              'id': video.id,
+                              'title': video.title
+                            };
                             return PlayPauseGestureDetector(
-                              resource: video!,
+                              id: video.id,
                               child: VideoMenuDialog(
-                                  video: video, child: VideoTile(video: video)),
+                                  quickVideo: quickVideo,
+                                  child: VideoTile(video: video)),
                             );
                           }),
                     ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/ui/views/home/tabs/search/search_view.dart';
 
 class SearchPage extends Page {
@@ -13,14 +13,15 @@ class SearchPage extends Page {
     return MaterialPageRoute(
       settings: this,
       builder: (BuildContext context) {
-        final innertubeRepository = context.read<InnertubeRepository>();
+        final youtubeExplodeRepository =
+            context.read<YoutubeExplodeRepository>();
         return MultiBlocProvider(providers: [
           BlocProvider<SearchBloc>(
-              create: (context) =>
-                  SearchBloc(innertubeRepository: innertubeRepository)),
+              create: (context) => SearchBloc(
+                  youtubeExplodeRepository: youtubeExplodeRepository)),
           BlocProvider<SearchSuggestionCubit>(
               create: (context) => SearchSuggestionCubit(
-                  innertubeRepository: innertubeRepository)),
+                  youtubeExplodeRepository: youtubeExplodeRepository)),
         ], child: SearchView());
       },
     );

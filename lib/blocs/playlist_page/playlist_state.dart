@@ -10,12 +10,12 @@ class PlaylistState extends Equatable {
   });
 
   final PlaylistStatus status;
-  final PlaylistMT? response;
+  final Map<String, dynamic>? response;
   final String? error;
 
   const PlaylistState.initial() : this._(status: PlaylistStatus.initial);
   const PlaylistState.loading() : this._(status: PlaylistStatus.loading);
-  const PlaylistState.success(PlaylistMT response)
+  const PlaylistState.success(Map<String, dynamic> response)
       : this._(
           status: PlaylistStatus.loaded,
           response: response,

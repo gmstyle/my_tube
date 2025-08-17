@@ -12,12 +12,12 @@ class GetFavoritesChannel extends FavoritesChannelEvent {
 }
 
 class AddToFavoritesChannel extends FavoritesChannelEvent {
-  final ResourceMT channel;
+  final String channelId;
 
-  const AddToFavoritesChannel(this.channel);
+  const AddToFavoritesChannel(this.channelId);
 
   @override
-  List<Object> get props => [channel];
+  List<Object> get props => [channelId];
 }
 
 class RemoveFromFavoritesChannel extends FavoritesChannelEvent {

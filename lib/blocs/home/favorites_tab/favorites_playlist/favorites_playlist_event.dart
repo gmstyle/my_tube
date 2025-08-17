@@ -12,12 +12,12 @@ class GetFavoritesPlaylist extends FavoritesPlaylistEvent {
 }
 
 class AddToFavoritesPlaylist extends FavoritesPlaylistEvent {
-  final ResourceMT playlist;
+  final String playlistId;
 
-  const AddToFavoritesPlaylist(this.playlist);
+  const AddToFavoritesPlaylist(this.playlistId);
 
   @override
-  List<Object> get props => [playlist];
+  List<Object> get props => [playlistId];
 }
 
 class RemoveFromFavoritesPlaylist extends FavoritesPlaylistEvent {

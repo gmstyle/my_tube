@@ -1,4 +1,4 @@
-import 'dart:developer';
+/* import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -99,31 +99,18 @@ class CustomSearchDelegate extends SearchDelegate {
               case SearchStatus.loading:
                 return const Center(child: CircularProgressIndicator());
               case SearchStatus.success:
-                return NotificationListener<ScrollNotification>(
-                  onNotification: (scrollInfo) {
-                    if (state.result?.nextPageToken != null) {
-                      if (scrollInfo.metrics.pixels ==
-                          scrollInfo.metrics.maxScrollExtent) {
-                        searchBloc.add(GetNextPageSearchContents(
-                            query: query,
-                            nextPageToken: state.result!.nextPageToken!));
-                      }
-                    }
-                    return false;
-                  },
-                  child: ListView.builder(
-                      itemCount: state.result!.resources.length,
-                      itemBuilder: (context, index) {
-                        final result = state.result!.resources[index];
-                        return GestureDetector(
-                          onTap: () {
-                            close(context, result);
-                            _playOrNavigateTo(result, playerCubit, context);
-                          },
-                          child: _setTile(result),
-                        );
-                      }),
-                );
+                return ListView.builder(
+                    itemCount: state.result!.resources.length,
+                    itemBuilder: (context, index) {
+                      final result = state.result!.resources[index];
+                      return GestureDetector(
+                        onTap: () {
+                          close(context, result);
+                          _playOrNavigateTo(result, playerCubit, context);
+                        },
+                        child: _setTile(result),
+                      );
+                    });
               case SearchStatus.failure:
                 return Center(child: Text(state.error!));
 
@@ -214,3 +201,4 @@ class CustomSearchDelegate extends SearchDelegate {
     return Container();
   }
 }
+ */

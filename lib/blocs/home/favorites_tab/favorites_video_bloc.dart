@@ -1,9 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/models/tiles.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
-import 'package:my_tube/utils/enums.dart';
 
 part 'favorites_video_event.dart';
 part 'favorites_video_state.dart';
@@ -11,10 +9,8 @@ part 'favorites_video_state.dart';
 class FavoritesVideoBloc
     extends Bloc<FavoritesVideoEvent, FavoritesVideoState> {
   final FavoriteRepository favoritesRepository;
-  final InnertubeRepository innertubeRepository;
   FavoritesVideoBloc({
     required this.favoritesRepository,
-    required this.innertubeRepository,
   }) : super(const FavoritesVideoState.initial()) {
     // ascolto il cambiamento della coda e aggiorno lo stato
     // quando viene aggiunto o rimosso un video
@@ -43,7 +39,7 @@ class FavoritesVideoBloc
       FavoritesVideoEvent event, Emitter<FavoritesVideoState> emit) async {
     emit(const FavoritesVideoState.loading());
     try {
-      final favorites = favoritesRepository.favoriteVideos;
+      final favorites = await favoritesRepository.favoriteVideos;
       emit(FavoritesVideoState.success(favorites));
     } catch (e) {
       emit(FavoritesVideoState.failure(e.toString()));
@@ -54,8 +50,8 @@ class FavoritesVideoBloc
       AddToFavorites event, Emitter<FavoritesVideoState> emit) async {
     emit(const FavoritesVideoState.loading());
     try {
-      await favoritesRepository.add(event.video, Kind.video);
-      final favorites = favoritesRepository.favoriteVideos;
+      await favoritesRepository.addVideo(event.videoId);
+      final favorites = await favoritesRepository.favoriteVideos;
 
       emit(FavoritesVideoState.success(favorites));
     } catch (e) {
@@ -67,8 +63,8 @@ class FavoritesVideoBloc
       RemoveFromFavorites event, Emitter<FavoritesVideoState> emit) async {
     emit(const FavoritesVideoState.loading());
     try {
-      await favoritesRepository.remove(event.id, Kind.video);
-      final favorites = favoritesRepository.favoriteVideos;
+      await favoritesRepository.removeVideo(event.id);
+      final favorites = await favoritesRepository.favoriteVideos;
 
       emit(FavoritesVideoState.success(favorites));
     } catch (e) {
@@ -80,8 +76,8 @@ class FavoritesVideoBloc
       ClearFavorites event, Emitter<FavoritesVideoState> emit) async {
     emit(const FavoritesVideoState.loading());
     try {
-      await favoritesRepository.clear(Kind.video);
-      final favorites = favoritesRepository.favoriteVideos;
+      await favoritesRepository.clearVideos();
+      final favorites = await favoritesRepository.favoriteVideos;
 
       emit(FavoritesVideoState.success(favorites));
     } catch (e) {

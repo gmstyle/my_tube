@@ -1,25 +1,24 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:my_tube/models/resource_mt.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final InnertubeRepository innertubeRepository;
+  final YoutubeExplodeRepository youtubeExplodeRepository;
   final settingsBox = Hive.box('settings');
-  SearchBloc({required this.innertubeRepository})
+  SearchBloc({required this.youtubeExplodeRepository})
       : super(const SearchState.initial()) {
     on<SearchContents>((event, emit) async {
       await _onSearchContents(event, emit);
     });
-
-    on<GetNextPageSearchContents>((event, emit) async {
-      await _onGetNextPageSearchContents(event, emit);
+    on<LoadMoreSearchContents>((event, emit) async {
+      await _onLoadMore(event, emit);
     });
   }
 
@@ -27,35 +26,48 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       SearchContents event, Emitter<SearchState> emit) async {
     emit(const SearchState.loading());
     try {
-      final result =
-          await innertubeRepository.searchContents(query: event.query);
+      final map =
+          await youtubeExplodeRepository.searchContents(query: event.query);
+
+      final List<dynamic> items = map['items'] as List<dynamic>;
+      final searchList = map['searchList'];
+
+      log('Ricerca completata: ${items.length} risorse');
 
       _saveQueryHistory(event);
-      emit(SearchState.success(result));
+      emit(SearchState.success(items: items, searchList: searchList));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
     }
   }
 
-  Future<void> _onGetNextPageSearchContents(
-      GetNextPageSearchContents event, Emitter<SearchState> emit) async {
+  Future<void> _onLoadMore(
+      LoadMoreSearchContents event, Emitter<SearchState> emit) async {
+    final current = state;
+
+    // Only load more if we have a successful result and not already loading
+    if (current.status != SearchStatus.success || current.isLoadingMore) return;
+
+    final searchList = current.searchList;
+    if (searchList == null) return;
+
+    // set loading-more flag
+    emit(current.copyWith(isLoadingMore: true));
+
     try {
-      final List<ResourceMT> videos = state.status == SearchStatus.success
-          ? state.result!.resources
-          : const <ResourceMT>[];
+      // repository expects the concrete SearchList type; pass-through opaque object
+      final nextItems = await youtubeExplodeRepository
+          .nextSearchContents(searchList as dynamic /* SearchList */);
 
-      final result = await innertubeRepository.searchContents(
-          query: event.query, nextPageToken: event.nextPageToken);
+      // if null -> no more results
+      if (nextItems == null || nextItems.isEmpty) {
+        emit(current.copyWith(isLoadingMore: false));
+        return;
+      }
 
-      final newVideos = result.resources;
+      final combined = [...?current.items, ...nextItems];
 
-      // Add new videos directly to the existing list
-      videos.addAll(newVideos);
-
-      emit(SearchState.success(ResponseMT(
-        resources: videos,
-        nextPageToken: result.nextPageToken,
-      )));
+      emit(current.copyWith(items: combined, isLoadingMore: false));
     } catch (e) {
       emit(SearchState.failure(e.toString()));
     }

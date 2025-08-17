@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_grid_item.dart';
@@ -17,6 +16,7 @@ import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/search/widgets/empty_search.dart';
 import 'package:my_tube/utils/enums.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 
 // ignore: must_be_immutable
 class SearchView extends StatelessWidget {
@@ -26,8 +26,6 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final searchBloc = context.read<SearchBloc>();
-
     return LayoutBuilder(builder: (context, constraints) {
       return Column(children: [
         StatefulBuilder(builder: (context, setState) {
@@ -184,64 +182,74 @@ class SearchView extends StatelessWidget {
             case SearchStatus.loading:
               return const CustomSkeletonGridList();
             case SearchStatus.success:
-              return NotificationListener<ScrollNotification>(
-                onNotification: (scrollInfo) {
-                  if (state.result?.nextPageToken != null) {
-                    if (scrollInfo.metrics.pixels ==
-                        scrollInfo.metrics.maxScrollExtent) {
-                      searchBloc.add(GetNextPageSearchContents(
-                          query: searchController.text,
-                          nextPageToken: state.result!.nextPageToken!));
-                    }
-                  }
-                  return false;
-                },
-                child: state.result!.resources.isNotEmpty
-                    ? LayoutBuilder(builder: (context, constraints) {
-                        final isTablet = constraints.maxWidth > 600;
-                        if (isTablet) {
-                          return GridView.builder(
+              return (state.items != null && state.items!.isNotEmpty)
+                  ? LayoutBuilder(builder: (context, constraints) {
+                      final isTablet = constraints.maxWidth > 600;
+                      if (isTablet) {
+                        return NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification.metrics.axis == Axis.vertical) {
+                              final maxScroll =
+                                  notification.metrics.maxScrollExtent;
+                              final current = notification.metrics.pixels;
+                              // quando mancano meno di 300px al fondo, richiedi altri risultati
+                              if (maxScroll - current < 300) {
+                                context
+                                    .read<SearchBloc>()
+                                    .add(const LoadMoreSearchContents());
+                              }
+                            }
+                            return false;
+                          },
+                          child: GridView.builder(
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
                               mainAxisSpacing: 8,
                               crossAxisSpacing: 8,
                             ),
-                            itemCount: state.result!.resources.length + 1,
+                            itemCount: state.items!.length +
+                                (state.isLoadingMore ? 1 : 0),
                             itemBuilder: (context, index) {
-                              if (index < state.result!.resources.length) {
-                                final result = state.result!.resources[index];
-                                return _setTile(context, result, isTablet);
-                              } else {
-                                if (state.result!.resources.length >= 20) {
-                                  return ListLoader();
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
+                              if (index >= state.items!.length) {
+                                return const ListLoader();
                               }
+                              final result = state.items![index];
+                              return _setTile(context, result, isTablet);
                             },
-                          );
-                        } else {
-                          return ListView.builder(
+                          ),
+                        );
+                      } else {
+                        return NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification.metrics.axis == Axis.vertical) {
+                              final maxScroll =
+                                  notification.metrics.maxScrollExtent;
+                              final current = notification.metrics.pixels;
+                              if (maxScroll - current < 300) {
+                                context
+                                    .read<SearchBloc>()
+                                    .add(const LoadMoreSearchContents());
+                              }
+                            }
+                            return false;
+                          },
+                          child: ListView.builder(
                               padding: const EdgeInsets.only(bottom: 16),
-                              itemCount: state.result!.resources.length + 1,
+                              itemCount: state.items!.length +
+                                  (state.isLoadingMore ? 1 : 0),
                               itemBuilder: (context, index) {
-                                if (index < state.result!.resources.length) {
-                                  final result = state.result!.resources[index];
-                                  return _setTile(context, result, isTablet);
-                                } else {
-                                  // Loader alla fine della lista se la lista è maggiore di 20
-                                  if (state.result!.resources.length >= 20) {
-                                    return ListLoader();
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
+                                if (index >= state.items!.length) {
+                                  return const ListLoader();
                                 }
-                              });
-                        }
-                      })
-                    : const Center(child: Text('No results found')),
-              );
+
+                                final result = state.items![index];
+                                return _setTile(context, result, isTablet);
+                              }),
+                        );
+                      }
+                    })
+                  : const Center(child: Text('No results found'));
             case SearchStatus.failure:
               return Center(child: Text(state.error!));
 
@@ -261,41 +269,40 @@ class SearchView extends StatelessWidget {
     FocusScope.of(context).unfocus();
   }
 
-  Widget _setTile(BuildContext context, ResourceMT result, bool isTablet) {
-    if (result.kind == Kind.video.name) {
+  Widget _setTile(BuildContext context, dynamic result, bool isTablet) {
+    if (result is models.VideoTile) {
+      final quickVideo = {'id': result.id, 'title': result.title};
       return PlayPauseGestureDetector(
-          resource: result,
+          id: result.id,
           child: VideoMenuDialog(
-              video: result,
+              quickVideo: quickVideo,
               child: isTablet
                   ? VideoGridItem(video: result)
                   : VideoTile(video: result)));
     }
 
-    if (result.kind == Kind.channel.name) {
+    if (result is models.ChannelTile) {
       return GestureDetector(
           onTap: () {
             context.goNamed(AppRoute.channel.name,
-                extra: {'channelId': result.channelId!});
+                extra: {'channelId': result.id});
           },
           child: ChannelPlaylistMenuDialog(
-              resource: result,
+              id: result.id,
               kind: Kind.channel,
               child: isTablet
                   ? ChannelGridItem(channel: result)
                   : ChannelTile(channel: result)));
     }
 
-    if (result.kind == Kind.playlist.name) {
+    if (result is models.PlaylistTile) {
       return GestureDetector(
           onTap: () {
-            context.goNamed(AppRoute.playlist.name, extra: {
-              'playlist': result.title!,
-              'playlistId': result.playlistId!
-            });
+            context.goNamed(AppRoute.playlist.name,
+                extra: {'playlistId': result.id});
           },
           child: ChannelPlaylistMenuDialog(
-              resource: result,
+              id: result.id,
               kind: Kind.playlist,
               child: isTablet
                   ? PlaylistGridItem(playlist: result)

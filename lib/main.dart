@@ -13,13 +13,12 @@ import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/models/theme_settings.dart';
-import 'package:my_tube/providers/innertube_provider.dart';
+import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/providers/update_provider.dart';
-import 'package:my_tube/respositories/innertube_repository.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/update_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
@@ -37,18 +36,20 @@ void main() async {
   //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Hive.initFlutter();
-  Hive.registerAdapter(ResourceMTAdapter());
   await Hive.openBox('settings');
-  await Hive.openBox<ResourceMT>('favorites');
-  await Hive.openBox<ResourceMT>('channels');
-  await Hive.openBox<ResourceMT>('playlists');
+  await Hive.openBox<String>('favoriteVideos');
+  await Hive.openBox<String>('favoriteChannels');
+  await Hive.openBox<String>('favoritePlaylists');
   await LocalNotificationHelper.init();
 
   // Inizializza AudioService con gestione degli errori per Android Auto
   late MtPlayerService mtPlayerService;
+  final YoutubeExplodeProvider youtubeExplodeProvider =
+      YoutubeExplodeProvider();
   try {
     mtPlayerService = await AudioService.init(
-        builder: () => MtPlayerService(),
+        builder: () =>
+            MtPlayerService(youtubeExplodeProvider: youtubeExplodeProvider),
         config: const AudioServiceConfig(
             androidNotificationChannelId: 'mytube_channel',
             androidNotificationChannelName: 'MyTube',
@@ -65,7 +66,8 @@ void main() async {
   } catch (e) {
     log('Errore durante l\'inizializzazione di AudioService: $e');
     // Fallback: crea un'istanza diretta se AudioService non si inizializza
-    mtPlayerService = MtPlayerService();
+    mtPlayerService =
+        MtPlayerService(youtubeExplodeProvider: youtubeExplodeProvider);
     // Inizializza Android Auto anche nel fallback
     try {
       await mtPlayerService.initializeAndroidAutoDetection();
@@ -81,21 +83,24 @@ void main() async {
     providers: [
       /// Providers and services
 
-      Provider<InnertubeProvider>(create: (context) => InnertubeProvider()),
-      Provider<MtPlayerService>(create: (context) => mtPlayerService),
+      /// Provider YouTube Explode - Nuovo provider basato su youtube_explode_dart
+      Provider<YoutubeExplodeProvider>.value(value: youtubeExplodeProvider),
+
+      Provider<MtPlayerService>.value(value: mtPlayerService),
       Provider<DownloadService>(create: (context) => DownloadService()),
       Provider<UpdateProvider>(create: (context) => UpdateProvider()),
     ],
     child: MultiRepositoryProvider(
       /// Repositories
       providers: [
-        RepositoryProvider<InnertubeRepository>(
-            create: (context) => InnertubeRepository(
-                innertubeProvider: context.read<InnertubeProvider>())),
+        RepositoryProvider<YoutubeExplodeRepository>(
+            create: (context) => YoutubeExplodeRepository(
+                youtubeExplodeProvider:
+                    context.read<YoutubeExplodeProvider>())),
         RepositoryProvider<FavoriteRepository>(
             create: (context) => FavoriteRepository(
-                innertubeRepository: context.read<InnertubeRepository>())
-              ..migrateData()),
+                youtubeExplodeRepository:
+                    context.read<YoutubeExplodeRepository>())),
         RepositoryProvider<UpdateRepository>(
             create: (context) => UpdateRepository(
                 updateProvider: context.read<UpdateProvider>())),
@@ -104,32 +109,29 @@ void main() async {
         BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()..init()),
         BlocProvider<SearchBloc>(
             create: (context) => SearchBloc(
-                innertubeRepository: context.read<InnertubeRepository>())),
+                youtubeExplodeRepository:
+                    context.read<YoutubeExplodeRepository>())),
         BlocProvider<SearchSuggestionCubit>(
             create: (context) => SearchSuggestionCubit(
-                innertubeRepository: context.read<InnertubeRepository>())),
-        BlocProvider<SearchSuggestionCubit>(
-            create: (context) => SearchSuggestionCubit(
-                innertubeRepository: context.read<InnertubeRepository>())),
+                youtubeExplodeRepository:
+                    context.read<YoutubeExplodeRepository>())),
         BlocProvider<PlayerCubit>(
             create: (context) => PlayerCubit(
-                  innertubeRepository: context.read<InnertubeRepository>(),
+                  youtubeExplodeRepository:
+                      context.read<YoutubeExplodeRepository>(),
                   mtPlayerService: context.read<MtPlayerService>(),
                 )),
         BlocProvider<FavoritesVideoBloc>(
             create: (context) => FavoritesVideoBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),
-                  innertubeRepository: context.read<InnertubeRepository>(),
                 )),
         BlocProvider<FavoritesChannelBloc>(
             create: (context) => FavoritesChannelBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),
-                  innertubeRepository: context.read<InnertubeRepository>(),
                 )),
         BlocProvider<FavoritesPlaylistBloc>(
             create: (context) => FavoritesPlaylistBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),
-                  innertubeRepository: context.read<InnertubeRepository>(),
                 )),
         BlocProvider<UpdateBloc>(
             create: (context) =>

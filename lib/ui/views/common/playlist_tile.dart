@@ -1,216 +1,101 @@
 import 'package:flutter/material.dart';
-import 'package:my_tube/models/resource_mt.dart';
+import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/utils/utils.dart';
 
 class PlaylistTile extends StatelessWidget {
   const PlaylistTile({super.key, required this.playlist});
 
-  final ResourceMT playlist;
+  final models.PlaylistTile playlist;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       leading: SizedBox(
-        height: 90,
-        width: 90,
+        height: 84,
+        width: 120,
         child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                playlist.thumbnailUrl != null ||
-                        playlist.base64Thumbnail != null
-                    ? Utils.buildImageWithFallback(
-                        thumbnailUrl: playlist.thumbnailUrl,
-                        base64Thumbnail: playlist.base64Thumbnail,
-                        context: context,
-                        placeholder: Container(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          child: Icon(
-                            Icons.playlist_play,
-                            size: 32,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.playlist_play,
-                          size: 32,
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: Utils.getOverlayGradient(context),
+          borderRadius: BorderRadius.circular(12),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Utils.buildImageWithFallback(
+                thumbnailUrl: playlist.thumbnailUrl,
+                context: context,
+                placeholder: Container(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: Icon(
+                    Icons.playlist_play,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
-                Positioned(
-                  top: 4,
-                  left: 4,
-                  child: Icon(
-                    Icons.album_rounded,
-                    color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              // subtle overlay for legibility
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Theme.of(context)
+                          .colorScheme
+                          .shadow
+                          .withValues(alpha: 0.45),
+                    ],
                   ),
-                )
-              ],
-            )),
+                ),
+              ),
+              // top-left badge with count
+              if (playlist.videoCount != null)
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.queue_play_next,
+                            color: Colors.white, size: 14),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${playlist.videoCount}',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
       title: Text(
-        playlist.title ?? '',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
+        playlist.title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (playlist.channelTitle != null)
-            Flexible(
-              child: Text(
-                playlist.channelTitle!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          Flexible(
-            child: Text(
-              playlist.videoCount != null
-                  ? '${playlist.videoCount} videos'
-                  : '',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+      subtitle: playlist.author != null
+          ? Text(
+              playlist.author!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
               overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
+            )
+          : null,
     );
-    /* return Container(
-      height: 90,
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.03),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Expanded(
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    playlist.thumbnailUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: playlist.thumbnailUrl!,
-                            height: MediaQuery.of(context).size.height * 0.09,
-                            width: MediaQuery.of(context).size.width * 0.2,
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) {
-                              // show base64 image if error
-                              return Utils.buildImage(
-                                  playlist.base64Thumbnail, context);
-                            },
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              height: MediaQuery.of(context).size.height * 0.09,
-                              width: MediaQuery.of(context).size.width * 0.2,
-                            ),
-                          ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha:0.4),
-                            Colors.black.withValues(alpha:0.9),
-                          ],
-                          begin: Alignment.centerRight,
-                          end: Alignment.centerLeft,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 4,
-                      left: 4,
-                      child: Icon(
-                        Icons.album_rounded,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    )
-                  ],
-                )),
-          ),
-          const SizedBox(
-            width: 16,
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        playlist.title ?? '',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onPrimary),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        playlist.channelTitle ?? '',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        playlist.videoCount != null
-                            ? '${playlist.videoCount} videos'
-                            : '',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ); */
   }
 }

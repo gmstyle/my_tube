@@ -1,18 +1,19 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
-import 'package:my_tube/models/playlist_mt.dart';
-import 'package:my_tube/ui/views/common/expandable_text.dart';
+import 'package:my_tube/utils/utils.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class PlaylistHeader extends StatelessWidget {
   const PlaylistHeader({
     super.key,
     required this.playlist,
+    required this.videoIds,
   });
 
-  final PlaylistMT? playlist;
+  final Playlist playlist;
+  final List<String> videoIds;
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +37,10 @@ class PlaylistHeader extends StatelessWidget {
           children: [
             FloatingActionButton.small(
                 elevation: 0,
-                heroTag: "add_playlist_to_queue_${playlist!.id}",
+                heroTag: "add_playlist_to_queue_${playlist.id}",
                 backgroundColor: Theme.of(context).colorScheme.onPrimary,
                 onPressed: () {
-                  miniplayerCubit.addAllToQueue(playlist!.videos!);
+                  miniplayerCubit.addAllToQueue(videoIds);
                 },
                 child: const Icon(Icons.queue_music)),
             const SizedBox(width: 8),
@@ -53,14 +54,10 @@ class PlaylistHeader extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    playlist?.thumbnailUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: playlist!.thumbnailUrl!,
-                            height: imageSize,
-                            width: imageSize,
-                            fit: BoxFit.cover,
-                          )
-                        : const SizedBox(),
+                    Utils.buildImageWithFallback(
+                        thumbnailUrl: playlist.thumbnails.highResUrl,
+                        context: context,
+                        fit: BoxFit.cover),
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -85,7 +82,7 @@ class PlaylistHeader extends StatelessWidget {
                             children: [
                               Flexible(
                                 child: Text(
-                                  playlist?.title ?? '',
+                                  playlist.title,
                                   maxLines: 2,
                                   style: Theme.of(context)
                                       .textTheme
@@ -107,7 +104,7 @@ class PlaylistHeader extends StatelessWidget {
                                 color: Theme.of(context).colorScheme.onPrimary,
                               ),
                               Text(
-                                playlist!.itemCount ?? '',
+                                playlist.videoCount.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -129,21 +126,16 @@ class PlaylistHeader extends StatelessWidget {
             const SizedBox(width: 8),
             FloatingActionButton.small(
                 elevation: 0,
-                heroTag: "play_playlist_${playlist!.id}",
+                heroTag: "play_playlist_${playlist.id}",
                 backgroundColor: Theme.of(context).colorScheme.onPrimary,
                 onPressed: playlistState.status == PlaylistStatus.loaded
                     ? () {
-                        miniplayerCubit.startPlayingPlaylist(playlist!.videos!);
+                        miniplayerCubit.startPlayingPlaylist(videoIds);
                       }
                     : null,
                 child: const Icon(Icons.playlist_play)),
           ],
         ),
-        if (playlist!.description != null) ...[
-          const SizedBox(height: 8),
-          ExpandableText(
-              title: 'Description', text: playlist!.description ?? '')
-        ],
       ],
     );
   }

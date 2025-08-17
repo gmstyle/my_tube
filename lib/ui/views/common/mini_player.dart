@@ -15,12 +15,15 @@ class MiniPlayer extends StatelessWidget {
   });
 
   double _setAspectRatio(MtPlayerService mtPlayerService) {
-    return mtPlayerService
-                .chewieController!.videoPlayerController.value.aspectRatio <=
-            1
-        ? 1
-        : mtPlayerService
-            .chewieController!.videoPlayerController.value.aspectRatio;
+    final chewie = mtPlayerService.chewieController;
+    if (chewie == null) return 1;
+    final vpc = chewie.videoPlayerController;
+    try {
+      final ratio = vpc.value.aspectRatio;
+      return ratio <= 1 ? 1 : ratio;
+    } catch (_) {
+      return 1;
+    }
   }
 
   @override
@@ -79,75 +82,25 @@ class MiniPlayer extends StatelessWidget {
                                 child: AspectRatio(
                                     aspectRatio: _setAspectRatio(
                                         playerCubit.mtPlayerService),
-                                    child: Chewie(
-                                        controller: playerCubit
-                                            .mtPlayerService.chewieController!
-                                            .copyWith(
-                                      showControls: false,
-                                    ))),
+                                    child: Builder(builder: (context) {
+                                      final chewie = playerCubit
+                                          .mtPlayerService.chewieController;
+                                      if (chewie == null) {
+                                        // fallback small placeholder if controller not ready
+                                        return Container(
+                                          color: Colors.black,
+                                          child: const SizedBox.shrink(),
+                                        );
+                                      }
+                                      return Chewie(
+                                          controller: chewie.copyWith(
+                                        showControls: false,
+                                      ));
+                                    })),
                               ),
                             ),
                           ),
-                          // Image
-                          /* StreamBuilder(
-                              stream: playerCubit.mtPlayerService.mediaItem,
-                              builder: (context, snapshot) {
-                                final mediaItem = snapshot.data;
-                                return Hero(
-                                  tag: 'video_image_or_player',
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: mediaItem?.artUri != null
-                                        ? CachedNetworkImage(
-                                            height: 80,
-                                            width: 80,
-                                  ConstrainedBox(
-                            constraints: const BoxConstraints(
-                                maxHeight: 80, maxWidth: 80),
-                            child: Hero(
-                              tag: 'video_image_or_player',
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: AspectRatio(
-                                    aspectRatio: _setAspectRatio(
-                                        playerCubit.mtPlayerService),
-                                    child: Chewie(
-                                        controller: playerCubit
-                                  ConstrainedBox(
-                            constraints: const BoxConstraints(
-                                maxHeight: 80, maxWidth: 80),
-                            child: Hero(
-                              tag: 'video_image_or_player',
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: AspectRatio(
-                                    aspectRatio: _setAspectRatio(
-                                        playerCubit.mtPlayerService),
-                                    child: Chewie(
-                                        controller: playerCubit
-                                            .mtPlayerService.chewieController!
-                                            .copyWith(
-                                      showControls: false,
-                                    ))),
-                              ),
-                            ),
-                          ),          .mtPlayerService.chewieController!
-                                            .copyWith(
-                                      showControls: false,
-                                    ))),
-                              ),
-                            ),
-                          ),          fit: BoxFit.cover,
-                                            imageUrl:
-                                                mediaItem!.artUri.toString(),
-                                          )
-                                        : const SizedBox(
-                                            height: 80,
-                                            width: 80,
-                                          ),
-                                  ),
-                                );
-                              }), */
+
                           const SizedBox(width: 8),
                           Expanded(
                             child: Wrap(

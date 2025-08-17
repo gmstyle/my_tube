@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/models/resource_mt.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
@@ -143,9 +142,11 @@ class _VideoViewState extends State<VideoView> {
                                                       onTap: () {
                                                         downloadService
                                                             .download(videos: [
-                                                          ResourceMT
-                                                              .fromMediaItem(
-                                                                  mediaItem!)
+                                                          {
+                                                            'id': mediaItem!.id,
+                                                            'title':
+                                                                mediaItem.title
+                                                          }
                                                         ], context: context);
                                                         Navigator.of(context)
                                                             .pop();
@@ -162,9 +163,13 @@ class _VideoViewState extends State<VideoView> {
                                                         downloadService
                                                             .download(
                                                                 videos: [
-                                                              ResourceMT
-                                                                  .fromMediaItem(
-                                                                      mediaItem!)
+                                                              {
+                                                                'id': mediaItem!
+                                                                    .id,
+                                                                'title':
+                                                                    mediaItem
+                                                                        .title
+                                                              }
                                                             ],
                                                                 context:
                                                                     context,
@@ -199,11 +204,9 @@ class _VideoViewState extends State<VideoView> {
                                                 mediaItem!.id,
                                               ));
                                             } else {
-                                              favoritesVideoBloc
-                                                  .add(AddToFavorites(
-                                                ResourceMT.fromMediaItem(
-                                                    mediaItem!),
-                                              ));
+                                              favoritesVideoBloc.add(
+                                                  AddToFavorites(
+                                                      mediaItem!.id));
                                             }
                                           },
                                           icon: favoritesVideoBloc
