@@ -42,84 +42,74 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
     return Column(
       children: [
         // header row: search icon + title
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () async {
-                  await showSearch(
-                    context: context,
-                    delegate: FavoritesSearchDelegate(),
-                  );
-                },
-                icon: Icon(Icons.search,
-                    color: Theme.of(context).colorScheme.onPrimary),
-              ),
-              const SizedBox(width: 8),
-              Text('Favorites',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      )),
-            ],
-          ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: () async {
+                await showSearch(
+                  context: context,
+                  delegate: FavoritesSearchDelegate(),
+                );
+              },
+              icon: Icon(Icons.search,
+                  color: Theme.of(context).colorScheme.onPrimary),
+            ),
+            const SizedBox(width: 8),
+            Text('Favorites',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )),
+          ],
         ),
 
         // Filter chips (exclusive selection)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Row(
-            children: [
-              ChoiceChip(
-                label: const Text('Videos'),
-                selected: _active == FavoriteCategory.videos,
-                onSelected: (s) {
-                  setState(() {
-                    _active = FavoriteCategory.videos;
-                  });
-                },
-              ),
-              const SizedBox(width: 8),
-              ChoiceChip(
-                label: const Text('Channels'),
-                selected: _active == FavoriteCategory.channels,
-                onSelected: (s) {
-                  setState(() {
-                    _active = FavoriteCategory.channels;
-                  });
-                },
-              ),
-              const SizedBox(width: 8),
-              ChoiceChip(
-                label: const Text('Playlists'),
-                selected: _active == FavoriteCategory.playlists,
-                onSelected: (s) {
-                  setState(() {
-                    _active = FavoriteCategory.playlists;
-                  });
-                },
-              ),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ChoiceChip(
+              label: const Text('Videos'),
+              selected: _active == FavoriteCategory.videos,
+              onSelected: (s) {
+                setState(() {
+                  _active = FavoriteCategory.videos;
+                });
+              },
+            ),
+            ChoiceChip(
+              label: const Text('Channels'),
+              selected: _active == FavoriteCategory.channels,
+              onSelected: (s) {
+                setState(() {
+                  _active = FavoriteCategory.channels;
+                });
+              },
+            ),
+            ChoiceChip(
+              label: const Text('Playlists'),
+              selected: _active == FavoriteCategory.playlists,
+              onSelected: (s) {
+                setState(() {
+                  _active = FavoriteCategory.playlists;
+                });
+              },
+            ),
+          ],
         ),
 
         const SizedBox(height: 12),
 
         // content area (bottom inset now handled by ScaffoldWithNavbar)
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Builder(builder: (context) {
-              switch (_active) {
-                case FavoriteCategory.videos:
-                  return const VideoFavorites(searchQuery: '');
-                case FavoriteCategory.channels:
-                  return const ChannelFavorites(searchQuery: '');
-                case FavoriteCategory.playlists:
-                  return const PlaylistFavorites(searchQuery: '');
-              }
-            }),
-          ),
+          child: Builder(builder: (context) {
+            switch (_active) {
+              case FavoriteCategory.videos:
+                return const VideoFavorites(searchQuery: '');
+              case FavoriteCategory.channels:
+                return const ChannelFavorites(searchQuery: '');
+              case FavoriteCategory.playlists:
+                return const PlaylistFavorites(searchQuery: '');
+            }
+          }),
         ),
       ],
     );
