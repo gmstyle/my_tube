@@ -61,18 +61,31 @@ class FavoriteRepository {
   }
 
   Future<void> removeVideo(String id) async {
-    final index = favoriteVideosBox.keys.toList().indexOf(id);
-    await favoriteVideosBox.deleteAt(index);
+    // Find the key corresponding to the stored value and delete by key.
+    final matchingKeys = favoriteVideosBox.keys
+        .where((k) => favoriteVideosBox.get(k) == id)
+        .toList();
+    if (matchingKeys.isNotEmpty) {
+      await favoriteVideosBox.delete(matchingKeys.first);
+    }
   }
 
   Future<void> removeChannel(String id) async {
-    final index = favoriteChannelsBox.keys.toList().indexOf(id);
-    await favoriteChannelsBox.deleteAt(index);
+    final matchingKeys = favoriteChannelsBox.keys
+        .where((k) => favoriteChannelsBox.get(k) == id)
+        .toList();
+    if (matchingKeys.isNotEmpty) {
+      await favoriteChannelsBox.delete(matchingKeys.first);
+    }
   }
 
   Future<void> removePlaylist(String id) async {
-    final index = favoritePlaylistsBox.keys.toList().indexOf(id);
-    await favoritePlaylistsBox.deleteAt(index);
+    final matchingKeys = favoritePlaylistsBox.keys
+        .where((k) => favoritePlaylistsBox.get(k) == id)
+        .toList();
+    if (matchingKeys.isNotEmpty) {
+      await favoritePlaylistsBox.delete(matchingKeys.first);
+    }
   }
 
   Future<void> clearVideos() async {
