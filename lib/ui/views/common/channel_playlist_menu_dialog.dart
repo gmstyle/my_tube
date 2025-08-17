@@ -24,12 +24,11 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
             context: context,
             builder: (_) {
               return AlertDialog(
-                //title: const Text('Options'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // show the option to remove Channel from the favorites if it is in the favorites
-                    if (kind == Kind.video &&
+                    if (kind == Kind.channel &&
                         favoritesChannelBloc.favoritesRepository.channelIds
                             .contains(id))
                       ListTile(
