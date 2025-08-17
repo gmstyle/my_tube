@@ -15,3 +15,10 @@ class GetChannelDetails extends ChannelPageEvent {
   @override
   List<Object> get props => [channelId];
 }
+
+class LoadMoreChannelVideos extends ChannelPageEvent {
+  const LoadMoreChannelVideos();
+
+  @override
+  List<Object> get props => [];
+}

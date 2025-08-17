@@ -195,12 +195,27 @@ class YoutubeExplodeRepository {
       final videoTiles =
           uploads.map((video) => VideoTile.fromVideo(video)).toList();
 
+      // Ritorniamo anche l'oggetto uploads (ChannelUploadsList) per permettere
+      // il caricamento di pagine successive.
       return {
         'channel': channel,
         'videos': videoTiles,
+        'uploadsList': uploads,
       };
     } catch (e) {
       log('Errore durante il recupero del canale: $e');
+      rethrow;
+    }
+  }
+
+  /// Richiede la pagina successiva di upload a partire da [ChannelUploadsList]
+  /// Restituisce `null` se non ci sono più risultati.
+  Future<List<Video>?> nextChannelVideos(ChannelUploadsList uploads) async {
+    try {
+      final next = await youtubeExplodeProvider.getNextChannelVideos(uploads);
+      return next?.toList();
+    } catch (e) {
+      log('Errore durante il recupero della pagina successiva del canale: $e');
       rethrow;
     }
   }

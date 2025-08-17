@@ -50,6 +50,11 @@ class YoutubeExplodeProvider {
     return uploads;
   }
 
+  Future<ChannelUploadsList?> getNextChannelVideos(
+      ChannelUploadsList uploads) async {
+    return uploads.nextPage();
+  }
+
   Future<List<dynamic>?> getNextSearchContent(SearchList searchList) async {
     final nextPage = await searchList.nextPage();
     return nextPage;
