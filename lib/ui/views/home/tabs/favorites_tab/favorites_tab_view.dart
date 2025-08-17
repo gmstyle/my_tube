@@ -7,6 +7,8 @@ import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/channel_favorit
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/playlist_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/video_favorites.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/ui/views/home/tabs/favorites_tab/favorites_search_delegate.dart';
 
 class FavoritesTabView extends StatefulWidget {
   const FavoritesTabView({super.key});
@@ -17,6 +19,9 @@ class FavoritesTabView extends StatefulWidget {
 
 class _FavoritesTabViewState extends State<FavoritesTabView> {
   final TextEditingController _searchController = TextEditingController();
+
+  // active chip selection (exclusive)
+  FavoriteCategory _active = FavoriteCategory.videos;
 
   @override
   void initState() {
@@ -34,76 +39,91 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: TextField(
-              controller: _searchController,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                isDense: true,
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.primaryContainer,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    setState(() {
-                      _searchController.clear();
-                      FocusScope.of(context).unfocus();
-                    });
-                  },
-                ),
-                hintText: 'Search for favorites videos, channels, playlists',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none),
+    return Column(
+      children: [
+        // header row: search icon + title
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () async {
+                  await showSearch(
+                    context: context,
+                    delegate: FavoritesSearchDelegate(),
+                  );
+                },
+                icon: Icon(Icons.search,
+                    color: Theme.of(context).colorScheme.onPrimary),
               ),
-              onChanged: (query) {
-                setState(() {});
-              },
-            ),
+              const SizedBox(width: 8),
+              Text('Favorites',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      )),
+            ],
           ),
-          TabBar(
-              dividerColor: Colors.transparent,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicatorColor: Theme.of(context).colorScheme.onPrimary,
-              tabs: [
-                // favorites videos
-                Tab(
-                  icon: Icon(
-                    Icons.video_library,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                ),
-                // favorites channels
-                Tab(
-                  icon: Icon(Icons.people,
-                      color: Theme.of(context).colorScheme.onPrimary),
-                ),
-                // favorites playlists
-                Tab(
-                  icon: Icon(Icons.queue_play_next,
-                      color: Theme.of(context).colorScheme.onPrimary),
-                ),
-              ]),
-          const SizedBox(height: 16),
-          Expanded(
-            child: TabBarView(
-              children: [
-                VideoFavorites(searchQuery: _searchController.text),
-                ChannelFavorites(searchQuery: _searchController.text),
-                PlaylistFavorites(
-                  searchQuery: _searchController.text,
-                )
-              ],
-            ),
+        ),
+
+        // Filter chips (exclusive selection)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Row(
+            children: [
+              ChoiceChip(
+                label: const Text('Videos'),
+                selected: _active == FavoriteCategory.videos,
+                onSelected: (s) {
+                  setState(() {
+                    _active = FavoriteCategory.videos;
+                  });
+                },
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
+                label: const Text('Channels'),
+                selected: _active == FavoriteCategory.channels,
+                onSelected: (s) {
+                  setState(() {
+                    _active = FavoriteCategory.channels;
+                  });
+                },
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
+                label: const Text('Playlists'),
+                selected: _active == FavoriteCategory.playlists,
+                onSelected: (s) {
+                  setState(() {
+                    _active = FavoriteCategory.playlists;
+                  });
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // content area (bottom inset now handled by ScaffoldWithNavbar)
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Builder(builder: (context) {
+              switch (_active) {
+                case FavoriteCategory.videos:
+                  return const VideoFavorites(searchQuery: '');
+                case FavoriteCategory.channels:
+                  return const ChannelFavorites(searchQuery: '');
+                case FavoriteCategory.playlists:
+                  return const PlaylistFavorites(searchQuery: '');
+              }
+            }),
+          ),
+        ),
+      ],
     );
   }
 }
+
+enum FavoriteCategory { videos, channels, playlists }
