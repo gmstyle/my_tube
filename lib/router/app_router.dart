@@ -5,7 +5,6 @@ import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
-import 'package:my_tube/router/pages/search_page.dart';
 import 'package:my_tube/router/pages/settings_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
 
@@ -13,8 +12,8 @@ class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final exploreKey = GlobalKey<NavigatorState>();
   //static final musicKey = GlobalKey<NavigatorState>();
-  static final searchKey = GlobalKey<NavigatorState>();
   static final favoritesKey = GlobalKey<NavigatorState>();
+  static final settingsKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
     // Root
@@ -23,13 +22,6 @@ class AppRouter {
       name: AppRoute.video.name,
       path: AppRoute.video.path,
       pageBuilder: (context, state) => const VideoPage(),
-    ),
-    // Settings
-    GoRoute(
-      parentNavigatorKey: rootNavigatorKey,
-      name: AppRoute.settings.name,
-      path: AppRoute.settings.path,
-      pageBuilder: (context, state) => const SettingsPage(),
     ),
 
     // Shell
@@ -76,16 +68,6 @@ class AppRouter {
                         final playlistId = extra['playlistId'] as String;
                         return PlaylistPage(playlistId: playlistId);
                       }),
-                ]),
-          ]),
-
-          // Tab Search
-          StatefulShellBranch(navigatorKey: searchKey, routes: [
-            GoRoute(
-                name: AppRoute.search.name,
-                path: AppRoute.search.path,
-                pageBuilder: (context, state) => const SearchPage(),
-                routes: [
                   GoRoute(
                       name: AppRoute.channel.name,
                       path: AppRoute.channel.path,
@@ -103,6 +85,14 @@ class AppRouter {
                         return PlaylistPage(playlistId: playlistId);
                       }),
                 ]),
+          ]),
+
+          // Tab Settings
+          StatefulShellBranch(navigatorKey: settingsKey, routes: [
+            GoRoute(
+                name: AppRoute.settings.name,
+                path: AppRoute.settings.path,
+                pageBuilder: (context, state) => const SettingsPage()),
           ])
         ]),
   ]);
@@ -111,7 +101,6 @@ class AppRouter {
 enum AppRoute {
   explore('/'),
   music('/music'),
-  search('/search'),
   account('/account'),
   channel('channel'),
   channelFavorites('channelFavorite'),

@@ -8,6 +8,7 @@ import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
+import 'package:my_tube/ui/views/common/global_search_delegate.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
@@ -26,8 +27,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       label: 'Favorites',
     ),
     NavigationDestination(
-      icon: Icon(Icons.search),
-      label: 'Search',
+      icon: Icon(Icons.settings),
+      label: 'Settings',
     ),
   ];
 
@@ -42,8 +43,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       label: Text('Favorites'),
     ),
     NavigationRailDestination(
-      icon: Icon(Icons.search),
-      label: Text('Search'),
+      icon: Icon(Icons.settings),
+      label: Text('Settings'),
     ),
   ];
 
@@ -51,6 +52,13 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     navigationShell.goBranch(index,
         initialLocation: index == navigationShell.currentIndex);
     log('onDestinationSelected: $index');
+  }
+
+  void _showGlobalSearch(BuildContext context) {
+    showSearch(
+      context: context,
+      delegate: GlobalSearchDelegate(),
+    );
   }
 
   Future<void> disableBatteryOptimization() async {
@@ -105,9 +113,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       appBar: CustomAppbar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => context.pushNamed(AppRoute.settings.name),
-          ),
+              onPressed: () => _showGlobalSearch(context),
+              icon: Icon(Icons.search)),
         ],
       ),
       backgroundColor: Colors.transparent,
@@ -177,9 +184,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       appBar: CustomAppbar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => context.pushNamed(AppRoute.settings.name),
-          ),
+              onPressed: () => _showGlobalSearch(context),
+              icon: Icon(Icons.search)),
         ],
       ),
       backgroundColor: Colors.transparent,
