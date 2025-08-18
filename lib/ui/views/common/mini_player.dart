@@ -45,7 +45,7 @@ class MiniPlayer extends StatelessWidget {
                 topLeft: Radius.circular(10), topRight: Radius.circular(10)),
             child: Container(
               color: Theme.of(context).colorScheme.surface,
-              height: 80,
+              height: 64,
               child: Center(
                 child: Text(state.message!),
               ),
@@ -60,17 +60,17 @@ class MiniPlayer extends StatelessWidget {
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               child: Container(
                 color: Theme.of(context).colorScheme.surface,
-                height: 80,
+                height: 64,
                 child: HorizontalSwipeToSkip(
                   child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 8),
+                          horizontal: 8, vertical: 6),
                       child: Row(
                         children: [
                           // Video
                           ConstrainedBox(
                             constraints: const BoxConstraints(
-                                maxHeight: 80, maxWidth: 80),
+                                maxHeight: 52, maxWidth: 52),
                             child: Hero(
                               tag: 'video_image_or_player',
                               child: ClipRRect(

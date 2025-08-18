@@ -202,6 +202,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
               shadowColor: Theme.of(context).colorScheme.shadow,
               elevation: 8,
+              height: 60,
             );
           } else {
             // Mini player + navigation bar quando il player è attivo
@@ -218,6 +219,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                       Theme.of(context).colorScheme.secondaryContainer,
                   shadowColor: Theme.of(context).colorScheme.shadow,
                   elevation: 8,
+                  height: 60,
                 ),
               ],
             );
