@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/global_search_delegate.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
@@ -149,26 +148,21 @@ class ScaffoldWithNavbarView extends StatelessWidget {
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: MainGradient(
-              child: Stack(
+              child: Column(
                 children: [
-                  // make space for the MiniPlayer when visible by reading PlayerCubit
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
+                      child: navigationShell,
+                    ),
+                  ),
                   BlocBuilder<PlayerCubit, PlayerState>(
                     builder: (context, state) {
-                      final bottomPadding = state.status == PlayerStatus.hidden
-                          ? 0.0
-                          : 80.0; // same height used by MiniPlayer
-                      return Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(8.0, 0, 8.0, bottomPadding),
-                        child: navigationShell,
-                      );
+                      if (state.status == PlayerStatus.hidden) {
+                        return const SizedBox.shrink();
+                      }
+                      return const MiniPlayer();
                     },
-                  ),
-                  const Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: MiniPlayer(),
                   ),
                 ],
               ),
@@ -190,37 +184,45 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       ),
       backgroundColor: Colors.transparent,
       body: MainGradient(
-        child: Stack(
-          children: [
-            BlocBuilder<PlayerCubit, PlayerState>(
-              builder: (context, state) {
-                final bottomPadding = state.status == PlayerStatus.hidden
-                    ? 0.0
-                    : 80.0; // keep consistent with MiniPlayer height
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, bottomPadding),
-                  child: navigationShell,
-                );
-              },
-            ),
-            const Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: MiniPlayer(),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
+          child: navigationShell,
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: onDestinationSelected,
-        destinations: _navBarItems,
-        backgroundColor:
-            Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-        indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
-        shadowColor: Theme.of(context).colorScheme.shadow,
-        elevation: 8,
+      bottomNavigationBar: BlocBuilder<PlayerCubit, PlayerState>(
+        builder: (context, state) {
+          if (state.status == PlayerStatus.hidden) {
+            // Solo la navigation bar quando il player è nascosto
+            return NavigationBar(
+              selectedIndex: navigationShell.currentIndex,
+              onDestinationSelected: onDestinationSelected,
+              destinations: _navBarItems,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+              indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
+              shadowColor: Theme.of(context).colorScheme.shadow,
+              elevation: 8,
+            );
+          } else {
+            // Mini player + navigation bar quando il player è attivo
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const MiniPlayer(),
+                NavigationBar(
+                  selectedIndex: navigationShell.currentIndex,
+                  onDestinationSelected: onDestinationSelected,
+                  destinations: _navBarItems,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  indicatorColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
+                  shadowColor: Theme.of(context).colorScheme.shadow,
+                  elevation: 8,
+                ),
+              ],
+            );
+          }
+        },
       ),
     );
   }

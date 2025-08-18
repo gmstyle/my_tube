@@ -44,8 +44,7 @@ class MiniPlayer extends StatelessWidget {
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10), topRight: Radius.circular(10)),
             child: Container(
-              color:
-                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+              color: Theme.of(context).colorScheme.surface,
               height: 80,
               child: Center(
                 child: Text(state.message!),
@@ -55,15 +54,12 @@ class MiniPlayer extends StatelessWidget {
         }
 
         return GestureDetector(
-          onTap: () => context.pushNamed(AppRoute.video.name),
-          child: ClipRRect(
+            onTap: () => context.pushNamed(AppRoute.video.name),
+            child: ClipRRect(
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               child: Container(
-                color: Theme.of(context)
-                    .colorScheme
-                    .surface
-                    .withValues(alpha: 0.9),
+                color: Theme.of(context).colorScheme.surface,
                 height: 80,
                 child: HorizontalSwipeToSkip(
                   child: Container(
@@ -177,8 +173,8 @@ class MiniPlayer extends StatelessWidget {
                         ],
                       )),
                 ),
-              )),
-        );
+              ),
+            ));
       },
     );
   }
