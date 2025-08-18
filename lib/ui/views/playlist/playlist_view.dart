@@ -130,23 +130,27 @@ class PlaylistView extends StatelessWidget {
                     children: [
                       PlaylistHeader(playlist: playlist, videoIds: videoIds),
                       const SizedBox(height: 16),
-                      ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: videos.length,
-                          itemBuilder: (context, index) {
-                            final video = videos[index];
-                            final quickVideo = {
-                              'id': video.id,
-                              'title': video.title
-                            };
-                            return PlayPauseGestureDetector(
-                              id: video.id,
-                              child: VideoMenuDialog(
-                                  quickVideo: quickVideo,
-                                  child: VideoTile(video: video)),
-                            );
-                          }),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: videos.length,
+                        itemBuilder: (context, index) {
+                          final video = videos[index];
+                          final quickVideo = {
+                            'id': video.id,
+                            'title': video.title
+                          };
+                          return PlayPauseGestureDetector(
+                            id: video.id,
+                            child: VideoMenuDialog(
+                                quickVideo: quickVideo,
+                                child: VideoTile(video: video)),
+                          );
+                        },
+                        separatorBuilder: (context, index) => const SizedBox(
+                          height: 8,
+                        ),
+                      ),
                     ],
                   ),
                 );
