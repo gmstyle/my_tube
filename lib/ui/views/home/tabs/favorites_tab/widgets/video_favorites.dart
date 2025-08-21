@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
-import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
@@ -49,11 +48,9 @@ class VideoFavorites extends StatelessWidget {
                             'id': video.id,
                             'title': video.title,
                           };
-                          return PlayPauseGestureDetector(
-                              id: video.id,
-                              child: VideoMenuDialog(
-                                  quickVideo: quickVideo,
-                                  child: VideoTile(video: video)));
+                          return VideoMenuDialog(
+                              quickVideo: quickVideo,
+                              child: VideoTile(video: video));
                         },
                       )
                     : const EmptyFavorites(

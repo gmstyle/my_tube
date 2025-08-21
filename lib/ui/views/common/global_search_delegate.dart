@@ -12,7 +12,6 @@ import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/main_gradient.dart';
-import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
@@ -403,12 +402,9 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
   Widget _buildVideoTile(
       BuildContext context, models.VideoTile video, bool isTablet) {
     final quickVideo = {'id': video.id, 'title': video.title};
-    return PlayPauseGestureDetector(
-      id: video.id,
-      child: VideoMenuDialog(
-        quickVideo: quickVideo,
-        child: isTablet ? VideoGridItem(video: video) : VideoTile(video: video),
-      ),
+    return VideoMenuDialog(
+      quickVideo: quickVideo,
+      child: isTablet ? VideoGridItem(video: video) : VideoTile(video: video),
     );
   }
 

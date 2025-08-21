@@ -33,11 +33,11 @@ class _CustomShimmerState extends State<CustomShimmer>
     )..repeat();
 
     _animation = Tween<double>(
-      begin: -1.0,
-      end: 2.0,
+      begin: -1.5,
+      end: 2.5,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeInOut,
+      curve: Curves.easeInOutCubic,
     ));
   }
 
@@ -66,10 +66,13 @@ class _CustomShimmerState extends State<CustomShimmer>
               end: Alignment.bottomRight,
               colors: [
                 baseColor,
+                baseColor,
+                highlightColor,
                 highlightColor,
                 baseColor,
+                baseColor,
               ],
-              stops: const [0.0, 0.5, 1.0],
+              stops: const [0.0, 0.3, 0.4, 0.6, 0.7, 1.0],
               transform: _SlidingGradientTransform(_animation.value),
             ).createShader(bounds);
           },
@@ -169,6 +172,34 @@ class ShimmerCircle extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget shimmer per rappresentare bottoni
+class ShimmerButton extends StatelessWidget {
+  final double width;
+  final double height;
+  final double borderRadius;
+
+  const ShimmerButton({
+    super.key,
+    required this.width,
+    this.height = 40,
+    this.borderRadius = 12,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomShimmer(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
     );

@@ -12,103 +12,156 @@ class VideoMenuDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoritesVideoBloc = context.read<FavoritesVideoBloc>();
-    final playerCubit = context.read<PlayerCubit>();
-    final downloadService = context.read<DownloadService>();
-
     final id = quickVideo['id']!;
     final title = quickVideo['title']!;
 
     return GestureDetector(
       onLongPress: () {
-        // show option dialog
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                //title: const Text('Options'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // show the option to remove the video from the favorites if it is in the favorites
-                    if (favoritesVideoBloc.favoritesRepository.videoIds
-                        .contains(id))
-                      ListTile(
-                        leading: const Icon(Icons.remove),
-                        title: const Text('Remove from favorites'),
-                        onTap: () {
-                          favoritesVideoBloc.add(RemoveFromFavorites(id));
-                          Navigator.of(context).pop();
-                        },
-                      ),
-
-                    // show the option to add the video to the favorites if it is not in the favorites
-                    if (!favoritesVideoBloc.favoritesRepository.videoIds
-                        .contains(id))
-                      ListTile(
-                        leading: const Icon(Icons.favorite),
-                        title: const Text('Add to favorites'),
-                        onTap: () {
-                          favoritesVideoBloc.add(AddToFavorites(id));
-                          Navigator.of(context).pop();
-                        },
-                      ),
-
-                    // show the option to add the video to the queue if it is not in the queue
-                    if (!playerCubit.mtPlayerService.queue.value
-                        .map((e) => e.id)
-                        .contains(id))
-                      ListTile(
-                        leading: const Icon(Icons.playlist_add),
-                        title: const Text('Add to queue'),
-                        onTap: () {
-                          playerCubit.addToQueue(id);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-
-                    // show the option to remove the video from the queue if it is in the queue
-                    if (playerCubit.mtPlayerService.queue.value
-                        .map((e) => e.id)
-                        .contains(id))
-                      ListTile(
-                        leading: const Icon(Icons.remove),
-                        title: const Text('Remove from queue'),
-                        onTap: () {
-                          playerCubit.removeFromQueue(id);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-
-                    // show the option to download the video
-                    ListTile(
-                      leading: const Icon(Icons.download),
-                      title: const Text('Download'),
-                      onTap: () {
-                        downloadService.download(videos: [
-                          {'id': id, 'title': title}
-                        ], context: context);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-
-                    // show the option to download the audio only
-                    ListTile(
-                      leading: const Icon(Icons.music_note),
-                      title: const Text('Download audio only'),
-                      onTap: () {
-                        downloadService.download(videos: [
-                          {'id': id, 'title': title}
-                        ], context: context, isAudioOnly: true);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-              );
-            });
+        _showEnhancedVideoMenu(context, id, title);
       },
       child: child,
+    );
+  }
+
+  void _showEnhancedVideoMenu(
+      BuildContext context, String videoId, String videoTitle) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Video Options'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Favorite toggle with enhanced animation
+              _buildFavoriteOption(context, videoId),
+              const Divider(),
+
+              // Queue management
+              _buildQueueOption(context, videoId),
+              const Divider(),
+
+              // Download options
+              _buildDownloadOptions(context, videoId, videoTitle),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFavoriteOption(BuildContext context, String videoId) {
+    return BlocBuilder<FavoritesVideoBloc, FavoritesVideoState>(
+      builder: (context, state) {
+        final favoritesBloc = context.read<FavoritesVideoBloc>();
+        final isFavorite =
+            favoritesBloc.favoritesRepository.videoIds.contains(videoId);
+
+        return ListTile(
+          leading: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              key: ValueKey(isFavorite),
+              color: isFavorite
+                  ? Theme.of(context).colorScheme.error
+                  : Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          title:
+              Text(isFavorite ? 'Remove from favorites' : 'Add to favorites'),
+          onTap: () {
+            if (isFavorite) {
+              favoritesBloc.add(RemoveFromFavorites(videoId));
+            } else {
+              favoritesBloc.add(AddToFavorites(videoId));
+            }
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildQueueOption(BuildContext context, String videoId) {
+    return BlocBuilder<PlayerCubit, PlayerState>(
+      builder: (context, state) {
+        final playerCubit = context.read<PlayerCubit>();
+        final isInQueue = playerCubit.mtPlayerService.queue.value
+            .map((e) => e.id)
+            .contains(videoId);
+
+        return ListTile(
+          leading: Icon(
+            isInQueue ? Icons.remove : Icons.playlist_add,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          title: Text(isInQueue ? 'Remove from queue' : 'Add to queue'),
+          onTap: () {
+            if (isInQueue) {
+              playerCubit.removeFromQueue(videoId);
+            } else {
+              playerCubit.addToQueue(videoId);
+            }
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDownloadOptions(
+      BuildContext context, String videoId, String videoTitle) {
+    final downloadService = context.read<DownloadService>();
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        ListTile(
+          leading: Icon(
+            Icons.video_library,
+            color: theme.colorScheme.primary,
+          ),
+          title: const Text('Download Video'),
+          subtitle: const Text('Full quality with audio'),
+          onTap: () {
+            downloadService.download(
+              videos: [
+                {'id': videoId, 'title': videoTitle}
+              ],
+              context: context,
+            );
+            Navigator.of(context).pop();
+          },
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.music_note,
+            color: theme.colorScheme.secondary,
+          ),
+          title: const Text('Download Audio Only'),
+          subtitle: const Text('Audio track only'),
+          onTap: () {
+            downloadService.download(
+              videos: [
+                {'id': videoId, 'title': videoTitle}
+              ],
+              context: context,
+              isAudioOnly: true,
+            );
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

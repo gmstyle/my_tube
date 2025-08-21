@@ -10,7 +10,6 @@ import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
-import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/utils/enums.dart';
 
 class FavoritesSearchDelegate extends SearchDelegate<void> {
@@ -197,11 +196,8 @@ class FavoritesSearchDelegate extends SearchDelegate<void> {
                 return Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  child: PlayPauseGestureDetector(
-                    id: video.id,
-                    child: VideoMenuDialog(
-                        quickVideo: quickVideo, child: VideoTile(video: video)),
-                  ),
+                  child: VideoMenuDialog(
+                      quickVideo: quickVideo, child: VideoTile(video: video)),
                 );
               }),
             ],
