@@ -20,19 +20,19 @@ class ColorSelectionDialog extends flutter_material.StatelessWidget {
       content: flutter_material.Builder(
         builder: (context) {
           // Use MediaQuery directly from this builder's context
-      final mq = flutter_material.MediaQuery.of(context);
-      // Use app breakpoints to determine sensible max widths for content
-      final contentMax = AppBreakpoints.getContentMaxWidth(context);
-      final screenLimit = mq.size.width * 0.9;
-      final maxDialogWidth = contentMax.isFinite
-        ? math.min(contentMax, screenLimit)
-        : screenLimit;
-      final maxDialogHeight = math.min(360.0, mq.size.height * 0.6);
+          final mq = flutter_material.MediaQuery.of(context);
+          // Use app breakpoints to determine sensible max widths for content
+          final contentMax = AppBreakpoints.getContentMaxWidth(context);
+          final screenLimit = mq.size.width * 0.9;
+          final maxDialogWidth = contentMax.isFinite
+              ? math.min(contentMax, screenLimit)
+              : screenLimit;
+          final maxDialogHeight = math.min(360.0, mq.size.height * 0.6);
 
-      // Responsive item sizes
-      final isTablet = AppBreakpoints.isTablet(context);
-      final maxCrossAxisExtent = isTablet ? 72.0 : 64.0;
-      final itemDiameter = isTablet ? 48.0 : 40.0;
+          // Responsive item sizes
+          final isTablet = AppBreakpoints.isTablet(context);
+          final maxCrossAxisExtent = isTablet ? 72.0 : 64.0;
+          final itemDiameter = isTablet ? 48.0 : 40.0;
 
           return flutter_material.ConstrainedBox(
             constraints: flutter_material.BoxConstraints(
@@ -44,8 +44,8 @@ class ColorSelectionDialog extends flutter_material.StatelessWidget {
               height: maxDialogHeight,
               child: flutter_material.GridView.builder(
                 shrinkWrap: true,
-                gridDelegate: flutter_material
-                    .SliverGridDelegateWithMaxCrossAxisExtent(
+                gridDelegate:
+                    flutter_material.SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: maxCrossAxisExtent,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
