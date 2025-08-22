@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/utils/utils.dart';
+import 'package:my_tube/utils/app_theme_extensions.dart';
+import 'package:my_tube/utils/app_breakpoints.dart';
 
 class ChannelGridItem extends StatelessWidget {
   const ChannelGridItem({super.key, required this.channel});
@@ -9,10 +11,16 @@ class ChannelGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = MediaQuery.of(context).size.width *
-        0.4; // Dimensione per mantenere il widget circolare
+    final theme = Theme.of(context);
+    final isCompact = context.isCompact;
+    final double size =
+        MediaQuery.of(context).size.width * (isCompact ? 0.28 : 0.4);
+    final borderRadius = BorderRadius.circular(isCompact ? 12 : 16);
 
-    return ClipOval(
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+      clipBehavior: Clip.antiAlias,
       child: SizedBox(
         width: size,
         height: size,
@@ -24,31 +32,33 @@ class ChannelGridItem extends StatelessWidget {
               thumbnailUrl: channel.thumbnailUrl,
               context: context,
               placeholder: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
+                color: theme.colorScheme.primaryContainer,
                 child: Icon(
                   Icons.person,
                   size: size * 0.3,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: theme.colorScheme.onPrimaryContainer,
                 ),
               ),
             ),
+
             // Gradient overlay
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
                     Colors.transparent,
-                    Theme.of(context).colorScheme.shadow.withValues(alpha: 0.6),
-                    Theme.of(context).colorScheme.shadow.withValues(alpha: 0.8),
+                    theme.colorScheme.shadow.withValues(alpha: 0.6),
+                    theme.colorScheme.shadow.withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
               ),
             ),
+
             // Channel information
             Positioned(
-              bottom: 8,
+              bottom: isCompact ? 8 : 12,
               left: 8,
               right: 8,
               child: Column(
@@ -56,22 +66,23 @@ class ChannelGridItem extends StatelessWidget {
                 children: [
                   Text(
                     channel.title,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: theme.videoTitleStyle.copyWith(
+                      color: theme.colorScheme.onPrimary,
+                      fontSize: isCompact ? 13 : 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (channel.subscriberCount != null) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: isCompact ? 4 : 6),
                     Text(
                       channel.subscriberCount.toString(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 10,
-                          ),
+                      style: theme.videoSubtitleStyle.copyWith(
+                        color: theme.colorScheme.onPrimary,
+                        fontSize: isCompact ? 11 : 12,
+                      ),
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

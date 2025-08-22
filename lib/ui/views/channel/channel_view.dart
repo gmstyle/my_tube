@@ -115,24 +115,18 @@ class _ChannelViewState extends State<ChannelView>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Primary action: Share channel (most common action)
+        // Tertiary action: Favorite with enhanced visual feedback
         Container(
+          margin: EdgeInsets.only(left: isCompact ? 6 : 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             color: theme.colorScheme.surface.withValues(alpha: 0.1),
           ),
-          child: IconButton(
-            onPressed: () => _shareChannel(context, channel),
-            icon: Icon(
-              Icons.share_outlined,
-              size: isCompact ? 20.0 : 22.0,
-            ),
-            tooltip: 'Share channel',
+          child: EnhancedFavoriteButton(
+            entityId: channel.id.value,
+            entityType: FavoriteEntityType.channel,
+            size: isCompact ? 20.0 : 22.0,
             padding: EdgeInsets.all(isCompact ? 8 : 10),
-            constraints: BoxConstraints(
-              minWidth: isCompact ? 36 : 40,
-              minHeight: isCompact ? 36 : 40,
-            ),
           ),
         ),
 
@@ -147,21 +141,6 @@ class _ChannelViewState extends State<ChannelView>
             actions: _buildChannelOverflowActions(context, channel, videos),
             tooltip: 'More options',
             iconSize: isCompact ? 20.0 : 22.0,
-            padding: EdgeInsets.all(isCompact ? 8 : 10),
-          ),
-        ),
-
-        // Tertiary action: Favorite with enhanced visual feedback
-        Container(
-          margin: EdgeInsets.only(left: isCompact ? 6 : 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: theme.colorScheme.surface.withValues(alpha: 0.1),
-          ),
-          child: EnhancedFavoriteButton(
-            entityId: channel.id.value,
-            entityType: FavoriteEntityType.channel,
-            size: isCompact ? 20.0 : 22.0,
             padding: EdgeInsets.all(isCompact ? 8 : 10),
           ),
         ),
