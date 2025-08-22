@@ -4,10 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
-import 'package:my_tube/utils/utils.dart';
+import 'package:my_tube/ui/views/common/shared_content_tile.dart';
 
-class MediaitemTile extends StatelessWidget {
+class MediaitemTile extends StatefulWidget {
   const MediaitemTile(
       {super.key, required this.mediaItem, this.darkBackground = false});
 
@@ -15,109 +14,34 @@ class MediaitemTile extends StatelessWidget {
   final bool darkBackground;
 
   @override
+  State<MediaitemTile> createState() => _MediaitemTileState();
+}
+
+class _MediaitemTileState extends State<MediaitemTile>
+    with SingleTickerProviderStateMixin {
+  // This widget is now a thin wrapper; animations are handled by SharedContentTile.
+
+  @override
   Widget build(BuildContext context) {
-    final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
+    final data = TileData.fromMediaItem(widget.mediaItem);
+    final child = SharedContentTile(
+        data: data, showActions: false, enableScrollAnimation: false);
+
+    final playerCubit = BlocProvider.of<PlayerCubit>(context);
+
     return Dismissible(
-        key: Key(mediaItem.id),
-        direction: DismissDirection.startToEnd,
-        onDismissed: (direction) {
-          playerCubit.removeFromQueue(mediaItem.id).then((value) {
-            if (value == false && context.mounted) {
-              context.pop();
-            }
-          });
-        },
-        background: const DismissibleBackgroud(),
-        child: ListTile(
-          leading: SizedBox(
-            width: 110,
-            height: 70,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Utils.buildImageWithFallback(
-                    thumbnailUrl: mediaItem.artUri?.toString(),
-                    context: context,
-                    fit: BoxFit.cover,
-                    placeholder: Container(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      child: const Center(child: FlutterLogo()),
-                    ),
-                  ),
-
-                  // subtle dark gradient
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          Theme.of(context)
-                              .colorScheme
-                              .shadow
-                              .withValues(alpha: 0.35),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-
-                  // overlay when selected
-                  StreamBuilder(
-                      stream: playerCubit.mtPlayerService.mediaItem,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          final currentVideoId = snapshot.data!.id;
-                          if (currentVideoId == mediaItem.id) {
-                            return Container(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .shadow
-                                  .withValues(alpha: 0.32),
-                            );
-                          }
-                        }
-                        return const SizedBox.shrink();
-                      }),
-
-                  // center spectrum icon
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: 36,
-                        height: 36,
-                        child: SpectrumPlayingIcon(videoId: mediaItem.id),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          title: Text(
-            mediaItem.title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: darkBackground
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Text(
-            mediaItem.album ?? '',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: darkBackground
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurface,
-                ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ));
+      key: Key(widget.mediaItem.id),
+      direction: DismissDirection.startToEnd,
+      onDismissed: (direction) {
+        playerCubit.removeFromQueue(widget.mediaItem.id).then((value) {
+          if (value == false && context.mounted) {
+            context.pop();
+          }
+        });
+      },
+      background: const DismissibleBackgroud(),
+      child: child,
+    );
   }
 }
 
