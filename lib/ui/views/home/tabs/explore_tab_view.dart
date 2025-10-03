@@ -131,8 +131,9 @@ class _ExploreTabViewState extends State<ExploreTabView>
                       itemCount: state.videos?.length ?? 0,
                       itemBuilder: (context, index) {
                         final videos = state.videos;
-                        if (videos == null || index >= videos.length)
+                        if (videos == null || index >= videos.length) {
                           return const SizedBox.shrink();
+                        }
                         final video = videos[index];
                         final quickVideo = <String, String>{
                           'id': video.id,
@@ -147,8 +148,9 @@ class _ExploreTabViewState extends State<ExploreTabView>
                       itemCount: state.videos?.length ?? 0,
                       itemBuilder: (context, index) {
                         final videos = state.videos;
-                        if (videos == null || index >= videos.length)
+                        if (videos == null || index >= videos.length) {
                           return const SizedBox.shrink();
+                        }
                         final video = videos[index];
                         final quickVideo = <String, String>{
                           'id': video.id,
