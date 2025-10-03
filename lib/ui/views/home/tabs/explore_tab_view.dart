@@ -128,9 +128,12 @@ class _ExploreTabViewState extends State<ExploreTabView>
                         mainAxisSpacing: 8,
                         crossAxisSpacing: 8,
                       ),
-                      itemCount: state.videos!.length,
+                      itemCount: state.videos?.length ?? 0,
                       itemBuilder: (context, index) {
-                        final video = state.videos![index];
+                        final videos = state.videos;
+                        if (videos == null || index >= videos.length)
+                          return const SizedBox.shrink();
+                        final video = videos[index];
                         final quickVideo = <String, String>{
                           'id': video.id,
                           'title': video.title
@@ -141,9 +144,12 @@ class _ExploreTabViewState extends State<ExploreTabView>
                       },
                     )
                   : ListView.builder(
-                      itemCount: state.videos!.length,
+                      itemCount: state.videos?.length ?? 0,
                       itemBuilder: (context, index) {
-                        final video = state.videos![index];
+                        final videos = state.videos;
+                        if (videos == null || index >= videos.length)
+                          return const SizedBox.shrink();
+                        final video = videos[index];
                         final quickVideo = <String, String>{
                           'id': video.id,
                           'title': video.title
@@ -156,7 +162,7 @@ class _ExploreTabViewState extends State<ExploreTabView>
             );
           });
         case YoutubeStatus.error:
-          return Center(child: Text(state.error!));
+          return Center(child: Text(state.error ?? 'Unknown error occurred'));
         default:
           return const SizedBox.shrink();
       }
