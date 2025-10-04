@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:hive_ce/hive.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -71,23 +73,17 @@ class YoutubeExplodeProvider {
     final queries = _getTrendingQueries(category);
     final results = <Video>[];
 
-    final futures = <Future<VideoSearchList>>[];
-    for (int i = 0; i < queries.length; i++) {
-      final query = queries[i];
-      final future = _yt.search.search(query, filter: TypeFilters.video);
-      futures.add(future);
-    }
-
-    try {
-      // attendi tutte le ricerche e accumula i video nei risultati
-      final searchResults = await Future.wait(futures);
-      for (final VideoSearchList searchResult in searchResults) {
-        final videos = searchResult.toList(); // Più video per query
+    for (final query in queries) {
+      try {
+        final searchResult =
+            await _yt.search.search(query, filter: TypeFilters.video);
+        final videos = searchResult.toList();
         results.addAll(videos);
+      } catch (e) {
+        // Log l'errore ma continua con le altre ricerche
+        log('Errore ricerca per "$query": $e');
+        continue;
       }
-    } catch (e) {
-      // Gestisci l'errore
-      throw Exception('Errore durante il recupero dei video: $e');
     }
 
     // Rimuovi duplicati basati sull'ID
@@ -95,8 +91,9 @@ class YoutubeExplodeProvider {
     final seenIds = <String>{};
 
     for (final video in results) {
-      if (!seenIds.contains(video.id.value)) {
-        seenIds.add(video.id.value);
+      final videoId = video.id.value;
+      if (videoId.isNotEmpty && !seenIds.contains(videoId)) {
+        seenIds.add(videoId);
         uniqueResults.add(video);
       }
     }
@@ -131,8 +128,9 @@ class YoutubeExplodeProvider {
     final seenIds = <String>{};
 
     for (final video in results) {
-      if (!seenIds.contains(video.id.value)) {
-        seenIds.add(video.id.value);
+      final videoId = video.id.value;
+      if (videoId.isNotEmpty && !seenIds.contains(videoId)) {
+        seenIds.add(videoId);
         uniqueResults.add(video);
       }
     }
