@@ -11,9 +11,6 @@ class YoutubeExplodeProvider {
     _yt = YoutubeExplode();
   }
 
-  // Getter per accedere al client YoutubeExplode
-  YoutubeExplode get client => _yt;
-
   Future<Video> getVideo(String videoId) async {
     final video = await _yt.videos.get(videoId);
     return video;
