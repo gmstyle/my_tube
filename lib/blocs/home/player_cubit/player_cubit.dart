@@ -36,16 +36,15 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   Future<void> startPlayingPlaylist(List<String> ids) async {
-    emit(const PlayerState.loading());
+    emit(const PlayerState.loading(operation: LoadingOperation.play));
     // svuoto la coda
     try {
       await mtPlayerService.clearQueue();
       await _startPlayingPlaylist(ids);
     } on Exception catch (e) {
       emit(PlayerState.error(e.toString()));
+      emit(const PlayerState.shown());
     }
-
-    emit(const PlayerState.shown());
   }
 
   Future<void> skipToNext() async {
@@ -71,16 +70,58 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   Future<void> _startPlayingPlaylist(List<String> ids) async {
-    await mtPlayerService.startPlayingPlaylist(ids);
+    bool firstVideoReady = false;
+
+    await mtPlayerService.startPlayingPlaylist(
+      ids,
+      onFirstVideoReady: () {
+        // Nasconde il progresso e mostra il mini player appena il primo video inizia
+        if (!firstVideoReady) {
+          firstVideoReady = true;
+          emit(const PlayerState.shown());
+        }
+      },
+      onProgress: (current, total) {
+        // Mostra il progresso solo durante il caricamento del primo video
+        if (!firstVideoReady) {
+          emit(PlayerState.loadingWithProgress(
+            current: current,
+            total: total,
+            operation: LoadingOperation.play,
+          ));
+        }
+        // I progressi successivi vengono ignorati nella UI (caricamento in background)
+      },
+    );
   }
 
   Future<void> addToQueue(String id) async {
-    await mtPlayerService.addToQueue(id);
-    emit(const PlayerState.shown());
+    try {
+      await mtPlayerService.addToQueue(id);
+      emit(const PlayerState.shown());
+    } on Exception catch (e) {
+      emit(PlayerState.error(e.toString()));
+      // Torna allo stato precedente dopo l'errore
+      emit(const PlayerState.shown());
+    }
   }
 
   Future<void> addAllToQueue(List<String> ids) async {
-    await mtPlayerService.addAllToQueue(ids);
+    emit(const PlayerState.loading(operation: LoadingOperation.addToQueue));
+    try {
+      await mtPlayerService.addAllToQueue(
+        ids,
+        onProgress: (current, total) {
+          emit(PlayerState.loadingWithProgress(
+            current: current,
+            total: total,
+            operation: LoadingOperation.addToQueue,
+          ));
+        },
+      );
+    } on Exception catch (e) {
+      emit(PlayerState.error(e.toString()));
+    }
     emit(const PlayerState.shown());
   }
 

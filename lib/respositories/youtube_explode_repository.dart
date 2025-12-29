@@ -9,10 +9,40 @@ class YoutubeExplodeRepository {
 
   final YoutubeExplodeProvider youtubeExplodeProvider;
 
+  // Cache per i metadata dei video con TTL di 1 ora
+  final Map<String, ({Video video, DateTime timestamp})> _videoCache = {};
+  static const Duration _cacheTTL = Duration(hours: 1);
+
   // Removed unused _normalizeUrl helper (was unused and triggered analyzer warning)
 
-  Future<VideoTile> getVideoMetadata(String id) async {
+  /// Recupera un video dalla cache o dalla rete
+  Future<Video> _getCachedVideo(String id) async {
+    final cached = _videoCache[id];
+    final now = DateTime.now();
+
+    // Se il video è in cache e non è scaduto, ritornalo
+    if (cached != null && now.difference(cached.timestamp) < _cacheTTL) {
+      log('Video $id recuperato dalla cache');
+      return cached.video;
+    }
+
+    // Altrimenti scaricalo e salvalo in cache
+    log('Video $id scaricato dalla rete');
     final video = await youtubeExplodeProvider.getVideo(id);
+    _videoCache[id] = (video: video, timestamp: now);
+
+    // Pulizia cache: rimuovi entry scadute (max 500 entry per evitare memory leak)
+    if (_videoCache.length > 500) {
+      _videoCache.removeWhere(
+        (key, value) => now.difference(value.timestamp) >= _cacheTTL,
+      );
+    }
+
+    return video;
+  }
+
+  Future<VideoTile> getVideoMetadata(String id) async {
+    final video = await _getCachedVideo(id);
     return VideoTile.fromVideo(video);
   }
 

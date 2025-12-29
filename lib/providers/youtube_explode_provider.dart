@@ -7,12 +7,36 @@ class YoutubeExplodeProvider {
   final settingsBox = Hive.box('settings');
   late final YoutubeExplode _yt;
 
+  // Cache per i metadata dei video con TTL di 1 ora
+  final Map<String, ({Video video, DateTime timestamp})> _videoCache = {};
+  static const Duration _cacheTTL = Duration(hours: 1);
+
   YoutubeExplodeProvider() {
     _yt = YoutubeExplode();
   }
 
   Future<Video> getVideo(String videoId) async {
+    final cached = _videoCache[videoId];
+    final now = DateTime.now();
+
+    // Se il video è in cache e non è scaduto, ritornalo
+    if (cached != null && now.difference(cached.timestamp) < _cacheTTL) {
+      log('Video $videoId recuperato dalla cache');
+      return cached.video;
+    }
+
+    // Altrimenti scaricalo e salvalo in cache
+    log('Video $videoId scaricato dalla rete');
     final video = await _yt.videos.get(videoId);
+    _videoCache[videoId] = (video: video, timestamp: now);
+
+    // Pulizia cache: rimuovi entry scadute (max 500 entry per evitare memory leak)
+    if (_videoCache.length > 500) {
+      _videoCache.removeWhere(
+        (key, value) => now.difference(value.timestamp) >= _cacheTTL,
+      );
+    }
+
     return video;
   }
 

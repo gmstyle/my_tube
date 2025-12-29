@@ -242,13 +242,24 @@ class EnhancedChannelHeader extends StatelessWidget {
   Widget _buildPlayAllButton(BuildContext context, ThemeData theme) {
     final playerCubit = context.read<PlayerCubit>();
 
-    return EnhancedPrimaryActionButton(
-      label: 'Play All',
-      icon: Icons.play_arrow,
-      onPressed: videoIds.isNotEmpty
-          ? () => playerCubit.startPlayingPlaylist(videoIds)
-          : null,
-      isPrimary: true,
+    return BlocBuilder<PlayerCubit, PlayerState>(
+      builder: (context, state) {
+        final isLoading = state.status == PlayerStatus.loading;
+        final progressText =
+            (state.loadingProgress != null && state.loadingTotal != null)
+                ? '${state.loadingProgress}/${state.loadingTotal}'
+                : null;
+
+        return EnhancedPrimaryActionButton(
+          label: progressText ?? 'Play All',
+          icon: Icons.play_arrow,
+          onPressed: videoIds.isNotEmpty && !isLoading
+              ? () => playerCubit.startPlayingPlaylist(videoIds)
+              : null,
+          isLoading: isLoading,
+          isPrimary: true,
+        );
+      },
     );
   }
 
@@ -256,13 +267,24 @@ class EnhancedChannelHeader extends StatelessWidget {
   Widget _buildQueueButton(BuildContext context, ThemeData theme) {
     final playerCubit = context.read<PlayerCubit>();
 
-    return EnhancedPrimaryActionButton(
-      label: 'Add to Queue',
-      icon: Icons.queue_music,
-      onPressed: videoIds.isNotEmpty
-          ? () => playerCubit.addAllToQueue(videoIds)
-          : null,
-      isPrimary: false,
+    return BlocBuilder<PlayerCubit, PlayerState>(
+      builder: (context, state) {
+        final isLoading = state.status == PlayerStatus.loading;
+        final progressText =
+            (state.loadingProgress != null && state.loadingTotal != null)
+                ? '${state.loadingProgress}/${state.loadingTotal}'
+                : null;
+
+        return EnhancedPrimaryActionButton(
+          label: progressText ?? 'Add to Queue',
+          icon: Icons.queue_music,
+          onPressed: videoIds.isNotEmpty && !isLoading
+              ? () => playerCubit.addAllToQueue(videoIds)
+              : null,
+          isLoading: isLoading,
+          isPrimary: false,
+        );
+      },
     );
   }
 

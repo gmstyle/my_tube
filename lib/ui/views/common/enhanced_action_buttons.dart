@@ -710,26 +710,49 @@ extension ActionButtonHelpers on BuildContext {
   }) {
     final playerCubit = read<PlayerCubit>();
 
-    return EnhancedActionButtonGroup(
-      children: [
-        EnhancedPrimaryActionButton(
-          label: 'Play All',
-          icon: Icons.play_arrow_rounded,
-          onPressed: videoIds.isNotEmpty && !isLoading
-              ? () => playerCubit.startPlayingPlaylist(videoIds)
-              : null,
-          isLoading: isLoading,
-          isPrimary: true,
-        ),
-        EnhancedPrimaryActionButton(
-          label: 'Add to Queue',
-          icon: Icons.queue_music_rounded,
-          onPressed: videoIds.isNotEmpty && !isLoading
-              ? () => playerCubit.addAllToQueue(videoIds)
-              : null,
-          isPrimary: false,
-        ),
-      ],
+    return BlocBuilder<PlayerCubit, PlayerState>(
+      builder: (context, state) {
+        final isPlayLoading = state.status == PlayerStatus.loading &&
+            state.loadingOperation == LoadingOperation.play;
+        final isAddToQueueLoading = state.status == PlayerStatus.loading &&
+            state.loadingOperation == LoadingOperation.addToQueue;
+
+        final playProgressText = (isPlayLoading &&
+                state.loadingProgress != null &&
+                state.loadingTotal != null)
+            ? '${state.loadingProgress}/${state.loadingTotal}'
+            : null;
+        final addToQueueProgressText = (isAddToQueueLoading &&
+                state.loadingProgress != null &&
+                state.loadingTotal != null)
+            ? '${state.loadingProgress}/${state.loadingTotal}'
+            : null;
+
+        return EnhancedActionButtonGroup(
+          children: [
+            EnhancedPrimaryActionButton(
+              label: playProgressText ?? 'Play All',
+              icon: Icons.play_arrow_rounded,
+              onPressed:
+                  videoIds.isNotEmpty && !isPlayLoading && !isAddToQueueLoading
+                      ? () => playerCubit.startPlayingPlaylist(videoIds)
+                      : null,
+              isLoading: isPlayLoading,
+              isPrimary: true,
+            ),
+            EnhancedPrimaryActionButton(
+              label: addToQueueProgressText ?? 'Add to Queue',
+              icon: Icons.queue_music_rounded,
+              onPressed:
+                  videoIds.isNotEmpty && !isPlayLoading && !isAddToQueueLoading
+                      ? () => playerCubit.addAllToQueue(videoIds)
+                      : null,
+              isLoading: isAddToQueueLoading,
+              isPrimary: false,
+            ),
+          ],
+        );
+      },
     );
   }
 

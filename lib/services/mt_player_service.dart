@@ -8,12 +8,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/services/android_auto_detection_service.dart';
+import 'package:my_tube/services/bulk_video_loader.dart';
 import 'package:my_tube/ui/views/video/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   MtPlayerService({required this.youtubeExplodeProvider});
+
+  static const int maxQueueSize = 200;
 
   final YoutubeExplodeProvider youtubeExplodeProvider;
   VideoPlayerController? videoPlayerController;
@@ -223,8 +226,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(String id) async {
-    // inizializza il media item da passare riprodurre
-    final item = await _createMediaItem(id);
+    // inizializza il media item da passare riprodurre con stream URL
+    final item = await _createMediaItem(id, loadStreamUrl: true);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -237,20 +240,86 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Inizializza il player per la riproduzione di una coda di video
-  Future<void> startPlayingPlaylist(List<String> ids) async {
-    // inizializza la playlist ed il primo brano
-    final list = await Future.wait(ids.map(_createMediaItem));
+  Future<void> startPlayingPlaylist(
+    List<String> ids, {
+    Function(int current, int total)? onProgress,
+    VoidCallback? onFirstVideoReady,
+  }) async {
+    // Carica il primo video con lo stream URL per avviare subito la riproduzione
+    final firstItem = await _createMediaItem(ids.first, loadStreamUrl: true);
 
-    for (final item in list) {
-      // aggiungi il brano alla coda se non è già presente
+    if (!playlist.contains(firstItem)) {
+      playlist.add(firstItem);
+    }
+
+    currentIndex = playlist.indexOf(firstItem);
+
+    // Avvia la riproduzione del primo video
+    await _playCurrentTrack();
+
+    // Notifica che il primo video è pronto (nasconde il progresso nella UI)
+    onFirstVideoReady?.call();
+
+    // Carica gli altri video in background senza stream URL
+    if (ids.length > 1) {
+      // Limita il caricamento al massimo consentito (maxQueueSize - 1 per il primo video già caricato)
+      final maxToLoad = min(maxQueueSize - 1, ids.length - 1);
+      final remainingIds = ids.sublist(1, min(ids.length, maxToLoad + 1));
+
+      // Tenta di usare l'isolate per il caricamento in background
+      try {
+        await _loadVideosInIsolate(remainingIds, onProgress);
+      } catch (e) {
+        dev.log('Errore nell\'isolate, fallback a caricamento sequenziale: $e');
+        // Fallback: caricamento sequenziale sul main thread
+        await _loadVideosSequentially(remainingIds, onProgress, offset: 2);
+      }
+    }
+  }
+
+  /// Carica i video usando un isolato separato (non blocca la UI)
+  Future<void> _loadVideosInIsolate(
+    List<String> videoIds,
+    Function(int current, int total)? onProgress,
+  ) async {
+    await BulkVideoLoader.loadVideosInIsolate(
+      videoIds: videoIds,
+      onProgress: (current, total) {
+        // Il progresso viene ignorato nella UI (onFirstVideoReady già chiamato)
+        // ma possiamo loggarlo per debug
+        dev.log('Loading background: $current/$total');
+      },
+      onItemLoaded: (item) {
+        // Aggiungi ogni item alla playlist man mano che viene caricato
+        if (!playlist.contains(item)) {
+          playlist.add(item);
+          queue.add(playlist);
+        }
+      },
+    );
+
+    // Aggiorna la coda finale
+    queue.add(playlist);
+  }
+
+  /// Carica i video sequenzialmente sul main thread (fallback)
+  Future<void> _loadVideosSequentially(
+    List<String> videoIds,
+    Function(int current, int total)? onProgress, {
+    int offset = 0,
+  }) async {
+    for (int i = 0; i < videoIds.length; i++) {
+      final item = await _createMediaItem(videoIds[i], loadStreamUrl: false);
+
       if (!playlist.contains(item)) {
         playlist.add(item);
       }
+
+      // Notifica il progresso (se fornito)
+      onProgress?.call(i + offset, videoIds.length + offset - 1);
     }
 
-    currentIndex = playlist.indexOf(list.first);
-
-    await _playCurrentTrack();
+    queue.add(playlist);
   }
 
   // prepara lo stato del player per la riproduzione
@@ -319,7 +388,18 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       if (chewieController != null && videoPlayerController != null) {
         await _disposeControllers();
       }
-
+      // Carica lo stream URL se non è ancora stato caricato
+      if (currentTrack?.extras!['streamUrl'] == null) {
+        final streamUrl = await _getStreamUrl(currentTrack!.id);
+        currentTrack = currentTrack!.copyWith(
+          extras: {
+            ...currentTrack!.extras!,
+            'streamUrl': streamUrl,
+          },
+        );
+        // Aggiorna anche nella playlist
+        playlist[currentIndex] = currentTrack!;
+      }
       // inizializza il video player controller da passare a chewie
       videoPlayerController = VideoPlayerController.networkUrl(
         Uri.parse(currentTrack?.extras!['streamUrl']),
@@ -409,7 +489,12 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> addToQueue(String id) async {
-    final item = await _createMediaItem(id);
+    // Verifica il limite della coda
+    if (playlist.length >= maxQueueSize) {
+      throw Exception('Coda piena (max $maxQueueSize video)');
+    }
+
+    final item = await _createMediaItem(id, loadStreamUrl: false);
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -424,15 +509,31 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  Future<void> addAllToQueue(List<String> ids) async {
-    final list = await Future.wait(ids.map(_createMediaItem));
+  Future<void> addAllToQueue(
+    List<String> ids, {
+    Function(int current, int total)? onProgress,
+  }) async {
+    // Verifica il limite della coda
+    final remainingSpace = maxQueueSize - playlist.length;
+    if (remainingSpace <= 0) {
+      throw Exception('Coda piena (max $maxQueueSize video)');
+    }
+
+    // Limita il numero di video da aggiungere allo spazio rimanente
+    final idsToAdd = ids.take(remainingSpace).toList();
 
     int? firstAddedIndex;
-    for (final item in list) {
+
+    for (int i = 0; i < idsToAdd.length; i++) {
+      final item = await _createMediaItem(ids[i], loadStreamUrl: false);
+
       if (!playlist.contains(item)) {
         playlist.add(item);
         firstAddedIndex ??= playlist.length - 1;
       }
+
+      // Notifica il progresso
+      onProgress?.call(i + 1, idsToAdd.length);
     }
 
     queue.add(playlist);
@@ -512,12 +613,17 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
-  Future<MediaItem> _createMediaItem(String id) async {
+  Future<MediaItem> _createMediaItem(String id,
+      {bool loadStreamUrl = false}) async {
     final video = await youtubeExplodeProvider.getVideo(id);
-    final manifest = await youtubeExplodeProvider.getVideoStreamManifest(id);
-    final String muxedStream = manifest.muxed.isNotEmpty
-        ? manifest.muxed.withHighestBitrate().url.toString()
-        : manifest.audioOnly.withHighestBitrate().url.toString();
+
+    String? muxedStream;
+    if (loadStreamUrl) {
+      final manifest = await youtubeExplodeProvider.getVideoStreamManifest(id);
+      muxedStream = manifest.muxed.isNotEmpty
+          ? manifest.muxed.withHighestBitrate().url.toString()
+          : manifest.audioOnly.withHighestBitrate().url.toString();
+    }
 
     return MediaItem(
         id: video.id.value,
@@ -529,6 +635,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           'streamUrl': muxedStream,
           'description': video.description,
         });
+  }
+
+  Future<String> _getStreamUrl(String id) async {
+    final manifest = await youtubeExplodeProvider.getVideoStreamManifest(id);
+    return manifest.muxed.isNotEmpty
+        ? manifest.muxed.withHighestBitrate().url.toString()
+        : manifest.audioOnly.withHighestBitrate().url.toString();
   }
 
   Future<void> _disposeControllers() async {
