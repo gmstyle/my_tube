@@ -281,7 +281,7 @@ class _EnhancedFavoriteButtonState extends State<EnhancedFavoriteButton>
               isFavorite ? Icons.favorite : Icons.favorite_border,
               size: widget.size,
               color: isFavorite
-                  ? theme.colorScheme.onPrimary
+                  ? theme.colorScheme.primary
                   : theme.colorScheme.onSurfaceVariant,
             ),
             if (isFavorite)
@@ -295,8 +295,7 @@ class _EnhancedFavoriteButtonState extends State<EnhancedFavoriteButton>
                       child: Icon(
                         Icons.favorite,
                         size: widget.size,
-                        color:
-                            theme.colorScheme.onPrimary.withValues(alpha: 0.6),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.6),
                       ),
                     ),
                   );

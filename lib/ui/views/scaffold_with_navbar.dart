@@ -8,7 +8,6 @@ import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/global_search_delegate.dart';
-import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
 
@@ -89,20 +88,16 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               });
         }
       },
-      child: MainGradient(
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final bool useNavigationRail = constraints.maxWidth >= 640;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool useNavigationRail = constraints.maxWidth >= 640;
 
-              if (useNavigationRail) {
-                return _buildNavigationRailLayout(context);
-              } else {
-                return _buildNavigationBarLayout(context);
-              }
-            },
-          ),
-        ),
+          if (useNavigationRail) {
+            return _buildNavigationRailLayout(context);
+          } else {
+            return _buildNavigationBarLayout(context);
+          }
+        },
       ),
     );
   }
@@ -116,56 +111,32 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               icon: Icon(Icons.search)),
         ],
       ),
-      backgroundColor: Colors.transparent,
       body: Row(
         children: [
           NavigationRail(
             selectedIndex: navigationShell.currentIndex,
             onDestinationSelected: onDestinationSelected,
             labelType: NavigationRailLabelType.all,
-            backgroundColor: Colors.transparent,
             destinations: _railDestinations,
-            selectedIconTheme: IconThemeData(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            selectedLabelTextStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-            unselectedIconTheme: IconThemeData(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.6),
-            ),
-            unselectedLabelTextStyle: TextStyle(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.6),
-            ),
           ),
-          const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: MainGradient(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
-                      child: navigationShell,
-                    ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
+                    child: navigationShell,
                   ),
-                  BlocBuilder<PlayerCubit, PlayerState>(
-                    builder: (context, state) {
-                      if (state.status == PlayerStatus.hidden) {
-                        return const SizedBox.shrink();
-                      }
-                      return const MiniPlayer();
-                    },
-                  ),
-                ],
-              ),
+                ),
+                BlocBuilder<PlayerCubit, PlayerState>(
+                  builder: (context, state) {
+                    if (state.status == PlayerStatus.hidden) {
+                      return const SizedBox.shrink();
+                    }
+                    return const MiniPlayer();
+                  },
+                ),
+              ],
             ),
           ),
         ],
@@ -182,12 +153,9 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               icon: Icon(Icons.search)),
         ],
       ),
-      backgroundColor: Colors.transparent,
-      body: MainGradient(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
-          child: navigationShell,
-        ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
+        child: navigationShell,
       ),
       bottomNavigationBar: BlocBuilder<PlayerCubit, PlayerState>(
         builder: (context, state) {
@@ -197,12 +165,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               selectedIndex: navigationShell.currentIndex,
               onDestinationSelected: onDestinationSelected,
               destinations: _navBarItems,
-              backgroundColor:
-                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-              indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
-              shadowColor: Theme.of(context).colorScheme.shadow,
-              elevation: 8,
-              height: 60,
+              height: 80,
             );
           } else {
             // Mini player + navigation bar quando il player è attivo
@@ -214,12 +177,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                   selectedIndex: navigationShell.currentIndex,
                   onDestinationSelected: onDestinationSelected,
                   destinations: _navBarItems,
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  indicatorColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
-                  shadowColor: Theme.of(context).colorScheme.shadow,
-                  elevation: 8,
-                  height: 60,
+                  height: 80,
                 ),
               ],
             );

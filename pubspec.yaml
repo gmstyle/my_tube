@@ -48,6 +48,7 @@ dependencies:
   hive_ce_flutter: ^2.3.3
   audio_service: ^0.18.18
   wakelock_plus: ^1.3.3
+  dynamic_color: ^1.8.1
   autorotation_check:
     git:
       url: https://github.com/gmstyle/autorotation_check.git

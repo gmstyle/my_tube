@@ -52,12 +52,12 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                 );
               },
               icon: Icon(Icons.search,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
             const SizedBox(width: 8),
             Text('Favorites',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     )),
           ],
         ),

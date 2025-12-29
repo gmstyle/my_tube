@@ -6,7 +6,6 @@ import 'package:my_tube/ui/views/channel/widgets/enhanced_channel_header.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
-import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/models/tiles.dart' as models;
@@ -47,15 +46,12 @@ class _ChannelViewState extends State<ChannelView>
 
   @override
   Widget build(BuildContext context) {
-    return MainGradient(
-      child: Scaffold(
-        appBar: _buildEnhancedAppBar(context),
-        backgroundColor: Colors.transparent,
-        body: BlocBuilder<ChannelPageBloc, ChannelPageState>(
-          builder: (context, state) {
-            return _buildStateContent(context, state);
-          },
-        ),
+    return Scaffold(
+      appBar: _buildEnhancedAppBar(context),
+      body: BlocBuilder<ChannelPageBloc, ChannelPageState>(
+        builder: (context, state) {
+          return _buildStateContent(context, state);
+        },
       ),
     );
   }

@@ -12,13 +12,13 @@ class EmptyFavorites extends StatelessWidget {
       children: <Widget>[
         Icon(
           Icons.favorite_border,
-          color: Theme.of(context).colorScheme.onPrimary,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           size: 100.0,
         ),
         Text(
           message,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 20.0,
           ),
         ),

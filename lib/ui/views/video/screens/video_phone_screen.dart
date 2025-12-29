@@ -54,7 +54,7 @@ class VideoPhoneScreen extends StatelessWidget {
                       mediaItem?.title ?? '',
                       maxLines: 2,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                     ),
                   ),
@@ -73,8 +73,9 @@ class VideoPhoneScreen extends StatelessWidget {
                             child: Text(mediaItem?.album ?? '',
                                 maxLines: 2,
                                 style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                 )),
                           ),
                         ],
@@ -85,7 +86,7 @@ class VideoPhoneScreen extends StatelessWidget {
 
                       // Seek bar
                       const SeekBar(
-                        darkBackground: true,
+                        darkBackground: false,
                       ),
                       // controls
                       const Controls(),

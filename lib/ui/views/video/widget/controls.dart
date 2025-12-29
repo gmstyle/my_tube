@@ -28,10 +28,10 @@ class Controls extends StatelessWidget {
                   icon: Icon(
                     Icons.shuffle,
                     color: shuffleEnabled
-                        ? Theme.of(context).colorScheme.onPrimary
+                        ? Theme.of(context).colorScheme.primary
                         : Theme.of(context)
                             .colorScheme
-                            .onPrimary
+                            .onSurface
                             .withValues(alpha: 0.5),
                   ),
                   onPressed: () async {
@@ -40,7 +40,7 @@ class Controls extends StatelessWidget {
                         : AudioServiceShuffleMode.all);
                   },
                 );
-            }),
+              }),
           /*  // seek backward
           IconButton(
             icon: Icon(
@@ -65,8 +65,11 @@ class Controls extends StatelessWidget {
                   icon: Icon(
                     Icons.skip_previous,
                     color: isEnabled
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.5),
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.5),
                   ),
                   onPressed: isEnabled
                       ? () async {
@@ -74,7 +77,7 @@ class Controls extends StatelessWidget {
                         }
                       : null,
                 );
-            })),
+              })),
 
           // Play/Pause
           StreamBuilder(
@@ -89,7 +92,7 @@ class Controls extends StatelessWidget {
                     iconSize: MediaQuery.of(context).size.width * 0.15,
                     icon: Icon(
                       playing ? Icons.pause_circle : Icons.play_circle,
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     onPressed: () {
                       if (playing) {
@@ -113,8 +116,11 @@ class Controls extends StatelessWidget {
                   icon: Icon(
                     Icons.skip_next,
                     color: isEnable
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.5),
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.5),
                   ),
                   onPressed: isEnable
                       ? () async {
@@ -122,7 +128,7 @@ class Controls extends StatelessWidget {
                         }
                       : null,
                 );
-            })),
+              })),
 
           /* // seek forward
           IconButton(
@@ -145,13 +151,13 @@ class Controls extends StatelessWidget {
                 final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
                 final icons = [
                   Icon(Icons.repeat,
-                      color: Theme.of(context).colorScheme.onPrimary),
+                      color: Theme.of(context).colorScheme.primary),
                   Icon(Icons.repeat_one,
-                      color: Theme.of(context).colorScheme.onPrimary),
+                      color: Theme.of(context).colorScheme.primary),
                   Icon(Icons.repeat,
                       color: Theme.of(context)
                           .colorScheme
-                          .onPrimary
+                          .onSurface
                           .withValues(alpha: 0.5)),
                 ];
                 const cycleModes = [

@@ -5,7 +5,6 @@ import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
-import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/playlist/widgets/enhanced_playlist_header.dart';
@@ -46,15 +45,12 @@ class _PlaylistViewState extends State<PlaylistView>
 
   @override
   Widget build(BuildContext context) {
-    return MainGradient(
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        backgroundColor: Colors.transparent,
-        body: BlocBuilder<PlaylistBloc, PlaylistState>(
-          builder: (context, state) {
-            return _buildBody(context, state);
-          },
-        ),
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: BlocBuilder<PlaylistBloc, PlaylistState>(
+        builder: (context, state) {
+          return _buildBody(context, state);
+        },
       ),
     );
   }

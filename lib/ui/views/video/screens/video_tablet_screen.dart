@@ -62,7 +62,7 @@ class VideoTabletScreen extends StatelessWidget {
                               .textTheme
                               .titleLarge
                               ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                         ),
                       ),
@@ -78,7 +78,9 @@ class VideoTabletScreen extends StatelessWidget {
                         child: Text(mediaItem?.album ?? '',
                             maxLines: 2,
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             )),
                       ),
                     ],

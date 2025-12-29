@@ -11,7 +11,6 @@ import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
-import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
@@ -29,29 +28,23 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
     final ThemeData theme = Theme.of(context);
     return theme.copyWith(
       appBarTheme: AppBarTheme(
-        backgroundColor: theme.colorScheme.primaryContainer,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        iconTheme: IconThemeData(color: theme.colorScheme.onPrimaryContainer),
-        actionsIconTheme:
-            IconThemeData(color: theme.colorScheme.onPrimaryContainer),
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
+        actionsIconTheme: IconThemeData(color: theme.colorScheme.onSurface),
+        systemOverlayStyle: theme.appBarTheme.systemOverlayStyle,
       ),
-      scaffoldBackgroundColor: Colors.transparent,
-      canvasColor: Colors.transparent,
-      hintColor: theme.colorScheme.onPrimary,
+      hintColor: theme.colorScheme.onSurfaceVariant,
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: theme.colorScheme.onPrimaryContainer,
-        selectionColor:
-            theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.5),
+        cursorColor: theme.colorScheme.primary,
+        selectionColor: theme.colorScheme.primary.withValues(alpha: 0.5),
       ),
       textTheme: TextTheme(
-        titleLarge: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+        titleLarge: TextStyle(color: theme.colorScheme.onSurface),
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: InputBorder.none,
-        hintStyle: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+        hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -78,97 +71,70 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
   }
 
   @override
+  @override
   Widget buildResults(BuildContext context) {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
         final parentTheme = Theme.of(context);
-        final fixedTheme = parentTheme.copyWith(
-          scaffoldBackgroundColor: Colors.transparent,
-        );
 
         switch (state.status) {
           case SearchStatus.loading:
-            return Theme(
-              data: fixedTheme,
-              child: const MainGradient(
-                child: CustomSkeletonGridList(),
-              ),
-            );
+            return const CustomSkeletonGridList();
 
           case SearchStatus.success:
             if (state.items == null || state.items!.isEmpty) {
-              return Theme(
-                data: fixedTheme,
-                child: MainGradient(
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.search_off,
-                            size: 64, color: parentTheme.colorScheme.onPrimary),
-                        const SizedBox(height: 12),
-                        Text('No results found',
-                            style: parentTheme.textTheme.titleMedium?.copyWith(
-                                color: parentTheme.colorScheme.onPrimary)),
-                        const SizedBox(height: 6),
-                        Text('Try a different search term',
-                            style: parentTheme.textTheme.bodySmall?.copyWith(
-                                color: parentTheme.colorScheme.onPrimary)),
-                      ],
-                    ),
-                  ),
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.search_off,
+                        size: 64, color: parentTheme.colorScheme.onSurface),
+                    const SizedBox(height: 12),
+                    Text('No results found',
+                        style: parentTheme.textTheme.titleMedium?.copyWith(
+                            color: parentTheme.colorScheme.onSurface)),
+                    const SizedBox(height: 6),
+                    Text('Try a different search term',
+                        style: parentTheme.textTheme.bodySmall?.copyWith(
+                            color: parentTheme.colorScheme.onSurfaceVariant)),
+                  ],
                 ),
               );
             }
 
-            return Theme(
-              data: fixedTheme,
-              child: MainGradient(
-                child: _buildUnifiedResults(context, state.items!, state),
-              ),
-            );
+            return _buildUnifiedResults(context, state.items!, state);
 
           case SearchStatus.failure:
-            return Theme(
-              data: fixedTheme,
-              child: MainGradient(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.error_outline,
-                          size: 64, color: parentTheme.colorScheme.onPrimary),
-                      const SizedBox(height: 12),
-                      Text('Search failed',
-                          style: parentTheme.textTheme.titleMedium?.copyWith(
-                              color: parentTheme.colorScheme.onPrimary)),
-                      const SizedBox(height: 6),
-                      Text(state.error ?? 'Unknown error occurred',
-                          style: parentTheme.textTheme.bodySmall?.copyWith(
-                              color: parentTheme.colorScheme.onPrimary)),
-                    ],
-                  ),
-                ),
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline,
+                      size: 64, color: parentTheme.colorScheme.onSurface),
+                  const SizedBox(height: 12),
+                  Text('Search failed',
+                      style: parentTheme.textTheme.titleMedium
+                          ?.copyWith(color: parentTheme.colorScheme.onSurface)),
+                  const SizedBox(height: 6),
+                  Text(state.error ?? 'Unknown error occurred',
+                      style: parentTheme.textTheme.bodySmall?.copyWith(
+                          color: parentTheme.colorScheme.onSurfaceVariant)),
+                ],
               ),
             );
 
           default:
-            return Theme(
-              data: fixedTheme,
-              child: MainGradient(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.search,
-                          size: 64, color: parentTheme.colorScheme.onPrimary),
-                      const SizedBox(height: 12),
-                      Text('Search for videos, channels, and playlists',
-                          style: parentTheme.textTheme.titleMedium?.copyWith(
-                              color: parentTheme.colorScheme.onPrimary)),
-                    ],
-                  ),
-                ),
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.search,
+                      size: 64, color: parentTheme.colorScheme.onSurface),
+                  const SizedBox(height: 12),
+                  Text('Search for videos, channels, and playlists',
+                      style: parentTheme.textTheme.titleMedium
+                          ?.copyWith(color: parentTheme.colorScheme.onSurface)),
+                ],
               ),
             );
         }
@@ -179,176 +145,163 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final parentTheme = Theme.of(context);
-    final fixedTheme = parentTheme.copyWith(
-      scaffoldBackgroundColor: Colors.transparent,
-    );
 
     if (query.isEmpty) {
       // Show search history as suggestion chips
-      return Theme(
-        data: fixedTheme,
-        child: MainGradient(
-          child: BlocBuilder<SearchSuggestionCubit, SearchSuggestionState>(
-            builder: (context, state) {
-              // Load query history when widget is first built and state is empty
-              if (state.suggestions.isEmpty && !state.isQueryHistory) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  context.read<SearchSuggestionCubit>().getQueryHistory();
-                });
-              }
+      return BlocBuilder<SearchSuggestionCubit, SearchSuggestionState>(
+        builder: (context, state) {
+          // Load query history when widget is first built and state is empty
+          if (state.suggestions.isEmpty && !state.isQueryHistory) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.read<SearchSuggestionCubit>().getQueryHistory();
+            });
+          }
 
-              if (state.suggestions.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.history,
-                          size: 64, color: parentTheme.colorScheme.onPrimary),
-                      const SizedBox(height: 12),
-                      Text('No search history',
-                          style: parentTheme.textTheme.titleMedium?.copyWith(
-                              color: parentTheme.colorScheme.onPrimary)),
-                      const SizedBox(height: 6),
-                      Text('Your recent searches will appear here',
-                          style: parentTheme.textTheme.bodySmall?.copyWith(
-                              color: parentTheme.colorScheme.onPrimary)),
-                    ],
+          if (state.suggestions.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.history,
+                      size: 64, color: parentTheme.colorScheme.onSurface),
+                  const SizedBox(height: 12),
+                  Text('No search history',
+                      style: parentTheme.textTheme.titleMedium
+                          ?.copyWith(color: parentTheme.colorScheme.onSurface)),
+                  const SizedBox(height: 6),
+                  Text('Your recent searches will appear here',
+                      style: parentTheme.textTheme.bodySmall?.copyWith(
+                          color: parentTheme.colorScheme.onSurfaceVariant)),
+                ],
+              ),
+            );
+          }
+
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Recent searches',
+                  style: parentTheme.textTheme.titleMedium?.copyWith(
+                    color: parentTheme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
                   ),
-                );
-              }
-
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Recent searches',
-                      style: parentTheme.textTheme.titleMedium?.copyWith(
-                        color: parentTheme.colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: state.suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion =
-                              state.suggestions.reversed.toList()[index];
-                          return ListTile(
-                            dense: true,
-                            leading: Icon(
-                              Icons.history,
-                              color: parentTheme.colorScheme.onPrimary,
-                              size: 20,
-                            ),
-                            title: Text(
-                              suggestion,
-                              style: TextStyle(
-                                color: parentTheme.colorScheme.onPrimary,
-                              ),
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                Icons.close,
-                                color: parentTheme.colorScheme.onPrimary,
-                                size: 18,
-                              ),
-                              onPressed: () {
-                                context
-                                    .read<SearchSuggestionCubit>()
-                                    .deleteQueryFromHistory(suggestion);
-                              },
-                            ),
-                            onTap: () {
-                              query = suggestion;
-                              _performSearch(context);
-                              showResults(context);
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
                 ),
-              );
-            },
-          ),
-        ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.suggestions.length,
+                    itemBuilder: (context, index) {
+                      final suggestion =
+                          state.suggestions.reversed.toList()[index];
+                      return ListTile(
+                        dense: true,
+                        leading: Icon(
+                          Icons.history,
+                          color: parentTheme.colorScheme.onSurface,
+                          size: 20,
+                        ),
+                        title: Text(
+                          suggestion,
+                          style: TextStyle(
+                            color: parentTheme.colorScheme.onSurface,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: parentTheme.colorScheme.onSurface,
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            context
+                                .read<SearchSuggestionCubit>()
+                                .deleteQueryFromHistory(suggestion);
+                          },
+                        ),
+                        onTap: () {
+                          query = suggestion;
+                          _performSearch(context);
+                          showResults(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       );
     } else {
       // Show live search suggestions
-      return Theme(
-        data: fixedTheme,
-        child: MainGradient(
-          child: BlocBuilder<SearchSuggestionCubit, SearchSuggestionState>(
-            builder: (context, state) {
-              // Only fetch suggestions if query has changed
-              if (query != _lastQuery && query.isNotEmpty) {
-                _lastQuery = query;
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  context.read<SearchSuggestionCubit>().getSuggestions(query);
-                });
-              }
+      return BlocBuilder<SearchSuggestionCubit, SearchSuggestionState>(
+        builder: (context, state) {
+          // Only fetch suggestions if query has changed
+          if (query != _lastQuery && query.isNotEmpty) {
+            _lastQuery = query;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.read<SearchSuggestionCubit>().getSuggestions(query);
+            });
+          }
 
-              if ((state.suggestions.isEmpty && !state.isQueryHistory) ||
-                  query != _lastQuery) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    color: parentTheme.colorScheme.onPrimary,
+          if ((state.suggestions.isEmpty && !state.isQueryHistory) ||
+              query != _lastQuery) {
+            return Center(
+              child: CircularProgressIndicator(
+                color: parentTheme.colorScheme.primary,
+              ),
+            );
+          }
+
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Suggestions',
+                  style: parentTheme.textTheme.titleMedium?.copyWith(
+                    color: parentTheme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
                   ),
-                );
-              }
-
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Suggestions',
-                      style: parentTheme.textTheme.titleMedium?.copyWith(
-                        color: parentTheme.colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: state.suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = state.suggestions[index];
-                          return ListTile(
-                            dense: true,
-                            leading: Icon(
-                              Icons.search,
-                              color: parentTheme.colorScheme.onPrimary,
-                              size: 20,
-                            ),
-                            title: Text(
-                              suggestion,
-                              style: TextStyle(
-                                color: parentTheme.colorScheme.onPrimary,
-                              ),
-                            ),
-                            onTap: () {
-                              query = suggestion;
-                              _performSearch(context);
-                              showResults(context);
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
                 ),
-              );
-            },
-          ),
-        ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.suggestions.length,
+                    itemBuilder: (context, index) {
+                      final suggestion = state.suggestions[index];
+                      return ListTile(
+                        dense: true,
+                        leading: Icon(
+                          Icons.search,
+                          color: parentTheme.colorScheme.onSurface,
+                          size: 20,
+                        ),
+                        title: Text(
+                          suggestion,
+                          style: TextStyle(
+                            color: parentTheme.colorScheme.onSurface,
+                          ),
+                        ),
+                        onTap: () {
+                          query = suggestion;
+                          _performSearch(context);
+                          showResults(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       );
     }
   }

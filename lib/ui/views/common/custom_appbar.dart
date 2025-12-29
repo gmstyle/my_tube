@@ -31,8 +31,8 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
     final isCompact = context.isCompact;
 
     return AppBar(
-      backgroundColor: backgroundColor ?? Colors.transparent,
-      elevation: elevation ?? 0,
+      backgroundColor: backgroundColor,
+      elevation: elevation,
       toolbarHeight: toolbarHeight ?? (isCompact ? 56.0 : 64.0),
       leading: leading,
       centerTitle: centerTitle,
@@ -41,22 +41,21 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
               Text(
                 'MyTube',
                 style: TextStyle(
-                  color: theme.colorScheme.onPrimary,
+                  color: theme.colorScheme.onSurface,
                   fontSize: isCompact ? 18 : 20,
                   fontWeight: FontWeight.w600,
                 ),
               )
           : null,
       actionsIconTheme: IconThemeData(
-        color: theme.colorScheme.onPrimary,
+        color: theme.colorScheme.onSurface,
         size: isCompact ? 22 : 24,
       ),
       iconTheme: IconThemeData(
-        color: theme.colorScheme.onPrimary,
+        color: theme.colorScheme.onSurface,
         size: isCompact ? 22 : 24,
       ),
       actions: _buildResponsiveActions(context),
-      flexibleSpace: _buildFlexibleSpace(context),
     );
   }
 
@@ -77,25 +76,6 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
           .take(actions!.length * 2 - 1),
       SizedBox(width: endPadding),
     ];
-  }
-
-  /// Build flexible space with enhanced gradient for search
-  Widget? _buildFlexibleSpace(BuildContext context) {
-    if (!isSearch) return null;
-
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.black54,
-            Colors.transparent,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [0.0, 0.8],
-        ),
-      ),
-    );
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,7 +34,7 @@ void main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   //Only portrait mode
-  //await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Hive.initFlutter();
   await Hive.openBox('settings');
@@ -157,12 +158,16 @@ class MyApp extends StatelessWidget {
       builder: (context, themeSettings) {
         final themeCubit = context.read<ThemeCubit>();
 
-        return MaterialApp.router(
-          title: 'My Tube',
-          theme: themeCubit.lightTheme,
-          darkTheme: themeCubit.darkTheme,
-          themeMode: themeCubit.flutterThemeMode,
-          routerConfig: router,
+        return DynamicColorBuilder(
+          builder: (lightDynamic, darkDynamic) {
+            return MaterialApp.router(
+              title: 'My Tube',
+              theme: themeCubit.lightTheme(lightDynamic),
+              darkTheme: themeCubit.darkTheme(darkDynamic),
+              themeMode: themeCubit.flutterThemeMode,
+              routerConfig: router,
+            );
+          },
         );
       },
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' as flutter_material;
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/theme_settings.dart';
@@ -23,14 +24,8 @@ class ThemeCubit extends Cubit<ThemeSettings> {
     emit(newSettings);
   }
 
-  void updatePrimaryColor(flutter_material.Color color) {
-    final newSettings = state.copyWith(primaryColor: color);
-    settingsBox.put('themeSettings', newSettings.toJson());
-    emit(newSettings);
-  }
-
-  void updateGradientEnabled(bool enabled) {
-    final newSettings = state.copyWith(enableGradient: enabled);
+  void updateUseDynamicColor(bool enabled) {
+    final newSettings = state.copyWith(useDynamicColor: enabled);
     settingsBox.put('themeSettings', newSettings.toJson());
     emit(newSettings);
   }
@@ -47,11 +42,14 @@ class ThemeCubit extends Cubit<ThemeSettings> {
     }
   }
 
-  flutter_material.ThemeData get lightTheme {
-    final cs = flutter_material.ColorScheme.fromSeed(
-      seedColor: state.primaryColor,
-      brightness: flutter_material.Brightness.light,
-    );
+  flutter_material.ThemeData lightTheme(
+      flutter_material.ColorScheme? dynamicColorScheme) {
+    final cs = (state.useDynamicColor && dynamicColorScheme != null)
+        ? dynamicColorScheme
+        : flutter_material.ColorScheme.fromSeed(
+            seedColor: flutter_material.Colors.deepPurple,
+            brightness: flutter_material.Brightness.light,
+          );
 
     return flutter_material.ThemeData(
       colorScheme: cs,
@@ -60,14 +58,34 @@ class ThemeCubit extends Cubit<ThemeSettings> {
       appBarTheme: flutter_material.AppBarTheme(
         backgroundColor: cs.surface,
         elevation: 0,
+        scrolledUnderElevation: 2,
         foregroundColor: cs.onSurface,
+        centerTitle: false,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: flutter_material.Colors.transparent,
+          statusBarIconBrightness: flutter_material.Brightness.dark,
+          statusBarBrightness: flutter_material.Brightness.light,
+          systemNavigationBarColor: cs.surface,
+          systemNavigationBarIconBrightness: flutter_material.Brightness.dark,
+        ),
+      ),
+      navigationBarTheme: flutter_material.NavigationBarThemeData(
+        backgroundColor: cs.surface,
+        indicatorColor: cs.secondaryContainer,
+        labelTextStyle:
+            flutter_material.WidgetStateProperty.resolveWith((states) {
+          if (states.contains(flutter_material.WidgetState.selected)) {
+            return flutter_material.TextStyle(
+                color: cs.onSurface,
+                fontWeight: flutter_material.FontWeight.bold);
+          }
+          return flutter_material.TextStyle(color: cs.onSurfaceVariant);
+        }),
       ),
       tabBarTheme: flutter_material.TabBarThemeData(
-        labelColor: cs.onPrimary,
-        unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
-        indicator: flutter_material.UnderlineTabIndicator(
-          borderSide: flutter_material.BorderSide(color: cs.primary, width: 3),
-        ),
+        labelColor: cs.primary,
+        unselectedLabelColor: cs.onSurfaceVariant,
+        indicatorColor: cs.primary,
         indicatorSize: flutter_material.TabBarIndicatorSize.label,
         labelStyle: flutter_material.TextStyle(
             fontWeight: flutter_material.FontWeight.w600),
@@ -75,11 +93,14 @@ class ThemeCubit extends Cubit<ThemeSettings> {
     );
   }
 
-  flutter_material.ThemeData get darkTheme {
-    final cs = flutter_material.ColorScheme.fromSeed(
-      seedColor: state.primaryColor,
-      brightness: flutter_material.Brightness.dark,
-    );
+  flutter_material.ThemeData darkTheme(
+      flutter_material.ColorScheme? dynamicColorScheme) {
+    final cs = (state.useDynamicColor && dynamicColorScheme != null)
+        ? dynamicColorScheme
+        : flutter_material.ColorScheme.fromSeed(
+            seedColor: flutter_material.Colors.deepPurple,
+            brightness: flutter_material.Brightness.dark,
+          );
 
     return flutter_material.ThemeData(
       colorScheme: cs,
@@ -88,14 +109,34 @@ class ThemeCubit extends Cubit<ThemeSettings> {
       appBarTheme: flutter_material.AppBarTheme(
         backgroundColor: cs.surface,
         elevation: 0,
+        scrolledUnderElevation: 2,
         foregroundColor: cs.onSurface,
+        centerTitle: false,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: flutter_material.Colors.transparent,
+          statusBarIconBrightness: flutter_material.Brightness.light,
+          statusBarBrightness: flutter_material.Brightness.dark,
+          systemNavigationBarColor: cs.surface,
+          systemNavigationBarIconBrightness: flutter_material.Brightness.light,
+        ),
+      ),
+      navigationBarTheme: flutter_material.NavigationBarThemeData(
+        backgroundColor: cs.surface,
+        indicatorColor: cs.secondaryContainer,
+        labelTextStyle:
+            flutter_material.WidgetStateProperty.resolveWith((states) {
+          if (states.contains(flutter_material.WidgetState.selected)) {
+            return flutter_material.TextStyle(
+                color: cs.onSurface,
+                fontWeight: flutter_material.FontWeight.bold);
+          }
+          return flutter_material.TextStyle(color: cs.onSurfaceVariant);
+        }),
       ),
       tabBarTheme: flutter_material.TabBarThemeData(
-        labelColor: cs.onPrimary,
-        unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
-        indicator: flutter_material.UnderlineTabIndicator(
-          borderSide: flutter_material.BorderSide(color: cs.primary, width: 3),
-        ),
+        labelColor: cs.primary,
+        unselectedLabelColor: cs.onSurfaceVariant,
+        indicatorColor: cs.primary,
         indicatorSize: flutter_material.TabBarIndicatorSize.label,
         labelStyle: flutter_material.TextStyle(
             fontWeight: flutter_material.FontWeight.w600),

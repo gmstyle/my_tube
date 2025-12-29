@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
-import 'package:my_tube/ui/views/common/main_gradient.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
@@ -20,28 +19,23 @@ class FavoritesSearchDelegate extends SearchDelegate<void> {
     final ThemeData theme = Theme.of(context);
     return theme.copyWith(
       appBarTheme: AppBarTheme(
-        backgroundColor: theme.colorScheme.primaryContainer,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        iconTheme: IconThemeData(color: theme.colorScheme.onPrimaryContainer),
-        actionsIconTheme:
-            IconThemeData(color: theme.colorScheme.onPrimaryContainer),
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
+        actionsIconTheme: IconThemeData(color: theme.colorScheme.onSurface),
+        systemOverlayStyle: theme.appBarTheme.systemOverlayStyle,
       ),
-      scaffoldBackgroundColor: Colors.transparent,
-      hintColor: theme.colorScheme.onPrimary,
+      hintColor: theme.colorScheme.onSurfaceVariant,
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: theme.colorScheme.onPrimaryContainer,
-        selectionColor:
-            theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.5),
+        cursorColor: theme.colorScheme.primary,
+        selectionColor: theme.colorScheme.primary.withValues(alpha: 0.5),
       ),
       textTheme: TextTheme(
-        titleLarge: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+        titleLarge: TextStyle(color: theme.colorScheme.onSurface),
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: InputBorder.none,
-        hintStyle: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+        hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -156,81 +150,67 @@ class FavoritesSearchDelegate extends SearchDelegate<void> {
     );
 
     if (total == 0) {
-      return Theme(
-        data: fixedTheme,
-        child: MainGradient(
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.search_off,
-                    size: 64, color: parentTheme.colorScheme.onPrimary),
-                const SizedBox(height: 12),
-                Text('No results',
-                    style: parentTheme.textTheme.titleMedium
-                        ?.copyWith(color: parentTheme.colorScheme.onPrimary)),
-                const SizedBox(height: 6),
-                Text('Try a different query or clear filters',
-                    style: parentTheme.textTheme.bodySmall
-                        ?.copyWith(color: parentTheme.colorScheme.onPrimary)),
-              ],
-            ),
-          ),
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.search_off,
+                size: 64, color: parentTheme.colorScheme.onSurface),
+            const SizedBox(height: 12),
+            Text('No results',
+                style: parentTheme.textTheme.titleMedium
+                    ?.copyWith(color: parentTheme.colorScheme.onSurface)),
+            const SizedBox(height: 6),
+            Text('Try a different query or clear filters',
+                style: parentTheme.textTheme.bodySmall?.copyWith(
+                    color: parentTheme.colorScheme.onSurfaceVariant)),
+          ],
         ),
       );
     }
 
-    return Theme(
-      data: fixedTheme,
-      child: MainGradient(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          children: [
-            if (grouped['videos']!.isNotEmpty) ...[
-              _sectionHeader(context, 'Videos', grouped['videos']!.length),
-              ...grouped['videos']!.map((video) {
-                final quickVideo = <String, String>{
-                  'id': video.id,
-                  'title': video.title
-                };
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  child: VideoMenuDialog(
-                      quickVideo: quickVideo, child: VideoTile(video: video)),
-                );
-              }),
-            ],
-            if (grouped['channels']!.isNotEmpty) ...[
-              _sectionHeader(context, 'Channels', grouped['channels']!.length),
-              ...grouped['channels']!.map((ch) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  child: ChannelPlaylistMenuDialog(
-                      id: ch.id,
-                      kind: Kind.channel,
-                      child: ChannelTile(channel: ch)),
-                );
-              }),
-            ],
-            if (grouped['playlists']!.isNotEmpty) ...[
-              _sectionHeader(
-                  context, 'Playlists', grouped['playlists']!.length),
-              ...grouped['playlists']!.map((pl) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  child: ChannelPlaylistMenuDialog(
-                      id: pl.id,
-                      kind: Kind.playlist,
-                      child: PlaylistTile(playlist: pl)),
-                );
-              }),
-            ],
-          ],
-        ),
-      ),
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      children: [
+        if (grouped['videos']!.isNotEmpty) ...[
+          _sectionHeader(context, 'Videos', grouped['videos']!.length),
+          ...grouped['videos']!.map((video) {
+            final quickVideo = <String, String>{
+              'id': video.id,
+              'title': video.title
+            };
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: VideoMenuDialog(
+                  quickVideo: quickVideo, child: VideoTile(video: video)),
+            );
+          }),
+        ],
+        if (grouped['channels']!.isNotEmpty) ...[
+          _sectionHeader(context, 'Channels', grouped['channels']!.length),
+          ...grouped['channels']!.map((ch) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: ChannelPlaylistMenuDialog(
+                  id: ch.id,
+                  kind: Kind.channel,
+                  child: ChannelTile(channel: ch)),
+            );
+          }),
+        ],
+        if (grouped['playlists']!.isNotEmpty) ...[
+          _sectionHeader(context, 'Playlists', grouped['playlists']!.length),
+          ...grouped['playlists']!.map((pl) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: ChannelPlaylistMenuDialog(
+                  id: pl.id,
+                  kind: Kind.playlist,
+                  child: PlaylistTile(playlist: pl)),
+            );
+          }),
+        ],
+      ],
     );
   }
 
@@ -264,22 +244,20 @@ class FavoritesSearchDelegate extends SearchDelegate<void> {
             child: EmptyFavorites(message: 'No favorites to suggest'));
       }
 
-      return MainGradient(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: examples.map((e) {
-              return ActionChip(
-                label: Text(e, overflow: TextOverflow.ellipsis),
-                onPressed: () {
-                  query = e;
-                  showResults(context);
-                },
-              );
-            }).toList(),
-          ),
+      return Padding(
+        padding: const EdgeInsets.all(12),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: examples.map((e) {
+            return ActionChip(
+              label: Text(e, overflow: TextOverflow.ellipsis),
+              onPressed: () {
+                query = e;
+                showResults(context);
+              },
+            );
+          }).toList(),
         ),
       );
     }

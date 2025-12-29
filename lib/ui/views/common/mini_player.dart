@@ -42,9 +42,9 @@ class MiniPlayer extends StatelessWidget {
         if (state.status == PlayerStatus.error) {
           return ClipRRect(
             borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             child: Container(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               child: Center(
                 child: Text(state.message!),
               ),
@@ -56,9 +56,9 @@ class MiniPlayer extends StatelessWidget {
             onTap: () => context.pushNamed(AppRoute.video.name),
             child: ClipRRect(
               borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                  topLeft: Radius.circular(16), topRight: Radius.circular(16)),
               child: Container(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 child: HorizontalSwipeToSkip(
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -73,7 +73,7 @@ class MiniPlayer extends StatelessWidget {
                                 child: Hero(
                                   tag: 'video_image_or_player',
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(12),
                                     child: AspectRatio(
                                         aspectRatio: _setAspectRatio(
                                             playerCubit.mtPlayerService),

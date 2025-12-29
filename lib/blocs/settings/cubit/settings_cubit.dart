@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart' as flutter_material;
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/theme_settings.dart';
 
@@ -57,15 +56,9 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(themeSettings: newThemeSettings));
   }
 
-  void setPrimaryColor(flutter_material.Color color) {
-    final newThemeSettings = state.themeSettings.copyWith(primaryColor: color);
-    settingsBox.put('themeSettings', newThemeSettings.toJson());
-    emit(state.copyWith(themeSettings: newThemeSettings));
-  }
-
-  void setEnableGradient(bool enabled) {
+  void setUseDynamicColor(bool enabled) {
     final newThemeSettings =
-        state.themeSettings.copyWith(enableGradient: enabled);
+        state.themeSettings.copyWith(useDynamicColor: enabled);
     settingsBox.put('themeSettings', newThemeSettings.toJson());
     emit(state.copyWith(themeSettings: newThemeSettings));
   }

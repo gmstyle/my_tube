@@ -38,7 +38,6 @@ class PlaylistHeader extends StatelessWidget {
             FloatingActionButton.small(
                 elevation: 0,
                 heroTag: "add_playlist_to_queue_${playlist.id}",
-                backgroundColor: Theme.of(context).colorScheme.onPrimary,
                 onPressed: () {
                   miniplayerCubit.addAllToQueue(videoIds);
                 },
@@ -88,9 +87,7 @@ class PlaylistHeader extends StatelessWidget {
                                       .textTheme
                                       .titleLarge
                                       ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
+                                        color: Colors.white,
                                       ),
                                 ),
                               ),
@@ -99,9 +96,9 @@ class PlaylistHeader extends StatelessWidget {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.music_note_rounded,
-                                color: Theme.of(context).colorScheme.onPrimary,
+                                color: Colors.white,
                               ),
                               Text(
                                 playlist.videoCount.toString(),
@@ -109,9 +106,7 @@ class PlaylistHeader extends StatelessWidget {
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
+                                      color: Colors.white,
                                     ),
                               ),
                             ],
@@ -127,7 +122,6 @@ class PlaylistHeader extends StatelessWidget {
             FloatingActionButton.small(
                 elevation: 0,
                 heroTag: "play_playlist_${playlist.id}",
-                backgroundColor: Theme.of(context).colorScheme.onPrimary,
                 onPressed: playlistState.status == PlaylistStatus.loaded
                     ? () {
                         miniplayerCubit.startPlayingPlaylist(videoIds);
