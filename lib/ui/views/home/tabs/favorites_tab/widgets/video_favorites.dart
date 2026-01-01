@@ -5,7 +5,6 @@ import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
-import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
 
 class VideoFavorites extends StatelessWidget {
   const VideoFavorites({super.key, required this.searchQuery});
@@ -17,6 +16,7 @@ class VideoFavorites extends StatelessWidget {
     return BlocBuilder<FavoritesVideoBloc, FavoritesVideoState>(
         builder: (context, state) {
       switch (state.status) {
+        case FavoritesStatus.initial:
         case FavoritesStatus.loading:
           return const CustomSkeletonGridList();
         case FavoritesStatus.success:
@@ -31,39 +31,24 @@ class VideoFavorites extends StatelessWidget {
               .reversed
               .toList();
 
-          final ids = favorites.map((video) => video.id).toList();
-
-          return Column(
-            children: [
-              FavoritesHeader(
-                title: 'Videos',
-                ids: ids,
-              ),
-              Expanded(
-                child: favorites.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: favorites.length,
-                        itemBuilder: (context, index) {
-                          final video = favorites[index];
-                          final quickVideo = {
-                            'id': video.id,
-                            'title': video.title,
-                          };
-                          return VideoMenuDialog(
-                              quickVideo: quickVideo,
-                              child: VideoTile(video: video));
-                        },
-                      )
-                    : const EmptyFavorites(
-                        message: 'No favorite videos yet',
-                      ),
-              ),
-            ],
-          );
+          return favorites.isNotEmpty
+              ? ListView.builder(
+                  itemCount: favorites.length,
+                  itemBuilder: (context, index) {
+                    final video = favorites[index];
+                    final quickVideo = {
+                      'id': video.id,
+                      'title': video.title,
+                    };
+                    return VideoMenuDialog(
+                        quickVideo: quickVideo, child: VideoTile(video: video));
+                  },
+                )
+              : const EmptyFavorites(
+                  message: 'No favorite videos yet',
+                );
         case FavoritesStatus.failure:
           return Center(child: Text(state.error!));
-        default:
-          return const SizedBox.shrink();
       }
     });
   }

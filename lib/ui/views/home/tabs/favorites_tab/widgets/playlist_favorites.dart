@@ -7,7 +7,7 @@ import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
-import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
+
 import 'package:my_tube/utils/enums.dart';
 
 class PlaylistFavorites extends StatelessWidget {
@@ -19,6 +19,7 @@ class PlaylistFavorites extends StatelessWidget {
     return BlocBuilder<FavoritesPlaylistBloc, FavoritesPlaylistState>(
         builder: (context, state) {
       switch (state.status) {
+        case FavoritesPlaylistStatus.initial:
         case FavoritesPlaylistStatus.loading:
           return const CustomSkeletonGridList();
         case FavoritesPlaylistStatus.success:
@@ -33,43 +34,28 @@ class PlaylistFavorites extends StatelessWidget {
               .reversed
               .toList();
 
-          final List<String> ids =
-              favorites.map((playlist) => playlist.id).toList();
-
-          return Column(
-            children: [
-              FavoritesHeader(
-                title: 'Playlists',
-                ids: ids,
-              ),
-              Expanded(
-                child: favorites.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: favorites.length,
-                        itemBuilder: (context, index) {
-                          final playlist = favorites[index];
-                          return GestureDetector(
-                            onTap: () {
-                              context.goNamed(AppRoute.playlistFavorites.name,
-                                  extra: {'playlistId': playlist.id});
-                            },
-                            child: ChannelPlaylistMenuDialog(
-                                id: playlist.id,
-                                kind: Kind.playlist,
-                                child: PlaylistTile(playlist: playlist)),
-                          );
-                        },
-                      )
-                    : const EmptyFavorites(
-                        message: 'No favorite playlists yet',
-                      ),
-              ),
-            ],
-          );
+          return favorites.isNotEmpty
+              ? ListView.builder(
+                  itemCount: favorites.length,
+                  itemBuilder: (context, index) {
+                    final playlist = favorites[index];
+                    return GestureDetector(
+                      onTap: () {
+                        context.goNamed(AppRoute.playlistFavorites.name,
+                            extra: {'playlistId': playlist.id});
+                      },
+                      child: ChannelPlaylistMenuDialog(
+                          id: playlist.id,
+                          kind: Kind.playlist,
+                          child: PlaylistTile(playlist: playlist)),
+                    );
+                  },
+                )
+              : const EmptyFavorites(
+                  message: 'No favorite playlists yet',
+                );
         case FavoritesPlaylistStatus.failure:
           return Center(child: Text(state.error!));
-        default:
-          return const SizedBox.shrink();
       }
     });
   }

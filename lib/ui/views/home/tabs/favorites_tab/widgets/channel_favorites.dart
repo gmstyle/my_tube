@@ -7,7 +7,7 @@ import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
-import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/favorites_header.dart';
+
 import 'package:my_tube/utils/enums.dart';
 
 class ChannelFavorites extends StatelessWidget {
@@ -20,6 +20,7 @@ class ChannelFavorites extends StatelessWidget {
     return BlocBuilder<FavoritesChannelBloc, FavoritesChannelState>(
         builder: (context, state) {
       switch (state.status) {
+        case FavoritesChannelStatus.initial:
         case FavoritesChannelStatus.loading:
           return const CustomSkeletonGridList();
         case FavoritesChannelStatus.success:
@@ -31,42 +32,28 @@ class ChannelFavorites extends StatelessWidget {
               .reversed
               .toList();
 
-          final ids = favorites.map((channel) => channel.id).toList();
-
-          return Column(
-            children: [
-              FavoritesHeader(
-                title: 'Channels',
-                ids: ids,
-              ),
-              Expanded(
-                child: favorites.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: favorites.length,
-                        itemBuilder: (context, index) {
-                          final channel = favorites[index];
-                          return GestureDetector(
-                            onTap: () {
-                              context.goNamed(AppRoute.channelFavorites.name,
-                                  extra: {'channelId': channel.id});
-                            },
-                            child: ChannelPlaylistMenuDialog(
-                                id: channel.id,
-                                kind: Kind.channel,
-                                child: ChannelTile(channel: channel)),
-                          );
-                        },
-                      )
-                    : const EmptyFavorites(
-                        message: 'No favorite channels yet',
-                      ),
-              ),
-            ],
-          );
+          return favorites.isNotEmpty
+              ? ListView.builder(
+                  itemCount: favorites.length,
+                  itemBuilder: (context, index) {
+                    final channel = favorites[index];
+                    return GestureDetector(
+                      onTap: () {
+                        context.goNamed(AppRoute.channelFavorites.name,
+                            extra: {'channelId': channel.id});
+                      },
+                      child: ChannelPlaylistMenuDialog(
+                          id: channel.id,
+                          kind: Kind.channel,
+                          child: ChannelTile(channel: channel)),
+                    );
+                  },
+                )
+              : const EmptyFavorites(
+                  message: 'No favorite channels yet',
+                );
         case FavoritesChannelStatus.failure:
           return Center(child: Text(state.error!));
-        default:
-          return const SizedBox.shrink();
       }
     });
   }

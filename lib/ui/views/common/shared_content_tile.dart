@@ -127,7 +127,7 @@ class _SharedContentTileState extends State<SharedContentTile>
                 borderRadius: BorderRadius.circular(isCompact ? 12 : 16),
               ),
               margin: EdgeInsets.symmetric(
-                horizontal: isCompact ? 8 : 12,
+                horizontal: isCompact ? 4 : 8,
                 vertical: 6,
               ),
               clipBehavior: Clip.antiAlias,
@@ -135,19 +135,19 @@ class _SharedContentTileState extends State<SharedContentTile>
                 color: Colors.transparent,
                 child: InkWell(
                   onHover: _onHoverChanged,
-                  borderRadius: BorderRadius.circular(isCompact ? 12 : 16),
+                  borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
                   splashColor: theme.colorScheme.primary.withValues(alpha: 0.1),
                   highlightColor:
                       theme.colorScheme.primary.withValues(alpha: 0.05),
                   child: Padding(
-                    padding: EdgeInsets.all(isCompact ? 12 : 16),
+                    padding: EdgeInsets.all(isCompact ? 8 : 10),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // thumbnail
                         _buildThumbnail(context, playerCubit, isCompact),
 
-                        SizedBox(width: isCompact ? 12 : 16),
+                        SizedBox(width: isCompact ? 8 : 10),
 
                         // content
                         Expanded(child: _buildContent(context, isCompact)),
@@ -186,7 +186,7 @@ class _SharedContentTileState extends State<SharedContentTile>
       width: thumbnailWidth,
       height: thumbnailHeight,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(isCompact ? 10 : 12),
+        borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
         boxShadow: [
           BoxShadow(
             color: theme.colorScheme.shadow.withValues(alpha: 0.1),
@@ -196,7 +196,7 @@ class _SharedContentTileState extends State<SharedContentTile>
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(isCompact ? 10 : 12),
+        borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -252,7 +252,7 @@ class _SharedContentTileState extends State<SharedContentTile>
                                     .primary
                                     .withValues(alpha: 0.2),
                                 borderRadius:
-                                    BorderRadius.circular(isCompact ? 10 : 12),
+                                    BorderRadius.circular(isCompact ? 8 : 10),
                               ),
                       child: Container(
                         decoration: BoxDecoration(
@@ -261,7 +261,7 @@ class _SharedContentTileState extends State<SharedContentTile>
                             width: 2,
                           ),
                           borderRadius:
-                              BorderRadius.circular(isCompact ? 10 : 12),
+                              BorderRadius.circular(isCompact ? 8 : 10),
                         ),
                       ),
                     );
