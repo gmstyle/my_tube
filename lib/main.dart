@@ -121,7 +121,7 @@ void main() async {
                   youtubeExplodeRepository:
                       context.read<YoutubeExplodeRepository>(),
                   mtPlayerService: context.read<MtPlayerService>(),
-                )),
+                )..init()),
         BlocProvider<FavoritesVideoBloc>(
             create: (context) => FavoritesVideoBloc(
                   favoritesRepository: context.read<FavoriteRepository>(),

@@ -80,7 +80,9 @@ class SeekBar extends StatelessWidget {
                               const RoundSliderOverlayShape(overlayRadius: 10),
                         ),
                         child: Slider(
-                          value: position.inMilliseconds.toDouble(),
+                          value: position.inMilliseconds
+                              .toDouble()
+                              .clamp(0.0, duration.inMilliseconds.toDouble()),
                           max: duration.inMilliseconds.toDouble(),
                           onChanged: (value) {
                             mtPlayerService.seek(Duration(

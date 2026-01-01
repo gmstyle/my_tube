@@ -141,29 +141,36 @@ class MiniPlayer extends StatelessWidget {
                             children: [
                               // Video
                               Expanded(
-                                child: Hero(
-                                  tag: 'video_image_or_player',
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: AspectRatio(
-                                        aspectRatio: _setAspectRatio(
-                                            playerCubit.mtPlayerService),
-                                        child: Builder(builder: (context) {
-                                          final chewie = playerCubit
-                                              .mtPlayerService.chewieController;
-                                          if (chewie == null) {
-                                            // fallback small placeholder if controller not ready
-                                            return Container(
-                                              color: Colors.black,
-                                              child: const SizedBox.shrink(),
-                                            );
-                                          }
-                                          return Chewie(
-                                              controller: chewie.copyWith(
-                                            showControls: false,
-                                          ));
-                                        })),
-                                  ),
+                                child: StreamBuilder(
+                                  stream: playerCubit.mtPlayerService.mediaItem,
+                                  builder: (context, snapshot) {
+                                    return Hero(
+                                      tag: 'video_image_or_player',
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: AspectRatio(
+                                            aspectRatio: _setAspectRatio(
+                                                playerCubit.mtPlayerService),
+                                            child: Builder(builder: (context) {
+                                              final chewie = playerCubit
+                                                  .mtPlayerService
+                                                  .chewieController;
+                                              if (chewie == null) {
+                                                // fallback small placeholder if controller not ready
+                                                return Container(
+                                                  color: Colors.black,
+                                                  child:
+                                                      const SizedBox.shrink(),
+                                                );
+                                              }
+                                              return Chewie(
+                                                  controller: chewie.copyWith(
+                                                showControls: false,
+                                              ));
+                                            })),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
 

@@ -21,6 +21,14 @@ class PlayerCubit extends Cubit<PlayerState> {
         emit(const PlayerState.hidden());
       }
     });
+
+    mtPlayerService.mediaItem.listen((value) {
+      if (value == null && mtPlayerService.queue.value.isNotEmpty) {
+        emit(const PlayerState.loading());
+      } else if (value != null) {
+        emit(const PlayerState.shown());
+      }
+    });
   }
 
   Future<void> startPlaying(String id) async {

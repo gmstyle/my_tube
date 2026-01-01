@@ -383,6 +383,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   Future<void> _playCurrentTrack() async {
     try {
+      // Segnala che stiamo cambiando brano (loading state)
+      mediaItem.add(null);
+
       currentTrack = playlist[currentIndex];
 
       if (chewieController != null && videoPlayerController != null) {
@@ -647,6 +650,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> _disposeControllers() async {
     await chewieController?.videoPlayerController.dispose();
     chewieController?.dispose();
+    chewieController = null;
+    videoPlayerController = null;
   }
 
   // Metodi specifici per Android Auto

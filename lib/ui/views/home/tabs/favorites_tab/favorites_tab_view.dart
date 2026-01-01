@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
@@ -22,6 +23,7 @@ class FavoritesTabView extends StatefulWidget {
 class _FavoritesTabViewState extends State<FavoritesTabView> {
   // active chip selection (exclusive)
   FavoriteCategory _active = FavoriteCategory.videos;
+  bool _isFabVisible = true;
 
   @override
   void initState() {
@@ -101,23 +103,37 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
 
           // Content
           Expanded(
-            child: Builder(builder: (context) {
-              switch (_active) {
-                case FavoriteCategory.videos:
-                  return const VideoFavorites(searchQuery: '');
-                case FavoriteCategory.channels:
-                  return const ChannelFavorites(searchQuery: '');
-                case FavoriteCategory.playlists:
-                  return const PlaylistFavorites(searchQuery: '');
-              }
-            }),
+            child: NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.direction == ScrollDirection.reverse) {
+                  if (_isFabVisible) setState(() => _isFabVisible = false);
+                } else if (notification.direction == ScrollDirection.forward) {
+                  if (!_isFabVisible) setState(() => _isFabVisible = true);
+                }
+                return true;
+              },
+              child: Builder(builder: (context) {
+                switch (_active) {
+                  case FavoriteCategory.videos:
+                    return const VideoFavorites(searchQuery: '');
+                  case FavoriteCategory.channels:
+                    return const ChannelFavorites(searchQuery: '');
+                  case FavoriteCategory.playlists:
+                    return const PlaylistFavorites(searchQuery: '');
+                }
+              }),
+            ),
           ),
         ],
       ),
       floatingActionButton: _active == FavoriteCategory.videos
-          ? FloatingActionButton(
-              onPressed: _playAllVideos,
-              child: const Icon(Icons.play_arrow),
+          ? AnimatedScale(
+              scale: _isFabVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: FloatingActionButton(
+                onPressed: _playAllVideos,
+                child: const Icon(Icons.play_arrow),
+              ),
             )
           : null,
     );
