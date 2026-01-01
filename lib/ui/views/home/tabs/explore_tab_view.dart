@@ -111,6 +111,7 @@ class _ExploreTabViewState extends State<ExploreTabView>
     return BlocBuilder<ExploreTabBloc, ExploreTabState>(
         builder: (context, state) {
       switch (state.status) {
+        case YoutubeStatus.initial:
         case YoutubeStatus.loading:
           return const CustomSkeletonGridList();
         case YoutubeStatus.loaded:
@@ -165,8 +166,6 @@ class _ExploreTabViewState extends State<ExploreTabView>
           });
         case YoutubeStatus.error:
           return Center(child: Text(state.error ?? 'Unknown error occurred'));
-        default:
-          return const SizedBox.shrink();
       }
     });
   }

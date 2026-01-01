@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
@@ -17,7 +18,7 @@ class VideoFavorites extends StatelessWidget {
         builder: (context, state) {
       switch (state.status) {
         case FavoritesStatus.loading:
-          return const Center(child: CircularProgressIndicator());
+          return const CustomSkeletonGridList();
         case FavoritesStatus.success:
           final favorites = state.videos!
               .where((video) {

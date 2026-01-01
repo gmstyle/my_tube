@@ -145,9 +145,6 @@ class FavoritesSearchDelegate extends SearchDelegate<void> {
     final total = grouped.values.fold<int>(0, (p, e) => p + e.length);
 
     final parentTheme = Theme.of(context);
-    final fixedTheme = parentTheme.copyWith(
-      scaffoldBackgroundColor: Colors.transparent,
-    );
 
     if (total == 0) {
       return Center(

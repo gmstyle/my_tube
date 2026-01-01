@@ -51,9 +51,9 @@ class _CustomShimmerState extends State<CustomShimmer>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final baseColor =
-        widget.baseColor ?? theme.colorScheme.surface.withValues(alpha: 0.3);
+        widget.baseColor ?? theme.colorScheme.onSurface.withValues(alpha: 0.08);
     final highlightColor = widget.highlightColor ??
-        theme.colorScheme.surface.withValues(alpha: 0.1);
+        theme.colorScheme.onSurface.withValues(alpha: 0.12);
 
     return AnimatedBuilder(
       animation: _animation,
@@ -118,7 +118,7 @@ class ShimmerText extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -146,7 +146,7 @@ class ShimmerImage extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -170,7 +170,7 @@ class ShimmerCircle extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           shape: BoxShape.circle,
         ),
       ),
@@ -198,7 +198,7 @@ class ShimmerButton extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),

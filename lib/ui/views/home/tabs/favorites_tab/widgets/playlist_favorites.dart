@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
@@ -19,7 +20,7 @@ class PlaylistFavorites extends StatelessWidget {
         builder: (context, state) {
       switch (state.status) {
         case FavoritesPlaylistStatus.loading:
-          return const Center(child: CircularProgressIndicator());
+          return const CustomSkeletonGridList();
         case FavoritesPlaylistStatus.success:
           final favorites = state.playlists!
               .where((playlist) {
