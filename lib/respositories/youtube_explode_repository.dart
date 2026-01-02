@@ -140,6 +140,10 @@ class YoutubeExplodeRepository {
     }
   } */
 
+  Future<List<Video>> getPlaylistVideos(String playlistId) async {
+    return await youtubeExplodeProvider.getPlaylistVideos(playlistId);
+  }
+
   Future<Map<String, dynamic>> getPlaylist(String playlistId) async {
     try {
       final playlistMetadataFuture =

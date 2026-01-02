@@ -203,4 +203,58 @@ class Utils {
       end: Alignment.centerLeft,
     );
   }
+
+  // Show download selection dialog (Video vs Audio)
+  static void showDownloadSelectionDialog(
+    BuildContext context, {
+    required Function(bool isAudioOnly) onDownloadSelected,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+        return AlertDialog(
+          title: const Text('Download Options'),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.video_library,
+                  color: theme.colorScheme.primary,
+                ),
+                title: const Text('Download Video'),
+                subtitle: const Text('Full quality video with audio'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  onDownloadSelected(false);
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: Icon(
+                  Icons.music_note,
+                  color: theme.colorScheme.secondary,
+                ),
+                title: const Text('Download Audio Only'),
+                subtitle: const Text('Audio track only, smaller file size'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  onDownloadSelected(true);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

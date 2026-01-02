@@ -6,13 +6,69 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/local_notification_helper.dart.dart';
 import 'package:my_tube/utils/utils.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class DownloadService {
   Isolate? _isolate;
   StreamSubscription<void>? _cancelSubscription;
+
+  Future<void> downloadPlaylist({
+    required String playlistId,
+    required String playlistTitle,
+    required BuildContext context,
+    bool isAudioOnly = false,
+  }) async {
+    try {
+      final repository = context.read<YoutubeExplodeRepository>();
+
+      // Fetch playlist videos
+      // Note: getPlaylistVideos from repository currently returns List<Video>
+      // We might want to ensure we get all videos if pagination is involved,
+      // but for now relying on what repository provides.
+      final videos = await repository.getPlaylistVideos(playlistId);
+
+      if (videos.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No videos found in playlist: $playlistTitle'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+        return;
+      }
+
+      final videoList = videos
+          .map((v) => {
+                'id': v.id.value,
+                'title': v.title,
+              })
+          .toList();
+
+      if (context.mounted) {
+        await download(
+          videos: videoList,
+          context: context,
+          destinationDir: playlistTitle,
+          isAudioOnly: isAudioOnly,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to fetch playlist: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
 
   Future<void> download(
       {required List<Map<String, String>> videos,

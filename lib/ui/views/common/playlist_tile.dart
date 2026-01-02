@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
@@ -352,12 +354,25 @@ class _PlaylistTileState extends State<PlaylistTile>
         icon: Icons.download,
         subtitle: '${widget.playlist.videoCount} videos',
         onTap: () {
-          // TODO: Implement playlist download
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Downloading ${widget.playlist.title}...'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
+          // Implement playlist download
+          Utils.showDownloadSelectionDialog(
+            context,
+            onDownloadSelected: (isAudioOnly) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      'Starting download for playlist: ${widget.playlist.title}...'),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+              );
+
+              context.read<DownloadService>().downloadPlaylist(
+                    playlistId: widget.playlist.id,
+                    playlistTitle: widget.playlist.title,
+                    context: context,
+                    isAudioOnly: isAudioOnly,
+                  );
+            },
           );
         },
       ),

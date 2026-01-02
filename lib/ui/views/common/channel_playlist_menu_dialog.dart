@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/utils/enums.dart';
+import 'package:my_tube/utils/utils.dart';
 
 class ChannelPlaylistMenuDialog extends StatelessWidget {
   const ChannelPlaylistMenuDialog({
@@ -224,12 +226,24 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
           subtitle: const Text('Download all videos in playlist'),
           onTap: () {
             Navigator.of(context).pop();
-            // TODO: Implement playlist download
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Downloading playlist: ${title ?? id}'),
-                backgroundColor: theme.colorScheme.secondary,
-              ),
+            Utils.showDownloadSelectionDialog(
+              context,
+              onDownloadSelected: (isAudioOnly) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Starting download for playlist: ${title ?? id}...'),
+                    backgroundColor: theme.colorScheme.secondary,
+                  ),
+                );
+
+                context.read<DownloadService>().downloadPlaylist(
+                      playlistId: id,
+                      playlistTitle: title ?? id,
+                      context: context,
+                      isAudioOnly: isAudioOnly,
+                    );
+              },
             );
           },
         ),
