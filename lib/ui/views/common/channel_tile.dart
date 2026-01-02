@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/tiles.dart' as models;
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
@@ -270,13 +272,8 @@ class _ChannelTileState extends State<ChannelTile>
         label: 'View Channel',
         icon: Icons.person,
         onTap: () {
-          // TODO: Navigate to channel page
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening ${widget.channel.title}...'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+          context.goNamed(AppRoute.channel.name,
+              extra: {'channelId': widget.channel.id});
         },
       ),
       OverflowMenuAction(

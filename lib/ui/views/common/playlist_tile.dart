@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/tiles.dart' as models;
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
@@ -341,13 +343,8 @@ class _PlaylistTileState extends State<PlaylistTile>
         label: 'View Playlist',
         icon: Icons.playlist_play,
         onTap: () {
-          // TODO: Navigate to playlist page
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening ${widget.playlist.title}...'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+          context.goNamed(AppRoute.playlist.name,
+              extra: {'playlistId': widget.playlist.id});
         },
       ),
       OverflowMenuAction(

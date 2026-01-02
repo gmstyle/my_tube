@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/utils/enums.dart';
 
 class ChannelPlaylistMenuDialog extends StatelessWidget {
@@ -163,14 +165,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
         title: const Text('View Channel'),
         subtitle: const Text('Open channel page'),
         onTap: () {
-          Navigator.of(context).pop();
-          // TODO: Navigate to channel page
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening channel: ${title ?? id}'),
-              backgroundColor: theme.colorScheme.primary,
-            ),
-          );
+          context.goNamed(AppRoute.channel.name, extra: {'channelId': id});
         },
       );
     } else {
@@ -182,14 +177,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
         title: const Text('View Playlist'),
         subtitle: const Text('Open playlist page'),
         onTap: () {
-          Navigator.of(context).pop();
-          // TODO: Navigate to playlist page
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening playlist: ${title ?? id}'),
-              backgroundColor: theme.colorScheme.primary,
-            ),
-          );
+          context.goNamed(AppRoute.playlist.name, extra: {'playlistId': id});
         },
       );
     }
