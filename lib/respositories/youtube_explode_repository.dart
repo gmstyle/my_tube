@@ -52,8 +52,28 @@ class YoutubeExplodeRepository {
   }
 
   Future<PlaylistTile> getPlaylistMetadata(String id) async {
-    final playlist = await youtubeExplodeProvider.getPlaylist(id);
-    return PlaylistTile.fromPlaylist(playlist);
+    final playlistFuture = youtubeExplodeProvider.getPlaylist(id);
+    final thumbnailFuture = youtubeExplodeProvider.getPlaylistThumbnailUrl(id);
+
+    final playlist = await playlistFuture;
+    String thumbnailUrl = playlist.thumbnails.highResUrl;
+
+    try {
+      final scrapedThumbnail = await thumbnailFuture;
+      if (scrapedThumbnail != null) {
+        thumbnailUrl = scrapedThumbnail;
+      }
+    } catch (_) {
+      // Ignore errors, keep default thumbnail
+    }
+
+    return PlaylistTile(
+      id: playlist.id.value,
+      title: playlist.title,
+      author: playlist.author,
+      thumbnailUrl: thumbnailUrl,
+      videoCount: playlist.videoCount,
+    );
   }
 
   /// Simula getTrending usando ricerche predefinite
@@ -120,19 +140,31 @@ class YoutubeExplodeRepository {
     }
   } */
 
-  /// Recupera una playlist
   Future<Map<String, dynamic>> getPlaylist(String playlistId) async {
     try {
-      final playlistMetadata =
-          await youtubeExplodeProvider.getPlaylist(playlistId);
+      final playlistMetadataFuture =
+          youtubeExplodeProvider.getPlaylist(playlistId);
+      final videosFuture = youtubeExplodeProvider.getPlaylistVideos(playlistId);
+      final thumbnailFuture =
+          youtubeExplodeProvider.getPlaylistThumbnailUrl(playlistId);
 
-      final videos = await youtubeExplodeProvider.getPlaylistVideos(playlistId);
+      final results = await Future.wait([
+        playlistMetadataFuture,
+        videosFuture,
+        thumbnailFuture,
+      ]);
+
+      final playlistMetadata = results[0] as Playlist;
+      final videos = results[1] as List<Video>;
+      final thumbnailUrl = results[2] as String?;
+
       final videoTiles =
           videos.map((video) => VideoTile.fromVideo(video)).toList();
 
       return {
         'playlist': playlistMetadata,
         'videos': videoTiles,
+        'thumbnailUrl': thumbnailUrl ?? playlistMetadata.thumbnails.highResUrl,
       };
     } catch (e) {
       log('Errore durante il recupero della playlist: $e');

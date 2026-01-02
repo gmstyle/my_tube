@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:hive_ce/hive.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:http/http.dart' as http;
 
 class YoutubeExplodeProvider {
   final settingsBox = Hive.box('settings');
@@ -219,6 +220,27 @@ class YoutubeExplodeProvider {
     }
 
     return suggestions.take(10).toList();
+  }
+
+  Future<String?> getPlaylistThumbnailUrl(String playlistId) async {
+    try {
+      final url =
+          Uri.parse('https://www.youtube.com/playlist?list=$playlistId');
+      final response = await http.get(url);
+
+      if (response.statusCode != 200) return null;
+
+      // Extract og:image using Regex to avoid heavy html package if possible,
+      // but since we want robustness matching Syncara, we can use regex on the string.
+      // <meta property="og:image" content="URL">
+      final regex = RegExp(r'<meta\s+property="og:image"\s+content="([^"]+)"');
+      final match = regex.firstMatch(response.body);
+
+      return match?.group(1);
+    } catch (e) {
+      log('Error scraping playlist thumbnail: $e');
+      return null;
+    }
   }
 
   void close() {

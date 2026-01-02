@@ -16,10 +16,12 @@ class EnhancedPlaylistHeader extends StatefulWidget {
     super.key,
     required this.playlist,
     required this.videoIds,
+    this.thumbnailUrl,
   });
 
   final Playlist playlist;
   final List<String> videoIds;
+  final String? thumbnailUrl;
 
   @override
   State<EnhancedPlaylistHeader> createState() => _EnhancedPlaylistHeaderState();
@@ -209,7 +211,8 @@ class _EnhancedPlaylistHeaderState extends State<EnhancedPlaylistHeader>
         children: [
           // Thumbnail image
           Utils.buildImageWithFallback(
-            thumbnailUrl: widget.playlist.thumbnails.highResUrl,
+            thumbnailUrl:
+                widget.thumbnailUrl ?? widget.playlist.thumbnails.highResUrl,
             context: context,
             fit: BoxFit.cover,
           ),

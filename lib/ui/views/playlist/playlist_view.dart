@@ -160,6 +160,7 @@ class _PlaylistViewState extends State<PlaylistView>
     final playlist = state.response!['playlist'] as Playlist;
     final videos = state.response!['videos'] as List<models.VideoTile>;
     final videoIds = videos.map((video) => video.id).toList();
+    final thumbnailUrl = state.response!['thumbnailUrl'] as String?;
 
     // Start stagger animation when content loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -189,7 +190,8 @@ class _PlaylistViewState extends State<PlaylistView>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Enhanced playlist header with stagger animation
-                    _buildAnimatedHeader(context, playlist, videoIds),
+                    _buildAnimatedHeader(
+                        context, playlist, videoIds, thumbnailUrl),
 
                     // Enhanced spacing with better responsive design
                     SizedBox(height: _getResponsiveContentSpacing(context)),
@@ -206,8 +208,8 @@ class _PlaylistViewState extends State<PlaylistView>
     );
   }
 
-  Widget _buildAnimatedHeader(
-      BuildContext context, Playlist playlist, List<String> videoIds) {
+  Widget _buildAnimatedHeader(BuildContext context, Playlist playlist,
+      List<String> videoIds, String? thumbnailUrl) {
     return AnimatedBuilder(
       animation: _staggerController,
       builder: (context, child) {
@@ -234,6 +236,7 @@ class _PlaylistViewState extends State<PlaylistView>
             child: EnhancedPlaylistHeader(
               playlist: playlist,
               videoIds: videoIds,
+              thumbnailUrl: thumbnailUrl,
             ),
           ),
         );
