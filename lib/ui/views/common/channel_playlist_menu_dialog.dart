@@ -205,25 +205,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
               ),
             );
           },
-        ),
-        ListTile(
-          leading: Icon(
-            Icons.notifications_outlined,
-            color: theme.colorScheme.tertiary,
-          ),
-          title: const Text('Subscribe'),
-          subtitle: const Text('Get notified of new videos'),
-          onTap: () {
-            Navigator.of(context).pop();
-            // TODO: Implement subscription
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Subscribed to: ${title ?? id}'),
-                backgroundColor: theme.colorScheme.tertiary,
-              ),
-            );
-          },
-        ),
+        )
       ],
     );
   }

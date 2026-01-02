@@ -55,7 +55,7 @@ class ChannelTile extends Equatable {
     return ChannelTile(
       id: channel.id.value,
       title: channel.title,
-      description: '',
+      description: channel.title,
       thumbnailUrl: channel.logoUrl,
       subscriberCount: channel.subscribersCount,
     );
