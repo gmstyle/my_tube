@@ -87,6 +87,7 @@ class VideoPhoneScreen extends StatelessWidget {
                       // Seek bar
                       const SeekBar(
                         darkBackground: false,
+                        showTimings: true,
                       ),
                       // controls
                       const Controls(),

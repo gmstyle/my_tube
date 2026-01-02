@@ -252,6 +252,8 @@ class MiniPlayer extends StatelessWidget {
                           // SeekBar
                           const SeekBar(
                             darkBackground: false,
+                            thumbShapeRadius: 2,
+                            overlayRadius: 2,
                           ),
                         ],
                       )),
