@@ -6,7 +6,6 @@ class MusicTabState extends Equatable {
   const MusicTabState._({
     required this.status,
     this.error,
-    this.favorites = const [],
     this.newReleases = const [],
     this.discoverVideo,
     this.discoverRelated = const [],
@@ -16,7 +15,6 @@ class MusicTabState extends Equatable {
 
   final MusicTabStatus status;
   final String? error;
-  final List<VideoTile> favorites;
   final List<VideoTile> newReleases;
   final VideoTile? discoverVideo;
   final List<VideoTile> discoverRelated;
@@ -28,7 +26,6 @@ class MusicTabState extends Equatable {
   const MusicTabState.loading() : this._(status: MusicTabStatus.loading);
 
   const MusicTabState.loaded({
-    List<VideoTile> favorites = const [],
     List<VideoTile> newReleases = const [],
     VideoTile? discoverVideo,
     List<VideoTile> discoverRelated = const [],
@@ -36,7 +33,6 @@ class MusicTabState extends Equatable {
     bool isInternationalTrending = false,
   }) : this._(
           status: MusicTabStatus.success,
-          favorites: favorites,
           newReleases: newReleases,
           discoverVideo: discoverVideo,
           discoverRelated: discoverRelated,
@@ -51,7 +47,6 @@ class MusicTabState extends Equatable {
   List<Object?> get props => [
         status,
         error,
-        favorites,
         newReleases,
         discoverVideo,
         discoverRelated,

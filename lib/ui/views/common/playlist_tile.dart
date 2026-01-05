@@ -5,13 +5,12 @@ import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
-import 'package:my_tube/utils/app_animations.dart';
+import 'package:my_tube/ui/views/common/material_interactive_components.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
-import 'package:my_tube/utils/app_theme_extensions.dart';
 import 'package:my_tube/utils/scroll_animations.dart';
 import 'package:my_tube/utils/utils.dart';
 
-class PlaylistTile extends StatefulWidget {
+class PlaylistTile extends StatelessWidget {
   const PlaylistTile({
     super.key,
     required this.playlist,
@@ -24,115 +23,38 @@ class PlaylistTile extends StatefulWidget {
   final bool enableScrollAnimation;
 
   @override
-  State<PlaylistTile> createState() => _PlaylistTileState();
-}
-
-class _PlaylistTileState extends State<PlaylistTile>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _hoverController;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _elevationAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _hoverController = AnimationController(
-      duration: AppAnimations.cardHover,
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.cardHoverScale,
-    ).animate(CurvedAnimation(
-      parent: _hoverController,
-      curve: AppAnimations.cardHoverCurve,
-    ));
-
-    _elevationAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.hoverElevation,
-    ).animate(CurvedAnimation(
-      parent: _hoverController,
-      curve: AppAnimations.cardHoverCurve,
-    ));
-  }
-
-  @override
-  void dispose() {
-    _hoverController.dispose();
-    super.dispose();
-  }
-
-  void _onHoverChanged(bool isHovered) {
-    if (isHovered) {
-      _hoverController.forward();
-    } else {
-      _hoverController.reverse();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isCompact = context.isCompact;
 
-    Widget tileContent = RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _hoverController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Card(
-              elevation: _elevationAnimation.value,
-              shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.1),
-              surfaceTintColor: theme.colorScheme.surfaceTint,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(isCompact ? 12 : 16),
-              ),
-              margin: EdgeInsets.symmetric(
-                horizontal: isCompact ? 8 : 12,
-                vertical: 6,
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onHover: _onHoverChanged,
-                  borderRadius: BorderRadius.circular(isCompact ? 12 : 16),
-                  splashColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-                  highlightColor:
-                      theme.colorScheme.primary.withValues(alpha: 0.05),
-                  child: Padding(
-                    padding: EdgeInsets.all(isCompact ? 12 : 16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Enhanced thumbnail with better styling
-                        _buildEnhancedThumbnail(context, isCompact),
+    Widget tileContent = MaterialHoverContainer(
+      onTap: () {
+        context.goNamed(AppRoute.playlist.name,
+            extra: {'playlistId': playlist.id});
+      },
+      borderRadius: BorderRadius.circular(12),
+      fillColor: Colors.transparent,
+      padding: EdgeInsets.all(isCompact ? 8 : 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Enhanced thumbnail with stack effect
+          _buildThumbnail(context, isCompact),
 
-                        SizedBox(width: isCompact ? 12 : 16),
+          SizedBox(width: isCompact ? 12 : 16),
 
-                        // Enhanced content section with better typography
-                        Expanded(
-                          child: _buildEnhancedContent(context, isCompact),
-                        ),
+          // Enhanced content section with better typography
+          Expanded(
+            child: _buildContent(context, isCompact),
+          ),
 
-                        // Enhanced overflow menu for secondary actions
-                        _buildEnhancedOverflowMenu(context, isCompact),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
+          // Enhanced overflow menu for secondary actions
+          _buildOverflowMenu(context, isCompact),
+        ],
       ),
     );
 
     // Apply scroll animation if enabled
-    if (widget.enableScrollAnimation) {
+    if (enableScrollAnimation) {
       return ScrollVisibilityAnimator(
         animationType: ScrollAnimationType.fadeIn,
         child: tileContent,
@@ -142,115 +64,83 @@ class _PlaylistTileState extends State<PlaylistTile>
     return tileContent;
   }
 
-  Widget _buildEnhancedThumbnail(BuildContext context, bool isCompact) {
+  Widget _buildThumbnail(BuildContext context, bool isCompact) {
     final theme = Theme.of(context);
-    final thumbnailWidth = isCompact ? 100.0 : 120.0;
-    final thumbnailHeight = isCompact ? 60.0 : 75.0;
+    final thumbnailWidth = isCompact ? 120.0 : 160.0;
+    final thumbnailHeight = thumbnailWidth * 9 / 16;
 
-    return Container(
+    return SizedBox(
       width: thumbnailWidth,
       height: thumbnailHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(isCompact ? 10 : 12),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.shadow.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(isCompact ? 10 : 12),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Enhanced image with better fallback
-            Utils.buildImageWithFallback(
-              thumbnailUrl: widget.playlist.thumbnailUrl,
-              context: context,
-              placeholder: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      theme.colorScheme.primaryContainer,
-                      theme.colorScheme.primaryContainer.withValues(alpha: 0.8),
-                    ],
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.playlist_play,
-                  size: isCompact ? 24 : 32,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-              ),
-            ),
-
-            // Enhanced gradient overlay for better text legibility
-            Container(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Stack effect decoration
+          Positioned(
+            right: -4,
+            top: 2,
+            bottom: 2,
+            child: Container(
+              width: 8,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.transparent,
-                    theme.colorScheme.shadow.withValues(alpha: 0.3),
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
                 ),
               ),
             ),
+          ),
 
-            // Enhanced video count badge
-            if (widget.playlist.videoCount != null)
-              Positioned(
-                top: isCompact ? 6 : 8,
-                right: isCompact ? 6 : 8,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isCompact ? 6 : 8,
-                    vertical: isCompact ? 3 : 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
-                    border: Border.all(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                      width: 1,
+          ExpressiveImage(
+            borderRadius: BorderRadius.circular(8),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Utils.buildImageWithFallback(
+                  thumbnailUrl: playlist.thumbnailUrl,
+                  context: context,
+                  fit: BoxFit.cover,
+                  placeholder: Container(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    child: Icon(
+                      Icons.playlist_play_rounded,
+                      size: 24,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.playlist_play_rounded,
-                        color: theme.colorScheme.primary,
-                        size: isCompact ? 12 : 14,
+                ),
+                // Video count overlay
+                if (playlist.videoCount != null)
+                  Positioned(
+                    bottom: 4,
+                    right: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      SizedBox(width: isCompact ? 3 : 4),
-                      Text(
-                        '${widget.playlist.videoCount}',
-                        style: theme.statsTextStyle.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: isCompact ? 10 : 12,
+                      child: Text(
+                        '${playlist.videoCount}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-          ],
-        ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildEnhancedContent(BuildContext context, bool isCompact) {
+  Widget _buildContent(BuildContext context, bool isCompact) {
     final theme = Theme.of(context);
 
     return Column(
@@ -259,56 +149,28 @@ class _PlaylistTileState extends State<PlaylistTile>
       children: [
         // Enhanced title with better typography hierarchy
         Text(
-          widget.playlist.title,
-          style: theme.videoTitleStyle.copyWith(
+          playlist.title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
             fontSize: isCompact ? 14 : 16,
-            height: 1.3,
+            color: theme.colorScheme.onSurface,
           ),
           maxLines: isCompact ? 2 : 3,
           overflow: TextOverflow.ellipsis,
         ),
 
-        if (widget.playlist.author != null) ...[
-          SizedBox(height: isCompact ? 4 : 6),
+        if (playlist.author != null) ...[
+          const SizedBox(height: 4),
           Row(
             children: [
-              Icon(
-                Icons.person_outline,
-                size: isCompact ? 14 : 16,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 4),
               Flexible(
                 child: Text(
-                  widget.playlist.author!,
-                  style: theme.videoSubtitleStyle.copyWith(
-                    fontSize: isCompact ? 12 : 13,
-                    height: 1.2,
+                  playlist.author!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ],
-
-        // Video count info
-        if (widget.playlist.videoCount != null) ...[
-          SizedBox(height: isCompact ? 4 : 6),
-          Row(
-            children: [
-              Icon(
-                Icons.video_library_outlined,
-                size: isCompact ? 14 : 16,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                _formatVideoCount(widget.playlist.videoCount!),
-                style: theme.videoSubtitleStyle.copyWith(
-                  fontSize: isCompact ? 11 : 12,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -318,7 +180,7 @@ class _PlaylistTileState extends State<PlaylistTile>
     );
   }
 
-  Widget _buildEnhancedOverflowMenu(BuildContext context, bool isCompact) {
+  Widget _buildOverflowMenu(BuildContext context, bool isCompact) {
     final actions = _buildPlaylistOverflowActions(context);
 
     return Column(
@@ -331,7 +193,7 @@ class _PlaylistTileState extends State<PlaylistTile>
         ),
         // Add favorite button for quick access
         EnhancedFavoriteButton(
-          entityId: widget.playlist.id,
+          entityId: playlist.id,
           entityType: FavoriteEntityType.playlist,
           size: isCompact ? 20.0 : 24.0,
         ),
@@ -346,13 +208,13 @@ class _PlaylistTileState extends State<PlaylistTile>
         icon: Icons.playlist_play,
         onTap: () {
           context.goNamed(AppRoute.playlist.name,
-              extra: {'playlistId': widget.playlist.id});
+              extra: {'playlistId': playlist.id});
         },
       ),
       OverflowMenuAction(
         label: 'Download All',
         icon: Icons.download,
-        subtitle: '${widget.playlist.videoCount} videos',
+        subtitle: '${playlist.videoCount} videos',
         onTap: () {
           // Implement playlist download
           Utils.showDownloadSelectionDialog(
@@ -361,14 +223,14 @@ class _PlaylistTileState extends State<PlaylistTile>
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                      'Starting download for playlist: ${widget.playlist.title}...'),
+                      'Starting download for playlist: ${playlist.title}...'),
                   backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
               );
 
               context.read<DownloadService>().downloadPlaylist(
-                    playlistId: widget.playlist.id,
-                    playlistTitle: widget.playlist.title,
+                    playlistId: playlist.id,
+                    playlistTitle: playlist.title,
                     context: context,
                     isAudioOnly: isAudioOnly,
                   );
@@ -383,19 +245,12 @@ class _PlaylistTileState extends State<PlaylistTile>
           // TODO: Implement playlist sharing
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Sharing ${widget.playlist.title}...'),
+              content: Text('Sharing ${playlist.title}...'),
               backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         },
       ),
     ];
-  }
-
-  String _formatVideoCount(int count) {
-    if (count == 1) {
-      return '1 video';
-    }
-    return '$count videos';
   }
 }

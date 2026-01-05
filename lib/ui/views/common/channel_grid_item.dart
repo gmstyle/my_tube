@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/tiles.dart' as models;
+import 'package:my_tube/ui/views/common/material_interactive_components.dart';
 import 'package:my_tube/utils/utils.dart';
-import 'package:my_tube/utils/app_theme_extensions.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
 
 class ChannelGridItem extends StatelessWidget {
-  const ChannelGridItem({super.key, required this.channel});
+  const ChannelGridItem({
+    super.key,
+    required this.channel,
+    this.onTap,
+  });
 
   final models.ChannelTile channel;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -17,70 +22,73 @@ class ChannelGridItem extends StatelessWidget {
         MediaQuery.of(context).size.width * (isCompact ? 0.28 : 0.4);
     final borderRadius = BorderRadius.circular(isCompact ? 12 : 16);
 
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
-      clipBehavior: Clip.antiAlias,
+    return MaterialHoverContainer(
+      borderRadius: borderRadius,
+      onTap: onTap,
+      // Channel items often look better with a slightly distinct background to differentiate from videos
+      fillColor: theme.colorScheme.surfaceContainer,
       child: SizedBox(
         width: size,
         height: size,
-        child: Stack(
-          fit: StackFit.expand,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Channel image with proper fallback handling
-            Utils.buildImageWithFallback(
-              thumbnailUrl: channel.thumbnailUrl,
-              context: context,
-              placeholder: Container(
-                color: theme.colorScheme.primaryContainer,
-                child: Icon(
-                  Icons.person,
-                  size: size * 0.3,
-                  color: theme.colorScheme.onPrimaryContainer,
+            // Prominent Avatar
+            ExpressiveImage(
+              borderRadius: BorderRadius.circular(size / 2), // Make it circular
+              child: Container(
+                width: size * 0.5,
+                height: size * 0.5,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: theme.colorScheme.outlineVariant,
+                    width: 1,
+                  ),
+                ),
+                child: ClipOval(
+                  child: Utils.buildImageWithFallback(
+                    thumbnailUrl: channel.thumbnailUrl,
+                    context: context,
+                    fit: BoxFit.cover,
+                    placeholder: Container(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: Icon(
+                        Icons.person,
+                        size: size * 0.25,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
 
-            // Gradient overlay
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    theme.colorScheme.shadow.withValues(alpha: 0.6),
-                    theme.colorScheme.shadow.withValues(alpha: 0.8),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
+            SizedBox(height: isCompact ? 8 : 12),
 
-            // Channel information
-            Positioned(
-              bottom: isCompact ? 8 : 12,
-              left: 8,
-              right: 8,
+            // Channel Info
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     channel.title,
-                    style: theme.videoTitleStyle.copyWith(
-                      color: theme.colorScheme.onPrimary,
-                      fontSize: isCompact ? 13 : 15,
+                    style: theme.textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.bold,
+                      height: 1.2,
+                      color: theme.colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (channel.subscriberCount != null) ...[
-                    SizedBox(height: isCompact ? 4 : 6),
+                    const SizedBox(height: 4),
                     Text(
-                      channel.subscriberCount.toString(),
-                      style: theme.videoSubtitleStyle.copyWith(
-                        color: theme.colorScheme.onPrimary,
+                      Utils.formatNumber(channel.subscriberCount!),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                         fontSize: isCompact ? 11 : 12,
                       ),
                       textAlign: TextAlign.center,

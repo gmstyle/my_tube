@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
-import 'package:my_tube/models/tiles.dart' as models;
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
+import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 
@@ -24,7 +25,7 @@ class _MusicTabViewState extends State<MusicTabView> {
     return BlocBuilder<MusicTabBloc, MusicTabState>(
       builder: (context, state) {
         if (state.status == MusicTabStatus.loading) {
-          return const Center(child: CircularProgressIndicator());
+          return const CustomSkeletonMusicHome();
         }
 
         if (state.status == MusicTabStatus.error) {
@@ -44,7 +45,7 @@ class _MusicTabViewState extends State<MusicTabView> {
                 if (state.newReleases.isNotEmpty)
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 220, // Approximate height for video tile
+                      height: 180, // Approximate height for video tile
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -53,13 +54,13 @@ class _MusicTabViewState extends State<MusicTabView> {
                             const SizedBox(width: 8),
                         itemBuilder: (context, index) {
                           return SizedBox(
-                              width: 300,
+                              width: 250,
                               child: VideoMenuDialog(
                                   quickVideo: {
                                     'id': state.newReleases[index].id,
                                     'title': state.newReleases[index].title,
                                   },
-                                  child: VideoTile(
+                                  child: VideoGridItem(
                                       video: state.newReleases[index])));
                         },
                       ),
@@ -73,7 +74,7 @@ class _MusicTabViewState extends State<MusicTabView> {
                       "Because you liked ${state.discoverVideo!.title}"),
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 220,
+                      height: 180,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -82,47 +83,19 @@ class _MusicTabViewState extends State<MusicTabView> {
                             const SizedBox(width: 8),
                         itemBuilder: (context, index) {
                           return SizedBox(
-                              width: 300,
+                              width: 250,
                               child: VideoMenuDialog(
                                   quickVideo: {
                                     'id': state.discoverRelated[index].id,
                                     'title': state.discoverRelated[index].title,
                                   },
-                                  child: VideoTile(
+                                  child: VideoGridItem(
                                       video: state.discoverRelated[index])));
                         },
                       ),
                     ),
                   ),
                 ],
-
-                // 3. Your Favorites Section (Horizontal)
-                if (state.favorites.isNotEmpty)
-                  _buildSectionHeader(context, "Your Favorites"),
-                if (state.favorites.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 220,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: state.favorites.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 8),
-                        itemBuilder: (context, index) {
-                          return SizedBox(
-                              width: 300,
-                              child: VideoMenuDialog(
-                                  quickVideo: {
-                                    'id': state.favorites[index].id,
-                                    'title': state.favorites[index].title,
-                                  },
-                                  child: VideoTile(
-                                      video: state.favorites[index])));
-                        },
-                      ),
-                    ),
-                  ),
 
                 // 4. Trending Section (Fallback or Extras)
                 if (state.trending.isNotEmpty)

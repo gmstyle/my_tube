@@ -5,9 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 
 class SpectrumPlayingIcon extends StatelessWidget {
-  const SpectrumPlayingIcon({super.key, required this.videoId});
+  const SpectrumPlayingIcon({
+    super.key,
+    required this.videoId,
+    this.barColor = Colors.white,
+  });
 
   final String videoId;
+  final Color barColor;
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +31,10 @@ class SpectrumPlayingIcon extends StatelessWidget {
                     if (snapshot.hasData) {
                       final isPlaying = snapshot.data ?? false;
                       if (isPlaying) {
-                        return const AudioSpectrumIcon(
+                        return AudioSpectrumIcon(
                           height: 48,
                           width: 48,
+                          barColor: barColor,
                         );
                       }
                     }

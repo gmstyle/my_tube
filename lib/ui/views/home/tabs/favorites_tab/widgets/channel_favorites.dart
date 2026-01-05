@@ -33,7 +33,7 @@ class ChannelFavorites extends StatelessWidget {
               .toList();
 
           return favorites.isNotEmpty
-              ? ListView.builder(
+              ? ListView.separated(
                   itemCount: favorites.length,
                   itemBuilder: (context, index) {
                     final channel = favorites[index];
@@ -48,6 +48,8 @@ class ChannelFavorites extends StatelessWidget {
                           child: ChannelTile(channel: channel)),
                     );
                   },
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 8),
                 )
               : const EmptyFavorites(
                   message: 'No favorite channels yet',

@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
+import 'package:my_tube/ui/views/common/material_interactive_components.dart';
 import 'package:my_tube/utils/utils.dart';
-import 'package:my_tube/utils/app_theme_extensions.dart';
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/scroll_animations.dart';
 import 'package:my_tube/models/tiles.dart' as models;
@@ -44,129 +44,58 @@ class TileData {
       );
 }
 
-class SharedContentTile extends StatefulWidget {
+class SharedContentTile extends StatelessWidget {
   const SharedContentTile({
     super.key,
     required this.data,
     this.showActions = true,
     this.enableScrollAnimation = false,
     this.index = 0,
+    this.onTap,
   });
 
   final TileData data;
   final bool showActions;
   final bool enableScrollAnimation;
   final int index;
-
-  @override
-  State<SharedContentTile> createState() => _SharedContentTileState();
-}
-
-class _SharedContentTileState extends State<SharedContentTile>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _hoverController;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _elevationAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _hoverController = AnimationController(
-      duration: AppAnimations.cardHover,
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.cardHoverScale,
-    ).animate(CurvedAnimation(
-      parent: _hoverController,
-      curve: AppAnimations.cardHoverCurve,
-    ));
-
-    _elevationAnimation = Tween<double>(
-      begin: 1.0,
-      end: AppAnimations.hoverElevation,
-    ).animate(CurvedAnimation(
-      parent: _hoverController,
-      curve: AppAnimations.cardHoverCurve,
-    ));
-  }
-
-  @override
-  void dispose() {
-    _hoverController.dispose();
-    super.dispose();
-  }
-
-  void _onHoverChanged(bool isHovered) {
-    if (isHovered) {
-      _hoverController.forward();
-    } else {
-      _hoverController.reverse();
-    }
-  }
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isCompact = context.isCompact;
     final PlayerCubit playerCubit = BlocProvider.of<PlayerCubit>(context);
 
-    Widget tileContent = RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _hoverController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Card(
-              elevation: _elevationAnimation.value,
-              shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.1),
-              surfaceTintColor: theme.colorScheme.surfaceTint,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(isCompact ? 12 : 16),
-              ),
-              margin: EdgeInsets.symmetric(
-                horizontal: isCompact ? 4 : 8,
-                vertical: 6,
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onHover: _onHoverChanged,
-                  borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
-                  splashColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-                  highlightColor:
-                      theme.colorScheme.primary.withValues(alpha: 0.05),
-                  child: Padding(
-                    padding: EdgeInsets.all(isCompact ? 8 : 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // thumbnail
-                        _buildThumbnail(context, playerCubit, isCompact),
+    // M3: List items should be cleaner, no heavy cards by default.
+    // We use MaterialHoverContainer to provide the hover/press feedback state.
 
-                        SizedBox(width: isCompact ? 8 : 10),
+    // M3: List items should be cleaner, no heavy cards by default.
+    // We use MaterialHoverContainer to provide the hover/press feedback state.
 
-                        // content
-                        Expanded(child: _buildContent(context, isCompact)),
+    Widget tileContent = MaterialHoverContainer(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      fillColor: Colors
+          .transparent, // Transparent by default, container color on hover handled by widget
+      padding: EdgeInsets.all(isCompact ? 8 : 10),
+      child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.center, // Align center for list look
+        children: [
+          // thumbnail
+          _buildThumbnail(context, playerCubit, isCompact),
 
-                        // optional actions
-                        if (widget.showActions)
-                          _buildActions(context, isCompact),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
+          SizedBox(width: isCompact ? 12 : 16),
+
+          // content
+          Expanded(child: _buildContent(context, isCompact)),
+
+          // optional actions
+          if (showActions) _buildActions(context, isCompact),
+        ],
       ),
     );
 
-    if (widget.enableScrollAnimation) {
+    if (enableScrollAnimation) {
       return ScrollVisibilityAnimator(
         animationType: ScrollAnimationType.fadeIn,
         child: tileContent,
@@ -179,100 +108,56 @@ class _SharedContentTileState extends State<SharedContentTile>
   Widget _buildThumbnail(
       BuildContext context, PlayerCubit playerCubit, bool isCompact) {
     final theme = Theme.of(context);
-    final thumbnailWidth = isCompact ? 100.0 : 120.0;
-    final thumbnailHeight = isCompact ? 60.0 : 75.0;
+    // 16:9 aspect ratio standard for videos
+    final thumbnailWidth = isCompact ? 120.0 : 160.0;
+    final thumbnailHeight = thumbnailWidth * 9 / 16;
 
-    return Container(
+    return SizedBox(
       width: thumbnailWidth,
       height: thumbnailHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.shadow.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(isCompact ? 8 : 10),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Utils.buildImageWithFallback(
-              thumbnailUrl: widget.data.thumbnailUrl,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ExpressiveImage(
+            borderRadius: BorderRadius.circular(8),
+            child: Utils.buildImageWithFallback(
+              thumbnailUrl: data.thumbnailUrl,
               context: context,
+              fit: BoxFit.cover,
               placeholder: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      theme.colorScheme.primaryContainer,
-                      theme.colorScheme.primaryContainer.withValues(alpha: 0.8),
-                    ],
-                  ),
-                ),
-                alignment: Alignment.center,
+                color: theme.colorScheme.surfaceContainerHighest,
                 child: Icon(
-                  Icons.play_circle_outline,
+                  Icons.play_arrow_rounded,
                   size: isCompact ? 24 : 32,
-                  color: theme.colorScheme.onPrimaryContainer,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.transparent,
-                    theme.colorScheme.shadow.withValues(alpha: 0.3),
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
-                ),
-              ),
-            ),
-            StreamBuilder(
-              stream: BlocProvider.of<PlayerCubit>(context)
-                  .mtPlayerService
-                  .mediaItem,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final currentVideoId = snapshot.data!.id;
-                  if (currentVideoId == widget.data.id) {
-                    return Container(
-                      decoration:
-                          Theme.of(context).playingIndicatorDecoration.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primary
-                                    .withValues(alpha: 0.2),
-                                borderRadius:
-                                    BorderRadius.circular(isCompact ? 8 : 10),
-                              ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
-                          ),
-                          borderRadius:
-                              BorderRadius.circular(isCompact ? 8 : 10),
-                        ),
+          ),
+          StreamBuilder(
+            stream:
+                BlocProvider.of<PlayerCubit>(context).mtPlayerService.mediaItem,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final currentVideoId = snapshot.data!.id;
+                if (currentVideoId == data.id) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: theme.colorScheme.primary,
+                        width: 2,
                       ),
-                    );
-                  }
+                    ),
+                  );
                 }
-                return const SizedBox.shrink();
-              },
-            ),
-            Positioned.fill(child: _buildPlayingIndicator(context, isCompact)),
-          ],
-        ),
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          Positioned.fill(child: _buildPlayingIndicator(context, isCompact)),
+        ],
       ),
     );
   }
@@ -286,7 +171,7 @@ class _SharedContentTileState extends State<SharedContentTile>
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final currentVideoId = snapshot.data!.id;
-          if (currentVideoId == widget.data.id) {
+          if (currentVideoId == data.id) {
             return StreamBuilder(
               stream: playerCubit.mtPlayerService.playbackState
                   .map((playbackState) => playbackState.playing)
@@ -300,24 +185,14 @@ class _SharedContentTileState extends State<SharedContentTile>
                       ? Center(
                           key: const ValueKey('playing'),
                           child: Container(
-                            padding: EdgeInsets.all(isCompact ? 6 : 8),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primary
-                                  .withValues(alpha: 0.9),
-                              borderRadius:
-                                  BorderRadius.circular(isCompact ? 8 : 10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.colorScheme.primary
-                                      .withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                              color: theme.colorScheme.primary,
+                              borderRadius: BorderRadius.circular(50),
                             ),
                             child: AudioSpectrumIcon(
-                              width: isCompact ? 24 : 32,
-                              height: isCompact ? 24 : 32,
+                              width: 20,
+                              height: 20,
                               barColor: theme.colorScheme.onPrimary,
                             ),
                           ),
@@ -325,20 +200,15 @@ class _SharedContentTileState extends State<SharedContentTile>
                       : Center(
                           key: const ValueKey('paused'),
                           child: Container(
-                            padding: EdgeInsets.all(isCompact ? 6 : 8),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.surface
-                                  .withValues(alpha: 0.9),
-                              borderRadius:
-                                  BorderRadius.circular(isCompact ? 8 : 10),
-                              border: Border.all(
-                                color: theme.colorScheme.primary,
-                                width: 2,
-                              ),
+                                  .withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(50),
                             ),
                             child: Icon(
                               Icons.pause,
-                              size: isCompact ? 16 : 20,
+                              size: 20,
                               color: theme.colorScheme.primary,
                             ),
                           ),
@@ -361,28 +231,26 @@ class _SharedContentTileState extends State<SharedContentTile>
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          widget.data.title,
-          style: theme.videoTitleStyle.copyWith(
+          data.title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
             fontSize: isCompact ? 14 : 16,
-            height: 1.3,
-            color: widget.data.darkBackground
+            color: data.darkBackground
                 ? theme.colorScheme.onPrimary
                 : theme.colorScheme.onSurface,
           ),
-          maxLines: isCompact ? 2 : 3,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
 
-        if (widget.data.subtitle != null && widget.data.subtitle!.isNotEmpty)
+        if (data.subtitle != null && data.subtitle!.isNotEmpty)
           Padding(
-            padding: EdgeInsets.only(top: isCompact ? 4 : 6),
+            padding: const EdgeInsets.only(top: 4),
             child: Text(
-              widget.data.subtitle!,
-              style: theme.videoSubtitleStyle.copyWith(
-                fontSize: isCompact ? 12 : 13,
-                height: 1.2,
-                color: widget.data.darkBackground
-                    ? theme.colorScheme.onPrimary
+              data.subtitle!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: data.darkBackground
+                    ? theme.colorScheme.onPrimary.withValues(alpha: 0.8)
                     : theme.colorScheme.onSurfaceVariant,
               ),
               maxLines: 1,
@@ -390,45 +258,15 @@ class _SharedContentTileState extends State<SharedContentTile>
             ),
           ),
 
-        // Now playing indicator in text
-        StreamBuilder(
-          stream:
-              BlocProvider.of<PlayerCubit>(context).mtPlayerService.mediaItem,
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data!.id == widget.data.id) {
-              return Padding(
-                padding: EdgeInsets.only(top: isCompact ? 4 : 6),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.graphic_eq,
-                      size: isCompact ? 12 : 14,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Now Playing',
-                      style: theme.videoSubtitleStyle.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: isCompact ? 11 : 12,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
+        // Now playing indicator text removed as we have visual indicator on thumbnail
       ],
     );
   }
 
   Widget _buildActions(BuildContext context, bool isCompact) {
     final actions = context.buildVideoOverflowActions(
-      videoId: widget.data.id,
-      videoTitle: widget.data.title,
+      videoId: data.id,
+      videoTitle: data.title,
     );
 
     return Column(
@@ -440,7 +278,7 @@ class _SharedContentTileState extends State<SharedContentTile>
           tooltip: 'Options',
         ),
         EnhancedFavoriteButton(
-          entityId: widget.data.id,
+          entityId: data.id,
           entityType: FavoriteEntityType.video,
           size: isCompact ? 20.0 : 24.0,
         ),

@@ -50,9 +50,6 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
         });
         final nestedUploads = await Future.wait(recentUploadsFutures);
         newReleases = nestedUploads.expand((i) => i).toList();
-        // Sort by date presumably, but for now just shuffle or keep order
-        // Ideally we would parse dates but tiles might not have full date objects easily accessible
-        // Let's settle for simple aggregation for now.
       }
 
       // 2. Discover (From Favorite Videos)
@@ -63,32 +60,18 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
             await youtubeExplodeRepository.getRelatedVideos(discoverVideo.id);
       }
 
-      // 3. Trending / International
+      // 4. Trending / International
       if (!hasFavorites) {
-        // Fallback for new users: Fetch generic popular music
         isInternationalTrending = true;
-
-        // Parallel fetch for different "international" vibes
         final results = await Future.wait([
-          youtubeExplodeRepository
-              .getTrending('Music'), // Generic Music Trending
-          // Since we can't easily query "Global Top 50" specifically without a playlist ID,
-          // we use different search queries simulated in getTrending if needed, or stick to 'Music' category.
-          // For better variety, let's search for "Global Top Songs" manually via search if possible,
-          // but `getTrending` with 'Music' is the safest robust generic fallback.
+          youtubeExplodeRepository.getTrending('Music'),
         ]);
-
-        // If we want more variety, we could add search calls:
-        // final globalHits = await youtubeExplodeRepository.searchContents(query: "Global Top Hits");
-
         trending = results[0];
       } else {
-        // User has favorites, show trending at bottom
         trending = await youtubeExplodeRepository.getTrending('Music');
       }
 
       emit(MusicTabState.loaded(
-        favorites: favoriteVideos,
         newReleases: newReleases,
         discoverVideo: discoverVideo,
         discoverRelated: discoverRelated,

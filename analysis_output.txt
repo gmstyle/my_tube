@@ -1,0 +1,5 @@
+Analyzing my_tube...                                            
+
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/ui/views/common/material_interactive_components.dart:70:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/ui/views/common/playlist_tile.dart:122:45 • deprecated_member_use
+
