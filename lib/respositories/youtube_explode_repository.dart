@@ -46,6 +46,12 @@ class YoutubeExplodeRepository {
     return VideoTile.fromVideo(video);
   }
 
+  Future<List<VideoTile>> getRelatedVideos(String id) async {
+    final video = await _getCachedVideo(id);
+    final relatedVideos = await youtubeExplodeProvider.getRelatedVideos(video);
+    return relatedVideos.map((v) => VideoTile.fromVideo(v)).toList();
+  }
+
   Future<ChannelTile> getChannelMetadata(String id) async {
     final channel = await youtubeExplodeProvider.getChannel(id);
     return ChannelTile.fromChannel(channel);

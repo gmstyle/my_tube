@@ -21,6 +21,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       label: 'Explore',
     ),
     NavigationDestination(
+      icon: Icon(Icons.music_note),
+      label: 'Music',
+    ),
+    NavigationDestination(
       icon: Icon(Icons.favorite),
       label: 'Favorites',
     ),
@@ -35,6 +39,10 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     NavigationRailDestination(
       icon: Icon(Icons.explore),
       label: Text('Explore'),
+    ),
+    NavigationRailDestination(
+      icon: Icon(Icons.music_note),
+      label: Text('Music'),
     ),
     NavigationRailDestination(
       icon: Icon(Icons.favorite),

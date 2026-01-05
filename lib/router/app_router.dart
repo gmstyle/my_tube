@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/router/pages/app_shell_page.dart';
 import 'package:my_tube/router/pages/channel_page.dart';
 import 'package:my_tube/router/pages/explore_tab_page.dart';
+import 'package:my_tube/router/pages/music_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/settings_page.dart';
@@ -11,7 +12,7 @@ import 'package:my_tube/router/pages/video_page.dart';
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final exploreKey = GlobalKey<NavigatorState>();
-  //static final musicKey = GlobalKey<NavigatorState>();
+  static final musicKey = GlobalKey<NavigatorState>();
   static final favoritesKey = GlobalKey<NavigatorState>();
   static final settingsKey = GlobalKey<NavigatorState>();
 
@@ -38,12 +39,12 @@ class AppRouter {
           ]),
 
           // Tab Music
-          /*StatefulShellBranch(navigatorKey: musicKey, routes: [
+          StatefulShellBranch(navigatorKey: musicKey, routes: [
             GoRoute(
                 name: AppRoute.music.name,
                 path: AppRoute.music.path,
-                pageBuilder: (context, state) => const MusicTabPAge())
-          ]),*/
+                pageBuilder: (context, state) => const MusicTabPage())
+          ]),
 
           // Tab Favorites
           StatefulShellBranch(navigatorKey: favoritesKey, routes: [

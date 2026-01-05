@@ -41,6 +41,11 @@ class YoutubeExplodeProvider {
     return video;
   }
 
+  Future<List<Video>> getRelatedVideos(Video video) async {
+    final relatedVideos = await _yt.videos.getRelatedVideos(video);
+    return relatedVideos?.toList() ?? [];
+  }
+
   Future<Channel> getChannel(String channelId) async {
     final channel = await _yt.channels.get(channelId);
     return channel;
