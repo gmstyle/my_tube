@@ -18,22 +18,25 @@ class PlayPauseGestureDetector extends StatelessWidget {
             .distinct(),
         builder: (context, snapshot) {
           final isPlaying = snapshot.data ?? false;
-          return GestureDetector(
-            onTap: () {
-              // se la traccia corrente è diversa da quella che si vuole riprodurre
-              // si avvia la riproduzione
-              if (playerCubit.mtPlayerService.currentTrack?.id != id) {
-                playerCubit.startPlaying(id);
-              } else {
-                // altrimenti si mette in pausa o si riprende la riproduzione
-                if (isPlaying) {
-                  playerCubit.mtPlayerService.pause();
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                // se la traccia corrente è diversa da quella che si vuole riprodurre
+                // si avvia la riproduzione
+                if (playerCubit.mtPlayerService.currentTrack?.id != id) {
+                  playerCubit.startPlaying(id);
                 } else {
-                  playerCubit.mtPlayerService.play();
+                  // altrimenti si mette in pausa o si riprende la riproduzione
+                  if (isPlaying) {
+                    playerCubit.mtPlayerService.pause();
+                  } else {
+                    playerCubit.mtPlayerService.play();
+                  }
                 }
-              }
-            },
-            child: child,
+              },
+              child: child,
+            ),
           );
         });
   }

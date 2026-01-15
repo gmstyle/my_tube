@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/material_interactive_components.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
@@ -12,15 +13,14 @@ class VideoGridItem extends StatelessWidget {
   const VideoGridItem({
     super.key,
     required this.video,
-    this.onTap,
   });
 
   final VideoTile video;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final mtPlayerService = context.watch<MtPlayerService>();
+    final playerCubit = context.read<PlayerCubit>();
     final theme = Theme.of(context);
     final isCompact = context.isCompact;
 
@@ -29,7 +29,18 @@ class VideoGridItem extends StatelessWidget {
 
     return MaterialHoverContainer(
       borderRadius: borderRadius,
-      onTap: onTap,
+      onTap: () {
+        // Gestione play/pause integrata
+        if (mtPlayerService.currentTrack?.id != video.id) {
+          playerCubit.startPlaying(video.id);
+        } else {
+          if (mtPlayerService.playbackState.value.playing) {
+            mtPlayerService.pause();
+          } else {
+            mtPlayerService.play();
+          }
+        }
+      },
       // Use Material 3 surface colors handled by the container
       child: SizedBox(
         width: MediaQuery.of(context).size.width * (isCompact ? 0.46 : 0.8),

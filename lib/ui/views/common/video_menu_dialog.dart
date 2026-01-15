@@ -15,11 +15,14 @@ class VideoMenuDialog extends StatelessWidget {
     final id = quickVideo['id']!;
     final title = quickVideo['title']!;
 
-    return GestureDetector(
-      onLongPress: () {
-        _showEnhancedVideoMenu(context, id, title);
-      },
-      child: child,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onLongPress: () {
+          _showEnhancedVideoMenu(context, id, title);
+        },
+        child: child,
+      ),
     );
   }
 

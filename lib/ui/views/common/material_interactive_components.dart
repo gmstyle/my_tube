@@ -57,10 +57,19 @@ class _MaterialHoverContainerState extends State<MaterialHoverContainer> {
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,
       child: GestureDetector(
+        behavior: widget.onTap != null
+            ? HitTestBehavior.opaque
+            : HitTestBehavior.translucent,
         onTap: widget.onTap,
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
+        onTapDown: widget.onTap != null
+            ? (_) => setState(() => _isPressed = true)
+            : null,
+        onTapUp: widget.onTap != null
+            ? (_) => setState(() => _isPressed = false)
+            : null,
+        onTapCancel: widget.onTap != null
+            ? () => setState(() => _isPressed = false)
+            : null,
         child: AnimatedPhysicalModel(
           curve: AppAnimations.cardHoverCurve,
           duration: AppAnimations.cardHover,
