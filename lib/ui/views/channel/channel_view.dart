@@ -396,29 +396,31 @@ class _ChannelViewState extends State<ChannelView>
 
   /// Enhanced empty state for channels with no videos
   Widget _buildEmptyState(BuildContext context, Channel channel) {
-    return Center(
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: context.responsiveContentMaxWidth,
-        ),
-        padding: context.responsivePadding,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Show channel header even when empty
-            EnhancedChannelHeader(
-              channel: channel,
-              videoIds: const [],
-            ),
-            const SizedBox(height: 48),
-            EmptyChannelState(
-              onAction: () {
-                context.read<ChannelPageBloc>().add(
-                      GetChannelDetails(channelId: channel.id.value),
-                    );
-              },
-            ),
-          ],
+    return SingleChildScrollView(
+      padding: context.responsivePadding,
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: context.responsiveContentMaxWidth,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Show channel header even when empty
+              EnhancedChannelHeader(
+                channel: channel,
+                videoIds: const [],
+              ),
+              const SizedBox(height: 48),
+              EmptyChannelState(
+                onAction: () {
+                  context.read<ChannelPageBloc>().add(
+                        GetChannelDetails(channelId: channel.id.value),
+                      );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

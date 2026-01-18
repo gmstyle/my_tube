@@ -26,8 +26,8 @@ class ChannelTile extends StatelessWidget {
 
     Widget tileContent = MaterialHoverContainer(
       onTap: () {
-        context.goNamed(AppRoute.channel.name,
-            pathParameters: {'channelId': channel.id});
+        context
+            .goNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
       },
       borderRadius: BorderRadius.circular(
           50), // Pill shape for channel list items looks modern
@@ -138,8 +138,8 @@ class ChannelTile extends StatelessWidget {
         label: 'View Channel',
         icon: Icons.account_box_outlined,
         onTap: () {
-          context.goNamed(AppRoute.channel.name,
-              pathParameters: {'channelId': channel.id});
+          context
+              .goNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
         },
       ),
       OverflowMenuAction(

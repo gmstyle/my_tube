@@ -89,60 +89,62 @@ class _EnhancedErrorStateState extends State<EnhancedErrorState>
           opacity: _fadeAnimation,
           child: Transform.translate(
             offset: Offset(0, _slideAnimation.value),
-            child: Center(
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: context.responsiveContentMaxWidth,
-                ),
-                padding: context.responsivePadding,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Animated error icon
-                    Transform.scale(
-                      scale: _iconScaleAnimation.value,
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.errorContainer,
-                          shape: BoxShape.circle,
+            child: SingleChildScrollView(
+              padding: context.responsivePadding,
+              child: Center(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: context.responsiveContentMaxWidth,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Animated error icon
+                      Transform.scale(
+                        scale: _iconScaleAnimation.value,
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.errorContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            widget.icon,
+                            size: 40,
+                            color: theme.colorScheme.error,
+                          ),
                         ),
-                        child: Icon(
-                          widget.icon,
-                          size: 40,
-                          color: theme.colorScheme.error,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Error title
+                      Text(
+                        widget.title,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 12),
 
-                    // Error title
-                    Text(
-                      widget.title,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.w600,
+                      // Error message
+                      Text(
+                        widget.message,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 32),
 
-                    // Error message
-                    Text(
-                      widget.message,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Action buttons
-                    _buildActionButtons(context, theme),
-                  ],
+                      // Action buttons
+                      _buildActionButtons(context, theme),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -270,68 +272,70 @@ class _EnhancedEmptyStateState extends State<EnhancedEmptyState>
           opacity: _fadeAnimation,
           child: Transform.translate(
             offset: Offset(0, _slideAnimation.value),
-            child: Center(
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: context.responsiveContentMaxWidth,
-                ),
-                padding: context.responsivePadding,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Illustration or icon
-                    widget.illustration ??
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest
-                                .withValues(alpha: 0.3),
-                            shape: BoxShape.circle,
+            child: SingleChildScrollView(
+              padding: context.responsivePadding,
+              child: Center(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: context.responsiveContentMaxWidth,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Illustration or icon
+                      widget.illustration ??
+                          Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest
+                                  .withValues(alpha: 0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              widget.icon,
+                              size: 48,
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.6),
+                            ),
                           ),
-                          child: Icon(
-                            widget.icon,
-                            size: 48,
-                            color: theme.colorScheme.onSurfaceVariant
-                                .withValues(alpha: 0.6),
+                      const SizedBox(height: 32),
+
+                      // Title
+                      Text(
+                        widget.title,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Message
+                      Text(
+                        widget.message,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      // Action button
+                      if (widget.onAction != null && widget.actionLabel != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 32),
+                          child: EnhancedPrimaryActionButton(
+                            label: widget.actionLabel!,
+                            icon: widget.actionIcon ?? Icons.refresh,
+                            onPressed: widget.onAction!,
+                            isPrimary: false,
                           ),
                         ),
-                    const SizedBox(height: 32),
-
-                    // Title
-                    Text(
-                      widget.title,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Message
-                    Text(
-                      widget.message,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-
-                    // Action button
-                    if (widget.onAction != null && widget.actionLabel != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 32),
-                        child: EnhancedPrimaryActionButton(
-                          label: widget.actionLabel!,
-                          icon: widget.actionIcon ?? Icons.refresh,
-                          onPressed: widget.onAction!,
-                          isPrimary: false,
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
