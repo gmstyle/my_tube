@@ -42,7 +42,8 @@ class LocalNotificationHelper {
             android: initializationSettingsAndroid,
             iOS: initializationSettingsIOS);
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+    await flutterLocalNotificationsPlugin.initialize(
+        settings: initializationSettings,
         onDidReceiveNotificationResponse: notificationResponse,
         onDidReceiveBackgroundNotificationResponse: notificationResponse);
 
@@ -107,10 +108,10 @@ class LocalNotificationHelper {
         android: androidNotificationDetails, iOS: iOSNotificationDetails);
 
     await flutterLocalNotificationsPlugin.show(
-      0,
-      title,
-      body,
-      platformChannelSpecifics,
+      id: 0,
+      title: title,
+      body: body,
+      notificationDetails: platformChannelSpecifics,
       payload: payload,
     );
   }

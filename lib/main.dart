@@ -14,6 +14,8 @@ import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
+import 'package:my_tube/ui/views/common/global_mini_player.dart';
 import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/providers/update_provider.dart';
@@ -137,6 +139,8 @@ void main() async {
         BlocProvider<UpdateBloc>(
             create: (context) =>
                 UpdateBloc(updateRepository: context.read<UpdateRepository>())),
+        BlocProvider<PersistentUiCubit>(
+            create: (context) => PersistentUiCubit()),
       ], child: const MyApp()),
     ),
   ));
@@ -166,6 +170,20 @@ class MyApp extends StatelessWidget {
               darkTheme: themeCubit.darkTheme(darkDynamic),
               themeMode: themeCubit.flutterThemeMode,
               routerConfig: router,
+              builder: (context, child) {
+                return Stack(
+                  children: [
+                    if (child != null) child,
+                    Overlay(
+                      initialEntries: [
+                        OverlayEntry(
+                          builder: (context) => const GlobalMiniPlayer(),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             );
           },
         );

@@ -32,7 +32,8 @@ class MiniPlayer extends StatelessWidget {
 
     return BlocBuilder<PlayerCubit, PlayerState>(
       builder: (context, state) {
-        if (state.status == PlayerStatus.loading) {
+        if (state.status == PlayerStatus.loading &&
+            state.loadingOperation != LoadingOperation.addToQueue) {
           // Usa skeleton con overlay di progresso quando disponibile
           if (state.loadingProgress != null && state.loadingTotal != null) {
             return Stack(

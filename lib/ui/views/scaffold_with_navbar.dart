@@ -5,11 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
-import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/global_search_delegate.dart';
-import 'package:my_tube/ui/views/common/mini_player.dart';
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
@@ -60,11 +59,18 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     log('onDestinationSelected: $index');
   }
 
-  void _showGlobalSearch(BuildContext context) {
-    showSearch(
+  void _showGlobalSearch(BuildContext context) async {
+    final persistentUiCubit = context.read<PersistentUiCubit>();
+    // Reset padding when search is open to avoid floating miniplayer
+    persistentUiCubit.setBottomPadding(0);
+
+    await showSearch(
       context: context,
       delegate: GlobalSearchDelegate(),
     );
+
+    // Restore padding after search is closed
+    persistentUiCubit.setBottomPadding(80);
   }
 
   Future<void> disableBatteryOptimization() async {
@@ -99,6 +105,13 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final bool useNavigationRail = constraints.maxWidth >= 640;
+
+          // Update global UI state
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context
+                .read<PersistentUiCubit>()
+                .setBottomPadding(useNavigationRail ? 0 : 80);
+          });
 
           if (useNavigationRail) {
             return _buildNavigationRailLayout(context);
@@ -136,14 +149,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
                     child: navigationShell,
                   ),
                 ),
-                BlocBuilder<PlayerCubit, PlayerState>(
-                  builder: (context, state) {
-                    if (state.status == PlayerStatus.hidden) {
-                      return const SizedBox.shrink();
-                    }
-                    return const MiniPlayer();
-                  },
-                ),
               ],
             ),
           ),
@@ -165,32 +170,11 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
         child: navigationShell,
       ),
-      bottomNavigationBar: BlocBuilder<PlayerCubit, PlayerState>(
-        builder: (context, state) {
-          if (state.status == PlayerStatus.hidden) {
-            // Solo la navigation bar quando il player è nascosto
-            return NavigationBar(
-              selectedIndex: navigationShell.currentIndex,
-              onDestinationSelected: onDestinationSelected,
-              destinations: _navBarItems,
-              height: 80,
-            );
-          } else {
-            // Mini player + navigation bar quando il player è attivo
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const MiniPlayer(),
-                NavigationBar(
-                  selectedIndex: navigationShell.currentIndex,
-                  onDestinationSelected: onDestinationSelected,
-                  destinations: _navBarItems,
-                  height: 80,
-                ),
-              ],
-            );
-          }
-        },
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: onDestinationSelected,
+        destinations: _navBarItems,
+        height: 80,
       ),
     );
   }
