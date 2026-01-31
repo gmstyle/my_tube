@@ -10,6 +10,7 @@ import 'package:my_tube/ui/views/video/screens/video_phone_screen.dart';
 import 'package:my_tube/ui/views/video/screens/video_tablet_screen.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -27,6 +28,7 @@ class _VideoViewState extends State<VideoView> {
   late final PlayerCubit playerCubit;
   late final MtPlayerService mtPlayerService;
   late final DownloadService downloadService;
+  late final PersistentUiCubit persistentUiCubit;
 
   double _setAspectRatio(MtPlayerService mtPlayerService) {
     return mtPlayerService
@@ -43,15 +45,23 @@ class _VideoViewState extends State<VideoView> {
     playerCubit = context.read<PlayerCubit>();
     mtPlayerService = playerCubit.mtPlayerService;
     downloadService = context.read<DownloadService>();
+    persistentUiCubit = context.read<PersistentUiCubit>();
 
     mtPlayerService.chewieController?.videoPlayerController.addListener(() {
       WakelockPlus.toggle(
           enable: mtPlayerService.chewieController!.isFullScreen);
     });
+
+    // Hide mini player when video view is open
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      persistentUiCubit.setPlayerVisibility(false);
+    });
   }
 
   @override
   void dispose() {
+    // Show mini player when video view is closed
+    persistentUiCubit.setPlayerVisibility(true);
     super.dispose();
   }
 

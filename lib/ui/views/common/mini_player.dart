@@ -1,7 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/mt_player_service.dart';
@@ -125,7 +124,7 @@ class MiniPlayer extends StatelessWidget {
         }
 
         return GestureDetector(
-            onTap: () => context.pushNamed(AppRoute.video.name),
+            onTap: () => AppRouter.router.pushNamed(AppRoute.video.name),
             child: ClipRRect(
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16), topRight: Radius.circular(16)),

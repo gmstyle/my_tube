@@ -18,6 +18,10 @@ class GlobalMiniPlayer extends StatelessWidget {
 
         return BlocBuilder<PersistentUiCubit, PersistentUiState>(
           builder: (context, uiState) {
+            if (!uiState.isPlayerVisible) {
+              return const SizedBox.shrink();
+            }
+
             return AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
