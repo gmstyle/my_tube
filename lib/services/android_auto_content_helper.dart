@@ -132,7 +132,7 @@ class AndroidAutoContentHelper {
   static MediaItem getMusicCategoryFolder(String id, String title) {
     return MediaItem(
       id: id,
-      title: '📂 $title',
+      title: title,
       playable: false,
       extras: {
         'browsable': true,
@@ -146,7 +146,7 @@ class AndroidAutoContentHelper {
   static MediaItem getFavoritesCategoryFolder(String id, String title) {
     return MediaItem(
       id: id,
-      title: '⭐ $title',
+      title: title,
       playable: false,
       extras: {
         'browsable': true,
@@ -179,7 +179,7 @@ class AndroidAutoContentHelper {
       id: '$channelPrefix${tile.id}',
       title: tile.title,
       artist: tile.subscriberCount != null
-          ? '${_formatSubscriberCount(tile.subscriberCount!)} iscritti'
+          ? '${_formatSubscriberCount(tile.subscriberCount!)} subscribers'
           : null,
       artUri: Uri.tryParse(tile.thumbnailUrl),
       playable: false,
