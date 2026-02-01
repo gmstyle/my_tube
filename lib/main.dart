@@ -45,14 +45,26 @@ void main() async {
   await Hive.openBox<String>('favoritePlaylists');
   await LocalNotificationHelper.init();
 
-  // Inizializza AudioService con gestione degli errori per Android Auto
-  late MtPlayerService mtPlayerService;
+  // Inizializza provider e repository prima di AudioService
   final YoutubeExplodeProvider youtubeExplodeProvider =
       YoutubeExplodeProvider();
+  final YoutubeExplodeRepository youtubeExplodeRepository =
+      YoutubeExplodeRepository(
+    youtubeExplodeProvider: youtubeExplodeProvider,
+  );
+  final FavoriteRepository favoriteRepository = FavoriteRepository(
+    youtubeExplodeRepository: youtubeExplodeRepository,
+  );
+
+  // Inizializza AudioService con gestione degli errori per Android Auto
+  late MtPlayerService mtPlayerService;
   try {
     mtPlayerService = await AudioService.init(
-        builder: () =>
-            MtPlayerService(youtubeExplodeProvider: youtubeExplodeProvider),
+        builder: () => MtPlayerService(
+              youtubeExplodeProvider: youtubeExplodeProvider,
+              favoriteRepository: favoriteRepository,
+              youtubeExplodeRepository: youtubeExplodeRepository,
+            ),
         config: const AudioServiceConfig(
             androidNotificationChannelId: 'mytube_channel',
             androidNotificationChannelName: 'MyTube',
@@ -61,6 +73,11 @@ void main() async {
             androidStopForegroundOnPause: false, // Importante per Android Auto
             artDownscaleWidth: 256,
             artDownscaleHeight: 256,
+            androidBrowsableRootExtras: {
+              'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT':
+                  2, // 2 = Grid, 1 = List
+              'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 2,
+            },
             fastForwardInterval: Duration(seconds: 10),
             rewindInterval: Duration(seconds: 10)));
 
@@ -69,8 +86,11 @@ void main() async {
   } catch (e) {
     log('Errore durante l\'inizializzazione di AudioService: $e');
     // Fallback: crea un'istanza diretta se AudioService non si inizializza
-    mtPlayerService =
-        MtPlayerService(youtubeExplodeProvider: youtubeExplodeProvider);
+    mtPlayerService = MtPlayerService(
+      youtubeExplodeProvider: youtubeExplodeProvider,
+      favoriteRepository: favoriteRepository,
+      youtubeExplodeRepository: youtubeExplodeRepository,
+    );
     // Inizializza Android Auto anche nel fallback
     try {
       await mtPlayerService.initializeAndroidAutoDetection();
@@ -96,14 +116,10 @@ void main() async {
     child: MultiRepositoryProvider(
       /// Repositories
       providers: [
-        RepositoryProvider<YoutubeExplodeRepository>(
-            create: (context) => YoutubeExplodeRepository(
-                youtubeExplodeProvider:
-                    context.read<YoutubeExplodeProvider>())),
-        RepositoryProvider<FavoriteRepository>(
-            create: (context) => FavoriteRepository(
-                youtubeExplodeRepository:
-                    context.read<YoutubeExplodeRepository>())),
+        // Usa le istanze già create per Android Auto
+        RepositoryProvider<YoutubeExplodeRepository>.value(
+            value: youtubeExplodeRepository),
+        RepositoryProvider<FavoriteRepository>.value(value: favoriteRepository),
         RepositoryProvider<UpdateRepository>(
             create: (context) => UpdateRepository(
                 updateProvider: context.read<UpdateProvider>())),

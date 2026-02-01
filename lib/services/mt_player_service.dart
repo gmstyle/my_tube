@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:hive_ce/hive.dart';
+import 'package:my_tube/models/tiles.dart';
+import 'package:my_tube/respositories/favorite_repository.dart';
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
+import 'package:my_tube/services/android_auto_content_helper.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -14,11 +20,17 @@ import 'package:video_player/video_player.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
-  MtPlayerService({required this.youtubeExplodeProvider});
+  MtPlayerService({
+    required this.youtubeExplodeProvider,
+    this.favoriteRepository,
+    this.youtubeExplodeRepository,
+  });
 
   static const int maxQueueSize = 200;
 
   final YoutubeExplodeProvider youtubeExplodeProvider;
+  final FavoriteRepository? favoriteRepository;
+  final YoutubeExplodeRepository? youtubeExplodeRepository;
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
   int currentIndex = -1;
@@ -330,18 +342,22 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           chewieController!.videoPlayerController.value.isPlaying;
 
       AudioProcessingState audioProcessingState() {
-        if (chewieController != null &&
-            chewieController!.videoPlayerController.value.isInitialized) {
-          return AudioProcessingState.ready;
-        }
+        if (chewieController == null) return AudioProcessingState.idle;
+        final value = chewieController!.videoPlayerController.value;
+        if (value.isBuffering) return AudioProcessingState.buffering;
+        if (value.isInitialized) return AudioProcessingState.ready;
         return AudioProcessingState.idle;
       }
 
       // Protezione per Android Auto - evita errori quando il controller non è disponibile
       if (chewieController == null ||
           !chewieController!.videoPlayerController.value.isInitialized) {
+        final isBuffering = playbackState.value.processingState ==
+            AudioProcessingState.buffering;
         playbackState.add(playbackState.value.copyWith(
-          processingState: AudioProcessingState.idle,
+          processingState: isBuffering
+              ? AudioProcessingState.buffering
+              : AudioProcessingState.idle,
           playing: false,
         ));
         return;
@@ -382,37 +398,57 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> _playCurrentTrack() async {
+    dev.log('--- _playCurrentTrack started ---');
     try {
-      // Segnala che stiamo cambiando brano (loading state)
-      mediaItem.add(null);
+      // Segnala che stiamo caricando (buffering state per Android Auto)
+      playbackState.add(playbackState.value.copyWith(
+        processingState: AudioProcessingState.buffering,
+      ));
 
       currentTrack = playlist[currentIndex];
+      dev.log('Current item: ${currentTrack?.id} - ${currentTrack?.title}');
+
+      // Non settiamo a null se abbiamo già un track (evita schermate nere improvvise)
+      if (currentTrack != null) {
+        mediaItem.add(currentTrack);
+      } else {
+        mediaItem.add(null);
+      }
 
       if (chewieController != null && videoPlayerController != null) {
         await _disposeControllers();
       }
       // Carica lo stream URL se non è ancora stato caricato
-      if (currentTrack?.extras!['streamUrl'] == null) {
+      if (currentTrack?.extras?['streamUrl'] == null) {
+        dev.log('Fetching stream URL for: ${currentTrack?.id}');
         final streamUrl = await _getStreamUrl(currentTrack!.id);
+        dev.log('Stream URL fetched successfully');
         currentTrack = currentTrack!.copyWith(
           extras: {
-            ...currentTrack!.extras!,
+            ...currentTrack!.extras ?? {},
             'streamUrl': streamUrl,
           },
         );
         // Aggiorna anche nella playlist
         playlist[currentIndex] = currentTrack!;
       }
+
+      dev.log('Initializing VideoPlayerController...');
       // inizializza il video player controller da passare a chewie
       videoPlayerController = VideoPlayerController.networkUrl(
         Uri.parse(currentTrack?.extras!['streamUrl']),
         videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
       );
-      if (!videoPlayerController!.value.isInitialized) {
-        await videoPlayerController!.initialize();
-      }
+
+      await videoPlayerController!.initialize();
+      dev.log('VideoPlayerController initialized');
+
+      // Forza il play immediato per notifiche e background
+      await videoPlayerController!.play();
+      dev.log('VideoPlayerController.play() called');
 
       // inizializza il chewie controller per la riproduzione del video
+      dev.log('Creating ChewieController...');
       chewieController = ChewieController(
         videoPlayerController: videoPlayerController!,
         autoPlay: true,
@@ -429,6 +465,10 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           DeviceOrientation.portraitDown,
         ],
       );
+      dev.log('ChewieController created');
+
+      // inizializza lo stato iniziale
+      _broadcastState();
 
       // aggiungi il brano alla coda
       queue.add(playlist);
@@ -687,6 +727,374 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       }
     } catch (e) {
       dev.log('Errore durante onNotificationDeleted: $e');
+    }
+  }
+
+  @override
+  Future<void> playMediaItem(MediaItem mediaItem) async {
+    dev.log('playMediaItem called: ${mediaItem.id}');
+    if (mediaItem.playable == true) {
+      // Se è un video singolo, lo mettiamo in playlist e lo riproduciamo
+      playlist = [mediaItem];
+      currentIndex = 0;
+      currentTrack = mediaItem;
+      await _playCurrentTrack();
+    } else {
+      // Se è una categoria/canale/playlist (browsable), Android Auto dovrebbe navigare,
+      // ma se viene "riprodotta" direttamente la trattiamo come "seleziona e riproduci tutto"
+      dev.log('Attempting to play browsable item: ${mediaItem.id}');
+      // Qui potremmo caricare la lista di video e avviare la riproduzione del primo
+    }
+  }
+
+  @override
+  Future<void> playFromMediaId(String mediaId,
+      [Map<String, dynamic>? extras]) async {
+    dev.log('playFromMediaId called: $mediaId');
+    // Implementazione speculare a playMediaItem o caricamento dinamico se necessario
+    // Per ora, se è un video ID (non ha prefissi), lo riproduciamo
+    if (!AndroidAutoContentHelper.isChannelId(mediaId) &&
+        !AndroidAutoContentHelper.isPlaylistId(mediaId)) {
+      // Carica i dettagli del video se non li abbiamo
+      try {
+        final videoDetails = await _createMediaItem(mediaId);
+        await playMediaItem(videoDetails);
+      } catch (e) {
+        dev.log('Errore in playFromMediaId: $e');
+      }
+    }
+  }
+
+  // ============ Android Auto Media Browsing ============
+
+  /// Override per fornire contenuti navigabili ad Android Auto
+  @override
+  Future<List<MediaItem>> getChildren(
+    String parentMediaId, [
+    Map<String, dynamic>? options,
+  ]) async {
+    dev.log('--- Android Auto getChildren ---');
+    dev.log('ParentMediaId: "$parentMediaId"');
+    dev.log('Options: $options');
+
+    try {
+      // Gestione ID Root: alcuni sistemi usano '/', altri 'root', ecc.
+      if (parentMediaId == AndroidAutoContentHelper.rootId ||
+          parentMediaId == 'root' ||
+          parentMediaId == 'root_id') {
+        dev.log('Returning Root Categories...');
+        final root = AndroidAutoContentHelper.getRootCategories();
+        dev.log('Root categories count: ${root.length}');
+        return root;
+      }
+
+      switch (parentMediaId) {
+        // Musica: hub esploso
+        case AndroidAutoContentHelper.musicId:
+          dev.log('Building Exploded Music Hub...');
+          final hubItems = <MediaItem>[];
+
+          // Nuove Uscite
+          hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
+              AndroidAutoContentHelper.musicNewReleasesId, 'New Releases'));
+          final newReleases = await _getNewReleases(limit: 6);
+          hubItems.addAll(newReleases);
+
+          // Scopri
+          hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
+              AndroidAutoContentHelper.musicDiscoverId, 'Discover'));
+          final discover = await _getDiscoverVideos(limit: 6);
+          hubItems.addAll(discover);
+
+          // Trending
+          hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
+              AndroidAutoContentHelper.musicTrendingId, 'Trending'));
+          final trending = await _getTrendingMusic(limit: 6);
+          hubItems.addAll(trending);
+
+          return hubItems;
+
+        // Preferiti: hub esploso
+        case AndroidAutoContentHelper.favoritesId:
+          dev.log('Building Exploded Favorites Hub...');
+          final hubItemsFav = <MediaItem>[];
+
+          // Video
+          hubItemsFav.add(AndroidAutoContentHelper.getFavoritesCategoryFolder(
+              AndroidAutoContentHelper.favoritesVideosId, 'My Videos'));
+          final favVideos = await _getFavoriteVideos(limit: 10);
+          hubItemsFav.addAll(favVideos);
+
+          // Canali
+          hubItemsFav.add(AndroidAutoContentHelper.getFavoritesCategoryFolder(
+              AndroidAutoContentHelper.favoritesChannelsId, 'My Channels'));
+          final favChannels = await _getFavoriteChannels(limit: 6);
+          hubItemsFav.addAll(favChannels);
+
+          // Playlist
+          hubItemsFav.add(AndroidAutoContentHelper.getFavoritesCategoryFolder(
+              AndroidAutoContentHelper.favoritesPlaylistsId, 'My Playlists'));
+          final favPlaylists = await _getFavoritePlaylists(limit: 6);
+          hubItemsFav.addAll(favPlaylists);
+
+          return hubItemsFav;
+
+        // Musica > Nuove Uscite (Lista completa)
+        case AndroidAutoContentHelper.musicNewReleasesId:
+          dev.log('Loading Full New Releases...');
+          return await _getNewReleases();
+
+        // Musica > Scopri (video correlati ai preferiti)
+        case AndroidAutoContentHelper.musicDiscoverId:
+          dev.log('Loading Discover Videos...');
+          return await _getDiscoverVideos();
+
+        // Musica > Trending
+        case AndroidAutoContentHelper.musicTrendingId:
+          dev.log('Loading Trending Music...');
+          return await _getTrendingMusic();
+
+        // Preferiti > Video
+        case AndroidAutoContentHelper.favoritesVideosId:
+          dev.log('Loading Favorite Videos...');
+          return await _getFavoriteVideos();
+
+        // Preferiti > Canali
+        case AndroidAutoContentHelper.favoritesChannelsId:
+          dev.log('Loading Favorite Channels...');
+          return await _getFavoriteChannels();
+
+        // Preferiti > Playlist
+        case AndroidAutoContentHelper.favoritesPlaylistsId:
+          dev.log('Loading Favorite Playlists...');
+          return await _getFavoritePlaylists();
+
+        // Ricerca > Cronologia ricerche
+        case AndroidAutoContentHelper.searchId:
+          dev.log('Loading Recent Searches...');
+          return await _getRecentSearches();
+
+        default:
+          dev.log('Handling dynamic ID: $parentMediaId');
+          // Gestione navigazione dinamica (canali, playlist)
+          if (AndroidAutoContentHelper.isChannelId(parentMediaId)) {
+            final channelId =
+                AndroidAutoContentHelper.extractChannelId(parentMediaId);
+            dev.log('Loading videos for channel: $channelId');
+            return await _getChannelVideos(channelId);
+          }
+          if (AndroidAutoContentHelper.isPlaylistId(parentMediaId)) {
+            final playlistId =
+                AndroidAutoContentHelper.extractPlaylistId(parentMediaId);
+            dev.log('Loading videos for playlist: $playlistId');
+            return await _getPlaylistVideos(playlistId);
+          }
+          if (AndroidAutoContentHelper.isSearchResultsId(parentMediaId)) {
+            final query =
+                AndroidAutoContentHelper.extractSearchQuery(parentMediaId);
+            dev.log('Loading search results for query: $query');
+            return await _getSearchResults(query);
+          }
+          dev.log('No children found for ID: $parentMediaId');
+          return [];
+      }
+    } catch (e, stack) {
+      dev.log('Errore in getChildren: $e');
+      dev.log('Stack Trace: $stack');
+      return [];
+    }
+  }
+
+  /// Override per gestire la ricerca vocale di Android Auto
+  @override
+  Future<List<MediaItem>> search(
+    String query, [
+    Map<String, dynamic>? extras,
+  ]) async {
+    dev.log('Android Auto search called with query: $query');
+
+    if (youtubeExplodeRepository == null || query.isEmpty) {
+      return [];
+    }
+
+    try {
+      final result =
+          await youtubeExplodeRepository!.searchContents(query: query);
+      final items = result['items'] as List<dynamic>;
+
+      // Filtra solo i video per Android Auto (canali e playlist non sono riproducibili direttamente)
+      final videos = items.whereType<VideoTile>().take(20).toList();
+      return AndroidAutoContentHelper.videoTilesToMediaItems(videos);
+    } catch (e) {
+      dev.log('Errore in search: $e');
+      return [];
+    }
+  }
+
+  // ============ Metodi di supporto per caricamento dati ============
+
+  Future<List<MediaItem>> _getNewReleases({int? limit}) async {
+    try {
+      final favoriteChannels = await favoriteRepository!.favoriteChannels;
+      if (favoriteChannels.isEmpty) return [];
+
+      final List<VideoTile> newReleases = [];
+      for (final channel in favoriteChannels) {
+        try {
+          final channelData =
+              await youtubeExplodeRepository!.getChannel(channel.id);
+          final uploads = channelData['videos'] as List<VideoTile>;
+          newReleases.addAll(uploads);
+
+          // Se abbiamo un limite e lo abbiamo già superato per questo hub, fermati nel caricarne altri per velocizzare
+          if (limit != null && newReleases.length >= limit) break;
+        } catch (e) {
+          dev.log('Errore caricamento video canale ${channel.id}: $e');
+        }
+      }
+
+      final result = newReleases.toList();
+      return AndroidAutoContentHelper.videoTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getNewReleases: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getDiscoverVideos({int? limit}) async {
+    try {
+      final favoriteVideos = await favoriteRepository!.favoriteVideos;
+      if (favoriteVideos.isEmpty) return [];
+
+      final randomVideo =
+          favoriteVideos[Random().nextInt(favoriteVideos.length)];
+      final relatedVideos =
+          await youtubeExplodeRepository!.getRelatedVideos(randomVideo.id);
+
+      final result = relatedVideos.toList();
+      return AndroidAutoContentHelper.videoTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getDiscoverVideos: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getTrendingMusic({int? limit}) async {
+    if (youtubeExplodeRepository == null) return [];
+
+    try {
+      final trending = await youtubeExplodeRepository!.getTrending('Music');
+      final result = trending.toList();
+      return AndroidAutoContentHelper.videoTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getTrendingMusic: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getFavoriteVideos({int? limit}) async {
+    try {
+      final videos = await favoriteRepository!.favoriteVideos;
+      final result = videos.reversed.toList();
+      return AndroidAutoContentHelper.videoTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getFavoriteVideos: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getFavoriteChannels({int? limit}) async {
+    try {
+      final channels = await favoriteRepository!.favoriteChannels;
+      final result = channels.reversed.toList();
+      return AndroidAutoContentHelper.channelTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getFavoriteChannels: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getFavoritePlaylists({int? limit}) async {
+    try {
+      final playlists = await favoriteRepository!.favoritePlaylists;
+      final result = playlists.reversed.toList();
+      return AndroidAutoContentHelper.playlistTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getFavoritePlaylists: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getChannelVideos(String channelId) async {
+    if (youtubeExplodeRepository == null) return [];
+
+    try {
+      final channelData = await youtubeExplodeRepository!.getChannel(channelId);
+      final videos = channelData['videos'] as List<VideoTile>;
+      return AndroidAutoContentHelper.videoTilesToMediaItems(videos.toList());
+    } catch (e) {
+      dev.log('Errore in _getChannelVideos: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getPlaylistVideos(String playlistId) async {
+    if (youtubeExplodeRepository == null) return [];
+
+    try {
+      final playlistData =
+          await youtubeExplodeRepository!.getPlaylist(playlistId);
+      final videos = playlistData['videos'] as List<VideoTile>;
+      return AndroidAutoContentHelper.videoTilesToMediaItems(videos.toList());
+    } catch (e) {
+      dev.log('Errore in _getPlaylistVideos: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getRecentSearches() async {
+    try {
+      final box = Hive.box('settings');
+      if (box.containsKey('queryHistory')) {
+        final history = jsonDecode(box.get('queryHistory')) as List<dynamic>;
+        final queryHistory = history.map((e) => e.toString()).toList();
+
+        return queryHistory
+            .map((query) => MediaItem(
+                  id: '${AndroidAutoContentHelper.searchResultsPrefix}$query',
+                  title: query,
+                  playable: false,
+                  extras: const {
+                    'browsable': true,
+                    'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+                  },
+                ))
+            .toList();
+      }
+    } catch (e) {
+      dev.log('Errore in _getRecentSearches: $e');
+    }
+    return [];
+  }
+
+  Future<List<MediaItem>> _getSearchResults(String query) async {
+    if (youtubeExplodeRepository == null) return [];
+
+    try {
+      final result =
+          await youtubeExplodeRepository!.searchContents(query: query);
+      final items = result['items'] as List<dynamic>;
+      final videos = items.whereType<VideoTile>().toList();
+      return AndroidAutoContentHelper.videoTilesToMediaItems(videos);
+    } catch (e) {
+      dev.log('Errore in _getSearchResults: $e');
+      return [];
     }
   }
 }
