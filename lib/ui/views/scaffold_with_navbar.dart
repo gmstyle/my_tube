@@ -4,6 +4,7 @@ import 'package:disable_battery_optimizations_latest/disable_battery_optimizatio
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/global_search_delegate.dart';
@@ -123,6 +124,25 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     );
   }
 
+  Widget _buildContentPadding(BuildContext context, Widget child) {
+    return BlocBuilder<PlayerCubit, PlayerState>(
+      builder: (context, playerState) {
+        return BlocBuilder<PersistentUiCubit, PersistentUiState>(
+          builder: (context, uiState) {
+            final isPlayerVisible = playerState.status != PlayerStatus.hidden &&
+                uiState.isPlayerVisible;
+            final bottomPadding = isPlayerVisible ? 80.0 : 0.0;
+
+            return Padding(
+              padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, bottomPadding),
+              child: child,
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildNavigationRailLayout(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(
@@ -141,16 +161,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             destinations: _railDestinations,
           ),
           Expanded(
-            child: Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
-                    child: navigationShell,
-                  ),
-                ),
-              ],
-            ),
+            child: _buildContentPadding(context, navigationShell),
           ),
         ],
       ),
@@ -166,10 +177,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               icon: Icon(Icons.search)),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
-        child: navigationShell,
-      ),
+      body: _buildContentPadding(context, navigationShell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: onDestinationSelected,
