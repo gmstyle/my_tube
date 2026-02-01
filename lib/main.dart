@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -169,10 +170,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final router = AppRouter.router;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      log('Checking for updates');
-      context.read<UpdateBloc>().add(const CheckForUpdate());
-    });
+    if (!kDebugMode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        log('Checking for updates');
+        context.read<UpdateBloc>().add(const CheckForUpdate());
+      });
+    }
 
     return BlocBuilder<ThemeCubit, ThemeSettings>(
       builder: (context, themeSettings) {

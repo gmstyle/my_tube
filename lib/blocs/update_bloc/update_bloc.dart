@@ -25,6 +25,7 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
 
   Future<void> _onCheckForUpdate(
       CheckForUpdate event, Emitter<UpdateState> emit) async {
+    emit(const UpdateState.checking());
     try {
       final currentReleaseVersion = await _getAppVersion();
       final update = await updateRepository.checkForUpdate();
@@ -34,6 +35,8 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
       var result = currentReleaseVersion.compareTo(cleanVersion);
       if (result < 0) {
         emit(UpdateState.updateAvailable(update));
+      } else {
+        emit(const UpdateState.noUpdateAvailable());
       }
     } catch (e) {
       emit(UpdateState.failure(e.toString()));

@@ -2,8 +2,10 @@ part of 'update_bloc.dart';
 
 enum UpdateStatus {
   initial,
+  checking,
   downloading,
   updateAvailable,
+  noUpdateAvailable,
   downloadSuccess,
   failure
 }
@@ -16,9 +18,12 @@ class UpdateState extends Equatable {
   final String? errorMessage;
 
   const UpdateState.initial() : this._(status: UpdateStatus.initial);
+  const UpdateState.checking() : this._(status: UpdateStatus.checking);
   const UpdateState.downloading() : this._(status: UpdateStatus.downloading);
   const UpdateState.updateAvailable(Update update)
       : this._(status: UpdateStatus.updateAvailable, update: update);
+  const UpdateState.noUpdateAvailable()
+      : this._(status: UpdateStatus.noUpdateAvailable);
   const UpdateState.downloadSuccess()
       : this._(
           status: UpdateStatus.downloadSuccess,
