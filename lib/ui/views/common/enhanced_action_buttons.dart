@@ -717,6 +717,11 @@ extension ActionButtonHelpers on BuildContext {
         final isAddToQueueLoading = state.status == PlayerStatus.loading &&
             state.loadingOperation == LoadingOperation.addToQueue;
 
+        // Se il bloc della playlist è in caricamento, mostriamo loading su entrambi
+        // Se invece è il player ad essere in caricamento, solo sull'azione specifica
+        final showPlayLoading = isLoading || isPlayLoading;
+        final showQueueLoading = isLoading || isAddToQueueLoading;
+
         final playProgressText = (isPlayLoading &&
                 state.loadingProgress != null &&
                 state.loadingTotal != null)
@@ -733,21 +738,23 @@ extension ActionButtonHelpers on BuildContext {
             EnhancedPrimaryActionButton(
               label: playProgressText ?? 'Play All',
               icon: Icons.play_arrow_rounded,
-              onPressed:
-                  videoIds.isNotEmpty && !isPlayLoading && !isAddToQueueLoading
-                      ? () => playerCubit.startPlayingPlaylist(videoIds)
-                      : null,
-              isLoading: isPlayLoading,
+              onPressed: videoIds.isNotEmpty &&
+                      !isLoading &&
+                      state.status != PlayerStatus.loading
+                  ? () => playerCubit.startPlayingPlaylist(videoIds)
+                  : null,
+              isLoading: showPlayLoading,
               isPrimary: true,
             ),
             EnhancedPrimaryActionButton(
               label: addToQueueProgressText ?? 'Add to Queue',
               icon: Icons.queue_music_rounded,
-              onPressed:
-                  videoIds.isNotEmpty && !isPlayLoading && !isAddToQueueLoading
-                      ? () => playerCubit.addAllToQueue(videoIds)
-                      : null,
-              isLoading: isAddToQueueLoading,
+              onPressed: videoIds.isNotEmpty &&
+                      !isLoading &&
+                      state.status != PlayerStatus.loading
+                  ? () => playerCubit.addAllToQueue(videoIds)
+                  : null,
+              isLoading: showQueueLoading,
               isPrimary: false,
             ),
           ],

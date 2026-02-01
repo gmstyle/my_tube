@@ -244,19 +244,22 @@ class EnhancedChannelHeader extends StatelessWidget {
 
     return BlocBuilder<PlayerCubit, PlayerState>(
       builder: (context, state) {
-        final isLoading = state.status == PlayerStatus.loading;
-        final progressText =
-            (state.loadingProgress != null && state.loadingTotal != null)
-                ? '${state.loadingProgress}/${state.loadingTotal}'
-                : null;
+        final isPlayLoading = state.status == PlayerStatus.loading &&
+            state.loadingOperation == LoadingOperation.play;
+
+        final progressText = (isPlayLoading &&
+                state.loadingProgress != null &&
+                state.loadingTotal != null)
+            ? '${state.loadingProgress}/${state.loadingTotal}'
+            : null;
 
         return EnhancedPrimaryActionButton(
           label: progressText ?? 'Play All',
           icon: Icons.play_arrow,
-          onPressed: videoIds.isNotEmpty && !isLoading
+          onPressed: videoIds.isNotEmpty && state.status != PlayerStatus.loading
               ? () => playerCubit.startPlayingPlaylist(videoIds)
               : null,
-          isLoading: isLoading,
+          isLoading: isPlayLoading,
           isPrimary: true,
         );
       },
@@ -269,19 +272,22 @@ class EnhancedChannelHeader extends StatelessWidget {
 
     return BlocBuilder<PlayerCubit, PlayerState>(
       builder: (context, state) {
-        final isLoading = state.status == PlayerStatus.loading;
-        final progressText =
-            (state.loadingProgress != null && state.loadingTotal != null)
-                ? '${state.loadingProgress}/${state.loadingTotal}'
-                : null;
+        final isAddToQueueLoading = state.status == PlayerStatus.loading &&
+            state.loadingOperation == LoadingOperation.addToQueue;
+
+        final progressText = (isAddToQueueLoading &&
+                state.loadingProgress != null &&
+                state.loadingTotal != null)
+            ? '${state.loadingProgress}/${state.loadingTotal}'
+            : null;
 
         return EnhancedPrimaryActionButton(
           label: progressText ?? 'Add to Queue',
           icon: Icons.queue_music,
-          onPressed: videoIds.isNotEmpty && !isLoading
+          onPressed: videoIds.isNotEmpty && state.status != PlayerStatus.loading
               ? () => playerCubit.addAllToQueue(videoIds)
               : null,
-          isLoading: isLoading,
+          isLoading: isAddToQueueLoading,
           isPrimary: false,
         );
       },
