@@ -47,6 +47,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   bool get isRepeatModeAllEnabled =>
       playbackState.value.repeatMode == AudioServiceRepeatMode.all;
 
+  bool _isAutoAdvancing = false;
+
   // Stream per notificare il cambio di brano alla UI FullScreenView
   final StreamController<void> skipController =
       StreamController<void>.broadcast();
@@ -479,36 +481,43 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
       chewieController?.videoPlayerController.addListener(() {
         _broadcastState();
-        // verifica che il video sia finito
-        if (chewieController!.videoPlayerController.value.duration ==
-            chewieController!.videoPlayerController.value.position) {
-          // verifica che ci siano altri brani nella coda
-          if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
-            skipToNextInShuffleMode();
-          } else if (isShuffleModeEnabled) {
-            // Caso in cui è attivo solo lo shuffle mode
-            if (allVideosPlayed) {
-              stop();
-            } else {
+        final value = chewieController!.videoPlayerController.value;
+        final hasEnded = value.isInitialized &&
+            value.duration > Duration.zero &&
+            value.position >= value.duration;
+
+        if (hasEnded && !_isAutoAdvancing) {
+          _isAutoAdvancing = true;
+          try {
+            // verifica che ci siano altri brani nella coda
+            if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
               skipToNextInShuffleMode();
-            }
-          } else if (isRepeatModeAllEnabled) {
-            // Caso in cui è attivo solo il repeat all mode
-            skipToNextInRepeatModeAll();
-          } else {
-            // Caso in cui sono entrambi disattivi
-            if (hasNextVideo) {
-              skipToNext();
+            } else if (isShuffleModeEnabled) {
+              // Caso in cui è attivo solo lo shuffle mode
+              if (allVideosPlayed) {
+                stop();
+              } else {
+                skipToNextInShuffleMode();
+              }
+            } else if (isRepeatModeAllEnabled) {
+              // Caso in cui è attivo solo il repeat all mode
+              skipToNextInRepeatModeAll();
             } else {
-              stop();
+              // Caso in cui sono entrambi disattivi
+              if (hasNextVideo) {
+                skipToNext();
+              } else {
+                stop();
+              }
             }
+          } finally {
+            _isAutoAdvancing = false;
           }
         }
 
-        if (chewieController!.videoPlayerController.value.hasError) {
+        if (value.hasError) {
           if (kDebugMode) {
-            print(
-                'Errore di riproduzione: ${chewieController!.videoPlayerController.value.errorDescription}');
+            print('Errore di riproduzione: ${value.errorDescription}');
           }
         }
       });
@@ -1077,9 +1086,19 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           await youtubeExplodeRepository!.searchContents(query: query);
       final items = result['items'] as List<dynamic>;
 
-      // Filtra solo i video per Android Auto (canali e playlist non sono riproducibili direttamente)
-      final videos = items.whereType<VideoTile>().take(20).toList();
-      return AndroidAutoContentHelper.videoTilesToMediaItems(videos);
+      final mediaItems = <MediaItem>[];
+      for (final item in items) {
+        if (item is VideoTile) {
+          mediaItems.add(AndroidAutoContentHelper.videoTileToMediaItem(item));
+        } else if (item is ChannelTile) {
+          mediaItems.add(AndroidAutoContentHelper.channelTileToMediaItem(item));
+        } else if (item is PlaylistTile) {
+          mediaItems
+              .add(AndroidAutoContentHelper.playlistTileToMediaItem(item));
+        }
+      }
+
+      return mediaItems;
     } catch (e) {
       dev.log('Errore in search: $e');
       return [];

@@ -78,6 +78,7 @@ void main() async {
               'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT':
                   2, // 2 = Grid, 1 = List
               'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 2,
+              'android.media.browse.SEARCH_SUPPORTED': true,
             },
             fastForwardInterval: Duration(seconds: 10),
             rewindInterval: Duration(seconds: 10)));

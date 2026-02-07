@@ -51,15 +51,6 @@ class AndroidAutoContentHelper {
           'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
         },
       ),
-      const MediaItem(
-        id: searchId,
-        title: 'Search',
-        playable: false,
-        extras: {
-          'browsable': true,
-          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
-        },
-      ),
     ];
   }
 
