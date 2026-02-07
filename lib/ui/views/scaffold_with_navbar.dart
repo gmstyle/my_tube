@@ -12,7 +12,7 @@ import 'package:my_tube/ui/views/common/update_available_dialog.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
-  const ScaffoldWithNavbarView({super.key, required this.navigationShell});
+  ScaffoldWithNavbarView({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
 
   final _navBarItems = const [
@@ -54,6 +54,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     ),
   ];
 
+  final GlobalKey _navBarKey = GlobalKey();
+
   void onDestinationSelected(int index) {
     navigationShell.goBranch(index,
         initialLocation: index == navigationShell.currentIndex);
@@ -71,7 +73,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     );
 
     // Restore padding after search is closed
-    persistentUiCubit.setBottomPadding(80);
+    // Height will be restored by the LayoutBuilder postFrameCallback
   }
 
   Future<void> disableBatteryOptimization() async {
@@ -109,9 +111,18 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
           // Update global UI state
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            context
-                .read<PersistentUiCubit>()
-                .setBottomPadding(useNavigationRail ? 0 : 80);
+            double finalPadding = 0;
+            if (!useNavigationRail) {
+              final RenderBox? navBarBox =
+                  _navBarKey.currentContext?.findRenderObject() as RenderBox?;
+              if (navBarBox != null && navBarBox.hasSize) {
+                finalPadding = navBarBox.size.height;
+              } else {
+                // Fallback to nominal height if measurement fails
+                finalPadding = 80.0;
+              }
+            }
+            context.read<PersistentUiCubit>().setBottomPadding(finalPadding);
           });
 
           if (useNavigationRail) {
@@ -131,7 +142,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
           builder: (context, uiState) {
             final isPlayerVisible = playerState.status != PlayerStatus.hidden &&
                 uiState.isPlayerVisible;
-            final bottomPadding = isPlayerVisible ? 80.0 : 0.0;
+            final bottomPadding = isPlayerVisible ? uiState.bottomPadding : 0.0;
 
             return Padding(
               padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, bottomPadding),
@@ -179,6 +190,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       ),
       body: _buildContentPadding(context, navigationShell),
       bottomNavigationBar: NavigationBar(
+        key: _navBarKey,
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: onDestinationSelected,
         destinations: _navBarItems,
