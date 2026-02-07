@@ -27,6 +27,7 @@ class AndroidAutoContentHelper {
   static const String playlistPrefix = 'playlist_';
   static const String searchResultsPrefix = 'search_results_';
   static const String addAllToQueuePrefix = 'add_all_';
+  static const String searchMorePrefix = 'search_more_';
 
   // ============ Categorie Root ============
 
@@ -224,6 +225,20 @@ class AndroidAutoContentHelper {
     );
   }
 
+  /// Crea un item speciale per caricare altri risultati di ricerca
+  static MediaItem getSearchMoreItem(String query) {
+    return MediaItem(
+      id: '$searchMorePrefix$query',
+      title: 'Show more',
+      playable: false,
+      extras: const {
+        'browsable': true,
+        'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+        'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+      },
+    );
+  }
+
   // ============ Helper per parsing ID ============
 
   /// Verifica se l'ID è di un canale
@@ -246,6 +261,11 @@ class AndroidAutoContentHelper {
     return mediaId.startsWith(addAllToQueuePrefix);
   }
 
+  /// Verifica se l'ID è per caricare altri risultati di ricerca
+  static bool isSearchMoreId(String mediaId) {
+    return mediaId.startsWith(searchMorePrefix);
+  }
+
   /// Estrae l'ID reale del canale dal parentId
   static String extractChannelId(String parentId) {
     return parentId.substring(channelPrefix.length);
@@ -264,6 +284,11 @@ class AndroidAutoContentHelper {
   /// Estrae il parentId dall'item "add all to queue"
   static String extractAddAllParentId(String mediaId) {
     return mediaId.substring(addAllToQueuePrefix.length);
+  }
+
+  /// Estrae la query dall'item "show more"
+  static String extractSearchMoreQuery(String mediaId) {
+    return mediaId.substring(searchMorePrefix.length);
   }
 
   // ============ Utility ============

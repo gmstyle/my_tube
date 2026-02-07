@@ -48,6 +48,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       playbackState.value.repeatMode == AudioServiceRepeatMode.all;
 
   bool _isAutoAdvancing = false;
+  static const int _searchPageSize = 20;
+  final Map<String, SearchList> _searchListCache = {};
+  final Map<String, List<dynamic>> _searchNextPageCache = {};
 
   // Stream per notificare il cambio di brano alla UI FullScreenView
   final StreamController<void> skipController =
@@ -641,6 +644,71 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     ];
   }
 
+  List<MediaItem> _appendSearchMoreItem(
+    String query,
+    List<MediaItem> items,
+    bool showMore,
+  ) {
+    if (!showMore) return items;
+    return [...items, AndroidAutoContentHelper.getSearchMoreItem(query)];
+  }
+
+  Future<bool> _shouldShowSearchMore(
+    String query,
+    SearchList searchList,
+    int currentCount,
+  ) async {
+    if (currentCount >= _searchPageSize) return true;
+    if (_searchNextPageCache.containsKey(query)) {
+      return _searchNextPageCache[query]!.isNotEmpty;
+    }
+
+    final nextItems =
+        await youtubeExplodeRepository!.nextSearchContents(searchList);
+    _searchNextPageCache[query] = nextItems ?? [];
+    return nextItems != null && nextItems.isNotEmpty;
+  }
+
+  List<MediaItem> _buildSearchMediaItems(List<dynamic> items) {
+    final channels = <MediaItem>[];
+    final playlists = <MediaItem>[];
+    final videos = <MediaItem>[];
+
+    for (final item in items) {
+      if (item is ChannelTile) {
+        channels.add(AndroidAutoContentHelper.channelTileToMediaItem(item));
+      } else if (item is PlaylistTile) {
+        playlists.add(AndroidAutoContentHelper.playlistTileToMediaItem(item));
+      } else if (item is VideoTile) {
+        videos.add(AndroidAutoContentHelper.videoTileToMediaItem(item));
+      }
+    }
+
+    return [...channels, ...playlists, ...videos];
+  }
+
+  Future<List<MediaItem>> _getNextSearchResults(String query) async {
+    final searchList = _searchListCache[query];
+    if (searchList == null) return [];
+
+    List<dynamic>? nextItems;
+    if (_searchNextPageCache.containsKey(query)) {
+      nextItems = _searchNextPageCache.remove(query);
+      if (nextItems != null && nextItems.isEmpty) {
+        nextItems = null;
+      }
+    } else {
+      nextItems =
+          await youtubeExplodeRepository!.nextSearchContents(searchList);
+    }
+    if (nextItems == null || nextItems.isEmpty) return [];
+
+    final mediaItems = _buildSearchMediaItems(nextItems);
+    final showMore =
+        await _shouldShowSearchMore(query, searchList, nextItems.length);
+    return _appendSearchMoreItem(query, mediaItems, showMore);
+  }
+
   Future<List<MediaItem>> _getPlayableItemsForParent(
       String parentMediaId) async {
     switch (parentMediaId) {
@@ -1037,6 +1105,12 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
         default:
           dev.log('Handling dynamic ID: $parentMediaId');
+          if (AndroidAutoContentHelper.isSearchMoreId(parentMediaId)) {
+            final query =
+                AndroidAutoContentHelper.extractSearchMoreQuery(parentMediaId);
+            dev.log('Loading more search results for query: $query');
+            return await _getNextSearchResults(query);
+          }
           // Gestione navigazione dinamica (canali, playlist)
           if (AndroidAutoContentHelper.isChannelId(parentMediaId)) {
             final channelId =
@@ -1085,20 +1159,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       final result =
           await youtubeExplodeRepository!.searchContents(query: query);
       final items = result['items'] as List<dynamic>;
+      final searchList = result['searchList'] as SearchList;
+      _searchListCache[query] = searchList;
 
-      final mediaItems = <MediaItem>[];
-      for (final item in items) {
-        if (item is VideoTile) {
-          mediaItems.add(AndroidAutoContentHelper.videoTileToMediaItem(item));
-        } else if (item is ChannelTile) {
-          mediaItems.add(AndroidAutoContentHelper.channelTileToMediaItem(item));
-        } else if (item is PlaylistTile) {
-          mediaItems
-              .add(AndroidAutoContentHelper.playlistTileToMediaItem(item));
-        }
-      }
-
-      return mediaItems;
+      final mediaItems = _buildSearchMediaItems(items);
+      final showMore =
+          await _shouldShowSearchMore(query, searchList, items.length);
+      return _appendSearchMoreItem(query, mediaItems, showMore);
     } catch (e) {
       dev.log('Errore in search: $e');
       return [];
@@ -1264,8 +1331,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       final result =
           await youtubeExplodeRepository!.searchContents(query: query);
       final items = result['items'] as List<dynamic>;
-      final videos = items.whereType<VideoTile>().toList();
-      return AndroidAutoContentHelper.videoTilesToMediaItems(videos);
+      final searchList = result['searchList'] as SearchList;
+      _searchListCache[query] = searchList;
+
+      final mediaItems = _buildSearchMediaItems(items);
+      final showMore =
+          await _shouldShowSearchMore(query, searchList, items.length);
+      return _appendSearchMoreItem(query, mediaItems, showMore);
     } catch (e) {
       dev.log('Errore in _getSearchResults: $e');
       return [];
