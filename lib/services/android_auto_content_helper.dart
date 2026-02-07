@@ -26,6 +26,7 @@ class AndroidAutoContentHelper {
   static const String channelPrefix = 'channel_';
   static const String playlistPrefix = 'playlist_';
   static const String searchResultsPrefix = 'search_results_';
+  static const String addAllToQueuePrefix = 'add_all_';
 
   // ============ Categorie Root ============
 
@@ -217,6 +218,21 @@ class AndroidAutoContentHelper {
     return tiles.map(playlistTileToMediaItem).toList();
   }
 
+  /// Crea un item speciale per aggiungere tutti i risultati alla coda
+  static MediaItem getAddAllToQueueItem(String parentId) {
+    return MediaItem(
+      id: '$addAllToQueuePrefix$parentId',
+      title: 'Add all to queue',
+      artUri: Uri.parse(
+          'android.resource://it.gmstyle.my_tube/drawable/ic_add_to_queue'),
+      playable: true,
+      extras: const {
+        'browsable': false,
+        'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+      },
+    );
+  }
+
   // ============ Helper per parsing ID ============
 
   /// Verifica se l'ID è di un canale
@@ -234,6 +250,11 @@ class AndroidAutoContentHelper {
     return parentId.startsWith(searchResultsPrefix);
   }
 
+  /// Verifica se l'ID è per aggiungere tutti alla coda
+  static bool isAddAllToQueueId(String mediaId) {
+    return mediaId.startsWith(addAllToQueuePrefix);
+  }
+
   /// Estrae l'ID reale del canale dal parentId
   static String extractChannelId(String parentId) {
     return parentId.substring(channelPrefix.length);
@@ -247,6 +268,11 @@ class AndroidAutoContentHelper {
   /// Estrae la query di ricerca dal parentId
   static String extractSearchQuery(String parentId) {
     return parentId.substring(searchResultsPrefix.length);
+  }
+
+  /// Estrae il parentId dall'item "add all to queue"
+  static String extractAddAllParentId(String mediaId) {
+    return mediaId.substring(addAllToQueuePrefix.length);
   }
 
   // ============ Utility ============

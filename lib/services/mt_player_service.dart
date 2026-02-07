@@ -587,6 +587,88 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
+  Future<int?> _insertMediaItemsNext(List<MediaItem> items) async {
+    if (items.isEmpty) return null;
+
+    final existingIds = playlist.map((item) => item.id).toSet();
+    var insertIndex = currentIndex >= 0 ? currentIndex + 1 : playlist.length;
+    int? firstInsertedIndex;
+
+    for (final item in items) {
+      if (playlist.length >= maxQueueSize) {
+        break;
+      }
+      if (existingIds.contains(item.id)) {
+        continue;
+      }
+      playlist.insert(insertIndex, item);
+      existingIds.add(item.id);
+      firstInsertedIndex ??= insertIndex;
+      insertIndex++;
+    }
+
+    if (firstInsertedIndex != null) {
+      queue.add(playlist);
+    }
+
+    return firstInsertedIndex;
+  }
+
+  Future<void> _startIfIdle(int? firstInsertedIndex) async {
+    if (currentIndex == -1 && firstInsertedIndex != null) {
+      currentIndex = firstInsertedIndex;
+      await _playCurrentTrack();
+    }
+  }
+
+  List<MediaItem> _prependAddAllItem(
+    String parentMediaId,
+    List<MediaItem> items,
+  ) {
+    if (items.isEmpty) return items;
+    return [
+      AndroidAutoContentHelper.getAddAllToQueueItem(parentMediaId),
+      ...items,
+    ];
+  }
+
+  Future<List<MediaItem>> _getPlayableItemsForParent(
+      String parentMediaId) async {
+    switch (parentMediaId) {
+      case AndroidAutoContentHelper.musicNewReleasesId:
+        return await _getNewReleases();
+      case AndroidAutoContentHelper.musicDiscoverId:
+        return await _getDiscoverVideos();
+      case AndroidAutoContentHelper.musicTrendingId:
+        return await _getTrendingMusic();
+      case AndroidAutoContentHelper.favoritesVideosId:
+        return await _getFavoriteVideos();
+      default:
+        if (AndroidAutoContentHelper.isChannelId(parentMediaId)) {
+          final channelId =
+              AndroidAutoContentHelper.extractChannelId(parentMediaId);
+          return await _getChannelVideos(channelId);
+        }
+        if (AndroidAutoContentHelper.isPlaylistId(parentMediaId)) {
+          final playlistId =
+              AndroidAutoContentHelper.extractPlaylistId(parentMediaId);
+          return await _getPlaylistVideos(playlistId);
+        }
+        if (AndroidAutoContentHelper.isSearchResultsId(parentMediaId)) {
+          final query =
+              AndroidAutoContentHelper.extractSearchQuery(parentMediaId);
+          return await _getSearchResults(query);
+        }
+        return [];
+    }
+  }
+
+  Future<void> _handleAddAllToQueue(String parentMediaId) async {
+    final items = await _getPlayableItemsForParent(parentMediaId);
+    final firstInsertedIndex = await _insertMediaItemsNext(items);
+    await _startIfIdle(firstInsertedIndex);
+  }
+
   Future<bool?> removeFromQueue(String id) async {
     final index = playlist.indexWhere((element) => element.id == id);
 
@@ -733,6 +815,12 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   @override
   Future<void> playMediaItem(MediaItem mediaItem) async {
     dev.log('playMediaItem called: ${mediaItem.id}');
+    if (AndroidAutoContentHelper.isAddAllToQueueId(mediaItem.id)) {
+      final parentId =
+          AndroidAutoContentHelper.extractAddAllParentId(mediaItem.id);
+      await _handleAddAllToQueue(parentId);
+      return;
+    }
     if (mediaItem.playable == true) {
       // Se è un video singolo, lo mettiamo in playlist e lo riproduciamo
       playlist = [mediaItem];
@@ -751,6 +839,11 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> playFromMediaId(String mediaId,
       [Map<String, dynamic>? extras]) async {
     dev.log('playFromMediaId called: $mediaId');
+    if (AndroidAutoContentHelper.isAddAllToQueueId(mediaId)) {
+      final parentId = AndroidAutoContentHelper.extractAddAllParentId(mediaId);
+      await _handleAddAllToQueue(parentId);
+      return;
+    }
     // Implementazione speculare a playMediaItem o caricamento dinamico se necessario
     // Per ora, se è un video ID (non ha prefissi), lo riproduciamo
     if (!AndroidAutoContentHelper.isChannelId(mediaId) &&
@@ -762,6 +855,65 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       } catch (e) {
         dev.log('Errore in playFromMediaId: $e');
       }
+    }
+  }
+
+  @override
+  Future<void> addQueueItem(MediaItem mediaItem) async {
+    try {
+      if (mediaItem.playable == true) {
+        final item = await _createMediaItem(mediaItem.id, loadStreamUrl: false);
+        final firstInsertedIndex = await _insertMediaItemsNext([item]);
+        await _startIfIdle(firstInsertedIndex);
+        return;
+      }
+
+      final mediaId = mediaItem.id;
+      if (AndroidAutoContentHelper.isChannelId(mediaId)) {
+        final channelId = AndroidAutoContentHelper.extractChannelId(mediaId);
+        final items = await _getChannelVideos(channelId);
+        final firstInsertedIndex = await _insertMediaItemsNext(items);
+        await _startIfIdle(firstInsertedIndex);
+        return;
+      }
+
+      if (AndroidAutoContentHelper.isPlaylistId(mediaId)) {
+        final playlistId = AndroidAutoContentHelper.extractPlaylistId(mediaId);
+        final items = await _getPlaylistVideos(playlistId);
+        final firstInsertedIndex = await _insertMediaItemsNext(items);
+        await _startIfIdle(firstInsertedIndex);
+      }
+    } catch (e) {
+      dev.log('Errore durante addQueueItem: $e');
+    }
+  }
+
+  @override
+  Future<void> addQueueItems(List<MediaItem> mediaItems) async {
+    try {
+      if (mediaItems.isEmpty) return;
+
+      final playableItems = <MediaItem>[];
+      for (final mediaItem in mediaItems) {
+        if (mediaItem.playable == true) {
+          final item =
+              await _createMediaItem(mediaItem.id, loadStreamUrl: false);
+          playableItems.add(item);
+        } else if (AndroidAutoContentHelper.isChannelId(mediaItem.id)) {
+          final channelId =
+              AndroidAutoContentHelper.extractChannelId(mediaItem.id);
+          playableItems.addAll(await _getChannelVideos(channelId));
+        } else if (AndroidAutoContentHelper.isPlaylistId(mediaItem.id)) {
+          final playlistId =
+              AndroidAutoContentHelper.extractPlaylistId(mediaItem.id);
+          playableItems.addAll(await _getPlaylistVideos(playlistId));
+        }
+      }
+
+      final firstInsertedIndex = await _insertMediaItemsNext(playableItems);
+      await _startIfIdle(firstInsertedIndex);
+    } catch (e) {
+      dev.log('Errore durante addQueueItems: $e');
     }
   }
 
@@ -842,22 +994,22 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         // Musica > Nuove Uscite (Lista completa)
         case AndroidAutoContentHelper.musicNewReleasesId:
           dev.log('Loading Full New Releases...');
-          return await _getNewReleases();
+          return _prependAddAllItem(parentMediaId, await _getNewReleases());
 
         // Musica > Scopri (video correlati ai preferiti)
         case AndroidAutoContentHelper.musicDiscoverId:
           dev.log('Loading Discover Videos...');
-          return await _getDiscoverVideos();
+          return _prependAddAllItem(parentMediaId, await _getDiscoverVideos());
 
         // Musica > Trending
         case AndroidAutoContentHelper.musicTrendingId:
           dev.log('Loading Trending Music...');
-          return await _getTrendingMusic();
+          return _prependAddAllItem(parentMediaId, await _getTrendingMusic());
 
         // Preferiti > Video
         case AndroidAutoContentHelper.favoritesVideosId:
           dev.log('Loading Favorite Videos...');
-          return await _getFavoriteVideos();
+          return _prependAddAllItem(parentMediaId, await _getFavoriteVideos());
 
         // Preferiti > Canali
         case AndroidAutoContentHelper.favoritesChannelsId:
@@ -881,19 +1033,22 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
             final channelId =
                 AndroidAutoContentHelper.extractChannelId(parentMediaId);
             dev.log('Loading videos for channel: $channelId');
-            return await _getChannelVideos(channelId);
+            return _prependAddAllItem(
+                parentMediaId, await _getChannelVideos(channelId));
           }
           if (AndroidAutoContentHelper.isPlaylistId(parentMediaId)) {
             final playlistId =
                 AndroidAutoContentHelper.extractPlaylistId(parentMediaId);
             dev.log('Loading videos for playlist: $playlistId');
-            return await _getPlaylistVideos(playlistId);
+            return _prependAddAllItem(
+                parentMediaId, await _getPlaylistVideos(playlistId));
           }
           if (AndroidAutoContentHelper.isSearchResultsId(parentMediaId)) {
             final query =
                 AndroidAutoContentHelper.extractSearchQuery(parentMediaId);
             dev.log('Loading search results for query: $query');
-            return await _getSearchResults(query);
+            return _prependAddAllItem(
+                parentMediaId, await _getSearchResults(query));
           }
           dev.log('No children found for ID: $parentMediaId');
           return [];

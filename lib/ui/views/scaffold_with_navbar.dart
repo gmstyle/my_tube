@@ -194,7 +194,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: onDestinationSelected,
         destinations: _navBarItems,
-        height: 80,
       ),
     );
   }
