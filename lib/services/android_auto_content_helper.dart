@@ -157,6 +157,7 @@ class AndroidAutoContentHelper {
       title: tile.title,
       artist: tile.artist,
       artUri: Uri.tryParse(tile.thumbnailUrl),
+      duration: tile.duration,
       playable: true,
       extras: const {
         'browsable': false,

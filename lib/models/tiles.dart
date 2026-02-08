@@ -6,12 +6,14 @@ class VideoTile extends Equatable {
   final String title;
   final String? artist;
   final String thumbnailUrl;
+  final Duration? duration;
 
   const VideoTile({
     required this.id,
     required this.title,
     required this.artist,
     required this.thumbnailUrl,
+    this.duration,
   });
 
   factory VideoTile.fromVideo(Video video) {
@@ -20,20 +22,38 @@ class VideoTile extends Equatable {
       title: video.title,
       artist: video.musicData.isNotEmpty ? video.musicData.first.artist : null,
       thumbnailUrl: video.thumbnails.highResUrl,
+      duration: video.duration,
     );
   }
 
   factory VideoTile.fromSearchVideo(SearchVideo video) {
+    Duration? parsedDuration;
+    try {
+      final parts = video.duration.split(':');
+      if (parts.length == 2) {
+        parsedDuration = Duration(
+            minutes: int.parse(parts[0]), seconds: int.parse(parts[1]));
+      } else if (parts.length == 3) {
+        parsedDuration = Duration(
+            hours: int.parse(parts[0]),
+            minutes: int.parse(parts[1]),
+            seconds: int.parse(parts[2]));
+      }
+    } catch (_) {
+      // Se fallisce il parsing, lasciamo duration a null
+    }
+
     return VideoTile(
       id: video.id.value,
       title: video.title,
       artist: video.author,
       thumbnailUrl: video.thumbnails.first.url.toString(),
+      duration: parsedDuration,
     );
   }
 
   @override
-  List<Object?> get props => [id, title, artist, thumbnailUrl];
+  List<Object?> get props => [id, title, artist, thumbnailUrl, duration];
 }
 
 class ChannelTile extends Equatable {

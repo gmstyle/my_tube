@@ -48,6 +48,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       playbackState.value.repeatMode == AudioServiceRepeatMode.all;
 
   bool _isAutoAdvancing = false;
+  bool _isPreparing = false;
   static const int _searchPageSize = 20;
   final Map<String, SearchList> _searchListCache = {};
   final Map<String, List<dynamic>> _searchNextPageCache = {};
@@ -342,10 +343,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   // prepara lo stato del player per la riproduzione
   void _broadcastState() {
     try {
-      bool isPlaying() =>
-          chewieController != null &&
-          chewieController!.videoPlayerController.value.isPlaying;
-
       AudioProcessingState audioProcessingState() {
         if (chewieController == null) return AudioProcessingState.idle;
         final value = chewieController!.videoPlayerController.value;
@@ -354,16 +351,24 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         return AudioProcessingState.idle;
       }
 
+      bool isPlaying() {
+        if (_isPreparing || _isAutoAdvancing) return true;
+        if (chewieController == null) return false;
+        final value = chewieController!.videoPlayerController.value;
+        return value.isPlaying || value.isBuffering;
+      }
+
       // Protezione per Android Auto - evita errori quando il controller non è disponibile
       if (chewieController == null ||
           !chewieController!.videoPlayerController.value.isInitialized) {
         final isBuffering = playbackState.value.processingState ==
-            AudioProcessingState.buffering;
+                AudioProcessingState.buffering ||
+            _isPreparing;
         playbackState.add(playbackState.value.copyWith(
           processingState: isBuffering
               ? AudioProcessingState.buffering
               : AudioProcessingState.idle,
-          playing: false,
+          playing: _isPreparing || _isAutoAdvancing,
         ));
         return;
       }
@@ -390,6 +395,10 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           playing: isPlaying(),
           updatePosition:
               chewieController!.videoPlayerController.value.position,
+          bufferedPosition: chewieController!
+                  .videoPlayerController.value.buffered.isNotEmpty
+              ? chewieController!.videoPlayerController.value.buffered.last.end
+              : Duration.zero,
           speed: chewieController!.videoPlayerController.value.playbackSpeed,
           queueIndex: currentIndex));
     } catch (e) {
@@ -397,17 +406,20 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       // Fallback state per Android Auto
       playbackState.add(playbackState.value.copyWith(
         processingState: AudioProcessingState.idle,
-        playing: false,
+        playing: _isPreparing || _isAutoAdvancing,
       ));
     }
   }
 
   Future<void> _playCurrentTrack() async {
     dev.log('--- _playCurrentTrack started ---');
+    _isPreparing = true;
     try {
       // Segnala che stiamo caricando (buffering state per Android Auto)
+      // Mantieni playing: true se stiamo preparando il brano
       playbackState.add(playbackState.value.copyWith(
         processingState: AudioProcessingState.buffering,
+        playing: true,
       ));
 
       currentTrack = playlist[currentIndex];
@@ -448,6 +460,17 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       await videoPlayerController!.initialize();
       dev.log('VideoPlayerController initialized');
 
+      // Aggiorna la durata effettiva se disponibile
+      final videoDuration = videoPlayerController!.value.duration;
+      if (videoDuration > Duration.zero &&
+          (currentTrack?.duration == null ||
+              currentTrack?.duration == Duration.zero)) {
+        currentTrack = currentTrack!.copyWith(duration: videoDuration);
+        playlist[currentIndex] = currentTrack!;
+        mediaItem.add(currentTrack);
+        queue.add(playlist);
+      }
+
       // Forza il play immediato per notifiche e background
       await videoPlayerController!.play();
       dev.log('VideoPlayerController.play() called');
@@ -468,6 +491,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         deviceOrientationsAfterFullScreen: [
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
         ],
       );
       dev.log('ChewieController created');
@@ -491,31 +516,36 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
         if (hasEnded && !_isAutoAdvancing) {
           _isAutoAdvancing = true;
-          try {
-            // verifica che ci siano altri brani nella coda
-            if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
-              skipToNextInShuffleMode();
-            } else if (isShuffleModeEnabled) {
-              // Caso in cui è attivo solo lo shuffle mode
-              if (allVideosPlayed) {
-                stop();
+          // Esegui in un blocco async per poter usare await e gestire correttamente il flag _isAutoAdvancing
+          unawaited(Future(() async {
+            try {
+              // verifica che ci siano altri brani nella coda
+              if (isShuffleModeEnabled && isRepeatModeAllEnabled) {
+                await skipToNextInShuffleMode();
+              } else if (isShuffleModeEnabled) {
+                // Caso in cui è attivo solo lo shuffle mode
+                if (allVideosPlayed) {
+                  await stop();
+                } else {
+                  await skipToNextInShuffleMode();
+                }
+              } else if (isRepeatModeAllEnabled) {
+                // Caso in cui è attivo solo il repeat all mode
+                await skipToNextInRepeatModeAll();
               } else {
-                skipToNextInShuffleMode();
+                // Caso in cui sono entrambi disattivi
+                if (hasNextVideo) {
+                  await skipToNext();
+                } else {
+                  await stop();
+                }
               }
-            } else if (isRepeatModeAllEnabled) {
-              // Caso in cui è attivo solo il repeat all mode
-              skipToNextInRepeatModeAll();
-            } else {
-              // Caso in cui sono entrambi disattivi
-              if (hasNextVideo) {
-                skipToNext();
-              } else {
-                stop();
-              }
+            } catch (e) {
+              dev.log('Errore durante auto-skip: $e');
+            } finally {
+              _isAutoAdvancing = false;
             }
-          } finally {
-            _isAutoAdvancing = false;
-          }
+          }));
         }
 
         if (value.hasError) {
@@ -524,12 +554,35 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
           }
         }
       });
+
+      // Pre-fetching del prossimo brano per velocizzare la transizione su Android Auto
+      if (hasNextVideo) {
+        final nextIndex = currentIndex + 1;
+        final nextTrack = playlist[nextIndex];
+        if (nextTrack.extras?['streamUrl'] == null) {
+          unawaited(_getStreamUrl(nextTrack.id).then((url) {
+            playlist[nextIndex] = nextTrack.copyWith(
+              extras: {
+                ...nextTrack.extras ?? {},
+                'streamUrl': url,
+              },
+            );
+            queue.add(playlist);
+            dev.log('Pre-fetched stream URL for next track: ${nextTrack.id}');
+          }).catchError((e) {
+            dev.log('Errore pre-fetching prossimo brano: $e');
+          }));
+        }
+      }
     } catch (e) {
       dev.log('Errore durante _playCurrentTrack: $e');
       // Fallback per Android Auto - tenta playback semplificato
       if (_isAndroidAutoActive) {
         await _handleAndroidAutoPlayback();
       }
+    } finally {
+      _isPreparing = false;
+      _broadcastState();
     }
   }
 
