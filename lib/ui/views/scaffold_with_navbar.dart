@@ -185,6 +185,7 @@ class _AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      width: MediaQuery.of(context).size.width * 0.6,
       child: Column(
         children: [
           DrawerHeader(
