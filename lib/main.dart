@@ -25,7 +25,7 @@ import 'package:my_tube/respositories/update_repository.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
-import 'package:my_tube/services/mt_player_service.dart';
+import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/services/local_notification_helper.dart.dart';
 import 'package:provider/provider.dart';
 

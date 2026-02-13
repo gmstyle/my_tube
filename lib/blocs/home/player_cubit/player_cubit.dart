@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
-import 'package:my_tube/services/mt_player_service.dart';
+import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 part 'player_state.dart';

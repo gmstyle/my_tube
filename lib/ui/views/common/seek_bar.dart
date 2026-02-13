@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/services/mt_player_service.dart';
+import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/utils/utils.dart';
 
 class SeekBar extends StatelessWidget {

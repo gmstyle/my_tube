@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/download_service.dart';
-import 'package:my_tube/services/mt_player_service.dart';
+import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/video/screens/video_phone_screen.dart';
 import 'package:my_tube/ui/views/video/screens/video_tablet_screen.dart';

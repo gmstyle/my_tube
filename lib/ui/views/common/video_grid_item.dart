@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/services/mt_player_service.dart';
+import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/material_interactive_components.dart';
 import 'package:my_tube/ui/views/common/spectrum_playing_icon.dart';
 import 'package:my_tube/utils/utils.dart';
