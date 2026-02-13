@@ -15,13 +15,13 @@ class MiniPlayer extends StatelessWidget {
 
   double _setAspectRatio(MtPlayerService mtPlayerService) {
     final chewie = mtPlayerService.chewieController;
-    if (chewie == null) return 1;
+    if (chewie == null) return 16 / 9;
     final vpc = chewie.videoPlayerController;
     try {
       final ratio = vpc.value.aspectRatio;
-      return ratio <= 1 ? 1 : ratio;
+      return ratio <= 1 ? 16 / 9 : ratio;
     } catch (_) {
-      return 1;
+      return 16 / 9;
     }
   }
 
@@ -130,24 +130,28 @@ class MiniPlayer extends StatelessWidget {
                   topLeft: Radius.circular(16), topRight: Radius.circular(16)),
               child: Container(
                 color: Theme.of(context).colorScheme.surfaceContainer,
+                height: 72,
                 child: HorizontalSwipeToSkip(
                   child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 6),
-                      child: Wrap(
+                          horizontal: 8, vertical: 4),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Row(
-                            spacing: 4,
+                            spacing: 8,
                             children: [
                               // Video
-                              Expanded(
-                                child: StreamBuilder(
-                                  stream: playerCubit.mtPlayerService.mediaItem,
-                                  builder: (context, snapshot) {
-                                    return Hero(
-                                      tag: 'video_image_or_player',
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
+                              StreamBuilder(
+                                stream: playerCubit.mtPlayerService.mediaItem,
+                                builder: (context, snapshot) {
+                                  return Hero(
+                                    tag: 'video_image_or_player',
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: SizedBox(
+                                        width: 64,
+                                        height: 36,
                                         child: AspectRatio(
                                             aspectRatio: _setAspectRatio(
                                                 playerCubit.mtPlayerService),
@@ -169,55 +173,51 @@ class MiniPlayer extends StatelessWidget {
                                               ));
                                             })),
                                       ),
-                                    );
-                                  },
-                                ),
+                                    ),
+                                  );
+                                },
                               ),
-
                               Expanded(
-                                flex: 3,
-                                child: Wrap(
-                                  children: [
-                                    // Video Title and Album
-                                    StreamBuilder(
-                                        stream: playerCubit
-                                            .mtPlayerService.mediaItem,
-                                        builder: (context, snapshot) {
-                                          final mediaItem = snapshot.data;
-                                          return Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Hero(
-                                                tag: 'video_title',
-                                                child: Text(
-                                                  mediaItem?.title ?? '',
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
+                                child: StreamBuilder(
+                                    stream:
+                                        playerCubit.mtPlayerService.mediaItem,
+                                    builder: (context, snapshot) {
+                                      final mediaItem = snapshot.data;
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Hero(
+                                            tag: 'video_title',
+                                            child: Text(
+                                              mediaItem?.title ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
                                                     fontWeight: FontWeight.w500,
                                                   ),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Hero(
-                                                tag: 'video_album',
-                                                child: Text(
-                                                  mediaItem?.album ?? '',
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        }),
-                                  ],
-                                ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Hero(
+                                            tag: 'video_album',
+                                            child: Text(
+                                              mediaItem?.album ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }),
                               ),
                               // Play/Pause Button
                               StreamBuilder(
@@ -230,7 +230,8 @@ class MiniPlayer extends StatelessWidget {
                                     final isPlaying = snapshot.data ?? false;
                                     return Hero(
                                       tag: 'play_pause_button',
-                                      child: IconButton.filled(
+                                      child: IconButton(
+                                          visualDensity: VisualDensity.compact,
                                           onPressed: () {
                                             if (isPlaying) {
                                               playerCubit.mtPlayerService
@@ -244,16 +245,20 @@ class MiniPlayer extends StatelessWidget {
                                             isPlaying
                                                 ? Icons.pause
                                                 : Icons.play_arrow,
+                                            size: 24,
                                           )),
                                     );
                                   }),
                             ],
                           ),
                           // SeekBar
-                          const SeekBar(
-                            darkBackground: false,
-                            thumbShapeRadius: 2,
-                            overlayRadius: 2,
+                          const SizedBox(
+                            height: 12,
+                            child: SeekBar(
+                              darkBackground: false,
+                              thumbShapeRadius: 0,
+                              overlayRadius: 0,
+                            ),
                           ),
                         ],
                       )),

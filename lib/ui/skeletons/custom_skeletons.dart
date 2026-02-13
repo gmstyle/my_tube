@@ -119,13 +119,13 @@ class CustomSkeletonMiniPlayer extends StatelessWidget {
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
       child: Container(
         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-        height: 80,
+        height: 72,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             children: [
               // Thumbnail - dimensioni corrette per il ConstrainedBox del MiniPlayer
-              const ShimmerImage(width: 64, height: 64, borderRadius: 8),
+              const ShimmerImage(width: 64, height: 36, borderRadius: 8),
               const SizedBox(width: 8),
               // Info
               const Expanded(
