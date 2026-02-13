@@ -4,10 +4,11 @@ import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 
 class PlayPauseGestureDetector extends StatelessWidget {
   const PlayPauseGestureDetector(
-      {super.key, required this.id, required this.child});
+      {super.key, required this.id, required this.child, this.onTap});
 
   final String id;
   final Widget child;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,9 @@ class PlayPauseGestureDetector extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
+                if (onTap != null) {
+                  onTap!();
+                }
                 // se la traccia corrente è diversa da quella che si vuole riprodurre
                 // si avvia la riproduzione
                 if (playerCubit.mtPlayerService.currentTrack?.id != id) {

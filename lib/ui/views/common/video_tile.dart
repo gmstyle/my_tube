@@ -9,11 +9,13 @@ class VideoTile extends StatefulWidget {
     required this.video,
     this.index = 0,
     this.enableScrollAnimation = false,
+    this.onTap,
   });
 
   final models.VideoTile video;
   final int index;
   final bool enableScrollAnimation;
+  final VoidCallback? onTap;
 
   @override
   State<VideoTile> createState() => _VideoTileState();
@@ -30,6 +32,7 @@ class _VideoTileState extends State<VideoTile> {
       index: widget.index,
     );
 
-    return PlayPauseGestureDetector(id: widget.video.id, child: child);
+    return PlayPauseGestureDetector(
+        id: widget.video.id, onTap: widget.onTap, child: child);
   }
 }

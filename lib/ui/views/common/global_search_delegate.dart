@@ -354,46 +354,61 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
 
   Widget _buildVideoTile(
       BuildContext context, models.VideoTile video, bool isTablet) {
+    void handleTap() {
+      close(context, null);
+    }
+
     final quickVideo = {'id': video.id, 'title': video.title};
     return VideoMenuDialog(
       quickVideo: quickVideo,
-      child: isTablet ? VideoGridItem(video: video) : VideoTile(video: video),
+      child: isTablet
+          ? VideoGridItem(video: video, onTap: handleTap)
+          : VideoTile(video: video, onTap: handleTap),
     );
   }
 
   Widget _buildChannelTile(
       BuildContext context, models.ChannelTile channel, bool isTablet) {
-    return GestureDetector(
-      onTap: () {
-        context
-            .goNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
-        close(context, null);
-      },
-      child: ChannelPlaylistMenuDialog(
-        id: channel.id,
-        kind: Kind.channel,
-        child: isTablet
-            ? ChannelGridItem(channel: channel)
-            : ChannelTile(channel: channel),
-      ),
+    void handleTap() {
+      close(context, null);
+      context.goNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
+    }
+
+    return ChannelPlaylistMenuDialog(
+      id: channel.id,
+      kind: Kind.channel,
+      child: isTablet
+          ? ChannelGridItem(
+              channel: channel,
+              onTap: handleTap,
+            )
+          : ChannelTile(
+              channel: channel,
+              onTap: handleTap,
+            ),
     );
   }
 
   Widget _buildPlaylistTile(
       BuildContext context, models.PlaylistTile playlist, bool isTablet) {
-    return GestureDetector(
-      onTap: () {
-        context.goNamed(AppRoute.playlist.name,
-            extra: {'playlistId': playlist.id});
-        close(context, null);
-      },
-      child: ChannelPlaylistMenuDialog(
-        id: playlist.id,
-        kind: Kind.playlist,
-        child: isTablet
-            ? PlaylistGridItem(playlist: playlist)
-            : PlaylistTile(playlist: playlist),
-      ),
+    void handleTap() {
+      close(context, null);
+      context
+          .goNamed(AppRoute.playlist.name, extra: {'playlistId': playlist.id});
+    }
+
+    return ChannelPlaylistMenuDialog(
+      id: playlist.id,
+      kind: Kind.playlist,
+      child: isTablet
+          ? PlaylistGridItem(
+              playlist: playlist,
+              onTap: handleTap,
+            )
+          : PlaylistTile(
+              playlist: playlist,
+              onTap: handleTap,
+            ),
     );
   }
 

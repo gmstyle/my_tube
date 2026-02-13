@@ -16,21 +16,24 @@ class PlaylistTile extends StatelessWidget {
     required this.playlist,
     this.index = 0,
     this.enableScrollAnimation = false,
+    this.onTap,
   });
 
   final models.PlaylistTile playlist;
   final int index;
   final bool enableScrollAnimation;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final isCompact = context.isCompact;
 
     Widget tileContent = MaterialHoverContainer(
-      onTap: () {
-        context.goNamed(AppRoute.playlist.name,
-            extra: {'playlistId': playlist.id});
-      },
+      onTap: onTap ??
+          () {
+            context.goNamed(AppRoute.playlist.name,
+                extra: {'playlistId': playlist.id});
+          },
       borderRadius: BorderRadius.circular(12),
       fillColor: Colors.transparent,
       padding: EdgeInsets.all(isCompact ? 8 : 10),

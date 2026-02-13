@@ -13,9 +13,11 @@ class VideoGridItem extends StatelessWidget {
   const VideoGridItem({
     super.key,
     required this.video,
+    this.onTap,
   });
 
   final VideoTile video;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,9 @@ class VideoGridItem extends StatelessWidget {
     return MaterialHoverContainer(
       borderRadius: borderRadius,
       onTap: () {
+        if (onTap != null) {
+          onTap!();
+        }
         // Gestione play/pause integrata
         if (mtPlayerService.currentTrack?.id != video.id) {
           playerCubit.startPlaying(video.id);

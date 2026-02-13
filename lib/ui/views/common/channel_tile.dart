@@ -14,21 +14,24 @@ class ChannelTile extends StatelessWidget {
     required this.channel,
     this.index = 0,
     this.enableScrollAnimation = false,
+    this.onTap,
   });
 
   final models.ChannelTile channel;
   final int index;
   final bool enableScrollAnimation;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final isCompact = context.isCompact;
 
     Widget tileContent = MaterialHoverContainer(
-      onTap: () {
-        context
-            .goNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
-      },
+      onTap: onTap ??
+          () {
+            context.goNamed(AppRoute.channel.name,
+                extra: {'channelId': channel.id});
+          },
       borderRadius: BorderRadius.circular(
           50), // Pill shape for channel list items looks modern
       fillColor: Colors.transparent,
