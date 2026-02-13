@@ -12,27 +12,10 @@ import 'package:my_tube/ui/views/common/update_available_dialog.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
-  ScaffoldWithNavbarView({super.key, required this.navigationShell});
+  const ScaffoldWithNavbarView({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
 
-  final _navBarItems = const [
-    NavigationDestination(
-      icon: Icon(Icons.explore),
-      label: 'Explore',
-    ),
-    NavigationDestination(
-      icon: Icon(Icons.music_note),
-      label: 'Music',
-    ),
-    NavigationDestination(
-      icon: Icon(Icons.favorite),
-      label: 'Favorites',
-    ),
-    NavigationDestination(
-      icon: Icon(Icons.settings),
-      label: 'Settings',
-    ),
-  ];
+  static const double _miniPlayerHeight = 72.0;
 
   // NavigationRail destinations for larger screens
   final _railDestinations = const [
@@ -54,12 +37,13 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     ),
   ];
 
-  final GlobalKey _navBarKey = GlobalKey();
-
-  void onDestinationSelected(int index) {
+  void onDestinationSelected(int index, {BuildContext? context}) {
     navigationShell.goBranch(index,
         initialLocation: index == navigationShell.currentIndex);
     log('onDestinationSelected: $index');
+    if (context != null) {
+      Navigator.of(context).pop(); // Close drawer
+    }
   }
 
   void _showGlobalSearch(BuildContext context) async {
@@ -111,24 +95,13 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
           // Update global UI state
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            double finalPadding = 0;
-            if (!useNavigationRail) {
-              final RenderBox? navBarBox =
-                  _navBarKey.currentContext?.findRenderObject() as RenderBox?;
-              if (navBarBox != null && navBarBox.hasSize) {
-                finalPadding = navBarBox.size.height;
-              } else {
-                // Fallback to nominal height if measurement fails
-                finalPadding = 80.0;
-              }
-            }
-            context.read<PersistentUiCubit>().setBottomPadding(finalPadding);
+            context.read<PersistentUiCubit>().setBottomPadding(0);
           });
 
           if (useNavigationRail) {
             return _buildNavigationRailLayout(context);
           } else {
-            return _buildNavigationBarLayout(context);
+            return _buildDrawerLayout(context);
           }
         },
       ),
@@ -142,7 +115,9 @@ class ScaffoldWithNavbarView extends StatelessWidget {
           builder: (context, uiState) {
             final isPlayerVisible = playerState.status != PlayerStatus.hidden &&
                 uiState.isPlayerVisible;
-            final bottomPadding = isPlayerVisible ? uiState.bottomPadding : 0.0;
+            // The content needs padding if the player is visible,
+            // otherwise it will be covered by the GlobalMiniPlayer (which is at bottom: 0)
+            final bottomPadding = isPlayerVisible ? _miniPlayerHeight : 0.0;
 
             return Padding(
               padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, bottomPadding),
@@ -179,8 +154,13 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     );
   }
 
-  Widget _buildNavigationBarLayout(BuildContext context) {
+  Widget _buildDrawerLayout(BuildContext context) {
     return Scaffold(
+      drawer: _AppDrawer(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: (index) =>
+            onDestinationSelected(index, context: context),
+      ),
       appBar: CustomAppbar(
         actions: [
           IconButton(
@@ -189,11 +169,62 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         ],
       ),
       body: _buildContentPadding(context, navigationShell),
-      bottomNavigationBar: NavigationBar(
-        key: _navBarKey,
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: onDestinationSelected,
-        destinations: _navBarItems,
+    );
+  }
+}
+
+class _AppDrawer extends StatelessWidget {
+  const _AppDrawer({
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: Column(
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+            child: Center(
+              child: Text(
+                'My Tube',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.explore),
+            title: const Text('Explore'),
+            selected: selectedIndex == 0,
+            onTap: () => onDestinationSelected(0),
+          ),
+          ListTile(
+            leading: const Icon(Icons.music_note),
+            title: const Text('Music'),
+            selected: selectedIndex == 1,
+            onTap: () => onDestinationSelected(1),
+          ),
+          ListTile(
+            leading: const Icon(Icons.favorite),
+            title: const Text('Favorites'),
+            selected: selectedIndex == 2,
+            onTap: () => onDestinationSelected(2),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            selected: selectedIndex == 3,
+            onTap: () => onDestinationSelected(3),
+          ),
+        ],
       ),
     );
   }
