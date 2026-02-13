@@ -193,11 +193,25 @@ class _AppDrawer extends StatelessWidget {
               color: Theme.of(context).colorScheme.primaryContainer,
             ),
             child: Center(
-              child: Text(
-                'My Tube',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8.0,
+                children: [
+                  // Icona dell'app
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    backgroundImage:
+                        AssetImage('assets/images/ic_launcher.webp'),
+                  ),
+                  Text(
+                    'MyTube',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -219,6 +233,7 @@ class _AppDrawer extends StatelessWidget {
             selected: selectedIndex == 2,
             onTap: () => onDestinationSelected(2),
           ),
+          const Spacer(),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
