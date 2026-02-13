@@ -82,9 +82,6 @@ void main() async {
             },
             fastForwardInterval: Duration(seconds: 10),
             rewindInterval: Duration(seconds: 10)));
-
-    // Inizializza il rilevamento di Android Auto dopo l'inizializzazione di AudioService
-    await mtPlayerService.initializeAndroidAutoDetection();
   } catch (e) {
     log('Errore durante l\'inizializzazione di AudioService: $e');
     // Fallback: crea un'istanza diretta se AudioService non si inizializza
@@ -93,12 +90,6 @@ void main() async {
       favoriteRepository: favoriteRepository,
       youtubeExplodeRepository: youtubeExplodeRepository,
     );
-    // Inizializza Android Auto anche nel fallback
-    try {
-      await mtPlayerService.initializeAndroidAutoDetection();
-    } catch (autoError) {
-      log('Errore durante l\'inizializzazione di Android Auto nel fallback: $autoError');
-    }
   }
 
   /// Bloc observer

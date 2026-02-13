@@ -13,7 +13,6 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
-import 'package:my_tube/services/android_auto_detection_service.dart';
 import 'package:my_tube/services/bulk_video_loader.dart';
 import 'package:my_tube/ui/views/video/widget/full_screen_video_view.dart';
 import 'package:video_player/video_player.dart';
@@ -49,6 +48,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   bool _isAutoAdvancing = false;
   bool _isPreparing = false;
+  VoidCallback? _currentPlayerListener;
   static const int _searchPageSize = 20;
   final Map<String, SearchList> _searchListCache = {};
   final Map<String, List<dynamic>> _searchNextPageCache = {};
@@ -57,82 +57,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   final StreamController<void> skipController =
       StreamController<void>.broadcast();
   Stream<void> get onSkip => skipController.stream;
-
-  // Flag per gestire lo stato di Android Auto
-  bool _isAndroidAutoActive = false;
-
-  /// Inizializza il rilevamento di Android Auto
-  Future<void> initializeAndroidAutoDetection() async {
-    try {
-      await AndroidAutoDetectionService.initialize();
-      _isAndroidAutoActive =
-          await AndroidAutoDetectionService.isAndroidAutoActive();
-      dev.log('Android Auto stato iniziale: $_isAndroidAutoActive');
-
-      // Aggiorna periodicamente lo stato di Android Auto
-      Timer.periodic(const Duration(seconds: 5), (timer) async {
-        try {
-          final newState =
-              await AndroidAutoDetectionService.isAndroidAutoActive();
-          if (newState != _isAndroidAutoActive) {
-            dev.log(
-                'Cambio stato Android Auto: $_isAndroidAutoActive -> $newState');
-            _isAndroidAutoActive = newState;
-            // Aggiorna la configurazione audio se necessario
-            await _updateAudioConfigurationForAndroidAuto();
-          }
-        } catch (e) {
-          dev.log(
-              'Errore durante l\'aggiornamento dello stato Android Auto: $e');
-        }
-      });
-    } catch (e) {
-      dev.log(
-          'Errore durante l\'inizializzazione del rilevamento Android Auto: $e');
-      _isAndroidAutoActive = false;
-    }
-  }
-
-  /// Aggiorna la configurazione audio per Android Auto
-  Future<void> _updateAudioConfigurationForAndroidAuto() async {
-    try {
-      if (_isAndroidAutoActive) {
-        dev.log('Configurazione audio per Android Auto attivata');
-        // Configura le impostazioni audio specifiche per Android Auto
-        playbackState.add(playbackState.value.copyWith(
-          androidCompactActionIndices: const [
-            0,
-            1,
-            3
-          ], // Azioni compatte per Android Auto
-          systemActions: const {
-            MediaAction.seek,
-            MediaAction.skipToPrevious,
-            MediaAction.skipToNext,
-          },
-        ));
-      }
-    } catch (e) {
-      dev.log(
-          'Errore durante l\'aggiornamento della configurazione audio per Android Auto: $e');
-    }
-  }
-
-  /// Ottiene lo stato corrente di Android Auto
-  bool get isAndroidAutoActive => _isAndroidAutoActive;
-
-  /// Forza l'aggiornamento dello stato di Android Auto
-  Future<void> refreshAndroidAutoState() async {
-    try {
-      _isAndroidAutoActive =
-          await AndroidAutoDetectionService.refreshAndroidAutoState();
-      dev.log('Stato Android Auto aggiornato: $_isAndroidAutoActive');
-      await _updateAudioConfigurationForAndroidAuto();
-    } catch (e) {
-      dev.log(
-          'Errore durante l\'aggiornamento forzato dello stato Android Auto: $e');
-    }
-  }
 
   @override
   Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
@@ -159,10 +83,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       await chewieController?.videoPlayerController.play();
     } catch (e) {
       dev.log('Errore durante play: $e');
-      // Fallback per Android Auto
-      if (_isAndroidAutoActive) {
-        await _handleAndroidAutoPlayback();
-      }
     }
   }
 
@@ -413,10 +333,15 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   Future<void> _playCurrentTrack() async {
     dev.log('--- _playCurrentTrack started ---');
+
+    // Rimuovi il listener dal controller corrente PRIMA di qualsiasi altra operazione
+    // per evitare callback spurie durante il teardown
+    _removeCurrentListener();
+
     _isPreparing = true;
     try {
       // Segnala che stiamo caricando (buffering state per Android Auto)
-      // Mantieni playing: true se stiamo preparando il brano
+      // Mantieni playing: true per tutto il ciclo di transizione
       playbackState.add(playbackState.value.copyWith(
         processingState: AudioProcessingState.buffering,
         playing: true,
@@ -475,6 +400,10 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       await videoPlayerController!.play();
       dev.log('VideoPlayerController.play() called');
 
+      // Attendi un breve momento per assicurare la propagazione dello stato
+      // su Android Auto hardware reale (più sensibile dell'emulatore)
+      await Future.delayed(const Duration(milliseconds: 150));
+
       // inizializza il chewie controller per la riproduzione del video
       dev.log('Creating ChewieController...');
       chewieController = ChewieController(
@@ -506,9 +435,12 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       mediaItem.add(currentTrack);
 
       // propaga lo stato del player ad audio_service e a tutti i listeners
-
-      chewieController?.videoPlayerController.addListener(() {
+      // Usa un listener gestito per poterlo rimuovere in modo pulito
+      // durante le transizioni tra brani
+      _currentPlayerListener = () {
         _broadcastState();
+        // Protezione: se il controller è stato disposed, non procedere
+        if (chewieController == null) return;
         final value = chewieController!.videoPlayerController.value;
         final hasEnded = value.isInitialized &&
             value.duration > Duration.zero &&
@@ -516,6 +448,14 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
         if (hasEnded && !_isAutoAdvancing) {
           _isAutoAdvancing = true;
+
+          // Emetti subito lo stato buffering + playing per evitare che
+          // Android Auto interpreti la fine del brano come pausa
+          playbackState.add(playbackState.value.copyWith(
+            processingState: AudioProcessingState.buffering,
+            playing: true,
+          ));
+
           // Esegui in un blocco async per poter usare await e gestire correttamente il flag _isAutoAdvancing
           unawaited(Future(() async {
             try {
@@ -553,7 +493,9 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
             print('Errore di riproduzione: ${value.errorDescription}');
           }
         }
-      });
+      };
+      chewieController?.videoPlayerController
+          .addListener(_currentPlayerListener!);
 
       // Pre-fetching del prossimo brano per velocizzare la transizione su Android Auto
       if (hasNextVideo) {
@@ -576,10 +518,6 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       }
     } catch (e) {
       dev.log('Errore durante _playCurrentTrack: $e');
-      // Fallback per Android Auto - tenta playback semplificato
-      if (_isAndroidAutoActive) {
-        await _handleAndroidAutoPlayback();
-      }
     } finally {
       _isPreparing = false;
       _broadcastState();
@@ -899,7 +837,21 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
         : manifest.audioOnly.withHighestBitrate().url.toString();
   }
 
+  /// Rimuove il listener corrente dal VideoPlayerController
+  void _removeCurrentListener() {
+    if (_currentPlayerListener != null && videoPlayerController != null) {
+      try {
+        videoPlayerController!.removeListener(_currentPlayerListener!);
+      } catch (e) {
+        dev.log('Errore rimozione listener: $e');
+      }
+      _currentPlayerListener = null;
+    }
+  }
+
   Future<void> _disposeControllers() async {
+    // Rimuovi il listener prima del dispose per sicurezza
+    _removeCurrentListener();
     await chewieController?.videoPlayerController.dispose();
     chewieController?.dispose();
     chewieController = null;
@@ -907,25 +859,12 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   // Metodi specifici per Android Auto
-  Future<void> _handleAndroidAutoPlayback() async {
-    try {
-      // Configurazione specifica per Android Auto
-      if (videoPlayerController != null) {
-        await videoPlayerController!.initialize();
-        await videoPlayerController!.play();
-      }
-    } catch (e) {
-      dev.log('Errore in Android Auto playback: $e');
-    }
-  }
 
   // Override per gestire meglio i controlli media quando Android Auto è attivo
   @override
   Future<void> onTaskRemoved() async {
     try {
-      if (!_isAndroidAutoActive) {
-        await stop();
-      }
+      await stop();
     } catch (e) {
       dev.log('Errore durante onTaskRemoved: $e');
     }
@@ -934,9 +873,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   @override
   Future<void> onNotificationDeleted() async {
     try {
-      if (!_isAndroidAutoActive) {
-        await stop();
-      }
+      await stop();
     } catch (e) {
       dev.log('Errore durante onNotificationDeleted: $e');
     }
