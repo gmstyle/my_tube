@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/global_search_delegate.dart';
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
@@ -192,27 +193,42 @@ class _AppDrawer extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primaryContainer,
             ),
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 8.0,
-                children: [
-                  // Icona dell'app
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    backgroundImage:
-                        AssetImage('assets/images/ic_launcher.webp'),
-                  ),
-                  Text(
-                    'MyTube',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                  ),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              spacing: 8.0,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 8.0,
+                  children: [
+                    // Icona dell'app
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      backgroundImage:
+                          AssetImage('assets/images/ic_launcher.webp'),
+                    ),
+                    Text(
+                      'MyTube',
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                              ),
+                    ),
+                  ],
+                ),
+                // Settings button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                        onPressed: () => onDestinationSelected(3),
+                        icon: Icon(Icons.settings))
+                  ],
+                ),
+              ],
             ),
           ),
           ListTile(
@@ -232,14 +248,7 @@ class _AppDrawer extends StatelessWidget {
             title: const Text('Favorites'),
             selected: selectedIndex == 2,
             onTap: () => onDestinationSelected(2),
-          ),
-          const Spacer(),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            selected: selectedIndex == 3,
-            onTap: () => onDestinationSelected(3),
-          ),
+          )
         ],
       ),
     );
