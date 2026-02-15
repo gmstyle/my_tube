@@ -41,6 +41,7 @@ class AndroidAutoContentHelper {
         extras: {
           'browsable': true,
           'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
       const MediaItem(
@@ -50,6 +51,7 @@ class AndroidAutoContentHelper {
         extras: {
           'browsable': true,
           'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
     ];
@@ -64,7 +66,8 @@ class AndroidAutoContentHelper {
         playable: false,
         extras: {
           'browsable': true,
-          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
       const MediaItem(
@@ -73,7 +76,8 @@ class AndroidAutoContentHelper {
         playable: false,
         extras: {
           'browsable': true,
-          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
       const MediaItem(
@@ -82,7 +86,8 @@ class AndroidAutoContentHelper {
         playable: false,
         extras: {
           'browsable': true,
-          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
     ];
@@ -97,7 +102,8 @@ class AndroidAutoContentHelper {
         playable: false,
         extras: {
           'browsable': true,
-          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
       const MediaItem(
@@ -106,7 +112,8 @@ class AndroidAutoContentHelper {
         playable: false,
         extras: {
           'browsable': true,
-          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
       const MediaItem(
@@ -115,7 +122,8 @@ class AndroidAutoContentHelper {
         playable: false,
         extras: {
           'browsable': true,
-          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
         },
       ),
     ];
@@ -129,8 +137,8 @@ class AndroidAutoContentHelper {
       playable: false,
       extras: {
         'browsable': true,
-        'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT':
-            1, // Lista per le cartelle "Vedi tutto"
+        'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+        'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
       },
     );
   }
@@ -144,6 +152,7 @@ class AndroidAutoContentHelper {
       extras: {
         'browsable': true,
         'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+        'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
       },
     );
   }
@@ -162,7 +171,7 @@ class AndroidAutoContentHelper {
       extras: const {
         'browsable': false,
         'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT':
-            2, // Griglia per i video
+            1, // Lista per i video
       },
     );
   }
@@ -177,7 +186,10 @@ class AndroidAutoContentHelper {
           : null,
       artUri: Uri.tryParse(tile.thumbnailUrl),
       playable: false,
-      extras: const {'browsable': true},
+      extras: const {
+        'browsable': true,
+        'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+      },
     );
   }
 
@@ -192,6 +204,7 @@ class AndroidAutoContentHelper {
       extras: {
         'browsable': true,
         'videoCount': tile.videoCount,
+        'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
       },
     );
   }

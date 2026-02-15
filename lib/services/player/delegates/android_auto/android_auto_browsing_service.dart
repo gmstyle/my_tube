@@ -554,7 +554,8 @@ class AndroidAutoBrowsingService {
                   playable: false,
                   extras: const {
                     'browsable': true,
-                    'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 2,
+                    'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+                    'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
                   },
                 ))
             .toList();
