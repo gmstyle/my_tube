@@ -27,6 +27,7 @@ class AndroidAutoContentHelper {
   static const String playlistPrefix = 'playlist_';
   static const String searchResultsPrefix = 'search_results_';
   static const String addAllToQueuePrefix = 'add_all_';
+  static const String playAllPrefix = 'play_all_';
   static const String searchMorePrefix = 'search_more_';
 
   // ============ Categorie Root ============
@@ -224,6 +225,21 @@ class AndroidAutoContentHelper {
     return tiles.map(playlistTileToMediaItem).toList();
   }
 
+  /// Crea un item speciale per riprodurre tutti i risultati
+  static MediaItem getPlayAllItem(String parentId) {
+    return MediaItem(
+      id: '$playAllPrefix$parentId',
+      title: 'Play all',
+      artUri: Uri.parse(
+          'android.resource://it.gmstyle.my_tube/drawable/ic_play_arrow'),
+      playable: true,
+      extras: const {
+        'browsable': false,
+        'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+      },
+    );
+  }
+
   /// Crea un item speciale per aggiungere tutti i risultati alla coda
   static MediaItem getAddAllToQueueItem(String parentId) {
     return MediaItem(
@@ -273,6 +289,16 @@ class AndroidAutoContentHelper {
   /// Verifica se l'ID è per aggiungere tutti alla coda
   static bool isAddAllToQueueId(String mediaId) {
     return mediaId.startsWith(addAllToQueuePrefix);
+  }
+
+  /// Verifica se l'ID è per riprodurre tutti
+  static bool isPlayAllId(String mediaId) {
+    return mediaId.startsWith(playAllPrefix);
+  }
+
+  /// Estrae il parentId dall'item "play all"
+  static String extractPlayAllParentId(String mediaId) {
+    return mediaId.substring(playAllPrefix.length);
   }
 
   /// Verifica se l'ID è per caricare altri risultati di ricerca

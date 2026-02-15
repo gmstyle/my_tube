@@ -20,6 +20,12 @@ class AndroidAutoBrowsingService {
       await _handleAddAllToQueue(parentId);
       return;
     }
+    if (AndroidAutoContentHelper.isPlayAllId(mediaItem.id)) {
+      final parentId =
+          AndroidAutoContentHelper.extractPlayAllParentId(mediaItem.id);
+      await _handlePlayAll(parentId);
+      return;
+    }
     if (mediaItem.playable == true) {
       // Se è un video singolo, lo mettiamo in playlist e lo riproduciamo
       final qm = _service._queueManager;
@@ -41,6 +47,11 @@ class AndroidAutoBrowsingService {
     if (AndroidAutoContentHelper.isAddAllToQueueId(mediaId)) {
       final parentId = AndroidAutoContentHelper.extractAddAllParentId(mediaId);
       await _handleAddAllToQueue(parentId);
+      return;
+    }
+    if (AndroidAutoContentHelper.isPlayAllId(mediaId)) {
+      final parentId = AndroidAutoContentHelper.extractPlayAllParentId(mediaId);
+      await _handlePlayAll(parentId);
       return;
     }
     // Implementazione speculare a playMediaItem o caricamento dinamico se necessario
@@ -303,12 +314,24 @@ class AndroidAutoBrowsingService {
     await _service._queueManager.startIfIdle(firstInsertedIndex);
   }
 
+  Future<void> _handlePlayAll(String parentMediaId) async {
+    final items = await _getPlayableItemsForParent(parentMediaId);
+    if (items.isEmpty) return;
+
+    final qm = _service._queueManager;
+    qm.playlist = items;
+    qm.currentIndex = 0;
+    qm.currentTrack = items[0];
+    await _service._engine.playCurrentTrack();
+  }
+
   List<MediaItem> _prependAddAllItem(
     String parentMediaId,
     List<MediaItem> items,
   ) {
     if (items.isEmpty) return items;
     return [
+      AndroidAutoContentHelper.getPlayAllItem(parentMediaId),
       AndroidAutoContentHelper.getAddAllToQueueItem(parentMediaId),
       ...items,
     ];
