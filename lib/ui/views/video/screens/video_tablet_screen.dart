@@ -1,10 +1,12 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/media_item_list.dart';
+import 'package:my_tube/ui/views/video/widget/video_action_row.dart';
 
 class VideoTabletScreen extends StatelessWidget {
   const VideoTabletScreen(
@@ -28,8 +30,17 @@ class VideoTabletScreen extends StatelessWidget {
             flex: 2,
             child: SingleChildScrollView(
               child: Column(
-                //crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // back button row
+                  if (context.canPop())
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                        tooltip: 'Back',
+                        onPressed: () => context.pop(),
+                      ),
+                    ),
                   // video player
                   ConstrainedBox(
                     constraints: BoxConstraints(
@@ -63,6 +74,7 @@ class VideoTabletScreen extends StatelessWidget {
                               .titleLarge
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
                               ),
                         ),
                       ),
@@ -88,6 +100,10 @@ class VideoTabletScreen extends StatelessWidget {
                   const SizedBox(
                     height: 8,
                   ),
+                  // action row: download + favorite
+                  VideoActionRow(mediaItem: mediaItem),
+                  const SizedBox(height: 8),
+
                   if (mediaItem?.extras!['description'] != null &&
                       mediaItem?.extras!['description'] != '')
                     ExpandableText(
@@ -109,28 +125,25 @@ class VideoTabletScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.queue_music,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
-                        const SizedBox(
-                          width: 8,
-                        ),
+                        const SizedBox(width: 8),
                         Text(
                           'Queue',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Colors.white,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                       ],
                     ),
                     const Spacer(),
-
                     // clear queue
-                    const ClearQueueButton(
-                      isTablet: true,
-                    ),
+                    const ClearQueueButton(),
                     // repeat mode
                     StreamBuilder(
                         stream: mtPlayerService.playbackState
@@ -141,13 +154,13 @@ class VideoTabletScreen extends StatelessWidget {
                               snapshot.data ?? AudioServiceRepeatMode.none;
                           final icons = [
                             Icon(Icons.repeat,
-                                color: Theme.of(context).colorScheme.onPrimary),
+                                color: Theme.of(context).colorScheme.primary),
                             Icon(Icons.repeat_one,
-                                color: Theme.of(context).colorScheme.onPrimary),
+                                color: Theme.of(context).colorScheme.primary),
                             Icon(Icons.repeat,
                                 color: Theme.of(context)
                                     .colorScheme
-                                    .onPrimary
+                                    .onSurface
                                     .withValues(alpha: 0.5)),
                           ];
                           const cycleModes = [

@@ -4,9 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 
 class ClearQueueButton extends StatelessWidget {
-  const ClearQueueButton({super.key, this.isTablet = false});
+  const ClearQueueButton({super.key});
 
-  final bool isTablet;
   @override
   Widget build(BuildContext context) {
     final playerCubit = context.watch<PlayerCubit>();
@@ -14,10 +13,7 @@ class ClearQueueButton extends StatelessWidget {
         onPressed: () {
           _onClearQueuePressed(context, playerCubit);
         },
-        icon: Icon(
-          Icons.clear_all,
-          color: isTablet ? Colors.white : null,
-        ));
+        icon: const Icon(Icons.clear_all));
   }
 
   void _onClearQueuePressed(BuildContext context, PlayerCubit playerCubit) {
