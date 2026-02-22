@@ -25,7 +25,7 @@ class GlobalMiniPlayer extends StatelessWidget {
             return AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              left: 0,
+              left: uiState.leftPadding,
               right: 0,
               bottom: uiState.bottomPadding,
               child: Material(

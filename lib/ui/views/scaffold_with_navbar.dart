@@ -17,22 +17,48 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   static const double _miniPlayerHeight = 72.0;
 
-  // NavigationRail destinations for larger screens
+  final _navigationBarDestinations = const [
+    NavigationDestination(
+      icon: Icon(Icons.explore_outlined),
+      selectedIcon: Icon(Icons.explore),
+      label: 'Explore',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.music_note_outlined),
+      selectedIcon: Icon(Icons.music_note),
+      label: 'Music',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.favorite_outline),
+      selectedIcon: Icon(Icons.favorite),
+      label: 'Favorites',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.settings_outlined),
+      selectedIcon: Icon(Icons.settings),
+      label: 'Settings',
+    ),
+  ];
+
   final _railDestinations = const [
     NavigationRailDestination(
-      icon: Icon(Icons.explore),
+      icon: Icon(Icons.explore_outlined),
+      selectedIcon: Icon(Icons.explore),
       label: Text('Explore'),
     ),
     NavigationRailDestination(
-      icon: Icon(Icons.music_note),
+      icon: Icon(Icons.music_note_outlined),
+      selectedIcon: Icon(Icons.music_note),
       label: Text('Music'),
     ),
     NavigationRailDestination(
-      icon: Icon(Icons.favorite),
+      icon: Icon(Icons.favorite_outline),
+      selectedIcon: Icon(Icons.favorite),
       label: Text('Favorites'),
     ),
     NavigationRailDestination(
-      icon: Icon(Icons.settings),
+      icon: Icon(Icons.settings_outlined),
+      selectedIcon: Icon(Icons.settings),
       label: Text('Settings'),
     ),
   ];
@@ -41,23 +67,19 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     navigationShell.goBranch(index,
         initialLocation: index == navigationShell.currentIndex);
     log('onDestinationSelected: $index');
-    if (context != null) {
-      Navigator.of(context).pop(); // Close drawer
-    }
   }
 
   void _showGlobalSearch(BuildContext context) async {
     final persistentUiCubit = context.read<PersistentUiCubit>();
-    // Reset padding when search is open to avoid floating miniplayer
-    persistentUiCubit.setBottomPadding(0);
+    // Reset padding when search is open to avoid floating miniplayer overlapping search
+    persistentUiCubit.setPaddings(bottom: 0, left: 0);
 
     await showSearch(
       context: context,
       delegate: GlobalSearchDelegate(),
     );
 
-    // Restore padding after search is closed
-    // Height will be restored by the LayoutBuilder postFrameCallback
+    // Restored automatically by the LayoutBuilder postFrameCallback below
   }
 
   Future<void> disableBatteryOptimization() async {
@@ -92,16 +114,24 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final bool useNavigationRail = constraints.maxWidth >= 640;
+          // Compensiamo il rialzo di sistema (es. la barra dei gesti di Android/iOS)
+          final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+          final leftSafeArea = MediaQuery.of(context).padding.left;
 
-          // Update global UI state
+          // Update global UI state to keep MiniPlayer hovering perfectly
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.read<PersistentUiCubit>().setBottomPadding(0);
+            // Material 3 NavigationBar default height is 80.0
+            // Material 3 NavigationRail default width is 80.0
+            context.read<PersistentUiCubit>().setPaddings(
+                  bottom: useNavigationRail ? 0 : 80.0 + bottomSafeArea,
+                  left: useNavigationRail ? 80.0 + leftSafeArea : 0,
+                );
           });
 
           if (useNavigationRail) {
             return _buildNavigationRailLayout(context);
           } else {
-            return _buildDrawerLayout(context);
+            return _buildMobileLayout(context);
           }
         },
       ),
@@ -116,7 +146,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             final isPlayerVisible = playerState.status != PlayerStatus.hidden &&
                 uiState.isPlayerVisible;
             // The content needs padding if the player is visible,
-            // otherwise it will be covered by the GlobalMiniPlayer (which is at bottom: 0)
+            // otherwise it will be covered by the GlobalMiniPlayer
             final bottomPadding = isPlayerVisible ? _miniPlayerHeight : 0.0;
 
             return Padding(
@@ -142,9 +172,12 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         children: [
           NavigationRail(
             selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: onDestinationSelected,
+            onDestinationSelected: (index) =>
+                onDestinationSelected(index, context: context),
             labelType: NavigationRailLabelType.all,
+            groupAlignment: -1.0,
             destinations: _railDestinations,
+            // Optionally we can add leading/trailing here for aesthetics
           ),
           Expanded(
             child: _buildContentPadding(context, navigationShell),
@@ -154,13 +187,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerLayout(BuildContext context) {
+  Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
-      drawer: _AppDrawer(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (index) =>
-            onDestinationSelected(index, context: context),
-      ),
       appBar: CustomAppbar(
         actions: [
           IconButton(
@@ -169,86 +197,58 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         ],
       ),
       body: _buildContentPadding(context, navigationShell),
-    );
-  }
-}
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          // Rimuoviamo l'ombra "pesante" di default per far fondere la barra col contenuto
+          elevation: 0,
+          // Sfondo leggermente differenziato o opaco a seconda del tema
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          // Colore del riquadro di selezione (il rettangolo stondato)
+          indicatorColor: Theme.of(context).colorScheme.primaryContainer,
 
-class _AppDrawer extends StatelessWidget {
-  const _AppDrawer({
-    required this.selectedIndex,
-    required this.onDestinationSelected,
-  });
+          // Regoliamo le icone dinamicamente (colore e grandezza)
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return IconThemeData(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                size: 26, // Lieve ingrandimento "pop"
+              );
+            }
+            return IconThemeData(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurfaceVariant
+                  .withOpacity(0.7),
+              size: 24, // Dimensione classica non selezionata
+            );
+          }),
 
-  final int selectedIndex;
-  final ValueChanged<int> onDestinationSelected;
+          // Stile tipografico sofisticato per l'etichetta selezionata
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3, // Aggiunge respiro
+                color: Theme.of(context).colorScheme.primary,
+              );
+            }
+            return const TextStyle();
+          }),
 
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      width: MediaQuery.of(context).size.width * 0.6,
-      child: Column(
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              spacing: 8.0,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 8.0,
-                  children: [
-                    // Icona dell'app
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      backgroundImage:
-                          AssetImage('assets/images/ic_launcher.webp'),
-                    ),
-                    Text(
-                      'MyTube',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer,
-                              ),
-                    ),
-                  ],
-                ),
-                // Settings button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                        onPressed: () => onDestinationSelected(3),
-                        icon: Icon(Icons.settings))
-                  ],
-                ),
-              ],
-            ),
+          // Mostriamo l'etichetta solo per la pagina in cui ci troviamo (Minimalismo)
+          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+          // Cambiamo la forma della "pillola" di selezione in un rettangolo stondato premium
+          indicatorShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          ListTile(
-            leading: const Icon(Icons.explore),
-            title: const Text('Explore'),
-            selected: selectedIndex == 0,
-            onTap: () => onDestinationSelected(0),
-          ),
-          ListTile(
-            leading: const Icon(Icons.music_note),
-            title: const Text('Music'),
-            selected: selectedIndex == 1,
-            onTap: () => onDestinationSelected(1),
-          ),
-          ListTile(
-            leading: const Icon(Icons.favorite),
-            title: const Text('Favorites'),
-            selected: selectedIndex == 2,
-            onTap: () => onDestinationSelected(2),
-          )
-        ],
+        ),
+        child: NavigationBar(
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: (index) =>
+              onDestinationSelected(index, context: context),
+          destinations: _navigationBarDestinations,
+        ),
       ),
     );
   }
