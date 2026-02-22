@@ -130,11 +130,11 @@ class MiniPlayer extends StatelessWidget {
                   topLeft: Radius.circular(16), topRight: Radius.circular(16)),
               child: Container(
                 color: Theme.of(context).colorScheme.surfaceContainer,
-                height: 72,
+                height: 60, // Ridotto per l'approccio Fusione
                 child: HorizontalSwipeToSkip(
                   child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: 8, vertical: 2), // Ridotto leggermente
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

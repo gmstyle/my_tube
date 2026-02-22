@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
@@ -15,7 +16,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
 
-  static const double _miniPlayerHeight = 72.0;
+  static const double _miniPlayerHeight = 60.0;
 
   final _navigationBarDestinations = const [
     NavigationDestination(
@@ -72,14 +73,14 @@ class ScaffoldWithNavbarView extends StatelessWidget {
   void _showGlobalSearch(BuildContext context) async {
     final persistentUiCubit = context.read<PersistentUiCubit>();
     // Reset padding when search is open to avoid floating miniplayer overlapping search
-    persistentUiCubit.setPaddings(bottom: 0, left: 0);
+    persistentUiCubit.setSearchOpen(true);
 
     await showSearch(
       context: context,
       delegate: GlobalSearchDelegate(),
     );
 
-    // Restored automatically by the LayoutBuilder postFrameCallback below
+    persistentUiCubit.setSearchOpen(false);
   }
 
   Future<void> disableBatteryOptimization() async {
@@ -120,11 +121,14 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
           // Update global UI state to keep MiniPlayer hovering perfectly
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            // Material 3 NavigationBar default height is 80.0
+            // Material 3 NavigationBar custom squeezed height is 65.0
             // Material 3 NavigationRail default width is 80.0
-            context.read<PersistentUiCubit>().setPaddings(
-                  bottom: useNavigationRail ? 0 : 80.0 + bottomSafeArea,
-                  left: useNavigationRail ? 80.0 + leftSafeArea : 0,
+            context.read<PersistentUiCubit>().setBottomLayout(
+                  useNavigationRail ? 0 : 65.0,
+                  bottomSafeArea,
+                );
+            context.read<PersistentUiCubit>().setLeftPadding(
+                  useNavigationRail ? 80.0 + leftSafeArea : 0,
                 );
           });
 
@@ -145,12 +149,15 @@ class ScaffoldWithNavbarView extends StatelessWidget {
           builder: (context, uiState) {
             final isPlayerVisible = playerState.status != PlayerStatus.hidden &&
                 uiState.isPlayerVisible;
-            // The content needs padding if the player is visible,
-            // otherwise it will be covered by the GlobalMiniPlayer
-            final bottomPadding = isPlayerVisible ? _miniPlayerHeight : 0.0;
+            // The content needs padding if the player is visible, plus the dynamic uiState padding (NavBar height, safe areas, etc.)
+            final playerHeight = isPlayerVisible ? _miniPlayerHeight : 0.0;
+            final double currentBottomPadding =
+                playerHeight + uiState.bottomPadding;
 
-            return Padding(
-              padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, bottomPadding),
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, currentBottomPadding),
               child: child,
             );
           },
@@ -189,6 +196,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
+      extendBody:
+          true, // Importante per far scorrere la NavBar senza lasciare buchi bianchi sotto
       appBar: CustomAppbar(
         actions: [
           IconButton(
@@ -196,59 +205,94 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               icon: Icon(Icons.search)),
         ],
       ),
-      body: _buildContentPadding(context, navigationShell),
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          // Rimuoviamo l'ombra "pesante" di default per far fondere la barra col contenuto
-          elevation: 0,
-          // Sfondo leggermente differenziato o opaco a seconda del tema
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-          // Colore del riquadro di selezione (il rettangolo stondato)
-          indicatorColor: Theme.of(context).colorScheme.primaryContainer,
-
-          // Regoliamo le icone dinamicamente (colore e grandezza)
-          iconTheme: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return IconThemeData(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-                size: 26, // Lieve ingrandimento "pop"
-              );
+      body: MediaQuery.removePadding(
+        context: context,
+        removeBottom:
+            true, // Il padding inferiore lo forniamo noi via _buildContentPadding dinamicamente
+        child: NotificationListener<UserScrollNotification>(
+          onNotification: (notification) {
+            final cubit = context.read<PersistentUiCubit>();
+            if (notification.direction == ScrollDirection.reverse) {
+              // Utente scorre verso il basso -> Nascondiamo NavBar
+              cubit.setNavBarVisibility(false);
+            } else if (notification.direction == ScrollDirection.forward) {
+              // Utente scorre verso l'alto -> Mostriamo NavBar
+              cubit.setNavBarVisibility(true);
             }
-            return IconThemeData(
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurfaceVariant
-                  .withOpacity(0.7),
-              size: 24, // Dimensione classica non selezionata
-            );
-          }),
-
-          // Stile tipografico sofisticato per l'etichetta selezionata
-          labelTextStyle: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.3, // Aggiunge respiro
-                color: Theme.of(context).colorScheme.primary,
-              );
-            }
-            return const TextStyle();
-          }),
-
-          // Mostriamo l'etichetta solo per la pagina in cui ci troviamo (Minimalismo)
-          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-          // Cambiamo la forma della "pillola" di selezione in un rettangolo stondato premium
-          indicatorShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+            return false;
+          },
+          child: _buildContentPadding(context, navigationShell),
         ),
-        child: NavigationBar(
-          selectedIndex: navigationShell.currentIndex,
-          onDestinationSelected: (index) =>
-              onDestinationSelected(index, context: context),
-          destinations: _navigationBarDestinations,
-        ),
+      ),
+      bottomNavigationBar: BlocBuilder<PersistentUiCubit, PersistentUiState>(
+        buildWhen: (previous, current) =>
+            previous.isNavBarVisible != current.isNavBarVisible ||
+            previous.isSearchOpen != current.isSearchOpen,
+        builder: (context, uiState) {
+          final hideBar = !uiState.isNavBarVisible || uiState.isSearchOpen;
+
+          return AnimatedSlide(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            offset: hideBar ? const Offset(0, 1) : Offset.zero,
+            child: NavigationBarTheme(
+              data: NavigationBarThemeData(
+                // Rimuoviamo l'ombra "pesante" di default per far fondere la barra col contenuto
+                elevation: 0,
+                // Sfondo leggermente differenziato o opaco a seconda del tema
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                // Colore del riquadro di selezione (il rettangolo stondato)
+                indicatorColor: Theme.of(context).colorScheme.primaryContainer,
+
+                // Regoliamo le icone dinamicamente (colore e grandezza)
+                iconTheme: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return IconThemeData(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      size: 26, // Lieve ingrandimento "pop"
+                    );
+                  }
+                  return IconThemeData(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withValues(alpha: 0.7),
+                    size: 24, // Dimensione classica non selezionata
+                  );
+                }),
+
+                // Stile tipografico sofisticato per l'etichetta selezionata
+                labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.3, // Aggiunge respiro
+                      color: Theme.of(context).colorScheme.primary,
+                    );
+                  }
+                  return const TextStyle();
+                }),
+
+                // Mostriamo l'etichetta solo per la pagina in cui ci troviamo (Minimalismo)
+                labelBehavior:
+                    NavigationDestinationLabelBehavior.onlyShowSelected,
+                // Cambiamo la forma della "pillola" di selezione in un rettangolo stondato premium
+                indicatorShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: NavigationBar(
+                height:
+                    65, // Ridotto considerevolmente rispetto al default (80)
+                selectedIndex: navigationShell.currentIndex,
+                onDestinationSelected: (index) =>
+                    onDestinationSelected(index, context: context),
+                destinations: _navigationBarDestinations,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

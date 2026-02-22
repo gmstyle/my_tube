@@ -110,7 +110,8 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                 } else if (notification.direction == ScrollDirection.forward) {
                   if (!_isFabVisible) setState(() => _isFabVisible = true);
                 }
-                return true;
+                // Ritorna `false` per permettere allo scroll di "galleggiare" fino al listener principale della NavBar
+                return false;
               },
               child: Builder(builder: (context) {
                 switch (_active) {
