@@ -249,6 +249,17 @@ class MiniPlayer extends StatelessWidget {
                                           )),
                                     );
                                   }),
+                              // Queue Button
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                tooltip: 'Queue',
+                                onPressed: () => AppRouter.router
+                                    .pushNamed(AppRoute.queue.name),
+                                icon: const Icon(
+                                  Icons.queue_music,
+                                  size: 22,
+                                ),
+                              ),
                             ],
                           ),
                           // SeekBar

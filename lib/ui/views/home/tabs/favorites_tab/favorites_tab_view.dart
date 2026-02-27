@@ -41,12 +41,14 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
         children: [
           // Header Row (Standardized)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
             child: Row(
               children: [
                 Text(
                   'Favorites',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),

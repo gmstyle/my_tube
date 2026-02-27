@@ -7,7 +7,6 @@ import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video/widget/controls.dart';
-import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
 import 'package:my_tube/ui/views/video/widget/video_action_row.dart';
 
 class VideoPhoneScreen extends StatelessWidget {
@@ -134,8 +133,8 @@ class VideoPhoneScreen extends StatelessWidget {
                       ),
                     ),
 
-                  // bottom padding so content clears the queue sheet handle
-                  const SizedBox(height: 80),
+                  // bottom padding
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -153,8 +152,15 @@ class VideoPhoneScreen extends StatelessWidget {
             ),
           ),
 
-        // ── Queue draggable sheet ─────────────────────────────────────
-        const QueueDraggableSheet(),
+        // ── Queue button overlay (top-right) ──────────────────────────
+        Positioned(
+          top: topPadding + 8,
+          right: 8,
+          child: _OverlayIconButton(
+            icon: Icons.queue_music,
+            onTap: () => context.pushNamed('queue'),
+          ),
+        ),
       ],
     );
   }

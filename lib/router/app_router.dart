@@ -6,6 +6,7 @@ import 'package:my_tube/router/pages/explore_tab_page.dart';
 import 'package:my_tube/router/pages/music_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
+import 'package:my_tube/router/pages/queue_page.dart';
 import 'package:my_tube/router/pages/settings_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
 
@@ -23,6 +24,14 @@ class AppRouter {
       name: AppRoute.video.name,
       path: AppRoute.video.path,
       pageBuilder: (context, state) => const VideoPage(),
+      routes: [
+        GoRoute(
+          parentNavigatorKey: rootNavigatorKey,
+          name: AppRoute.queue.name,
+          path: AppRoute.queue.path,
+          pageBuilder: (context, state) => const QueuePage(),
+        ),
+      ],
     ),
 
     // Shell
@@ -110,6 +119,7 @@ enum AppRoute {
   favorites('/favorites'),
   settings('/settings'),
   video('/video'),
+  queue('queue'),
   testYoutubeExplode('/test-youtube-explode');
 
   final String path;
