@@ -32,11 +32,16 @@ class _ExploreTabViewState extends State<ExploreTabView>
     // Use a TabBar + TabBarView: each tab selects a category and requests trending videos
     final exploreTabBloc = context.read<ExploreTabBloc>();
 
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: TabBar(
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          pinned: false,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 0,
+          forceElevated: innerBoxIsScrolled,
+          bottom: TabBar(
             controller: _tabController,
             isScrollable: false,
             indicatorColor: Theme.of(context).colorScheme.primary,
@@ -49,16 +54,13 @@ class _ExploreTabViewState extends State<ExploreTabView>
             }),
           ),
         ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: List.generate(CategoryEnum.values.length, (index) {
-              return _buildTabContent(context, exploreTabBloc);
-            }),
-          ),
-        ),
       ],
+      body: TabBarView(
+        controller: _tabController,
+        children: List.generate(CategoryEnum.values.length, (index) {
+          return _buildTabContent(context, exploreTabBloc);
+        }),
+      ),
     );
   }
 
