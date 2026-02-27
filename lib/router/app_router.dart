@@ -7,6 +7,7 @@ import 'package:my_tube/router/pages/music_tab_page.dart';
 import 'package:my_tube/router/pages/playlist_page.dart';
 import 'package:my_tube/router/pages/favorites_tab_page.dart';
 import 'package:my_tube/router/pages/queue_page.dart';
+import 'package:my_tube/router/pages/search_tab_page.dart';
 import 'package:my_tube/router/pages/settings_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
 
@@ -15,6 +16,7 @@ class AppRouter {
   static final exploreKey = GlobalKey<NavigatorState>();
   static final musicKey = GlobalKey<NavigatorState>();
   static final favoritesKey = GlobalKey<NavigatorState>();
+  static final searchKey = GlobalKey<NavigatorState>();
   static final settingsKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
@@ -97,6 +99,14 @@ class AppRouter {
                 ]),
           ]),
 
+          // Tab Search
+          StatefulShellBranch(navigatorKey: searchKey, routes: [
+            GoRoute(
+                name: AppRoute.search.name,
+                path: AppRoute.search.path,
+                pageBuilder: (context, state) => const SearchTabPage()),
+          ]),
+
           // Tab Settings
           StatefulShellBranch(navigatorKey: settingsKey, routes: [
             GoRoute(
@@ -118,6 +128,7 @@ enum AppRoute {
   playlistFavorites('playlistFavorite'),
   favorites('/favorites'),
   settings('/settings'),
+  search('/search'),
   video('/video'),
   queue('queue'),
   testYoutubeExplode('/test-youtube-explode');

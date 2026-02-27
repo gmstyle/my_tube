@@ -147,11 +147,11 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
     final parentTheme = Theme.of(context);
 
     if (query.isEmpty) {
-      // Show search history as suggestion chips
+      // Show search history
       return BlocBuilder<SearchSuggestionCubit, SearchSuggestionState>(
         builder: (context, state) {
-          // Load query history when widget is first built and state is empty
-          if (state.suggestions.isEmpty && !state.isQueryHistory) {
+          // Carica sempre la history ogni volta che il delegate mostra i suggerimenti senza query
+          if (!state.isQueryHistory) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.read<SearchSuggestionCubit>().getQueryHistory();
             });
@@ -177,62 +177,53 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
             );
           }
 
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recent searches',
-                  style: parentTheme.textTheme.titleMedium?.copyWith(
+          final reversed = state.suggestions.reversed.toList();
+          return ListView.builder(
+            itemCount: reversed.length + 1, // +1 per header
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                  child: Text(
+                    'Recent searches',
+                    style: parentTheme.textTheme.titleMedium?.copyWith(
+                      color: parentTheme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                );
+              }
+              final suggestion = reversed[index - 1];
+              return ListTile(
+                dense: true,
+                leading: Icon(
+                  Icons.history,
+                  color: parentTheme.colorScheme.onSurface,
+                  size: 20,
+                ),
+                title: Text(
+                  suggestion,
+                  style: TextStyle(color: parentTheme.colorScheme.onSurface),
+                ),
+                trailing: IconButton(
+                  icon: Icon(
+                    Icons.close,
                     color: parentTheme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+                    size: 18,
                   ),
+                  onPressed: () {
+                    context
+                        .read<SearchSuggestionCubit>()
+                        .deleteQueryFromHistory(suggestion);
+                  },
                 ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: state.suggestions.length,
-                    itemBuilder: (context, index) {
-                      final suggestion =
-                          state.suggestions.reversed.toList()[index];
-                      return ListTile(
-                        dense: true,
-                        leading: Icon(
-                          Icons.history,
-                          color: parentTheme.colorScheme.onSurface,
-                          size: 20,
-                        ),
-                        title: Text(
-                          suggestion,
-                          style: TextStyle(
-                            color: parentTheme.colorScheme.onSurface,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            Icons.close,
-                            color: parentTheme.colorScheme.onSurface,
-                            size: 18,
-                          ),
-                          onPressed: () {
-                            context
-                                .read<SearchSuggestionCubit>()
-                                .deleteQueryFromHistory(suggestion);
-                          },
-                        ),
-                        onTap: () {
-                          query = suggestion;
-                          _performSearch(context);
-                          showResults(context);
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+                onTap: () {
+                  query = suggestion;
+                  _performSearch(context);
+                  showResults(context);
+                },
+              );
+            },
           );
         },
       );
@@ -257,49 +248,40 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
             );
           }
 
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Suggestions',
-                  style: parentTheme.textTheme.titleMedium?.copyWith(
-                    color: parentTheme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+          return ListView.builder(
+            itemCount: state.suggestions.length + 1, // +1 per header
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                  child: Text(
+                    'Suggestions',
+                    style: parentTheme.textTheme.titleMedium?.copyWith(
+                      color: parentTheme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
+                );
+              }
+              final suggestion = state.suggestions[index - 1];
+              return ListTile(
+                dense: true,
+                leading: Icon(
+                  Icons.search,
+                  color: parentTheme.colorScheme.onSurface,
+                  size: 20,
                 ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: state.suggestions.length,
-                    itemBuilder: (context, index) {
-                      final suggestion = state.suggestions[index];
-                      return ListTile(
-                        dense: true,
-                        leading: Icon(
-                          Icons.search,
-                          color: parentTheme.colorScheme.onSurface,
-                          size: 20,
-                        ),
-                        title: Text(
-                          suggestion,
-                          style: TextStyle(
-                            color: parentTheme.colorScheme.onSurface,
-                          ),
-                        ),
-                        onTap: () {
-                          query = suggestion;
-                          _performSearch(context);
-                          showResults(context);
-                        },
-                      );
-                    },
-                  ),
+                title: Text(
+                  suggestion,
+                  style: TextStyle(color: parentTheme.colorScheme.onSurface),
                 ),
-              ],
-            ),
+                onTap: () {
+                  query = suggestion;
+                  _performSearch(context);
+                  showResults(context);
+                },
+              );
+            },
           );
         },
       );

@@ -7,8 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
-import 'package:my_tube/ui/views/common/custom_appbar.dart';
-import 'package:my_tube/ui/views/common/global_search_delegate.dart';
+
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 
@@ -35,6 +34,11 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       label: 'Favorites',
     ),
     NavigationDestination(
+      icon: Icon(Icons.search_outlined),
+      selectedIcon: Icon(Icons.search),
+      label: 'Search',
+    ),
+    NavigationDestination(
       icon: Icon(Icons.settings_outlined),
       selectedIcon: Icon(Icons.settings),
       label: 'Settings',
@@ -58,6 +62,11 @@ class ScaffoldWithNavbarView extends StatelessWidget {
       label: Text('Favorites'),
     ),
     NavigationRailDestination(
+      icon: Icon(Icons.search_outlined),
+      selectedIcon: Icon(Icons.search),
+      label: Text('Search'),
+    ),
+    NavigationRailDestination(
       icon: Icon(Icons.settings_outlined),
       selectedIcon: Icon(Icons.settings),
       label: Text('Settings'),
@@ -68,19 +77,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     navigationShell.goBranch(index,
         initialLocation: index == navigationShell.currentIndex);
     log('onDestinationSelected: $index');
-  }
-
-  void _showGlobalSearch(BuildContext context) async {
-    final persistentUiCubit = context.read<PersistentUiCubit>();
-    // Reset padding when search is open to avoid floating miniplayer overlapping search
-    persistentUiCubit.setSearchOpen(true);
-
-    await showSearch(
-      context: context,
-      delegate: GlobalSearchDelegate(),
-    );
-
-    persistentUiCubit.setSearchOpen(false);
   }
 
   Future<void> disableBatteryOptimization() async {
@@ -168,13 +164,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   Widget _buildNavigationRailLayout(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppbar(
-        actions: [
-          IconButton(
-              onPressed: () => _showGlobalSearch(context),
-              icon: Icon(Icons.search)),
-        ],
-      ),
       body: Row(
         children: [
           NavigationRail(
@@ -198,13 +187,6 @@ class ScaffoldWithNavbarView extends StatelessWidget {
     return Scaffold(
       extendBody:
           true, // Importante per far scorrere la NavBar senza lasciare buchi bianchi sotto
-      appBar: CustomAppbar(
-        actions: [
-          IconButton(
-              onPressed: () => _showGlobalSearch(context),
-              icon: Icon(Icons.search)),
-        ],
-      ),
       body: MediaQuery.removePadding(
         context: context,
         removeBottom:

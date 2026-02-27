@@ -55,7 +55,8 @@ class SettingsView extends StatelessWidget {
                     children: [
                       // Theme & Appearance Section
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsets.only(
+                            left: 16.0, right: 16.0, top: 8.0),
                         child: Text(
                           'Theme & Appearance',
                           style:
@@ -95,11 +96,11 @@ class SettingsView extends StatelessWidget {
                             themeCubit.updateUseDynamicColor(value),
                       ),
 
-                      const Divider(height: 32),
+                      const Divider(height: 16),
 
                       // General Section
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           'General',
                           style:
@@ -146,11 +147,11 @@ class SettingsView extends StatelessWidget {
                         },
                       ),
 
-                      const Divider(height: 32),
+                      const Divider(height: 16),
 
                       // About Section
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           'About',
                           style:
