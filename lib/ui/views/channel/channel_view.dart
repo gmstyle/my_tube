@@ -251,7 +251,7 @@ class _ChannelViewState extends State<ChannelView>
           entityId: channel.id.value,
           entityType: FavoriteEntityType.channel,
           size: isCompact ? 20.0 : 22.0,
-          //padding: EdgeInsets.all(isCompact ? 8 : 10),
+          padding: EdgeInsets.all(isCompact ? 8 : 10),
         ),
         EnhancedOverflowMenu(
           actions: _buildChannelOverflowActions(context, channel, videos),

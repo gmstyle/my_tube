@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart' hide ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/settings/cubit/settings_cubit.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
 import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
+import 'package:my_tube/utils/app_theme_extensions.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SettingsView
+// ─────────────────────────────────────────────────────────────────────────────
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -20,9 +24,7 @@ class SettingsView extends StatelessWidget {
       future: PackageInfo.fromPlatform(),
       builder: (context, snapshot) {
         final packageInfo = snapshot.data;
-        final version = packageInfo != null
-            ? '${packageInfo.version}+${packageInfo.buildNumber}'
-            : '...';
+        final version = packageInfo != null ? packageInfo.version : '...';
 
         return MultiBlocListener(
           listeners: [
@@ -51,162 +53,211 @@ class SettingsView extends StatelessWidget {
             builder: (context, state) {
               return BlocBuilder<ThemeCubit, ThemeSettings>(
                 builder: (context, themeSettings) {
-                  return ListView(
-                    children: [
-                      // Theme & Appearance Section
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 16.0, right: 16.0, top: 8.0),
-                        child: Text(
-                          'Theme & Appearance',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
+                  final theme = Theme.of(context);
+                  final cs = theme.colorScheme;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      children: [
+                        // ── App banner ────────────────────────────────────────
+                        _AppBanner(version: version),
+                        const SizedBox(height: 16),
+
+                        // ── Theme & Appearance ────────────────────────────────
+                        _SettingsCard(
+                          label: 'Theme & Appearance',
+                          icon: Icons.palette_outlined,
+                          iconColor: cs.primaryContainer,
+                          iconOnColor: cs.onPrimaryContainer,
+                          children: [
+                            // Theme mode header row
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                              child: Row(
+                                children: [
+                                  _IconContainer(
+                                    icon: Icons.dark_mode_outlined,
+                                    color: cs.primaryContainer,
+                                    onColor: cs.onPrimaryContainer,
                                   ),
-                        ),
-                      ),
-
-                      // Theme Mode Setting
-                      ListTile(
-                        leading: const Icon(Icons.dark_mode),
-                        title: const Text('Theme Mode'),
-                        subtitle: Text(
-                            'Choose between light, dark, or system theme',
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant)),
-                        trailing: Text(ThemeSettings.getThemeModeDisplayName(
-                            themeSettings.themeMode)),
-                        onTap: () => _showThemeModeDialog(
-                            context, themeCubit, themeSettings.themeMode),
-                      ),
-
-                      // Dynamic Color Setting
-                      SwitchListTile(
-                        secondary: const Icon(Icons.palette),
-                        title: const Text('Dynamic Color'),
-                        subtitle: Text('Use system colors (Material You)',
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant)),
-                        value: themeSettings.useDynamicColor,
-                        onChanged: (value) =>
-                            themeCubit.updateUseDynamicColor(value),
-                      ),
-
-                      const Divider(height: 16),
-
-                      // General Section
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'General',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ),
-
-                      // Country Setting
-                      ListTile(
-                        leading: const Icon(Icons.language),
-                        title: const Text('Country'),
-                        subtitle: Text(
-                            'Default is based on your IP address, but you can change it',
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant)),
-                        trailing: Text(state.country),
-                        onTap: () async {
-                          // show a bottom sheet with a list of countries to choose from
-                          final selectedCountry =
-                              await showModalBottomSheet<String>(
-                            context: context,
-                            builder: (context) {
-                              return ListView.builder(
-                                itemCount: countryToLanguage.keys.length,
-                                itemBuilder: (context, index) {
-                                  final country =
-                                      countryToLanguage.keys.elementAt(index);
-
-                                  return ListTile(
-                                    title: Text(country),
-                                    onTap: () => context.pop(country),
-                                  );
-                                },
-                              );
-                            },
-                          );
-                          if (selectedCountry != null) {
-                            settingsCubit.setCountry(selectedCountry);
-                          }
-                        },
-                      ),
-
-                      const Divider(height: 16),
-
-                      // About Section
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'About',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ),
-
-                      // App Version
-                      ListTile(
-                        leading: const Icon(Icons.info_outline),
-                        title: const Text('App Version'),
-                        subtitle: Text(version,
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant)),
-                      ),
-
-                      // Check for Updates
-                      BlocBuilder<UpdateBloc, UpdateState>(
-                        builder: (context, updateState) {
-                          final isChecking =
-                              updateState.status == UpdateStatus.checking;
-                          return ListTile(
-                            leading: isChecking
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Theme Mode',
+                                            style: theme.textTheme.bodyLarge),
+                                        Text(
+                                          'Appearance of the app',
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                  color: cs.onSurfaceVariant),
+                                        ),
+                                      ],
                                     ),
-                                  )
-                                : const Icon(Icons.update),
-                            title: const Text('Check for Updates'),
-                            subtitle: Text(
-                                isChecking
-                                    ? 'Checking...'
-                                    : 'Check if a newer version is available',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant)),
-                            onTap: isChecking
-                                ? null
-                                : () {
-                                    context
-                                        .read<UpdateBloc>()
-                                        .add(const CheckForUpdate());
-                                  },
-                          );
-                        },
-                      ),
-                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Inline SegmentedButton — no dialog needed
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                              child: SegmentedButton<ThemeMode>(
+                                selected: {themeSettings.themeMode},
+                                onSelectionChanged: (val) =>
+                                    themeCubit.updateThemeMode(val.first),
+                                showSelectedIcon: false,
+                                style: SegmentedButton.styleFrom(
+                                  selectedBackgroundColor: cs.primaryContainer,
+                                  selectedForegroundColor:
+                                      cs.onPrimaryContainer,
+                                ),
+                                segments: const [
+                                  ButtonSegment(
+                                    value: ThemeMode.light,
+                                    icon: Icon(Icons.light_mode_outlined,
+                                        size: 18),
+                                    label: Text('Light'),
+                                  ),
+                                  ButtonSegment(
+                                    value: ThemeMode.dark,
+                                    icon: Icon(Icons.dark_mode_outlined,
+                                        size: 18),
+                                    label: Text('Dark'),
+                                  ),
+                                  ButtonSegment(
+                                    value: ThemeMode.system,
+                                    icon: Icon(Icons.phone_android_outlined,
+                                        size: 18),
+                                    label: Text('System'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Divider(
+                              color: cs.outline.withValues(alpha: 0.15),
+                              height: 1,
+                              indent: 16,
+                              endIndent: 16,
+                            ),
+                            // Dynamic Color
+                            SwitchListTile(
+                              secondary: _IconContainer(
+                                icon: Icons.auto_awesome_outlined,
+                                color: cs.tertiaryContainer,
+                                onColor: cs.onTertiaryContainer,
+                              ),
+                              title: const Text('Dynamic Color'),
+                              subtitle: Text(
+                                'Use system colors (Material You)',
+                                style: TextStyle(color: cs.onSurfaceVariant),
+                              ),
+                              value: themeSettings.useDynamicColor,
+                              onChanged: (value) =>
+                                  themeCubit.updateUseDynamicColor(value),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // ── General ───────────────────────────────────────────
+                        _SettingsCard(
+                          label: 'General',
+                          icon: Icons.tune_outlined,
+                          iconColor: cs.secondaryContainer,
+                          iconOnColor: cs.onSecondaryContainer,
+                          children: [
+                            ListTile(
+                              leading: _IconContainer(
+                                icon: Icons.language_outlined,
+                                color: cs.secondaryContainer,
+                                onColor: cs.onSecondaryContainer,
+                              ),
+                              title: const Text('Country'),
+                              subtitle: Text(
+                                'Content region for trending & explore',
+                                style: TextStyle(color: cs.onSurfaceVariant),
+                              ),
+                              trailing: Chip(
+                                label: Text(
+                                  state.country,
+                                  style: theme.textTheme.labelMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                                backgroundColor: cs.secondaryContainer,
+                                side: BorderSide.none,
+                              ),
+                              onTap: () async {
+                                final selectedCountry =
+                                    await showModalBottomSheet<String>(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  useRootNavigator: true,
+                                  builder: (context) => _CountryPickerSheet(
+                                      selected: state.country),
+                                );
+                                if (selectedCountry != null) {
+                                  settingsCubit.setCountry(selectedCountry);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // ── About ─────────────────────────────────────────────
+                        _SettingsCard(
+                          label: 'About',
+                          icon: Icons.info_outline,
+                          iconColor: cs.surfaceContainerHighest,
+                          iconOnColor: cs.onSurfaceVariant,
+                          children: [
+                            BlocBuilder<UpdateBloc, UpdateState>(
+                              builder: (context, updateState) {
+                                final isChecking =
+                                    updateState.status == UpdateStatus.checking;
+                                return ListTile(
+                                  leading: _IconContainer(
+                                    icon: Icons.update_outlined,
+                                    color: cs.surfaceContainerHighest,
+                                    onColor: cs.onSurfaceVariant,
+                                  ),
+                                  title: const Text('Check for Updates'),
+                                  subtitle: Text(
+                                    isChecking
+                                        ? 'Checking...'
+                                        : 'Check if a newer version is available',
+                                    style:
+                                        TextStyle(color: cs.onSurfaceVariant),
+                                  ),
+                                  trailing: FilledButton.tonal(
+                                    onPressed: isChecking
+                                        ? null
+                                        : () => context
+                                            .read<UpdateBloc>()
+                                            .add(const CheckForUpdate()),
+                                    child: isChecking
+                                        ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2),
+                                          )
+                                        : const Text('Check'),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
                   );
                 },
               );
@@ -216,38 +267,296 @@ class SettingsView extends StatelessWidget {
       },
     );
   }
+}
 
-  void _showThemeModeDialog(
-      BuildContext context, ThemeCubit themeCubit, ThemeMode currentMode) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Theme Mode'),
-        content: RadioGroup<ThemeMode>(
-          groupValue: currentMode,
-          onChanged: (value) {
-            if (value != null) {
-              themeCubit.updateThemeMode(value);
-              Navigator.of(context).pop();
-            }
-          },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ThemeMode.values.map((mode) {
-              return RadioListTile<ThemeMode>(
-                title: Text(ThemeSettings.getThemeModeDisplayName(mode)),
-                value: mode,
-              );
-            }).toList(),
+// ─────────────────────────────────────────────────────────────────────────────
+// _AppBanner
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AppBanner extends StatelessWidget {
+  const _AppBanner({required this.version});
+
+  final String version;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              cs.primaryContainer.withValues(alpha: 0.65),
+              cs.surface,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: cs.outline.withValues(alpha: 0.15),
+            width: 1,
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-        ],
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                'assets/images/app_icon.png',
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'MyTube',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Version $version',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _SettingsCard — card container for a settings section
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SettingsCard extends StatelessWidget {
+  const _SettingsCard({
+    required this.label,
+    required this.icon,
+    required this.iconColor,
+    required this.iconOnColor,
+    required this.children,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color iconColor;
+  final Color iconOnColor;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        elevation: 0,
+        color: cs.surfaceContainerLow,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: cs.outline.withValues(alpha: 0.12),
+            width: 1,
+          ),
+        ),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section label inside the card
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: iconColor.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, size: 15, color: iconOnColor),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    label,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _IconContainer — colored rounded icon for ListTile leading
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _IconContainer extends StatelessWidget {
+  const _IconContainer({
+    required this.icon,
+    required this.color,
+    required this.onColor,
+  });
+
+  final IconData icon;
+  final Color color;
+  final Color onColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, size: 20, color: onColor),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _CountryPickerSheet — DraggableScrollableSheet with live search
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CountryPickerSheet extends StatefulWidget {
+  const _CountryPickerSheet({required this.selected});
+
+  final String selected;
+
+  @override
+  State<_CountryPickerSheet> createState() => _CountryPickerSheetState();
+}
+
+class _CountryPickerSheetState extends State<_CountryPickerSheet> {
+  late final TextEditingController _searchController;
+  late List<String> _filtered;
+
+  @override
+  void initState() {
+    super.initState();
+    _filtered = countryToLanguage.keys.toList();
+    _searchController = TextEditingController()
+      ..addListener(() {
+        final query = _searchController.text.toLowerCase();
+        setState(() {
+          _filtered = countryToLanguage.keys
+              .where((c) => c.toLowerCase().contains(query))
+              .toList();
+        });
+      });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
+      maxChildSize: 0.92,
+      builder: (context, scrollController) {
+        return Column(
+          children: [
+            // Drag handle
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.outline.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Select Country',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            // Search field
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _searchController,
+                decoration: theme.enhancedInputDecoration.copyWith(
+                  hintText: 'Search country…',
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Country list
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                itemCount: _filtered.length,
+                itemBuilder: (context, index) {
+                  final country = _filtered[index];
+                  final isSelected = country == widget.selected;
+                  return ListTile(
+                    title: Text(country),
+                    trailing: isSelected
+                        ? Icon(Icons.check_rounded, color: cs.primary)
+                        : null,
+                    selected: isSelected,
+                    selectedTileColor:
+                        cs.primaryContainer.withValues(alpha: 0.3),
+                    onTap: () => Navigator.of(context).pop(country),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
