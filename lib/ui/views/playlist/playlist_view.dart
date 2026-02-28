@@ -1,15 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
-import 'package:my_tube/ui/views/common/custom_appbar.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
-import 'package:my_tube/ui/views/playlist/widgets/enhanced_playlist_header.dart';
-import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:my_tube/utils/app_animations.dart';
+import 'package:my_tube/utils/app_breakpoints.dart';
+import 'package:my_tube/utils/utils.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -25,7 +27,6 @@ class PlaylistView extends StatefulWidget {
 class _PlaylistViewState extends State<PlaylistView>
     with SingleTickerProviderStateMixin {
   late AnimationController _staggerController;
-  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -39,100 +40,17 @@ class _PlaylistViewState extends State<PlaylistView>
   @override
   void dispose() {
     _staggerController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
       body: BlocBuilder<PlaylistBloc, PlaylistState>(
         builder: (context, state) {
           return _buildBody(context, state);
         },
       ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    final isCompact = context.isCompact;
-
-    return CustomAppbar(
-      showTitle: false,
-      toolbarHeight: isCompact ? 56.0 : 64.0,
-      actions: [
-        BlocBuilder<PlaylistBloc, PlaylistState>(
-          builder: (context, state) {
-            if (state.status == PlaylistStatus.loaded) {
-              final playlist = state.response!['playlist'] as Playlist;
-              final videos =
-                  state.response!['videos'] as List<models.VideoTile>;
-              final quickVideos = videos.map<Map<String, String>>((video) {
-                return {
-                  'id': video.id,
-                  'title': video.title,
-                };
-              }).toList();
-
-              return AnimatedOpacity(
-                opacity: 1.0,
-                duration: AppAnimations.fast,
-                child: _buildPlaylistActions(
-                  context,
-                  playlist,
-                  quickVideos,
-                ),
-              );
-            }
-
-            return const SizedBox.shrink();
-          },
-        ),
-      ],
-    );
-  }
-
-  /// Build contextual actions for playlist with improved hierarchy
-  Widget _buildPlaylistActions(
-    BuildContext context,
-    Playlist playlist,
-    List<Map<String, String>> quickVideos,
-  ) {
-    final isCompact = context.isCompact;
-    final theme = Theme.of(context);
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Primary action: Download with enhanced feedback
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: theme.colorScheme.surface.withValues(alpha: 0.1),
-          ),
-          child: EnhancedDownloadButton(
-            videos: quickVideos,
-            destinationDir: playlist.title,
-            showAsIcon: true,
-            size: isCompact ? 20.0 : 22.0,
-          ),
-        ),
-
-        // Secondary action: Favorite with enhanced visual feedback
-        Container(
-          margin: EdgeInsets.only(left: isCompact ? 8 : 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: theme.colorScheme.surface.withValues(alpha: 0.1),
-          ),
-          child: EnhancedFavoriteButton(
-            entityId: widget.playlistId,
-            entityType: FavoriteEntityType.playlist,
-            size: isCompact ? 20.0 : 22.0,
-          ),
-        ),
-      ],
     );
   }
 
@@ -159,10 +77,11 @@ class _PlaylistViewState extends State<PlaylistView>
   Widget _buildLoadedState(BuildContext context, PlaylistState state) {
     final playlist = state.response!['playlist'] as Playlist;
     final videos = state.response!['videos'] as List<models.VideoTile>;
-    final videoIds = videos.map((video) => video.id).toList();
+    final videoIds = videos.map((v) => v.id).toList();
     final thumbnailUrl = state.response!['thumbnailUrl'] as String?;
+    final effectiveThumbnail = thumbnailUrl ?? playlist.thumbnails.highResUrl;
+    final isCompact = context.isCompact;
 
-    // Start stagger animation when content loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && !_staggerController.isAnimating) {
         _staggerController.reset();
@@ -170,106 +89,251 @@ class _PlaylistViewState extends State<PlaylistView>
       }
     });
 
-    return TweenAnimationBuilder<double>(
-      duration: AppAnimations.fast,
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, fadeValue, child) {
-        return Opacity(
-          opacity: fadeValue,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: context.responsiveContentMaxWidth,
-              ),
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                padding: EdgeInsets.only(
-                  bottom: context.responsiveVerticalPadding,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Enhanced playlist header with stagger animation
-                    _buildAnimatedHeader(
-                        context, playlist, videoIds, thumbnailUrl),
+    final quickVideos = videos.map<Map<String, String>>((v) {
+      return {'id': v.id, 'title': v.title};
+    }).toList();
 
-                    // Enhanced spacing with better responsive design
-                    SizedBox(height: _getResponsiveContentSpacing(context)),
-
-                    // Video list with enhanced layout and stagger animations
-                    _buildAnimatedVideoList(context, videos),
-                  ],
+    return CustomScrollView(
+      slivers: [
+        // ── Collapsible header ───────────────────────────────────
+        SliverAppBar(
+          pinned: true,
+          expandedHeight: isCompact ? 220.0 : 260.0,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          title: Text(
+            playlist.title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
-              ),
-            ),
+            overflow: TextOverflow.ellipsis,
           ),
-        );
-      },
+          actions: [
+            EnhancedDownloadButton(
+              videos: quickVideos,
+              destinationDir: playlist.title,
+              showAsIcon: true,
+              size: isCompact ? 20.0 : 22.0,
+            ),
+            EnhancedFavoriteButton(
+              entityId: widget.playlistId,
+              entityType: FavoriteEntityType.playlist,
+              size: isCompact ? 20.0 : 22.0,
+              padding: EdgeInsets.all(isCompact ? 8 : 10),
+            ),
+            SizedBox(width: isCompact ? 4 : 8),
+          ],
+          flexibleSpace: FlexibleSpaceBar(
+            collapseMode: CollapseMode.pin,
+            background:
+                _buildHeaderBackground(context, playlist, effectiveThumbnail),
+          ),
+        ),
+
+        // ── Play All / Add to Queue row ──────────────────────────
+        SliverToBoxAdapter(
+          child: _buildActionRow(context, videoIds, state),
+        ),
+
+        // ── Video list ───────────────────────────────────────────
+        videos.isEmpty
+            ? SliverFillRemaining(
+                child: _buildEmptyState(context),
+              )
+            : SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: _getResponsiveListPadding(context),
+                  vertical: 8,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final video = videos[index];
+                      final quickVideo = {
+                        'id': video.id,
+                        'title': video.title,
+                      };
+                      return Padding(
+                        padding: EdgeInsets.only(
+                            bottom: _getResponsiveItemSpacing(context)),
+                        child: _buildStaggeredVideoItem(
+                            context, video, quickVideo, index),
+                      );
+                    },
+                    childCount: videos.length,
+                  ),
+                ),
+              ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+      ],
     );
   }
 
-  Widget _buildAnimatedHeader(BuildContext context, Playlist playlist,
-      List<String> videoIds, String? thumbnailUrl) {
-    return AnimatedBuilder(
-      animation: _staggerController,
-      builder: (context, child) {
-        final headerAnimation = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(
-          parent: _staggerController,
-          curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
-        ));
+  /// Header background: blurred thumbnail + gradient + title/metadata row
+  Widget _buildHeaderBackground(
+    BuildContext context,
+    Playlist playlist,
+    String? thumbnailUrl,
+  ) {
+    final theme = Theme.of(context);
 
-        final headerSlide = Tween<double>(
-          begin: 30.0,
-          end: 0.0,
-        ).animate(CurvedAnimation(
-          parent: _staggerController,
-          curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
-        ));
-
-        return Transform.translate(
-          offset: Offset(0, headerSlide.value),
-          child: FadeTransition(
-            opacity: headerAnimation,
-            child: EnhancedPlaylistHeader(
-              playlist: playlist,
-              videoIds: videoIds,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Thumbnail lightly blurred as backdrop
+        Transform.scale(
+          scale: 1.1,
+          child: ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: Utils.buildImageWithFallback(
               thumbnailUrl: thumbnailUrl,
+              context: context,
+              fit: BoxFit.cover,
+              placeholder: Container(
+                color: theme.colorScheme.surfaceContainerHighest,
+              ),
             ),
           ),
-        );
-      },
+        ),
+        // Gradient — light at top, heavier at bottom for text legibility
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: const [0.0, 0.4, 1.0],
+              colors: [
+                theme.colorScheme.surface.withValues(alpha: 0.05),
+                theme.colorScheme.surface.withValues(alpha: 0.30),
+                theme.colorScheme.surface.withValues(alpha: 0.82),
+              ],
+            ),
+          ),
+        ),
+        // Metadata anchored to bottom-left
+        Positioned(
+          bottom: 16,
+          left: 16,
+          right: 16,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                playlist.title,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.playlist_play_rounded,
+                      size: 15, color: theme.colorScheme.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${playlist.videoCount} video',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (playlist.author.isNotEmpty) ...[
+                    const SizedBox(width: 12),
+                    Icon(Icons.person_outline,
+                        size: 14, color: theme.colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        playlist.author,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildAnimatedVideoList(
-      BuildContext context, List<models.VideoTile> videos) {
-    if (videos.isEmpty) {
-      return _buildEmptyState(context);
-    }
+  /// Play All + Add to Queue compact row
+  Widget _buildActionRow(
+    BuildContext context,
+    List<String> videoIds,
+    PlaylistState state,
+  ) {
+    final playerCubit = context.read<PlayerCubit>();
+    final isPlaylistLoading = state.status == PlaylistStatus.loading;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: _getResponsiveListPadding(context),
-      ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: videos.length,
-        itemBuilder: (context, index) {
-          final video = videos[index];
-          final quickVideo = {
-            'id': video.id,
-            'title': video.title,
-          };
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: BlocBuilder<PlayerCubit, PlayerState>(
+        builder: (context, playerState) {
+          final isLoading = playerState.status == PlayerStatus.loading;
+          final isPlayLoading = isLoading &&
+              playerState.loadingOperation == LoadingOperation.play;
+          final isQueueLoading = isLoading &&
+              playerState.loadingOperation == LoadingOperation.addToQueue;
+          final disabled = isPlaylistLoading || isLoading;
 
-          return _buildStaggeredVideoItem(context, video, quickVideo, index);
+          return Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: videoIds.isNotEmpty && !disabled
+                      ? () => playerCubit.startPlayingPlaylist(videoIds)
+                      : null,
+                  icon: isPlayLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.play_arrow, size: 18),
+                  label: Text(isPlayLoading ? 'Loading...' : 'Play All'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton.tonal(
+                  onPressed: videoIds.isNotEmpty && !disabled
+                      ? () => playerCubit.addAllToQueue(videoIds)
+                      : null,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isQueueLoading)
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      else
+                        const Icon(Icons.queue_music, size: 18),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          isQueueLoading ? 'Loading...' : 'Add to Queue',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
         },
-        separatorBuilder: (context, index) => SizedBox(
-          height: _getResponsiveItemSpacing(context),
-        ),
       ),
     );
   }
@@ -398,16 +462,6 @@ class _PlaylistViewState extends State<PlaylistView>
   }
 
   // Responsive Design Helper Methods
-
-  /// Get responsive spacing between header and content
-  double _getResponsiveContentSpacing(BuildContext context) {
-    return context.selectByBreakpoint(
-      mobile: 16.0,
-      tablet: 24.0,
-      desktop: 32.0,
-      largeDesktop: 40.0,
-    );
-  }
 
   /// Get responsive horizontal padding for video list
   double _getResponsiveListPadding(BuildContext context) {

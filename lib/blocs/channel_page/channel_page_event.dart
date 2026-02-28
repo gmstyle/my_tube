@@ -22,3 +22,35 @@ class LoadMoreChannelVideos extends ChannelPageEvent {
   @override
   List<Object> get props => [];
 }
+
+class LoadChannelShorts extends ChannelPageEvent {
+  const LoadChannelShorts({required this.channelId});
+
+  final String channelId;
+
+  @override
+  List<Object> get props => [channelId];
+}
+
+class LoadMoreChannelShorts extends ChannelPageEvent {
+  const LoadMoreChannelShorts();
+
+  @override
+  List<Object> get props => [];
+}
+
+class LoadChannelPlaylists extends ChannelPageEvent {
+  const LoadChannelPlaylists({required this.channelTitle});
+
+  final String channelTitle;
+
+  @override
+  List<Object> get props => [channelTitle];
+}
+
+class LoadMoreChannelPlaylists extends ChannelPageEvent {
+  const LoadMoreChannelPlaylists();
+
+  @override
+  List<Object> get props => [];
+}

@@ -150,7 +150,7 @@ class CustomSkeletonMiniPlayer extends StatelessWidget {
   }
 }
 
-/// Enhanced skeleton for channel view with modern card-based layout
+/// Skeleton for channel view — matches the SliverAppBar-based layout
 class CustomSkeletonChannel extends StatefulWidget {
   const CustomSkeletonChannel({
     super.key,
@@ -174,18 +174,12 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
-
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
     _controller.forward();
   }
 
@@ -197,150 +191,115 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.of(context).size.width < 720;
+    final headerHeight = isCompact ? 200.0 : 240.0;
+    final avatarSize = isCompact ? 64.0 : 80.0;
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Enhanced channel header skeleton with stagger
-            TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 600),
-              tween: Tween(begin: 0.0, end: 1.0),
-              builder: (context, value, child) {
-                return Transform.translate(
-                  offset: Offset(0, 30 * (1 - value)),
-                  child: Opacity(
-                    opacity: value,
-                    child: _buildEnhancedChannelHeaderSkeleton(context),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-            // Video list skeleton with stagger
-            _buildAnimatedVideoListSkeleton(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEnhancedChannelHeaderSkeleton(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
-
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: isCompact
-              ? _buildCompactChannelHeaderSkeleton(context)
-              : _buildExpandedChannelHeaderSkeleton(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCompactChannelHeaderSkeleton(BuildContext context) {
-    return Column(
-      children: [
-        // Avatar
-        const ShimmerCircle(size: 80),
-        const SizedBox(height: 16),
-        // Channel info
-        Column(
-          children: [
-            // Channel name (2 lines)
-            const ShimmerText(width: double.infinity, height: 24),
-            const SizedBox(height: 8),
-            const ShimmerText(width: 200, height: 24),
-            const SizedBox(height: 12),
-            // Subscriber count
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const ShimmerCircle(size: 16),
-                const SizedBox(width: 6),
-                const ShimmerText(width: 120, height: 14),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        // Action buttons container
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              const Expanded(
-                child: ShimmerButton(width: double.infinity, height: 40),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: ShimmerButton(width: double.infinity, height: 40),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildExpandedChannelHeaderSkeleton(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Avatar
-        const ShimmerCircle(size: 96),
-        const SizedBox(width: 24),
-        // Content section
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Channel name (2 lines)
-              const ShimmerText(width: double.infinity, height: 24),
-              const SizedBox(height: 8),
-              const ShimmerText(width: 250, height: 24),
-              const SizedBox(height: 12),
-              // Subscriber count
-              Row(
+            // ── Collapsible header area ──────────────────────────────
+            SizedBox(
+              height: headerHeight,
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  const ShimmerCircle(size: 16),
-                  const SizedBox(width: 6),
-                  const ShimmerText(width: 120, height: 14),
+                  // Banner shimmer
+                  const ShimmerImage(
+                    width: double.infinity,
+                    height: double.infinity,
+                    borderRadius: 0,
+                  ),
+                  // Avatar + info anchored to bottom-left
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    right: 16,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ShimmerCircle(size: avatarSize),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              ShimmerText(width: 160, height: 20),
+                              SizedBox(height: 8),
+                              ShimmerText(width: 100, height: 13),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 20),
-              // Action buttons container
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    const ShimmerButton(width: 120, height: 40),
-                    const SizedBox(width: 12),
-                    const ShimmerButton(width: 140, height: 40),
-                    const Spacer(),
-                  ],
-                ),
+            ),
+
+            // ── Action buttons row ───────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: const [
+                  Expanded(
+                      child: ShimmerButton(width: double.infinity, height: 40)),
+                  SizedBox(width: 8),
+                  Expanded(
+                      child: ShimmerButton(width: double.infinity, height: 40)),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            // ── Tab bar ──────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: const [
+                  ShimmerText(width: 60, height: 14),
+                  SizedBox(width: 24),
+                  ShimmerText(width: 52, height: 14),
+                  SizedBox(width: 24),
+                  ShimmerText(width: 68, height: 14),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+
+            // ── Video list ───────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: widget.showVideoCount,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  return TweenAnimationBuilder<double>(
+                    duration: Duration(milliseconds: 500 + (index * 80)),
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    builder: (context, value, child) => Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset(0, 16 * (1 - value)),
+                        child: _buildSkeletonListItem(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -348,64 +307,29 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Thumbnail
-        const ShimmerImage(
-          width: 90,
-          height: 68,
-          borderRadius: 8,
-        ),
+        const ShimmerImage(width: 120, height: 68, borderRadius: 8),
         const SizedBox(width: 12),
-        // Content
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title (2 lines)
-              const ShimmerText(width: double.infinity, height: 16),
-              const SizedBox(height: 4),
-              const ShimmerText(width: 200, height: 16),
-              const SizedBox(height: 8),
-              // Channel name
-              const ShimmerText(width: 150, height: 12),
-              const SizedBox(height: 4),
-              // Views and duration
-              const ShimmerText(width: 120, height: 12),
+            children: const [
+              ShimmerText(width: double.infinity, height: 15),
+              SizedBox(height: 6),
+              ShimmerText(width: 180, height: 15),
+              SizedBox(height: 8),
+              ShimmerText(width: 120, height: 12),
+              SizedBox(height: 4),
+              ShimmerText(width: 100, height: 12),
             ],
           ),
         ),
       ],
     );
   }
-
-  Widget _buildAnimatedVideoListSkeleton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 8,
-        itemBuilder: (context, index) {
-          return TweenAnimationBuilder<double>(
-            duration: Duration(milliseconds: 800 + (index * 100)),
-            tween: Tween(begin: 0.0, end: 1.0),
-            builder: (context, value, child) {
-              return Transform.translate(
-                offset: Offset(0, 20 * (1 - value)),
-                child: Opacity(
-                  opacity: value,
-                  child: _buildSkeletonListItem(),
-                ),
-              );
-            },
-          );
-        },
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-      ),
-    );
-  }
 }
 
 /// Enhanced skeleton for playlist view with modern card-based layout
+/// Skeleton for playlist view — matches the SliverAppBar-based layout
 class CustomSkeletonPlaylist extends StatefulWidget {
   const CustomSkeletonPlaylist({
     super.key,
@@ -429,18 +353,12 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
-
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
     _controller.forward();
   }
 
@@ -452,212 +370,92 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.of(context).size.width < 720;
+    final headerHeight = isCompact ? 220.0 : 260.0;
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Enhanced playlist header skeleton with stagger
-            TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 600),
-              tween: Tween(begin: 0.0, end: 1.0),
-              builder: (context, value, child) {
-                return Transform.translate(
-                  offset: Offset(0, 30 * (1 - value)),
-                  child: Opacity(
-                    opacity: value,
-                    child: _buildEnhancedPlaylistHeaderSkeleton(context),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-            // Video list skeleton with stagger
-            _buildAnimatedVideoListSkeleton(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEnhancedPlaylistHeaderSkeleton(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
-
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: isCompact
-            ? _buildStackedHeaderSkeleton(context)
-            : _buildSideBySideHeaderSkeleton(context),
-      ),
-    );
-  }
-
-  Widget _buildStackedHeaderSkeleton(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Image section
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              const ShimmerImage(
-                width: double.infinity,
-                height: double.infinity,
-                borderRadius: 0,
-              ),
-              // Video count badge
-              Positioned(
-                top: 16,
-                right: 16,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const ShimmerText(width: 40, height: 14),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // Content section
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title
-              const ShimmerText(width: double.infinity, height: 24),
-              const SizedBox(height: 8),
-              const ShimmerText(width: 250, height: 24),
-              const SizedBox(height: 16),
-              // Metadata row
-              Row(
-                children: [
-                  const ShimmerCircle(size: 20),
-                  const SizedBox(width: 8),
-                  const ShimmerText(width: 80, height: 16),
-                  const SizedBox(width: 16),
-                  const ShimmerCircle(size: 18),
-                  const SizedBox(width: 6),
-                  const Flexible(
-                    child: ShimmerText(width: 120, height: 14),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Action buttons
-              Row(
-                children: [
-                  const Expanded(
-                    child: ShimmerButton(width: double.infinity, height: 40),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: ShimmerButton(width: double.infinity, height: 40),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSideBySideHeaderSkeleton(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Image section
-          Expanded(
-            flex: 2,
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
+            // ── Collapsible header area ──────────────────────────
+            SizedBox(
+              height: headerHeight,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
+                  // Thumbnail shimmer (16:9 fills the header)
                   const ShimmerImage(
                     width: double.infinity,
                     height: double.infinity,
                     borderRadius: 0,
                   ),
-                  // Video count badge
+                  // Title + metadata anchored to bottom-left
                   Positioned(
-                    top: 16,
+                    bottom: 16,
+                    left: 16,
                     right: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const ShimmerText(width: 40, height: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        ShimmerText(width: 200, height: 20),
+                        SizedBox(height: 8),
+                        ShimmerText(width: 220, height: 20),
+                        SizedBox(height: 8),
+                        // video count + author row
+                        Row(children: [
+                          ShimmerText(width: 70, height: 13),
+                          SizedBox(width: 12),
+                          ShimmerText(width: 110, height: 13),
+                        ]),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          // Content section
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  const ShimmerText(width: double.infinity, height: 24),
-                  const SizedBox(height: 8),
-                  const ShimmerText(width: 200, height: 24),
-                  const SizedBox(height: 16),
-                  // Metadata row
-                  Row(
-                    children: [
-                      const ShimmerCircle(size: 20),
-                      const SizedBox(width: 8),
-                      const ShimmerText(width: 80, height: 16),
-                      const SizedBox(width: 16),
-                      const ShimmerCircle(size: 18),
-                      const SizedBox(width: 6),
-                      const Flexible(
-                        child: ShimmerText(width: 120, height: 14),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Action buttons
-                  Row(
-                    children: [
-                      const Expanded(
-                        child:
-                            ShimmerButton(width: double.infinity, height: 40),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child:
-                            ShimmerButton(width: double.infinity, height: 40),
-                      ),
-                    ],
-                  ),
+
+            // ── Action buttons row ───────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: const [
+                  Expanded(
+                      child: ShimmerButton(width: double.infinity, height: 40)),
+                  SizedBox(width: 8),
+                  Expanded(
+                      child: ShimmerButton(width: double.infinity, height: 40)),
                 ],
               ),
             ),
-          ),
-        ],
+
+            // ── Video list ───────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: widget.showVideoCount,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) => TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 500 + (index * 80)),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  builder: (context, value, child) => Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 16 * (1 - value)),
+                      child: _buildSkeletonListItem(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -666,59 +464,23 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Thumbnail
-        const ShimmerImage(
-          width: 90,
-          height: 68,
-          borderRadius: 8,
-        ),
+        const ShimmerImage(width: 120, height: 68, borderRadius: 8),
         const SizedBox(width: 12),
-        // Content
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title (2 lines)
-              const ShimmerText(width: double.infinity, height: 16),
-              const SizedBox(height: 4),
-              const ShimmerText(width: 200, height: 16),
-              const SizedBox(height: 8),
-              // Channel name
-              const ShimmerText(width: 150, height: 12),
-              const SizedBox(height: 4),
-              // Views and duration
-              const ShimmerText(width: 120, height: 12),
+            children: const [
+              ShimmerText(width: double.infinity, height: 15),
+              SizedBox(height: 6),
+              ShimmerText(width: 180, height: 15),
+              SizedBox(height: 8),
+              ShimmerText(width: 150, height: 12),
+              SizedBox(height: 4),
+              ShimmerText(width: 120, height: 12),
             ],
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildAnimatedVideoListSkeleton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 8,
-        itemBuilder: (context, index) {
-          return TweenAnimationBuilder<double>(
-            duration: Duration(milliseconds: 800 + (index * 100)),
-            tween: Tween(begin: 0.0, end: 1.0),
-            builder: (context, value, child) {
-              return Transform.translate(
-                offset: Offset(0, 20 * (1 - value)),
-                child: Opacity(
-                  opacity: value,
-                  child: _buildSkeletonListItem(),
-                ),
-              );
-            },
-          );
-        },
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-      ),
     );
   }
 }

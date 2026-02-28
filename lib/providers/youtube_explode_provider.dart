@@ -79,9 +79,26 @@ class YoutubeExplodeProvider {
     return uploads;
   }
 
+  Future<ChannelUploadsList> getChannelShorts(String channelId) async {
+    final uploads = await _yt.channels
+        .getUploadsFromPage(channelId, videoType: VideoType.shorts);
+    return uploads;
+  }
+
   Future<ChannelUploadsList?> getNextChannelVideos(
       ChannelUploadsList uploads) async {
     return uploads.nextPage();
+  }
+
+  /// Cerca le playlist di un canale tramite il titolo del canale.
+  /// Non esiste un'API diretta in youtube_explode_dart per le playlist di un canale,
+  /// quindi si usa la ricerca filtrata per playlist.
+  Future<SearchList> getChannelPlaylists(String channelTitle) async {
+    return _yt.search.searchContent(channelTitle, filter: TypeFilters.playlist);
+  }
+
+  Future<SearchList?> getNextChannelPlaylists(SearchList searchList) async {
+    return searchList.nextPage();
   }
 
   Future<List<dynamic>?> getNextSearchContent(SearchList searchList) async {

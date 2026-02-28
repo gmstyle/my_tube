@@ -153,7 +153,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             return AnimatedPadding(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, currentBottomPadding),
+              padding: EdgeInsets.fromLTRB(0.0, 0, 0.0, currentBottomPadding),
               child: child,
             );
           },

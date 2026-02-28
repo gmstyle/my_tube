@@ -262,8 +262,14 @@ class YoutubeExplodeRepository {
   /// Recupera informazioni di un canale
   Future<Map<String, dynamic>> getChannel(String channelId) async {
     try {
-      final channel = await youtubeExplodeProvider.getChannelPage(channelId);
-      final uploads = await youtubeExplodeProvider.getChannelVideos(channelId);
+      final channelPageFuture =
+          youtubeExplodeProvider.getChannelPage(channelId);
+      final channelVideosFuture =
+          youtubeExplodeProvider.getChannelVideos(channelId);
+      final results =
+          await Future.wait([channelPageFuture, channelVideosFuture]);
+      final channel = results[0] as Channel;
+      final uploads = results[1] as List<Video>;
       final videoTiles =
           uploads.map((video) => VideoTile.fromVideo(video)).toList();
 
@@ -276,6 +282,70 @@ class YoutubeExplodeRepository {
       };
     } catch (e) {
       log('Errore durante il recupero del canale: $e');
+      rethrow;
+    }
+  }
+
+  /// Recupera gli short di un canale
+  Future<Map<String, dynamic>> getChannelShorts(String channelId) async {
+    try {
+      final uploads = await youtubeExplodeProvider.getChannelShorts(channelId);
+      final videoTiles =
+          uploads.map((video) => VideoTile.fromVideo(video)).toList();
+      return {
+        'shorts': videoTiles,
+        'shortsList': uploads,
+      };
+    } catch (e) {
+      log('Errore durante il recupero degli short del canale: $e');
+      rethrow;
+    }
+  }
+
+  /// Recupera la pagina successiva di short del canale.
+  /// Restituisce la nuova [ChannelUploadsList] per consentire ulteriore paginazione.
+  Future<ChannelUploadsList?> nextChannelShorts(
+      ChannelUploadsList uploads) async {
+    try {
+      return await youtubeExplodeProvider.getNextChannelVideos(uploads);
+    } catch (e) {
+      log('Errore durante il recupero degli short successivi del canale: $e');
+      rethrow;
+    }
+  }
+
+  /// Recupera le playlist di un canale tramite ricerca per titolo
+  Future<Map<String, dynamic>> getChannelPlaylists(String channelTitle) async {
+    try {
+      final searchList =
+          await youtubeExplodeProvider.getChannelPlaylists(channelTitle);
+      final playlists = searchList
+          .whereType<SearchPlaylist>()
+          .map((p) => PlaylistTile.fromSearchPlaylist(p))
+          .toList();
+      return {
+        'playlists': playlists,
+        'playlistsList': searchList,
+      };
+    } catch (e) {
+      log('Errore durante il recupero delle playlist del canale: $e');
+      rethrow;
+    }
+  }
+
+  /// Recupera la pagina successiva di playlist del canale
+  Future<List<PlaylistTile>?> nextChannelPlaylists(
+      SearchList searchList) async {
+    try {
+      final next =
+          await youtubeExplodeProvider.getNextChannelPlaylists(searchList);
+      if (next == null) return null;
+      return next
+          .whereType<SearchPlaylist>()
+          .map((p) => PlaylistTile.fromSearchPlaylist(p))
+          .toList();
+    } catch (e) {
+      log('Errore durante il recupero delle playlist successive del canale: $e');
       rethrow;
     }
   }
