@@ -12,6 +12,11 @@ class YoutubeExplodeProvider {
   final Map<String, ({Video video, DateTime timestamp})> _videoCache = {};
   static const Duration _cacheTTL = Duration(hours: 1);
 
+  // Cache per i risultati trending con TTL di 30 minuti (C)
+  final Map<String, ({List<Video> videos, DateTime timestamp})> _trendingCache =
+      {};
+  static const Duration _trendingCacheTTL = Duration(minutes: 30);
+
   YoutubeExplodeProvider() {
     _yt = YoutubeExplode();
   }
@@ -113,27 +118,34 @@ class YoutubeExplodeProvider {
   }
 
   Future<List<Video>> getTrendingSimulated(String category) async {
-    // Simuliamo i trending con ricerche predefinite per categoria
-    final queries = _getTrendingQueries(category);
-    final results = <Video>[];
+    // C: controlla la cache prima di fare richieste di rete
+    final cacheKey = category.toLowerCase();
+    final cached = _trendingCache[cacheKey];
+    final now = DateTime.now();
+    if (cached != null &&
+        now.difference(cached.timestamp) < _trendingCacheTTL) {
+      log('Trending "$category" recuperati dalla cache');
+      return cached.videos;
+    }
 
-    for (final query in queries) {
+    // B: esegui tutte le query in parallelo invece di in sequenza
+    final queries = _getTrendingQueries(category);
+    final searchFutures = queries.map((query) async {
       try {
         final searchResult =
             await _yt.search.search(query, filter: TypeFilters.video);
-        final videos = searchResult.toList();
-        results.addAll(videos);
+        return searchResult.toList();
       } catch (e) {
-        // Log l'errore ma continua con le altre ricerche
         log('Errore ricerca per "$query": $e');
-        continue;
+        return <Video>[];
       }
-    }
+    });
+    final nestedResults = await Future.wait(searchFutures);
+    final results = nestedResults.expand((v) => v).toList();
 
     // Rimuovi duplicati basati sull'ID
     final uniqueResults = <Video>[];
     final seenIds = <String>{};
-
     for (final video in results) {
       final videoId = video.id.value;
       if (videoId.isNotEmpty && !seenIds.contains(videoId)) {
@@ -142,6 +154,8 @@ class YoutubeExplodeProvider {
       }
     }
 
+    // C: salva in cache
+    _trendingCache[cacheKey] = (videos: uniqueResults, timestamp: now);
     return uniqueResults;
   }
 

@@ -23,63 +23,57 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       GetMusicTabContent event, Emitter<MusicTabState> emit) async {
     emit(const MusicTabState.loading());
     try {
+      // Favorites vengono dai DB locale – veloci, in sequenza
       final favoriteVideos = await favoriteRepository.favoriteVideos;
       final favoriteChannels = await favoriteRepository.favoriteChannels;
 
       final hasFavorites =
           favoriteVideos.isNotEmpty || favoriteChannels.isNotEmpty;
 
-      List<VideoTile> newReleases = [];
-      List<VideoTile> discoverRelated = [];
+      // Scegli il seed per Discover prima di avviare i futures paralleli
       VideoTile? discoverVideo;
-      List<VideoTile> trending = [];
-      bool isInternationalTrending = false;
-
-      // 1. New Releases (From Favorite Channels)
-      if (favoriteChannels.isNotEmpty) {
-        final recentUploadsFutures = favoriteChannels.map((channel) async {
-          try {
-            final channelData =
-                await youtubeExplodeRepository.getChannel(channel.id);
-            // Get latest 2 videos
-            final uploads = channelData['videos'] as List<VideoTile>;
-            return uploads.take(2).toList();
-          } catch (e) {
-            return <VideoTile>[];
-          }
-        });
-        final nestedUploads = await Future.wait(recentUploadsFutures);
-        newReleases = nestedUploads.expand((i) => i).toList();
-      }
-
-      // 2. Discover (From Favorite Videos)
       if (favoriteVideos.isNotEmpty) {
-        final random = Random();
-        discoverVideo = favoriteVideos[random.nextInt(favoriteVideos.length)];
-        discoverRelated =
-            await youtubeExplodeRepository.getRelatedVideos(discoverVideo.id);
+        discoverVideo = favoriteVideos[Random().nextInt(favoriteVideos.length)];
       }
 
-      // 4. Trending / International
-      if (!hasFavorites) {
-        isInternationalTrending = true;
-        final results = await Future.wait([
-          youtubeExplodeRepository.getTrending('Music'),
-        ]);
-        trending = results[0];
-      } else {
-        trending = await youtubeExplodeRepository.getTrending('Music');
-      }
+      // Le tre sezioni di rete partono tutte in parallelo
+      final results = await Future.wait<List<VideoTile>>([
+        // 1. New Releases (From Favorite Channels)
+        _fetchNewReleases(favoriteChannels),
+        // 2. Discover (From Favorite Videos)
+        discoverVideo != null
+            ? youtubeExplodeRepository.getRelatedVideos(discoverVideo.id)
+            : Future.value(<VideoTile>[]),
+        // 3. Trending / International
+        youtubeExplodeRepository.getTrending('Music'),
+      ]);
 
       emit(MusicTabState.loaded(
-        newReleases: newReleases,
+        newReleases: results[0],
         discoverVideo: discoverVideo,
-        discoverRelated: discoverRelated,
-        trending: trending,
-        isInternationalTrending: isInternationalTrending,
+        discoverRelated: results[1],
+        trending: results[2],
+        isInternationalTrending: !hasFavorites,
       ));
     } catch (e) {
       emit(MusicTabState.error(error: e.toString()));
     }
+  }
+
+  /// Recupera gli ultimi 2 upload da ogni canale preferito in parallelo.
+  Future<List<VideoTile>> _fetchNewReleases(dynamic favoriteChannels) async {
+    if ((favoriteChannels as List).isEmpty) return [];
+    final futures = favoriteChannels.map((channel) async {
+      try {
+        final channelData =
+            await youtubeExplodeRepository.getChannel(channel.id);
+        final uploads = channelData['videos'] as List<VideoTile>;
+        return uploads.take(2).toList();
+      } catch (_) {
+        return <VideoTile>[];
+      }
+    });
+    final nested = await Future.wait(futures);
+    return nested.expand((i) => i).toList();
   }
 }
