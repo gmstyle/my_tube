@@ -1,5 +1,7 @@
 part of 'explore_tab_bloc.dart';
 
+enum CategoryEnum { now, music, film, gaming }
+
 sealed class ExploreTabEvent extends Equatable {
   const ExploreTabEvent();
 }
