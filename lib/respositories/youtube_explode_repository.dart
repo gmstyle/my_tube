@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:my_tube/models/tiles.dart';
+import 'package:my_tube/utils/app_cache.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 
@@ -10,34 +11,21 @@ class YoutubeExplodeRepository {
   final YoutubeExplodeProvider youtubeExplodeProvider;
 
   // Cache per i metadata dei video con TTL di 1 ora
-  final Map<String, ({Video video, DateTime timestamp})> _videoCache = {};
-  static const Duration _cacheTTL = Duration(hours: 1);
+  final _videoCache = AppCache<Video>(ttl: Duration(hours: 1));
 
-  // Removed unused _normalizeUrl helper (was unused and triggered analyzer warning)
+  // Cache per i trending con TTL di 30 minuti
+  final _trendingCache = AppCache<List<VideoTile>>(ttl: Duration(minutes: 30));
 
   /// Recupera un video dalla cache o dalla rete
   Future<Video> _getCachedVideo(String id) async {
-    final cached = _videoCache[id];
-    final now = DateTime.now();
-
-    // Se il video è in cache e non è scaduto, ritornalo
-    if (cached != null && now.difference(cached.timestamp) < _cacheTTL) {
+    final cached = _videoCache.get(id);
+    if (cached != null) {
       log('Video $id recuperato dalla cache');
-      return cached.video;
+      return cached;
     }
 
-    // Altrimenti scaricalo e salvalo in cache
-    log('Video $id scaricato dalla rete');
     final video = await youtubeExplodeProvider.getVideo(id);
-    _videoCache[id] = (video: video, timestamp: now);
-
-    // Pulizia cache: rimuovi entry scadute (max 500 entry per evitare memory leak)
-    if (_videoCache.length > 500) {
-      _videoCache.removeWhere(
-        (key, value) => now.difference(value.timestamp) >= _cacheTTL,
-      );
-    }
-
+    _videoCache.set(id, video);
     return video;
   }
 
@@ -86,11 +74,20 @@ class YoutubeExplodeRepository {
   Future<List<VideoTile>> getTrending(String trendingCategory) async {
     try {
       log('getTrending chiamato con categoria: $trendingCategory');
-      // Passa direttamente la categoria al provider senza ulteriore mapping
+
+      final cacheKey = trendingCategory.toLowerCase();
+      final cached = _trendingCache.get(cacheKey);
+      if (cached != null) {
+        log('getTrending: ${cached.length} video per "$trendingCategory" dalla cache');
+        return cached;
+      }
+
       final videos =
           await youtubeExplodeProvider.getTrendingSimulated(trendingCategory);
-      log('getTrending completato, ${videos.length} video trovati per categoria: $trendingCategory');
-      return videos.map((video) => VideoTile.fromVideo(video)).toList();
+      final tiles = videos.map((video) => VideoTile.fromVideo(video)).toList();
+      _trendingCache.set(cacheKey, tiles);
+      log('getTrending completato, ${tiles.length} video trovati per categoria: $trendingCategory');
+      return tiles;
     } catch (e) {
       log('Errore durante il recupero dei trending video: $e');
       rethrow;
