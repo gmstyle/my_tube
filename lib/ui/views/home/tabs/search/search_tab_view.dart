@@ -166,6 +166,7 @@ class _SearchTabViewState extends State<SearchTabView> {
 
   void _openSearch(BuildContext context, {String query = ''}) async {
     final persistentUiCubit = context.read<PersistentUiCubit>();
+    final searchSuggestionCubit = context.read<SearchSuggestionCubit>();
     persistentUiCubit.setSearchOpen(true);
     await showSearch(
       context: context,
@@ -173,7 +174,8 @@ class _SearchTabViewState extends State<SearchTabView> {
       query: query,
     );
     // Aggiorna la history al ritorno dalla ricerca
-    if (mounted) context.read<SearchSuggestionCubit>().getQueryHistory();
+
+    searchSuggestionCubit.getQueryHistory();
     persistentUiCubit.setSearchOpen(false);
   }
 }
