@@ -89,7 +89,13 @@ class _MusicTabViewState extends State<MusicTabView> {
                           if (state.newReleases.isNotEmpty) ...[
                             _SectionHeader(
                               title: 'New Releases',
-                              showSeeAll: state.newReleases.length > 5,
+                              onSeeAll: state.newReleases.length > 5
+                                  ? () => _showSeeAllSheet(
+                                        context,
+                                        title: 'New Releases',
+                                        videos: state.newReleases,
+                                      )
+                                  : null,
                             ),
                             _HorizontalVideoList(videos: state.newReleases),
                           ],
@@ -100,7 +106,14 @@ class _MusicTabViewState extends State<MusicTabView> {
                             _SectionHeader(
                               title:
                                   'Because you liked "${state.discoverVideo!.title}"',
-                              showSeeAll: state.discoverRelated.length > 5,
+                              onSeeAll: state.discoverRelated.length > 5
+                                  ? () => _showSeeAllSheet(
+                                        context,
+                                        title:
+                                            'Because you liked "${state.discoverVideo!.title}"',
+                                        videos: state.discoverRelated,
+                                      )
+                                  : null,
                             ),
                             _HorizontalVideoList(videos: state.discoverRelated),
                           ],
@@ -152,10 +165,10 @@ class _MusicTabViewState extends State<MusicTabView> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.showSeeAll = false});
+  const _SectionHeader({required this.title, this.onSeeAll});
 
   final String title;
-  final bool showSeeAll;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -188,12 +201,14 @@ class _SectionHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (showSeeAll)
+            if (onSeeAll != null)
               TextButton(
-                onPressed: null, // placeholder — extend when needed
+                onPressed: onSeeAll,
                 style: TextButton.styleFrom(
-                  foregroundColor: cs.onSurfaceVariant,
-                  textStyle: Theme.of(context).textTheme.labelSmall,
+                  foregroundColor: cs.primary,
+                  textStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 child: const Text('See all'),
               ),
@@ -431,6 +446,143 @@ class _MusicEmptyState extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _showSeeAllSheet — apre il bottom sheet con la lista completa
+// ─────────────────────────────────────────────────────────────────────────────
+
+void _showSeeAllSheet(
+  BuildContext context, {
+  required String title,
+  required List<models.VideoTile> videos,
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    useRootNavigator: false,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (_) => _SeeAllSheet(title: title, videos: videos),
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _SeeAllSheet — DraggableScrollableSheet con lista verticale
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SeeAllSheet extends StatelessWidget {
+  const _SeeAllSheet({required this.title, required this.videos});
+
+  final String title;
+  final List<models.VideoTile> videos;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.72,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          child: Scaffold(
+            backgroundColor: cs.surface,
+            body: Column(
+              children: [
+                // ── Drag handle ──────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.outline.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                // ── Header ───────────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 8, 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: theme.textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${videos.length} tracks',
+                              style: theme.textTheme.labelSmall
+                                  ?.copyWith(color: cs.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close, size: 20),
+                        style: IconButton.styleFrom(
+                          backgroundColor: cs.surfaceContainerHighest,
+                          foregroundColor: cs.onSurfaceVariant,
+                          minimumSize: const Size(36, 36),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  height: 1,
+                  color: cs.outline.withValues(alpha: 0.15),
+                ),
+                // ── Video list ────────────────────────────────────────
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ListView.separated(
+                      controller: scrollController,
+                      itemCount: videos.length,
+                      itemBuilder: (context, index) {
+                        final video = videos[index];
+                        return PlayPauseGestureDetector(
+                          id: video.id,
+                          child: VideoMenuDialog(
+                            quickVideo: {
+                              'id': video.id,
+                              'title': video.title,
+                            },
+                            child: VideoTile(video: video),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

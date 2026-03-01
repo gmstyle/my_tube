@@ -147,22 +147,27 @@ class _ExploreTabViewState extends State<ExploreTabView>
                             child: VideoGridItem(video: video));
                       },
                     )
-                  : ListView.builder(
-                      itemCount: state.videos?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        final videos = state.videos;
-                        if (videos == null || index >= videos.length) {
-                          return const SizedBox.shrink();
-                        }
-                        final video = videos[index];
-                        final quickVideo = <String, String>{
-                          'id': video.id,
-                          'title': video.title
-                        };
-                        return VideoMenuDialog(
-                            quickVideo: quickVideo,
-                            child: VideoTile(video: video));
-                      },
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: ListView.separated(
+                        itemCount: state.videos?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          final videos = state.videos;
+                          if (videos == null || index >= videos.length) {
+                            return const SizedBox.shrink();
+                          }
+                          final video = videos[index];
+                          final quickVideo = <String, String>{
+                            'id': video.id,
+                            'title': video.title
+                          };
+                          return VideoMenuDialog(
+                              quickVideo: quickVideo,
+                              child: VideoTile(video: video));
+                        },
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 8),
+                      ),
                     ),
             );
           });

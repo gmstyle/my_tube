@@ -33,23 +33,26 @@ class ChannelFavorites extends StatelessWidget {
               .toList();
 
           return favorites.isNotEmpty
-              ? ListView.separated(
-                  itemCount: favorites.length,
-                  itemBuilder: (context, index) {
-                    final channel = favorites[index];
-                    return GestureDetector(
-                      onTap: () {
-                        context.goNamed(AppRoute.channelFavorites.name,
-                            extra: {'channelId': channel.id});
-                      },
-                      child: ChannelPlaylistMenuDialog(
-                          id: channel.id,
-                          kind: Kind.channel,
-                          child: ChannelTile(channel: channel)),
-                    );
-                  },
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ListView.separated(
+                    itemCount: favorites.length,
+                    itemBuilder: (context, index) {
+                      final channel = favorites[index];
+                      return GestureDetector(
+                        onTap: () {
+                          context.goNamed(AppRoute.channelFavorites.name,
+                              extra: {'channelId': channel.id});
+                        },
+                        child: ChannelPlaylistMenuDialog(
+                            id: channel.id,
+                            kind: Kind.channel,
+                            child: ChannelTile(channel: channel)),
+                      );
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                  ),
                 )
               : const EmptyFavorites(
                   message: 'No favorite channels yet',

@@ -32,19 +32,23 @@ class VideoFavorites extends StatelessWidget {
               .toList();
 
           return favorites.isNotEmpty
-              ? ListView.separated(
-                  itemCount: favorites.length,
-                  itemBuilder: (context, index) {
-                    final video = favorites[index];
-                    final quickVideo = {
-                      'id': video.id,
-                      'title': video.title,
-                    };
-                    return VideoMenuDialog(
-                        quickVideo: quickVideo, child: VideoTile(video: video));
-                  },
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ListView.separated(
+                    itemCount: favorites.length,
+                    itemBuilder: (context, index) {
+                      final video = favorites[index];
+                      final quickVideo = {
+                        'id': video.id,
+                        'title': video.title,
+                      };
+                      return VideoMenuDialog(
+                          quickVideo: quickVideo,
+                          child: VideoTile(video: video));
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                  ),
                 )
               : const EmptyFavorites(
                   message: 'No favorite videos yet',

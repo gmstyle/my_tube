@@ -35,23 +35,26 @@ class PlaylistFavorites extends StatelessWidget {
               .toList();
 
           return favorites.isNotEmpty
-              ? ListView.separated(
-                  itemCount: favorites.length,
-                  itemBuilder: (context, index) {
-                    final playlist = favorites[index];
-                    return GestureDetector(
-                      onTap: () {
-                        context.goNamed(AppRoute.playlistFavorites.name,
-                            extra: {'playlistId': playlist.id});
-                      },
-                      child: ChannelPlaylistMenuDialog(
-                          id: playlist.id,
-                          kind: Kind.playlist,
-                          child: PlaylistTile(playlist: playlist)),
-                    );
-                  },
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ListView.separated(
+                    itemCount: favorites.length,
+                    itemBuilder: (context, index) {
+                      final playlist = favorites[index];
+                      return GestureDetector(
+                        onTap: () {
+                          context.goNamed(AppRoute.playlistFavorites.name,
+                              extra: {'playlistId': playlist.id});
+                        },
+                        child: ChannelPlaylistMenuDialog(
+                            id: playlist.id,
+                            kind: Kind.playlist,
+                            child: PlaylistTile(playlist: playlist)),
+                      );
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                  ),
                 )
               : const EmptyFavorites(
                   message: 'No favorite playlists yet',
