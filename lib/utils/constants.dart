@@ -106,7 +106,7 @@ const String musicEmptyStateMessage =
     'Save some favorites to get personalized picks';
 
 String musicBecauseYouLikedTitle(String videoTitle) =>
-    'Because you liked "${videoTitle}"';
+    'Because you liked "$videoTitle"';
 
 // Trending and search heuristics
 const Duration trendingMinDuration = Duration(minutes: 2);
