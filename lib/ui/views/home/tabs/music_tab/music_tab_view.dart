@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
 import 'package:my_tube/models/tiles.dart' as models;
+import 'package:my_tube/respositories/youtube_explode_repository.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
@@ -49,11 +52,11 @@ class _MusicTabViewState extends State<MusicTabView> {
             );
           }
 
-          // ── Success ──────────────────────────────────────────────────────
           if (state.status == MusicTabStatus.success) {
-            final isEmpty = state.newReleases.isEmpty &&
-                state.discoverRelated.isEmpty &&
-                state.trending.isEmpty;
+            final hasPersonalized = state.recentlyPlayed.isNotEmpty ||
+                state.newReleases.isNotEmpty ||
+                state.discoverRelated.isNotEmpty ||
+                state.trending.isNotEmpty;
 
             return NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -77,86 +80,115 @@ class _MusicTabViewState extends State<MusicTabView> {
                   ),
                 ),
               ],
-              body: isEmpty
-                  ? const _MusicEmptyState()
-                  : RefreshIndicator(
-                      onRefresh: () async => context
-                          .read<MusicTabBloc>()
-                          .add(const GetMusicTabContent()),
-                      child: CustomScrollView(
-                        slivers: [
-                          // ── 1. New Releases ────────────────────────────
-                          if (state.newReleases.isNotEmpty) ...[
-                            _SectionHeader(
-                              title: 'New Releases',
-                              onSeeAll: state.newReleases.length > 5
-                                  ? () => _showSeeAllSheet(
-                                        context,
-                                        title: 'New Releases',
-                                        videos: state.newReleases,
-                                      )
-                                  : null,
-                            ),
-                            _HorizontalVideoList(videos: state.newReleases),
-                          ],
+              body: RefreshIndicator(
+                onRefresh: () async => context
+                    .read<MusicTabBloc>()
+                    .add(const GetMusicTabContent()),
+                child: CustomScrollView(
+                  slivers: [
+                    // ── 0a. Featured Channels ──────────────────────────
+                    if (state.featuredChannels.isNotEmpty) ...[
+                      const _SectionHeader(title: 'Your Channels'),
+                      _FeaturedChannelsSection(
+                          channels: state.featuredChannels),
+                    ],
 
-                          // ── 2. Discover ────────────────────────────────
-                          if (state.discoverVideo != null &&
-                              state.discoverRelated.isNotEmpty) ...[
-                            _SectionHeader(
-                              title:
-                                  'Because you liked "${state.discoverVideo!.title}"',
-                              onSeeAll: state.discoverRelated.length > 5
-                                  ? () => _showSeeAllSheet(
-                                        context,
-                                        title:
-                                            'Because you liked "${state.discoverVideo!.title}"',
-                                        videos: state.discoverRelated,
-                                      )
-                                  : null,
-                            ),
-                            _HorizontalVideoList(videos: state.discoverRelated),
-                          ],
+                    // ── 0b. Explore by Genre ───────────────────────────
+                    const _SectionHeader(title: 'Explore by Genre'),
+                    const _GenreChipsSection(),
+                    const SliverToBoxAdapter(child: SizedBox(height: 4)),
 
-                          // ── 3. Trending ────────────────────────────────
-                          if (state.trending.isNotEmpty) ...[
-                            _SectionHeader(
-                              title: state.isInternationalTrending
-                                  ? 'International Top Hits'
-                                  : 'Trending Music',
-                              onSeeAll: state.trending.length > 5
-                                  ? () => _showSeeAllSheet(
-                                        context,
-                                        title: state.isInternationalTrending
-                                            ? 'International Top Hits'
-                                            : 'Trending Music',
-                                        videos: state.trending,
-                                        ranked: true,
-                                      )
-                                  : null,
-                            ),
-                            // Hero card for rank #1
-                            SliverToBoxAdapter(
-                              child: _TrendingHeroCard(
-                                  video: state.trending.first),
-                            ),
-                            // Ranked list for #2–#5 (inline preview, max 4)
-                            if (state.trending.length > 1)
-                              SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final video = state.trending[index + 1];
-                                    return _RankedTile(
-                                        rank: index + 2, video: video);
-                                  },
-                                  childCount:
-                                      (state.trending.length - 1).clamp(0, 4),
-                                ),
-                              ),
-                          ],
-                        ],
+                    // ── 0c. Continue Listening ─────────────────────────
+                    if (state.recentlyPlayed.isNotEmpty) ...[
+                      _SectionHeader(
+                        title: 'Continue Listening',
+                        onSeeAll: state.recentlyPlayed.length > 5
+                            ? () => _showSeeAllSheet(
+                                  context,
+                                  title: 'Continue Listening',
+                                  videos: state.recentlyPlayed,
+                                )
+                            : null,
                       ),
-                    ),
+                      _HorizontalVideoList(videos: state.recentlyPlayed),
+                    ],
+
+                    // ── 1. New Releases ────────────────────────────────
+                    if (state.newReleases.isNotEmpty) ...[
+                      _SectionHeader(
+                        title: 'New Releases',
+                        onSeeAll: state.newReleases.length > 5
+                            ? () => _showSeeAllSheet(
+                                  context,
+                                  title: 'New Releases',
+                                  videos: state.newReleases,
+                                )
+                            : null,
+                      ),
+                      _HorizontalVideoList(videos: state.newReleases),
+                    ],
+
+                    // ── 2. Discover ────────────────────────────────────
+                    if (state.discoverVideo != null &&
+                        state.discoverRelated.isNotEmpty) ...[
+                      _SectionHeader(
+                        title:
+                            'Because you liked "${state.discoverVideo!.title}"',
+                        onSeeAll: state.discoverRelated.length > 5
+                            ? () => _showSeeAllSheet(
+                                  context,
+                                  title:
+                                      'Because you liked "${state.discoverVideo!.title}"',
+                                  videos: state.discoverRelated,
+                                )
+                            : null,
+                      ),
+                      _HorizontalVideoList(videos: state.discoverRelated),
+                    ],
+
+                    // ── 3. Trending ────────────────────────────────────
+                    if (state.trending.isNotEmpty) ...[
+                      _SectionHeader(
+                        title: state.isInternationalTrending
+                            ? 'International Top Hits'
+                            : 'Trending Music',
+                        onSeeAll: state.trending.length > 5
+                            ? () => _showSeeAllSheet(
+                                  context,
+                                  title: state.isInternationalTrending
+                                      ? 'International Top Hits'
+                                      : 'Trending Music',
+                                  videos: state.trending,
+                                  ranked: true,
+                                )
+                            : null,
+                      ),
+                      // Hero card for rank #1
+                      SliverToBoxAdapter(
+                        child: _TrendingHeroCard(video: state.trending.first),
+                      ),
+                      // Ranked list for #2–#5 (inline preview, max 4)
+                      if (state.trending.length > 1)
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final video = state.trending[index + 1];
+                              return _RankedTile(rank: index + 2, video: video);
+                            },
+                            childCount: (state.trending.length - 1).clamp(0, 4),
+                          ),
+                        ),
+                    ],
+
+                    // ── Empty hint (no personalized content yet) ───────
+                    if (!hasPersonalized)
+                      const SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: _MusicEmptyState(),
+                      ),
+                  ],
+                ),
+              ),
             );
           }
 
@@ -453,6 +485,220 @@ class _MusicEmptyState extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _FeaturedChannelsSection — horizontal row of circular channel avatars
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _FeaturedChannelsSection extends StatelessWidget {
+  const _FeaturedChannelsSection({required this.channels});
+
+  final List<models.ChannelTile> channels;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 104,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: channels.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (context, index) {
+            final channel = channels[index];
+            return GestureDetector(
+              onTap: () => context.goNamed(
+                AppRoute.channel.name,
+                extra: {'channelId': channel.id},
+              ),
+              child: SizedBox(
+                width: 72,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 36,
+                      backgroundImage: NetworkImage(channel.thumbnailUrl),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      onBackgroundImageError: (_, __) {},
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      channel.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _GenreChipsSection — static horizontal genre chips with async bottom sheet
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// (label, search query) pairs for the genre chip row.
+const _kMusicGenres = [
+  ('Pop', 'Pop'),
+  ('Hip-Hop', 'Hip Hop'),
+  ('Rock', 'Rock'),
+  ('R&B', 'R&B Soul'),
+  ('Electronic', 'Electronic'),
+  ('Latin', 'Latin'),
+  ('K-Pop', 'KPop'),
+  ('Jazz', 'Jazz'),
+  ('Classical', 'Classical'),
+];
+
+class _GenreChipsSection extends StatelessWidget {
+  const _GenreChipsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 40,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: _kMusicGenres.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final (label, query) = _kMusicGenres[index];
+            return ActionChip(
+              label: Text(label),
+              onPressed: () {
+                // Capture the repository before the async gap
+                final repo = context.read<YoutubeExplodeRepository>();
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  useRootNavigator: false,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  builder: (_) =>
+                      _GenreSheet(label: label, query: query, repo: repo),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _GenreSheet — bottom sheet that lazily fetches genre videos
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _GenreSheet extends StatefulWidget {
+  const _GenreSheet(
+      {required this.label, required this.query, required this.repo});
+
+  final String label;
+  final String query;
+  final YoutubeExplodeRepository repo;
+
+  @override
+  State<_GenreSheet> createState() => _GenreSheetState();
+}
+
+class _GenreSheetState extends State<_GenreSheet> {
+  late final Future<List<models.VideoTile>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.repo.getTrending(widget.query);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.75,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      builder: (_, scrollController) {
+        return Column(
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  widget.label,
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<List<models.VideoTile>>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError ||
+                      !snapshot.hasData ||
+                      snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No results for ${widget.label}',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    );
+                  }
+                  final videos = snapshot.data!;
+                  return ListView.builder(
+                    controller: scrollController,
+                    itemCount: videos.length,
+                    itemBuilder: (context, index) {
+                      final video = videos[index];
+                      return PlayPauseGestureDetector(
+                        id: video.id,
+                        child: VideoMenuDialog(
+                          quickVideo: {'id': video.id, 'title': video.title},
+                          child: VideoTile(video: video),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

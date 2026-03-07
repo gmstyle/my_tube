@@ -510,6 +510,16 @@ class CustomSkeletonMusicHome extends StatelessWidget {
               child: ShimmerText(width: 80, height: 22),
             ),
           ),
+          // Section 0a: Featured Channels
+          const _SkeletonSectionHeader(),
+          const _SkeletonChannelRow(),
+          // Section 0b: Explore by Genre
+          const _SkeletonSectionHeader(),
+          const _SkeletonGenreChips(),
+          const SliverToBoxAdapter(child: SizedBox(height: 4)),
+          // Section 0c: Continue Listening
+          const _SkeletonSectionHeader(),
+          const _SkeletonHorizontalCards(),
           // Section 1: New Releases
           const _SkeletonSectionHeader(),
           const _SkeletonHorizontalCards(),
@@ -695,6 +705,60 @@ class _SkeletonRankedTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SkeletonChannelRow extends StatelessWidget {
+  const _SkeletonChannelRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 104,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: 5,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (_, __) => const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ShimmerCircle(size: 72),
+              SizedBox(height: 6),
+              ShimmerText(width: 56, height: 11),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonGenreChips extends StatelessWidget {
+  const _SkeletonGenreChips();
+
+  @override
+  Widget build(BuildContext context) {
+    const widths = [60.0, 76.0, 52.0, 68.0, 84.0, 56.0];
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 40,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: widths.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (_, i) => ShimmerButton(
+            width: widths[i],
+            height: 32,
+            borderRadius: 20,
+          ),
+        ),
       ),
     );
   }

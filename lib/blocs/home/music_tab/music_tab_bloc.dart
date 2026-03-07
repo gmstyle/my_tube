@@ -34,6 +34,7 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       // Favorites vengono dai DB locale – veloci, in sequenza
       final favoriteVideos = await favoriteRepository.favoriteVideos;
       final favoriteChannels = await favoriteRepository.favoriteChannels;
+      final recentlyPlayed = await favoriteRepository.recentlyPlayed;
 
       final hasFavorites =
           favoriteVideos.isNotEmpty || favoriteChannels.isNotEmpty;
@@ -93,6 +94,8 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
           musicalRelated.isNotEmpty ? musicalRelated : rawRelated;
 
       emit(MusicTabState.loaded(
+        featuredChannels: favoriteChannels,
+        recentlyPlayed: recentlyPlayed,
         newReleases: newReleases,
         discoverVideo: discoverVideo,
         discoverRelated: discoverRelated,

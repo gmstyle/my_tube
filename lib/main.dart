@@ -44,6 +44,7 @@ void main() async {
   await Hive.openBox<String>('favoriteVideos');
   await Hive.openBox<String>('favoriteChannels');
   await Hive.openBox<String>('favoritePlaylists');
+  await Hive.openBox<String>('recentlyPlayed');
   await LocalNotificationHelper.init();
 
   // Inizializza provider e repository prima di AudioService

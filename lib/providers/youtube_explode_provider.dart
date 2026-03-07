@@ -237,6 +237,25 @@ class YoutubeExplodeProvider {
     switch (category.toLowerCase()) {
       case 'music':
         return ['trending music', 'top songs', 'new music'];
+      case 'pop':
+        return ['top pop songs', 'pop music hits', 'best pop music'];
+      case 'hip hop':
+        return ['hip hop music', 'rap songs', 'hip hop hits'];
+      case 'rock':
+        return ['rock music', 'rock songs', 'rock hits'];
+      case 'r&b soul':
+      case 'r&b':
+        return ['r&b music', 'soul music', 'rnb songs'];
+      case 'electronic':
+        return ['electronic music', 'edm songs', 'house music'];
+      case 'latin':
+        return ['latin music', 'reggaeton hits', 'latin pop'];
+      case 'kpop':
+        return ['kpop music', 'k-pop hits', 'korean pop songs'];
+      case 'jazz':
+        return ['jazz music', 'jazz songs', 'best jazz'];
+      case 'classical':
+        return ['classical music', 'classical songs', 'orchestra music'];
       case 'gaming':
         return ['gaming', 'gameplay'];
       case 'film':
