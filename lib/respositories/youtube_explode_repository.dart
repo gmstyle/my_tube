@@ -70,23 +70,24 @@ class YoutubeExplodeRepository {
     );
   }
 
-  /// Simula getTrending usando ricerche predefinite
-  Future<List<VideoTile>> getTrending(String trendingCategory) async {
+  /// Simula getTrending usando ricerche predefinite, localizzate per [countryCode].
+  Future<List<VideoTile>> getTrending(String trendingCategory,
+      {String countryCode = 'US'}) async {
     try {
-      log('getTrending chiamato con categoria: $trendingCategory');
+      log('getTrending chiamato con categoria: $trendingCategory, paese: $countryCode');
 
-      final cacheKey = trendingCategory.toLowerCase();
+      final cacheKey = '${trendingCategory.toLowerCase()}_$countryCode';
       final cached = _trendingCache.get(cacheKey);
       if (cached != null) {
-        log('getTrending: ${cached.length} video per "$trendingCategory" dalla cache');
+        log('getTrending: ${cached.length} video per "$trendingCategory" ($countryCode) dalla cache');
         return cached;
       }
 
-      final videos =
-          await youtubeExplodeProvider.getTrendingSimulated(trendingCategory);
+      final videos = await youtubeExplodeProvider
+          .getTrendingSimulated(trendingCategory, countryCode: countryCode);
       final tiles = videos.map((video) => VideoTile.fromVideo(video)).toList();
       _trendingCache.set(cacheKey, tiles);
-      log('getTrending completato, ${tiles.length} video trovati per categoria: $trendingCategory');
+      log('getTrending completato, ${tiles.length} video per categoria: $trendingCategory ($countryCode)');
       return tiles;
     } catch (e) {
       log('Errore durante il recupero dei trending video: $e');
@@ -95,11 +96,13 @@ class YoutubeExplodeRepository {
   }
 
   /// Priorità 8: trending personalizzato basato sugli artisti dei preferiti.
-  /// La cache key è deterministica (artisti ordinati) con TTL 30 min.
-  Future<List<VideoTile>> getPersonalizedTrending(List<String> artists) async {
+  /// La cache key è deterministica (artisti ordinati + paese) con TTL 30 min.
+  Future<List<VideoTile>> getPersonalizedTrending(List<String> artists,
+      {String countryCode = 'US'}) async {
     try {
       final sortedArtists = List<String>.from(artists)..sort();
-      final cacheKey = 'personalized_${sortedArtists.take(3).join(',')}';
+      final cacheKey =
+          'personalized_${sortedArtists.take(3).join(',')}_$countryCode';
 
       final cached = _trendingCache.get(cacheKey);
       if (cached != null) {
@@ -108,10 +111,11 @@ class YoutubeExplodeRepository {
       }
 
       final videos = await youtubeExplodeProvider
-          .getPersonalizedTrendingFromArtists(artists);
+          .getPersonalizedTrendingFromArtists(artists,
+              countryCode: countryCode);
       final tiles = videos.map((v) => VideoTile.fromVideo(v)).toList();
       _trendingCache.set(cacheKey, tiles);
-      log('getPersonalizedTrending completato, ${tiles.length} video');
+      log('getPersonalizedTrending completato, ${tiles.length} video ($countryCode)');
       return tiles;
     } catch (e) {
       log('Errore durante il recupero del trending personalizzato: $e');

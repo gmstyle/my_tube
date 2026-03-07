@@ -36,8 +36,10 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
           trendingCategory = 'gaming';
           break;
       }
-      final response =
-          await youtubeExplodeRepository.getTrending(trendingCategory);
+      final response = await youtubeExplodeRepository.getTrending(
+          trendingCategory,
+          countryCode:
+              settingsBox.get('countryCode', defaultValue: 'US') as String);
       emit(ExploreTabState.loaded(response: response));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));

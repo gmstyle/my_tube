@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_tube/utils/constants.dart';
 
 /// Data source puro per youtube_explode_dart.
 /// Non gestisce alcuna cache: è responsabilità del Repository.
@@ -119,9 +120,10 @@ class YoutubeExplodeProvider {
     return filtered;
   }
 
-  Future<List<Video>> getTrendingSimulated(String category) async {
+  Future<List<Video>> getTrendingSimulated(String category,
+      {String countryCode = 'US'}) async {
     // Esegui tutte le query in parallelo
-    final queries = _getTrendingQueries(category);
+    final queries = _getTrendingQueriesLocalized(category, countryCode);
     final searchFutures = queries.map((query) async {
       try {
         final searchResult =
@@ -142,11 +144,12 @@ class YoutubeExplodeProvider {
   /// che un singolo artista domini l'intera sezione.
   static const _personalizedMaxPerArtist = 4;
 
-  Future<List<Video>> getPersonalizedTrendingFromArtists(
-      List<String> artists) async {
+  Future<List<Video>> getPersonalizedTrendingFromArtists(List<String> artists,
+      {String countryCode = 'US'}) async {
     // Randomizza l'ordine degli artisti per variare i risultati ad ogni refresh
     final shuffled = List<String>.from(artists)..shuffle();
-    final queries = shuffled.take(5).map((a) => '"$a" new music').toList();
+    final suffix = _getNewMusicSuffix(countryCode);
+    final queries = shuffled.take(5).map((a) => '"$a" $suffix').toList();
 
     final searchFutures = queries.map((query) async {
       try {
@@ -233,6 +236,7 @@ class YoutubeExplodeProvider {
     }
   }
 
+  // Query inglesi di fallback per ogni categoria.
   List<String> _getTrendingQueries(String category) {
     switch (category.toLowerCase()) {
       case 'music':
@@ -266,6 +270,168 @@ class YoutubeExplodeProvider {
         return ['trending videos', 'popular videos', 'trending today'];
     }
   }
+
+  /// Restituisce query localizzate per [category] in base al [countryCode].
+  /// Per paesi non anglofoni combina 2 query nella lingua locale + 1 inglese;
+  /// per paesi anglofoni usa le sole query inglesi.
+  List<String> _getTrendingQueriesLocalized(
+      String category, String countryCode) {
+    final langCode = _countryToLangCode(countryCode);
+    final localQueries =
+        _localizedTrendingOverrides[category.toLowerCase()]?[langCode];
+    final englishQueries = _getTrendingQueries(category);
+    if (langCode == 'en' || localQueries == null) return englishQueries;
+    // 2 query locali + 1 query inglese per mantenere copertura globale
+    return [...localQueries.take(2), englishQueries.first];
+  }
+
+  /// Restituisce la perifrasi "nuova musica" nella lingua del paese.
+  String _getNewMusicSuffix(String countryCode) {
+    const suffixMap = <String, String>{
+      'IT': 'nuova musica',
+      'FR': 'nouvelle musique',
+      'ES': 'nueva música',
+      'MX': 'nueva música',
+      'AR': 'nueva música',
+      'DE': 'neue musik',
+      'AT': 'neue musik',
+      'CH': 'neue musik',
+      'RU': 'новая музыка',
+      'KR': '신곡',
+      'BR': 'nova música',
+      'PT': 'nova música',
+      'CN': '新歌',
+      'HK': '新歌',
+      'TW': '新歌',
+      'TR': 'yeni müzik',
+      'ID': 'musik baru',
+      'NL': 'nieuwe muziek',
+      'BE': 'nieuwe muziek',
+      'SE': 'ny musik',
+      'DK': 'ny musik',
+      'NO': 'ny musikk',
+      'PL': 'nowa muzyka',
+      'RO': 'muzică nouă',
+      'CZ': 'nová hudba',
+      'VN': 'nhạc mới',
+      'TH': 'เพลงใหม่',
+      'FI': 'uusi musiikki',
+    };
+    return suffixMap[countryCode] ?? 'new music';
+  }
+
+  /// Converte un country code in language code usando la mappa condivisa in constants.dart.
+  static String _countryToLangCode(String countryCode) =>
+      countryToLanguage[countryCode] ?? 'en';
+
+  /// Query locali per categoria e lingua (usate come override delle query inglesi).
+  static const Map<String, Map<String, List<String>>>
+      _localizedTrendingOverrides = {
+    'music': {
+      'it': [
+        'musica di tendenza',
+        'nuova musica italiana',
+        'canzoni del momento'
+      ],
+      'fr': [
+        'musique tendance france',
+        'nouvelle musique française',
+        'hits musique'
+      ],
+      'es': ['música de moda', 'nueva música', 'canciones populares'],
+      'de': ['aktuelle musik', 'neue musik hits', 'musik trends'],
+      'ru': ['музыка тренды', 'новая музыка', 'популярные песни'],
+      'ja': ['音楽トレンド', '新曲', '人気音楽'],
+      'ko': ['최신 음악', '인기 음악', '신곡'],
+      'pt': ['música popular', 'novas músicas', 'hits musicais'],
+      'zh': ['流行音乐', '新歌', '热门音乐'],
+      'hi': ['नई संगीत', 'ट्रेंडिंग संगीत', 'बॉलीवुड हिट्स'],
+      'tr': ['müzik trendleri', 'yeni müzik', 'popüler şarkılar'],
+      'id': ['musik terbaru', 'lagu populer', 'musik trending'],
+      'nl': ['trending muziek', 'nieuwe muziek', 'populaire nummers'],
+      'sv': ['trending musik', 'ny musik', 'populär musik'],
+      'pl': ['muzyka trendy', 'nowa muzyka', 'popularne piosenki'],
+      'ro': ['muzică nouă', 'muzică populară', 'hituri muzicale'],
+      'cs': ['hudba trendy', 'nová hudba', 'populární písně'],
+      'vi': ['nhạc xu hướng', 'nhạc mới', 'bài hát phổ biến'],
+      'th': ['เพลงฮิต', 'เพลงใหม่', 'เพลงไทย'],
+      'da': ['trending musik', 'ny musik', 'populær musik'],
+      'fi': ['musiikkitrendit', 'uusi musiikki', 'suositut biisit'],
+      'nb': ['musikk trending', 'ny musikk', 'populær musikk'],
+    },
+    'now': {
+      'it': ['video di tendenza', 'viral oggi', 'più visti oggi'],
+      'fr': ['vidéos tendance', 'viral france', 'plus regardés'],
+      'es': ['videos tendencia', 'viral hoy', 'más vistos'],
+      'de': ['trending videos', 'viral deutschland', 'meistgesehene videos'],
+      'ru': ['трендовые видео', 'вирусное видео', 'популярное сегодня'],
+      'ja': ['トレンド動画', 'バイラル動画', '人気動画'],
+      'ko': ['트렌드 동영상', '인기 동영상', '바이럴'],
+      'pt': ['vídeos tendência', 'viral brasil', 'mais assistidos'],
+      'zh': ['热门视频', '病毒视频', '今日热点'],
+      'hi': ['ट्रेंडिंग वीडियो', 'वायरल वीडियो', 'आज के वीडियो'],
+      'tr': ['trend videolar', 'viral video', 'popüler videolar'],
+      'id': ['video trending', 'viral indonesia', 'video populer'],
+      'nl': ['trending video\'s', 'virale video\'s', 'populaire video\'s'],
+      'sv': ['trending videor', 'virala videor', 'populära videor'],
+      'pl': ['trendy wideo', 'wirusowe wideo', 'popularne filmy'],
+      'ro': ['videoclipuri trending', 'viral azi', 'cele mai vizionate'],
+      'cs': ['trendy videa', 'virální videa', 'populární videa'],
+      'vi': ['video xu hướng', 'video viral', 'video phổ biến'],
+      'th': ['วิดีโอยอดนิยม', 'วิดีโอไวรัล', 'วิดีโอเทรนด์'],
+      'da': ['trending videoer', 'virale videoer', 'populære videoer'],
+      'fi': ['trendit videot', 'viraalit videot', 'suositut videot'],
+      'nb': ['trending videoer', 'virale videoer', 'populære videoer'],
+    },
+    'film': {
+      'it': ['trailer film', 'cinema italiano', 'nuovi film'],
+      'fr': ['bandes annonces', 'cinéma français', 'nouveaux films'],
+      'es': ['trailers cine', 'películas nuevas', 'cine español'],
+      'de': ['film trailer', 'neue filme', 'kino deutschland'],
+      'ru': ['трейлеры фильмов', 'новые фильмы', 'кино 2025'],
+      'ja': ['映画予告', '新作映画', '日本映画'],
+      'ko': ['영화 예고편', '신작 영화', '한국 영화'],
+      'pt': ['trailers filmes', 'novos filmes', 'cinema brasileiro'],
+      'zh': ['电影预告片', '新电影', '中国电影'],
+      'hi': ['फिल्म ट्रेलर', 'नई बॉलीवुड फिल्में', 'हिंदी फिल्में'],
+      'tr': ['film fragmanları', 'yeni filmler', 'sinema türkiye'],
+      'id': ['trailer film', 'film terbaru', 'bioskop indonesia'],
+      'nl': ['film trailers', 'nieuwe films', 'bioscoop nederland'],
+      'sv': ['film trailers', 'nya filmer', 'bio sverige'],
+      'pl': ['trailery filmów', 'nowe filmy', 'kino polska'],
+      'ro': ['trailer filme', 'filme noi', 'cinema romania'],
+      'cs': ['trailery filmů', 'nové filmy', 'kino česko'],
+      'vi': ['trailer phim', 'phim mới', 'phim việt nam'],
+      'th': ['ตัวอย่างหนัง', 'หนังใหม่', 'ภาพยนตร์ไทย'],
+      'da': ['film trailers', 'nye film', 'biograf danmark'],
+      'fi': ['elokuva traileri', 'uudet elokuvat', 'elokuva suomi'],
+      'nb': ['film trailere', 'nye filmer', 'kino norge'],
+    },
+    'gaming': {
+      'it': ['gaming italiano', 'gameplay ita', 'videogiochi tendenza'],
+      'fr': ['gaming france', 'gameplay fr', 'jeux vidéo tendance'],
+      'es': ['gaming español', 'gameplay español', 'videojuegos trending'],
+      'de': ['gaming deutsch', 'gameplay deutsch', 'spiele trending'],
+      'ru': ['игровые видео', 'геймплей', 'игры тренды'],
+      'ja': ['ゲーム動画', 'ゲームプレイ', '人気ゲーム'],
+      'ko': ['게임 동영상', '게임플레이', '인기 게임'],
+      'pt': ['gaming brasil', 'gameplay pt', 'jogos tendência'],
+      'zh': ['游戏视频', '游戏直播', '热门游戏'],
+      'hi': ['गेमिंग वीडियो', 'गेमप्ले हिंदी', 'वायरल गेम'],
+      'tr': ['gaming türkçe', 'gameplay türkiye', 'oyun videoları'],
+      'id': ['gaming indonesia', 'gameplay indonesia', 'game populer'],
+      'nl': ['gaming nederland', 'gameplay nl', 'populaire games'],
+      'sv': ['gaming svenska', 'gameplay svenska', 'populära spel'],
+      'pl': ['gaming polska', 'gameplay pl', 'gry trending'],
+      'ro': ['gaming romania', 'gameplay ro', 'jocuri trending'],
+      'cs': ['gaming česky', 'gameplay cz', 'hry trending'],
+      'vi': ['gaming việt nam', 'gameplay vi', 'game phổ biến'],
+      'th': ['เกมมิ่งไทย', 'เล่นเกม', 'เกมยอดนิยม'],
+      'da': ['gaming dansk', 'gameplay dk', 'populære spil'],
+      'fi': ['gaming suomi', 'gameplay fi', 'suositut pelit'],
+      'nb': ['gaming norsk', 'gameplay no', 'populære spill'],
+    },
+  };
 
   List<String> _getLocalSearchSuggestions(String query) {
     // Implementazione base con suggerimenti predefiniti

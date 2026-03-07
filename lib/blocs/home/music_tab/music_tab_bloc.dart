@@ -129,11 +129,14 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
 
   Future<void> _loadSectionTrending(Emitter<MusicTabState> emit,
       List<String> uniqueArtists, bool isInternational) async {
+    final countryCode =
+        _settingsBox.get('countryCode', defaultValue: 'US') as String;
     try {
       final trending = uniqueArtists.isNotEmpty
           ? await youtubeExplodeRepository
-              .getPersonalizedTrending(uniqueArtists)
-          : await youtubeExplodeRepository.getTrending('Music');
+              .getPersonalizedTrending(uniqueArtists, countryCode: countryCode)
+          : await youtubeExplodeRepository.getTrending('Music',
+              countryCode: countryCode);
       emit(state.copyWith(
         trending: trending,
         isTrendingLoading: false,
