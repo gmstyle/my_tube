@@ -354,7 +354,8 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
       BuildContext context, models.ChannelTile channel, bool isTablet) {
     void handleTap() {
       close(context, null);
-      context.goNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
+      context
+          .pushNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
     }
 
     return ChannelPlaylistMenuDialog(
@@ -376,8 +377,8 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
       BuildContext context, models.PlaylistTile playlist, bool isTablet) {
     void handleTap() {
       close(context, null);
-      context
-          .goNamed(AppRoute.playlist.name, extra: {'playlistId': playlist.id});
+      context.pushNamed(AppRoute.playlist.name,
+          extra: {'playlistId': playlist.id});
     }
 
     return ChannelPlaylistMenuDialog(

@@ -168,7 +168,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
         title: const Text('View Channel'),
         subtitle: const Text('Open channel page'),
         onTap: () {
-          context.goNamed(AppRoute.channel.name, extra: {'channelId': id});
+          context.pushNamed(AppRoute.channel.name, extra: {'channelId': id});
         },
       );
     } else {
@@ -180,7 +180,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
         title: const Text('View Playlist'),
         subtitle: const Text('Open playlist page'),
         onTap: () {
-          context.goNamed(AppRoute.playlist.name, extra: {'playlistId': id});
+          context.pushNamed(AppRoute.playlist.name, extra: {'playlistId': id});
         },
       );
     }

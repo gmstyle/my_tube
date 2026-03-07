@@ -22,7 +22,7 @@ class MusicFeaturedChannelsSection extends StatelessWidget {
           itemBuilder: (context, index) {
             final channel = channels[index];
             return GestureDetector(
-              onTap: () => context.goNamed(
+              onTap: () => context.pushNamed(
                 AppRoute.channel.name,
                 extra: {'channelId': channel.id},
               ),
