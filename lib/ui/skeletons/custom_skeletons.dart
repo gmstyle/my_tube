@@ -511,32 +511,32 @@ class CustomSkeletonMusicHome extends StatelessWidget {
             ),
           ),
           // Section 0a: Featured Channels
-          const _SkeletonSectionHeader(),
+          const SkeletonSectionHeader(),
           const _SkeletonChannelRow(),
           // Section 0b: Explore by Genre
-          const _SkeletonSectionHeader(),
+          const SkeletonSectionHeader(),
           const _SkeletonGenreChips(),
           const SliverToBoxAdapter(child: SizedBox(height: 4)),
           // Section 0c: Continue Listening
-          const _SkeletonSectionHeader(),
-          const _SkeletonHorizontalCards(),
+          const SkeletonSectionHeader(),
+          const SkeletonHorizontalCards(),
           // Section 1: New Releases
-          const _SkeletonSectionHeader(),
-          const _SkeletonHorizontalCards(),
+          const SkeletonSectionHeader(),
+          const SkeletonHorizontalCards(),
           // Section 2: Discover
-          const _SkeletonSectionHeader(),
-          const _SkeletonHorizontalCards(),
+          const SkeletonSectionHeader(),
+          const SkeletonHorizontalCards(),
           // Section 3: Trending
-          const _SkeletonSectionHeader(),
+          const SkeletonSectionHeader(),
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: _SkeletonTrendingHero(),
+              child: SkeletonTrendingHero(),
             ),
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (_, __) => const _SkeletonRankedTile(),
+              (_, __) => const SkeletonRankedTile(),
               childCount: 4,
             ),
           ),
@@ -546,8 +546,8 @@ class CustomSkeletonMusicHome extends StatelessWidget {
   }
 }
 
-class _SkeletonSectionHeader extends StatelessWidget {
-  const _SkeletonSectionHeader();
+class SkeletonSectionHeader extends StatelessWidget {
+  const SkeletonSectionHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -574,8 +574,8 @@ class _SkeletonSectionHeader extends StatelessWidget {
   }
 }
 
-class _SkeletonHorizontalCards extends StatelessWidget {
-  const _SkeletonHorizontalCards();
+class SkeletonHorizontalCards extends StatelessWidget {
+  const SkeletonHorizontalCards({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -633,8 +633,8 @@ class _SkeletonVideoCard extends StatelessWidget {
   }
 }
 
-class _SkeletonTrendingHero extends StatelessWidget {
-  const _SkeletonTrendingHero();
+class SkeletonTrendingHero extends StatelessWidget {
+  const SkeletonTrendingHero({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -680,8 +680,8 @@ class _SkeletonTrendingHero extends StatelessWidget {
   }
 }
 
-class _SkeletonRankedTile extends StatelessWidget {
-  const _SkeletonRankedTile();
+class SkeletonRankedTile extends StatelessWidget {
+  const SkeletonRankedTile({super.key});
 
   @override
   Widget build(BuildContext context) {
