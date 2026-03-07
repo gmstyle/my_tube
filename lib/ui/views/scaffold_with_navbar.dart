@@ -16,6 +16,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   static const double _miniPlayerHeight = 60.0;
+  static const double _bottomNavigationBarHeight = 65.0;
 
   final _navigationBarDestinations = const [
     NavigationDestination(
@@ -120,7 +121,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             // Material 3 NavigationBar custom squeezed height is 65.0
             // Material 3 NavigationRail default width is 80.0
             context.read<PersistentUiCubit>().setBottomLayout(
-                  useNavigationRail ? 0 : 65.0,
+                  useNavigationRail ? 0 : _bottomNavigationBarHeight,
                   bottomSafeArea,
                 );
             context.read<PersistentUiCubit>().setLeftPadding(
@@ -266,7 +267,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               ),
               child: NavigationBar(
                 height:
-                    65, // Ridotto considerevolmente rispetto al default (80)
+                    _bottomNavigationBarHeight, // Ridotto considerevolmente rispetto al default (80)
                 selectedIndex: navigationShell.currentIndex,
                 onDestinationSelected: (index) =>
                     onDestinationSelected(index, context: context),

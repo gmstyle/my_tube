@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/queue_draggable_sheet.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class DraggableHeader extends StatelessWidget {
   const DraggableHeader({super.key, required this.controller});
@@ -35,7 +36,8 @@ class DraggableHeader extends StatelessWidget {
           ListenableBuilder(
             listenable: queueDraggableController,
             builder: (context, child) {
-              final isExpanded = queueDraggableController.size == maxChildSize;
+              final isExpanded =
+                  queueDraggableController.size == queueSheetMaxChildSize;
               if (isExpanded) {
                 // expanded: show collapse button + title + clear button
                 return Padding(
@@ -46,7 +48,7 @@ class DraggableHeader extends StatelessWidget {
                         icon: const Icon(Icons.keyboard_arrow_down),
                         tooltip: 'Close queue',
                         onPressed: () => queueDraggableController.animateTo(
-                          minChildSize,
+                          queueSheetMinChildSize,
                           duration: const Duration(milliseconds: 500),
                           curve: Curves.easeInOut,
                         ),

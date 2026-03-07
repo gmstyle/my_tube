@@ -33,7 +33,7 @@ class SettingsView extends StatelessWidget {
                 if (state.status == UpdateStatus.noUpdateAvailable) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('You are on the latest version'),
+                      content: Text(settingsLatestVersionMessage),
                       duration: Duration(seconds: 2),
                     ),
                   );
@@ -41,7 +41,7 @@ class SettingsView extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                          'Failed to check for updates: ${state.errorMessage}'),
+                          '$settingsUpdateCheckFailurePrefix${state.errorMessage}'),
                       backgroundColor: Theme.of(context).colorScheme.error,
                     ),
                   );
@@ -67,7 +67,7 @@ class SettingsView extends StatelessWidget {
 
                         // ── Theme & Appearance ────────────────────────────────
                         _SettingsCard(
-                          label: 'Theme & Appearance',
+                          label: settingsThemeAppearanceLabel,
                           icon: Icons.palette_outlined,
                           iconColor: cs.primaryContainer,
                           iconOnColor: cs.onPrimaryContainer,
@@ -88,10 +88,10 @@ class SettingsView extends StatelessWidget {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text('Theme Mode',
+                                        Text(settingsThemeModeTitle,
                                             style: theme.textTheme.bodyLarge),
                                         Text(
-                                          'Appearance of the app',
+                                          settingsThemeModeSubtitle,
                                           style: theme.textTheme.bodySmall
                                               ?.copyWith(
                                                   color: cs.onSurfaceVariant),
@@ -120,19 +120,19 @@ class SettingsView extends StatelessWidget {
                                     value: ThemeMode.light,
                                     icon: Icon(Icons.light_mode_outlined,
                                         size: 18),
-                                    label: Text('Light'),
+                                    label: Text(settingsThemeLightLabel),
                                   ),
                                   ButtonSegment(
                                     value: ThemeMode.dark,
                                     icon: Icon(Icons.dark_mode_outlined,
                                         size: 18),
-                                    label: Text('Dark'),
+                                    label: Text(settingsThemeDarkLabel),
                                   ),
                                   ButtonSegment(
                                     value: ThemeMode.system,
                                     icon: Icon(Icons.phone_android_outlined,
                                         size: 18),
-                                    label: Text('System'),
+                                    label: Text(settingsThemeSystemLabel),
                                   ),
                                 ],
                               ),
@@ -150,9 +150,9 @@ class SettingsView extends StatelessWidget {
                                 color: cs.tertiaryContainer,
                                 onColor: cs.onTertiaryContainer,
                               ),
-                              title: const Text('Dynamic Color'),
+                              title: const Text(settingsDynamicColorTitle),
                               subtitle: Text(
-                                'Use system colors (Material You)',
+                                settingsDynamicColorSubtitle,
                                 style: TextStyle(color: cs.onSurfaceVariant),
                               ),
                               value: themeSettings.useDynamicColor,
@@ -165,7 +165,7 @@ class SettingsView extends StatelessWidget {
 
                         // ── General ───────────────────────────────────────────
                         _SettingsCard(
-                          label: 'General',
+                          label: settingsGeneralLabel,
                           icon: Icons.tune_outlined,
                           iconColor: cs.secondaryContainer,
                           iconOnColor: cs.onSecondaryContainer,
@@ -176,9 +176,9 @@ class SettingsView extends StatelessWidget {
                                 color: cs.secondaryContainer,
                                 onColor: cs.onSecondaryContainer,
                               ),
-                              title: const Text('Country'),
+                              title: const Text(settingsCountryTitle),
                               subtitle: Text(
-                                'Content region for trending & explore',
+                                settingsCountrySubtitle,
                                 style: TextStyle(color: cs.onSurfaceVariant),
                               ),
                               trailing: Chip(
@@ -212,7 +212,7 @@ class SettingsView extends StatelessWidget {
 
                         // ── About ─────────────────────────────────────────────
                         _SettingsCard(
-                          label: 'About',
+                          label: settingsAboutLabel,
                           icon: Icons.info_outline,
                           iconColor: cs.surfaceContainerHighest,
                           iconOnColor: cs.onSurfaceVariant,
@@ -227,11 +227,11 @@ class SettingsView extends StatelessWidget {
                                     color: cs.surfaceContainerHighest,
                                     onColor: cs.onSurfaceVariant,
                                   ),
-                                  title: const Text('Check for Updates'),
+                                  title: const Text(settingsCheckUpdatesTitle),
                                   subtitle: Text(
                                     isChecking
-                                        ? 'Checking...'
-                                        : 'Check if a newer version is available',
+                                        ? settingsCheckingSubtitle
+                                        : settingsCheckUpdatesSubtitle,
                                     style:
                                         TextStyle(color: cs.onSurfaceVariant),
                                   ),
@@ -248,7 +248,7 @@ class SettingsView extends StatelessWidget {
                                             child: CircularProgressIndicator(
                                                 strokeWidth: 2),
                                           )
-                                        : const Text('Check'),
+                                        : const Text(actionCheckLabel),
                                   ),
                                 );
                               },
@@ -515,7 +515,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Select Country',
+                  settingsSelectCountryTitle,
                   style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
@@ -527,7 +527,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
               child: TextField(
                 controller: _searchController,
                 decoration: theme.enhancedInputDecoration.copyWith(
-                  hintText: 'Search country…',
+                  hintText: settingsSearchCountryHint,
                   prefixIcon: const Icon(Icons.search, size: 20),
                 ),
               ),

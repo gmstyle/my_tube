@@ -28,6 +28,10 @@ class QueueManager {
 
     currentIndex = playlist.indexOf(item);
 
+    // Record in play history (fire-and-forget — Hive write is fast)
+    // ignore: unawaited_futures
+    _service.favoriteRepository?.addRecentlyPlayed(id);
+
     await _service._engine.playCurrentTrack();
   }
 

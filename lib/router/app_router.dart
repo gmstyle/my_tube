@@ -31,9 +31,34 @@ class AppRouter {
           parentNavigatorKey: rootNavigatorKey,
           name: AppRoute.queue.name,
           path: AppRoute.queue.path,
-          pageBuilder: (context, state) => const QueuePage(),
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final restoreMiniPlayer =
+                extra?['restoreMiniPlayer'] as bool? ?? false;
+            return QueuePage(restoreMiniPlayer: restoreMiniPlayer);
+          },
         ),
       ],
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      name: AppRoute.channel.name,
+      path: AppRoute.channel.path,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        final channelId = extra['channelId'] as String;
+        return ChannelPage(channelId: channelId);
+      },
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      name: AppRoute.playlist.name,
+      path: AppRoute.playlist.path,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        final playlistId = extra['playlistId'] as String;
+        return PlaylistPage(playlistId: playlistId);
+      },
     ),
 
     // Shell
@@ -80,22 +105,6 @@ class AppRouter {
                         final playlistId = extra['playlistId'] as String;
                         return PlaylistPage(playlistId: playlistId);
                       }),
-                  GoRoute(
-                      name: AppRoute.channel.name,
-                      path: AppRoute.channel.path,
-                      pageBuilder: (context, state) {
-                        final extra = state.extra as Map<String, dynamic>;
-                        final channelId = extra['channelId'] as String;
-                        return ChannelPage(channelId: channelId);
-                      }),
-                  GoRoute(
-                      name: AppRoute.playlist.name,
-                      path: AppRoute.playlist.path,
-                      pageBuilder: (context, state) {
-                        final extra = state.extra as Map<String, dynamic>;
-                        final playlistId = extra['playlistId'] as String;
-                        return PlaylistPage(playlistId: playlistId);
-                      }),
                 ]),
           ]),
 
@@ -122,9 +131,9 @@ enum AppRoute {
   explore('/'),
   music('/music'),
   account('/account'),
-  channel('channel'),
+  channel('/channel'),
   channelFavorites('channelFavorite'),
-  playlist('playlist'),
+  playlist('/playlist'),
   playlistFavorites('playlistFavorite'),
   favorites('/favorites'),
   settings('/settings'),

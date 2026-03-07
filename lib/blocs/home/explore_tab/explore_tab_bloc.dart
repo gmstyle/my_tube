@@ -3,13 +3,14 @@ import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/tiles.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
+import 'package:my_tube/utils/constants.dart';
 
 part 'explore_tab_event.dart';
 part 'explore_tab_state.dart';
 
 class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
   final YoutubeExplodeRepository youtubeExplodeRepository;
-  final Box settingsBox = Hive.box('settings');
+  final Box settingsBox = Hive.box(hiveSettingsBoxName);
   ExploreTabBloc({required this.youtubeExplodeRepository})
       : super(const ExploreTabState.loading()) {
     on<GetTrendingVideos>((event, emit) async {
@@ -36,8 +37,10 @@ class ExploreTabBloc extends Bloc<ExploreTabEvent, ExploreTabState> {
           trendingCategory = 'gaming';
           break;
       }
-      final response =
-          await youtubeExplodeRepository.getTrending(trendingCategory);
+      final response = await youtubeExplodeRepository.getTrending(
+          trendingCategory,
+          countryCode: settingsBox.get(settingsCountryCodeKey,
+              defaultValue: defaultCountryCode) as String);
       emit(ExploreTabState.loaded(response: response));
     } catch (error) {
       emit(ExploreTabState.error(error: error.toString()));

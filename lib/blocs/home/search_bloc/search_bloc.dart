@@ -5,13 +5,14 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
+import 'package:my_tube/utils/constants.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final YoutubeExplodeRepository youtubeExplodeRepository;
-  final settingsBox = Hive.box('settings');
+  final settingsBox = Hive.box(hiveSettingsBoxName);
   SearchBloc({required this.youtubeExplodeRepository})
       : super(const SearchState.initial()) {
     on<SearchContents>((event, emit) async {
@@ -74,20 +75,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   void _saveQueryHistory(SearchContents event) {
-    if (settingsBox.containsKey('queryHistory')) {
+    if (settingsBox.containsKey(settingsQueryHistoryKey)) {
       final oldHistory =
-          jsonDecode(settingsBox.get('queryHistory')) as List<dynamic>;
+          jsonDecode(settingsBox.get(settingsQueryHistoryKey)) as List<dynamic>;
       if (!oldHistory.contains(event.query)) {
         // aggiungi l'elemento alla lista in testa
         oldHistory.insert(0, event.query);
         // rimuovi l'ultimo elemento se la lista è più lunga di 15 elementi
-        if (oldHistory.length > 15) {
+        if (oldHistory.length > searchHistoryMaxItems) {
           oldHistory.removeLast();
         }
       }
-      settingsBox.put('queryHistory', jsonEncode(oldHistory));
+      settingsBox.put(settingsQueryHistoryKey, jsonEncode(oldHistory));
     } else {
-      settingsBox.put('queryHistory', jsonEncode([event.query]));
+      settingsBox.put(settingsQueryHistoryKey, jsonEncode([event.query]));
     }
   }
 }

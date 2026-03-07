@@ -31,7 +31,7 @@ class PlaylistTile extends StatelessWidget {
     Widget tileContent = MaterialHoverContainer(
       onTap: onTap ??
           () {
-            context.goNamed(AppRoute.playlist.name,
+            context.pushNamed(AppRoute.playlist.name,
                 extra: {'playlistId': playlist.id});
           },
       borderRadius: BorderRadius.circular(12),
@@ -210,7 +210,7 @@ class PlaylistTile extends StatelessWidget {
         label: 'View Playlist',
         icon: Icons.playlist_play,
         onTap: () {
-          context.goNamed(AppRoute.playlist.name,
+          context.pushNamed(AppRoute.playlist.name,
               extra: {'playlistId': playlist.id});
         },
       ),

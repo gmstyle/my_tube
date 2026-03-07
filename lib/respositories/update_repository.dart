@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:my_tube/models/update.dart';
 import 'package:my_tube/providers/update_provider.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:path_provider/path_provider.dart';
 
 class UpdateRepository {
@@ -29,7 +30,8 @@ class UpdateRepository {
           await updateProvider.downloadLatestRelease(releaseVersion);
       // Save the response to a file
       final dir = await getDownloadsDirectory();
-      final file = File('${dir?.path}/app-release-$releaseVersion.apk');
+      final file = File(
+          '${dir?.path}/$releaseApkFilePrefix$releaseVersion$releaseApkFileExtension');
       await file.writeAsBytes(response);
       return file.path;
     } catch (e) {

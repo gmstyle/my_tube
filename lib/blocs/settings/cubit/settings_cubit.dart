@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/theme_settings.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class SettingsState {
   final String country;
@@ -25,15 +26,16 @@ class SettingsState {
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit()
       : super(const SettingsState(
-          country: 'US',
+          country: defaultCountryCode,
           themeSettings: ThemeSettings(),
         ));
 
-  final settingsBox = Hive.box('settings');
+  final settingsBox = Hive.box(hiveSettingsBoxName);
 
   void init() {
-    final countryCode = settingsBox.get('countryCode', defaultValue: 'US');
-    final themeSettingsJson = settingsBox.get('themeSettings');
+    final countryCode = settingsBox.get(settingsCountryCodeKey,
+        defaultValue: defaultCountryCode);
+    final themeSettingsJson = settingsBox.get(settingsThemeSettingsKey);
 
     final themeSettings = themeSettingsJson != null
         ? ThemeSettings.fromJson(Map<String, dynamic>.from(themeSettingsJson))
@@ -46,20 +48,20 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   void setCountry(String countryCode) {
-    settingsBox.put('countryCode', countryCode);
+    settingsBox.put(settingsCountryCodeKey, countryCode);
     emit(state.copyWith(country: countryCode));
   }
 
   void setThemeMode(ThemeMode themeMode) {
     final newThemeSettings = state.themeSettings.copyWith(themeMode: themeMode);
-    settingsBox.put('themeSettings', newThemeSettings.toJson());
+    settingsBox.put(settingsThemeSettingsKey, newThemeSettings.toJson());
     emit(state.copyWith(themeSettings: newThemeSettings));
   }
 
   void setUseDynamicColor(bool enabled) {
     final newThemeSettings =
         state.themeSettings.copyWith(useDynamicColor: enabled);
-    settingsBox.put('themeSettings', newThemeSettings.toJson());
+    settingsBox.put(settingsThemeSettingsKey, newThemeSettings.toJson());
     emit(state.copyWith(themeSettings: newThemeSettings));
   }
 }

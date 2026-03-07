@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_tube/utils/constants.dart';
 
 class UpdateProvider {
   Future<String> getLatestReleaseVersion() async {
     try {
-      final headers = {'Accept': 'application/vnd.github.+json'};
-      final response = await http.get(
-          Uri.parse(
-              'https://api.github.com/repos/gmstyle/my_tube/releases/latest'),
+      final headers = {githubApiAcceptHeaderKey: githubApiAcceptHeaderValue};
+      final response = await http.get(Uri.parse(githubLatestReleaseApiUrl),
           headers: headers);
       if (response.statusCode != 200) {
         return Future.error('Error: ${response.statusCode}');
@@ -24,7 +23,7 @@ class UpdateProvider {
     String cleanVersion = cleanVersionString(releaseVersion);
 
     final url =
-        'https://github.com/gmstyle/my_tube/releases/download/$releaseVersion/app-release-$cleanVersion.apk';
+        '$githubReleaseDownloadUrlPrefix/$releaseVersion/$releaseApkFilePrefix$cleanVersion$releaseApkFileExtension';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {

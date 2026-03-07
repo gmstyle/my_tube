@@ -565,9 +565,10 @@ class AndroidAutoBrowsingService {
 
   Future<List<MediaItem>> _getRecentSearches() async {
     try {
-      final box = Hive.box('settings');
-      if (box.containsKey('queryHistory')) {
-        final history = jsonDecode(box.get('queryHistory')) as List<dynamic>;
+      final box = Hive.box(hiveSettingsBoxName);
+      if (box.containsKey(settingsQueryHistoryKey)) {
+        final history =
+            jsonDecode(box.get(settingsQueryHistoryKey)) as List<dynamic>;
         final queryHistory = history.map((e) => e.toString()).toList();
 
         return queryHistory

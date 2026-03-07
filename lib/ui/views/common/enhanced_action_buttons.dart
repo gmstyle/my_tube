@@ -6,6 +6,7 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_cha
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/utils/app_animations.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/app_theme_extensions.dart';
 import 'package:my_tube/utils/scroll_animations.dart';
 
@@ -539,7 +540,7 @@ class _EnhancedDownloadButtonState extends State<EnhancedDownloadButton> {
         final theme = Theme.of(context);
 
         return AlertDialog(
-          title: const Text('Download Options'),
+          title: const Text(downloadOptionsTitle),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -551,8 +552,8 @@ class _EnhancedDownloadButtonState extends State<EnhancedDownloadButton> {
                   Icons.video_library,
                   color: theme.colorScheme.primary,
                 ),
-                title: const Text('Download Video'),
-                subtitle: const Text('Full quality video with audio'),
+                title: const Text(downloadVideoTitle),
+                subtitle: const Text(downloadVideoSubtitleWithAudio),
                 onTap: () {
                   Navigator.of(context).pop();
                   _startDownload(downloadService, false);
@@ -564,8 +565,8 @@ class _EnhancedDownloadButtonState extends State<EnhancedDownloadButton> {
                   Icons.music_note,
                   color: theme.colorScheme.secondary,
                 ),
-                title: const Text('Download Audio Only'),
-                subtitle: const Text('Audio track only, smaller file size'),
+                title: const Text(downloadAudioOnlyTitle),
+                subtitle: const Text(downloadAudioOnlySubtitleSmallSize),
                 onTap: () {
                   Navigator.of(context).pop();
                   _startDownload(downloadService, true);
@@ -576,7 +577,7 @@ class _EnhancedDownloadButtonState extends State<EnhancedDownloadButton> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: const Text(actionCancelLabel),
             ),
           ],
         );
@@ -787,7 +788,7 @@ extension ActionButtonHelpers on BuildContext {
         },
       ),
       OverflowMenuAction(
-        label: 'Download Video',
+        label: downloadVideoTitle,
         icon: Icons.download,
         onTap: () {
           downloadService.download(
