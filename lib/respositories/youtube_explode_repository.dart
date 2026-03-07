@@ -94,6 +94,31 @@ class YoutubeExplodeRepository {
     }
   }
 
+  /// Priorità 8: trending personalizzato basato sugli artisti dei preferiti.
+  /// La cache key è deterministica (artisti ordinati) con TTL 30 min.
+  Future<List<VideoTile>> getPersonalizedTrending(List<String> artists) async {
+    try {
+      final sortedArtists = List<String>.from(artists)..sort();
+      final cacheKey = 'personalized_${sortedArtists.take(3).join(',')}';
+
+      final cached = _trendingCache.get(cacheKey);
+      if (cached != null) {
+        log('getPersonalizedTrending: ${cached.length} video dalla cache');
+        return cached;
+      }
+
+      final videos = await youtubeExplodeProvider
+          .getPersonalizedTrendingFromArtists(artists);
+      final tiles = videos.map((v) => VideoTile.fromVideo(v)).toList();
+      _trendingCache.set(cacheKey, tiles);
+      log('getPersonalizedTrending completato, ${tiles.length} video');
+      return tiles;
+    } catch (e) {
+      log('Errore durante il recupero del trending personalizzato: $e');
+      rethrow;
+    }
+  }
+
   /// Simula getMusicHome usando ricerche musicali predefinite
   /* Future<MusicHomeMT> getMusicHome() async {
     try {

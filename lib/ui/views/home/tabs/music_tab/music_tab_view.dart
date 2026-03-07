@@ -124,29 +124,36 @@ class _MusicTabViewState extends State<MusicTabView> {
                               title: state.isInternationalTrending
                                   ? 'International Top Hits'
                                   : 'Trending Music',
+                              onSeeAll: state.trending.length > 5
+                                  ? () => _showSeeAllSheet(
+                                        context,
+                                        title: state.isInternationalTrending
+                                            ? 'International Top Hits'
+                                            : 'Trending Music',
+                                        videos: state.trending,
+                                        ranked: true,
+                                      )
+                                  : null,
                             ),
                             // Hero card for rank #1
                             SliverToBoxAdapter(
                               child: _TrendingHeroCard(
                                   video: state.trending.first),
                             ),
-                            // Ranked list for 2+
+                            // Ranked list for #2–#5 (inline preview, max 4)
                             if (state.trending.length > 1)
                               SliverList(
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {
-                                    // index 0 here = trending[1]
                                     final video = state.trending[index + 1];
                                     return _RankedTile(
                                         rank: index + 2, video: video);
                                   },
-                                  childCount: state.trending.length - 1,
+                                  childCount:
+                                      (state.trending.length - 1).clamp(0, 4),
                                 ),
                               ),
                           ],
-
-                          const SliverToBoxAdapter(
-                              child: SizedBox(height: 100)),
                         ],
                       ),
                     ),
@@ -458,6 +465,7 @@ void _showSeeAllSheet(
   BuildContext context, {
   required String title,
   required List<models.VideoTile> videos,
+  bool ranked = false,
 }) {
   showModalBottomSheet(
     context: context,
@@ -467,7 +475,7 @@ void _showSeeAllSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
-    builder: (_) => _SeeAllSheet(title: title, videos: videos),
+    builder: (_) => _SeeAllSheet(title: title, videos: videos, ranked: ranked),
   );
 }
 
@@ -476,10 +484,12 @@ void _showSeeAllSheet(
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _SeeAllSheet extends StatelessWidget {
-  const _SeeAllSheet({required this.title, required this.videos});
+  const _SeeAllSheet(
+      {required this.title, required this.videos, this.ranked = false});
 
   final String title;
   final List<models.VideoTile> videos;
+  final bool ranked;
 
   @override
   Widget build(BuildContext context) {
@@ -562,6 +572,9 @@ class _SeeAllSheet extends StatelessWidget {
                       itemCount: videos.length,
                       itemBuilder: (context, index) {
                         final video = videos[index];
+                        if (ranked) {
+                          return _RankedTile(rank: index + 1, video: video);
+                        }
                         return PlayPauseGestureDetector(
                           id: video.id,
                           child: VideoMenuDialog(

@@ -491,60 +491,211 @@ class CustomSkeletonMusicHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Sezione "Ascoltati di recente"
-          _buildMusicSection("Ascoltati di recente"),
-          const SizedBox(height: 20),
-          // Sezione "Mix per te"
-          _buildMusicSection("Mix per te"),
-          const SizedBox(height: 20),
-          // Sezione "Artisti consigliati"
-          _buildMusicSection("Artisti consigliati"),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: CustomScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        slivers: [
+          // AppBar skeleton
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            pinned: false,
+            automaticallyImplyLeading: false,
+            toolbarHeight: 48,
+            titleSpacing: 0,
+            backgroundColor: Colors.transparent,
+            title: const Padding(
+              padding: EdgeInsets.only(left: 16, right: 8),
+              child: ShimmerText(width: 80, height: 22),
+            ),
+          ),
+          // Section 1: New Releases
+          const _SkeletonSectionHeader(),
+          const _SkeletonHorizontalCards(),
+          // Section 2: Discover
+          const _SkeletonSectionHeader(),
+          const _SkeletonHorizontalCards(),
+          // Section 3: Trending
+          const _SkeletonSectionHeader(),
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: _SkeletonTrendingHero(),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (_, __) => const _SkeletonRankedTile(),
+              childCount: 4,
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildMusicSection(String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Titolo sezione
-        const ShimmerText(width: 200, height: 18),
-        const SizedBox(height: 12),
-        // Lista orizzontale
-        SizedBox(
-          height: 180,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return Container(
-                width: 150,
-                margin: const EdgeInsets.only(right: 12),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ShimmerImage(
-                      width: double.infinity,
-                      height: 120,
-                      borderRadius: 8,
-                    ),
-                    SizedBox(height: 8),
-                    ShimmerText(width: double.infinity, height: 14),
-                    SizedBox(height: 4),
-                    ShimmerText(width: 100, height: 12),
+class _SkeletonSectionHeader extends StatelessWidget {
+  const _SkeletonSectionHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 8, 10),
+      sliver: SliverToBoxAdapter(
+        child: Row(
+          children: [
+            Container(
+              width: 3,
+              height: 20,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const ShimmerText(width: 160, height: 18),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SkeletonHorizontalCards extends StatelessWidget {
+  const _SkeletonHorizontalCards();
+
+  @override
+  Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width > 600;
+    final cardHeight = isTablet ? 210.0 : 175.0;
+    final cardWidth = isTablet ? 290.0 : 240.0;
+    return SliverToBoxAdapter(
+      child: ClipRect(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SizedBox(
+            height: cardHeight,
+            child: OverflowBox(
+              alignment: Alignment.centerLeft,
+              maxWidth: double.infinity,
+              child: Row(
+                children: [
+                  for (int i = 0; i < 3; i++) ...[
+                    if (i > 0) const SizedBox(width: 8),
+                    _SkeletonVideoCard(width: cardWidth, height: cardHeight),
                   ],
-                ),
-              );
-            },
+                ],
+              ),
+            ),
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _SkeletonVideoCard extends StatelessWidget {
+  const _SkeletonVideoCard({required this.width, required this.height});
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final thumbHeight = width * 9 / 16;
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShimmerImage(width: width, height: thumbHeight, borderRadius: 8),
+          const SizedBox(height: 8),
+          const ShimmerText(width: double.infinity, height: 14),
+          const SizedBox(height: 4),
+          const ShimmerText(width: 100, height: 12),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonTrendingHero extends StatelessWidget {
+  const _SkeletonTrendingHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Thumbnail 16:9
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: ShimmerImage(
+              width: double.infinity,
+              height: double.infinity,
+              borderRadius: 0,
+            ),
+          ),
+          // Info row: rank badge + title + artist
+          const Padding(
+            padding: EdgeInsets.fromLTRB(12, 10, 12, 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerText(width: 36, height: 24, borderRadius: 8),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShimmerText(width: double.infinity, height: 14),
+                      SizedBox(height: 4),
+                      ShimmerText(width: 120, height: 12),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonRankedTile extends StatelessWidget {
+  const _SkeletonRankedTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ShimmerText(width: 28, height: 14),
+          SizedBox(width: 8),
+          ShimmerImage(width: 120, height: 68, borderRadius: 4),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerText(width: double.infinity, height: 14),
+                SizedBox(height: 4),
+                ShimmerText(width: 100, height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

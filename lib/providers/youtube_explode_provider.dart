@@ -88,8 +88,39 @@ class YoutubeExplodeProvider {
     return manifest;
   }
 
+  // Priorità 7: range di durata accettabile per un singolo musicale
+  static const _trendingMinDuration = Duration(minutes: 2);
+  static const _trendingMaxDuration = Duration(minutes: 12);
+
+  /// Deduplica, filtra per durata e ordina (video con tag musicale prima).
+  List<Video> _dedupeFilterSort(List<Video> videos) {
+    final seenIds = <String>{};
+    final unique = videos.where((v) {
+      final id = v.id.value;
+      if (id.isEmpty || seenIds.contains(id)) return false;
+      seenIds.add(id);
+      return true;
+    }).toList();
+
+    // Priorità 7a: escludi shorts (< 2 min) e compilazioni (> 12 min)
+    final filtered = unique.where((v) {
+      final d = v.duration;
+      if (d == null) return true;
+      return d >= _trendingMinDuration && d <= _trendingMaxDuration;
+    }).toList();
+
+    // Priorità 7b: porta in cima i video con tag musicale ufficiale
+    filtered.sort((a, b) {
+      final aScore = a.musicData.isNotEmpty ? 0 : 1;
+      final bScore = b.musicData.isNotEmpty ? 0 : 1;
+      return aScore.compareTo(bScore);
+    });
+
+    return filtered;
+  }
+
   Future<List<Video>> getTrendingSimulated(String category) async {
-    // Esegui tutte le query in parallelo invece di in sequenza
+    // Esegui tutte le query in parallelo
     final queries = _getTrendingQueries(category);
     final searchFutures = queries.map((query) async {
       try {
@@ -102,20 +133,56 @@ class YoutubeExplodeProvider {
       }
     });
     final nestedResults = await Future.wait(searchFutures);
-    final results = nestedResults.expand((v) => v).toList();
+    return _dedupeFilterSort(nestedResults.expand((v) => v).toList());
+  }
 
-    // Rimuovi duplicati basati sull'ID
-    final uniqueResults = <Video>[];
-    final seenIds = <String>{};
-    for (final video in results) {
-      final videoId = video.id.value;
-      if (videoId.isNotEmpty && !seenIds.contains(videoId)) {
-        seenIds.add(videoId);
-        uniqueResults.add(video);
+  /// Priorità 8: trending personalizzato basato sugli artisti dei video preferiti.
+  /// Usa query del tipo "artist new music" eseguite in parallelo.
+  /// Ogni artista contribuisce al massimo [_maxPerArtist] video per evitare
+  /// che un singolo artista domini l'intera sezione.
+  static const _personalizedMaxPerArtist = 4;
+
+  Future<List<Video>> getPersonalizedTrendingFromArtists(
+      List<String> artists) async {
+    // Randomizza l'ordine degli artisti per variare i risultati ad ogni refresh
+    final shuffled = List<String>.from(artists)..shuffle();
+    final queries = shuffled.take(5).map((a) => '"$a" new music').toList();
+
+    final searchFutures = queries.map((query) async {
+      try {
+        final result =
+            await _yt.search.search(query, filter: TypeFilters.video);
+        return result.toList();
+      } catch (e) {
+        log('Errore ricerca personalizzata per "$query": $e');
+        return <Video>[];
+      }
+    });
+
+    // Interleave: prende i risultati a rotazione tra gli artisti
+    // invece di concatenare (query1 + query2 + ...) per bilanciare la presenza.
+    final perArtist = await Future.wait(searchFutures);
+    final interleaved = <Video>[];
+    final maxLen = perArtist.fold(0, (m, l) => l.length > m ? l.length : m);
+    for (int i = 0; i < maxLen; i++) {
+      for (final list in perArtist) {
+        if (i < list.length) interleaved.add(list[i]);
       }
     }
 
-    return uniqueResults;
+    // Cap per artista: massimo _personalizedMaxPerArtist video per nome artista
+    final artistCount = <String, int>{};
+    final capped = interleaved.where((v) {
+      final artist =
+          v.musicData.isNotEmpty ? v.musicData.first.artist ?? '' : v.author;
+      final key = artist.toLowerCase();
+      final count = artistCount[key] ?? 0;
+      if (count >= _personalizedMaxPerArtist) return false;
+      artistCount[key] = count + 1;
+      return true;
+    }).toList();
+
+    return _dedupeFilterSort(capped);
   }
 
   Future<List<Video>> getMusicHomeSimulated() async {
