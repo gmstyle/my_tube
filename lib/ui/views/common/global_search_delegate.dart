@@ -16,6 +16,7 @@ import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/enums.dart';
 
 class GlobalSearchDelegate extends SearchDelegate<void> {
@@ -395,7 +396,7 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
   }
 
   @override
-  String get searchFieldLabel => 'Search videos, channels, playlists...';
+  String get searchFieldLabel => globalSearchFieldLabel;
 
   @override
   void showResults(BuildContext context) {
@@ -416,8 +417,8 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
     final box = cubit.settingsBox;
 
     List<String> queryHistory = [];
-    if (box.containsKey('queryHistory')) {
-      final history = (box.get('queryHistory') as String);
+    if (box.containsKey(settingsQueryHistoryKey)) {
+      final history = (box.get(settingsQueryHistoryKey) as String);
       final decoded = (jsonDecode(history) as List<dynamic>);
       queryHistory = decoded.map((e) => e.toString()).toList();
     }
@@ -433,6 +434,6 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
     }
 
     // Save back to storage
-    box.put('queryHistory', jsonEncode(queryHistory));
+    box.put(settingsQueryHistoryKey, jsonEncode(queryHistory));
   }
 }

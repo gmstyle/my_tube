@@ -4,6 +4,7 @@ import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/tiles.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
+import 'package:my_tube/utils/constants.dart';
 
 part 'musci_tab_event.dart';
 part 'music_tab_state.dart';
@@ -19,13 +20,7 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
     on<GetMusicTabContent>(_onGetMusicTabContent);
   }
 
-  final Box _settingsBox = Hive.box('settings');
-  static const _discoverSeedKey = 'musicDiscoverSeedIndex';
-
-  // Durata minima per escludere shorts (< 90s) e massima per escludere
-  // compilazioni (> 15 min) nella sezione Discover.
-  static const _discoverMinDuration = Duration(seconds: 90);
-  static const _discoverMaxDuration = Duration(minutes: 15);
+  final Box _settingsBox = Hive.box(hiveSettingsBoxName);
 
   Future<void> _onGetMusicTabContent(
       GetMusicTabContent event, Emitter<MusicTabState> emit) async {
@@ -46,11 +41,11 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
         final musicSeeds =
             favoriteVideos.where((v) => v.artist != null).toList();
         final pool = musicSeeds.isNotEmpty ? musicSeeds : favoriteVideos;
-        final currentIdx =
-            (_settingsBox.get(_discoverSeedKey, defaultValue: 0) as int) %
-                pool.length;
+        final currentIdx = (_settingsBox.get(settingsMusicDiscoverSeedKey,
+                defaultValue: 0) as int) %
+            pool.length;
         discoverVideo = pool[currentIdx];
-        _settingsBox.put(_discoverSeedKey, currentIdx + 1);
+        _settingsBox.put(settingsMusicDiscoverSeedKey, currentIdx + 1);
       }
 
       // Priorità 8: se ci sono artisti tra i preferiti, usa il trending personalizzato
@@ -113,7 +108,7 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       final durationFiltered = rawRelated.where((v) {
         final d = v.duration;
         if (d == null) return true;
-        return d >= _discoverMinDuration && d <= _discoverMaxDuration;
+        return d >= discoverMinDuration && d <= discoverMaxDuration;
       }).toList();
       // Preferisci video con tag musicale; fallback all'intera lista filtrata
       final musical = durationFiltered.where((v) => v.artist != null).toList();
@@ -129,8 +124,8 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
 
   Future<void> _loadSectionTrending(Emitter<MusicTabState> emit,
       List<String> uniqueArtists, bool isInternational) async {
-    final countryCode =
-        _settingsBox.get('countryCode', defaultValue: 'US') as String;
+    final countryCode = _settingsBox.get(settingsCountryCodeKey,
+        defaultValue: defaultCountryCode) as String;
     try {
       final trending = uniqueArtists.isNotEmpty
           ? await youtubeExplodeRepository
@@ -151,9 +146,6 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
   /// - esclude shorts (duration <= 60s)
   /// - prende al max 2 video per canale
   /// - cap globale di 20 video totali
-  static const _newReleasesMinDuration = Duration(seconds: 61);
-  static const _newReleasesMaxPerChannel = 2;
-  static const _newReleasesMaxTotal = 20;
 
   Future<List<VideoTile>> _fetchNewReleases(dynamic favoriteChannels) async {
     if ((favoriteChannels as List).isEmpty) return [];
@@ -166,18 +158,18 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
         // fallback all'intera lista filtrata per durata se nessun video ha il tag.
         final durationFiltered = uploads
             .where((v) =>
-                v.duration == null || v.duration! > _newReleasesMinDuration)
+                v.duration == null || v.duration! > newReleasesMinDuration)
             .toList();
         final musicalUploads =
             durationFiltered.where((v) => v.artist != null).toList();
         final pool =
             musicalUploads.isNotEmpty ? musicalUploads : durationFiltered;
-        return pool.take(_newReleasesMaxPerChannel).toList();
+        return pool.take(newReleasesMaxPerChannel).toList();
       } catch (_) {
         return <VideoTile>[];
       }
     });
     final nested = await Future.wait(futures);
-    return nested.expand((i) => i).take(_newReleasesMaxTotal).toList();
+    return nested.expand((i) => i).take(newReleasesMaxTotal).toList();
   }
 }

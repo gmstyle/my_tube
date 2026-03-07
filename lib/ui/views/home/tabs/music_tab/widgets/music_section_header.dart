@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_tube/utils/constants.dart';
 
 /// Sliver section header with accent bar, title, and optional "See all" button.
 class MusicSectionHeader extends StatelessWidget {
@@ -47,7 +48,7 @@ class MusicSectionHeader extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                 ),
-                child: const Text('See all'),
+                child: const Text(sectionSeeAllLabel),
               ),
           ],
         ),

@@ -27,6 +27,7 @@ import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/services/local_notification_helper.dart.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:provider/provider.dart';
 
 import 'app_bloc_observer.dart';
@@ -40,11 +41,11 @@ void main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Hive.initFlutter();
-  await Hive.openBox('settings');
-  await Hive.openBox<String>('favoriteVideos');
-  await Hive.openBox<String>('favoriteChannels');
-  await Hive.openBox<String>('favoritePlaylists');
-  await Hive.openBox<String>('recentlyPlayed');
+  await Hive.openBox(hiveSettingsBoxName);
+  await Hive.openBox<String>(hiveFavoriteVideosBoxName);
+  await Hive.openBox<String>(hiveFavoriteChannelsBoxName);
+  await Hive.openBox<String>(hiveFavoritePlaylistsBoxName);
+  await Hive.openBox<String>(hiveRecentlyPlayedBoxName);
   await LocalNotificationHelper.init();
 
   // Inizializza provider e repository prima di AudioService

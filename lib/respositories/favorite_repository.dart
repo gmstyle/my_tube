@@ -2,20 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/models/tiles.dart' as models;
+import 'package:my_tube/utils/constants.dart';
 
 class FavoriteRepository {
   final YoutubeExplodeRepository youtubeExplodeRepository;
 
   FavoriteRepository({required this.youtubeExplodeRepository});
 
-  final favoriteVideosBox = Hive.box<String>('favoriteVideos');
-  final favoriteChannelsBox = Hive.box<String>('favoriteChannels');
-  final favoritePlaylistsBox = Hive.box<String>('favoritePlaylists');
-  final recentlyPlayedBox = Hive.box<String>('recentlyPlayed');
-  static const _maxRecentlyPlayed = 30;
+  final favoriteVideosBox = Hive.box<String>(hiveFavoriteVideosBoxName);
+  final favoriteChannelsBox = Hive.box<String>(hiveFavoriteChannelsBoxName);
+  final favoritePlaylistsBox = Hive.box<String>(hiveFavoritePlaylistsBoxName);
+  final recentlyPlayedBox = Hive.box<String>(hiveRecentlyPlayedBoxName);
 
   /// Saves [id] at the head of the recently-played list.
-  /// Duplicates are removed and the list is capped at [_maxRecentlyPlayed].
+  /// Duplicates are removed and the list is capped at [recentlyPlayedMaxStored].
   Future<void> addRecentlyPlayed(String id) async {
     // Remove existing entry for this id to avoid duplicates
     final duplicateKey = recentlyPlayedBox
@@ -28,14 +28,18 @@ class FavoriteRepository {
     // Append to end (most recent = last)
     await recentlyPlayedBox.add(id);
     // Trim oldest entries
-    while (recentlyPlayedBox.length > _maxRecentlyPlayed) {
+    while (recentlyPlayedBox.length > recentlyPlayedMaxStored) {
       await recentlyPlayedBox.delete(recentlyPlayedBox.keys.first);
     }
   }
 
   /// Returns the last 20 played videos, most recent first.
   Future<List<models.VideoTile>> get recentlyPlayed async {
-    final ids = recentlyPlayedBox.values.toList().reversed.take(20).toList();
+    final ids = recentlyPlayedBox.values
+        .toList()
+        .reversed
+        .take(recentlyPlayedMaxReturned)
+        .toList();
     final results = await Future.wait(ids.map((id) async {
       try {
         return await youtubeExplodeRepository.getVideoMetadata(id);

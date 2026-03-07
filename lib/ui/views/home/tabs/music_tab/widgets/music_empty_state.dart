@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_tube/utils/constants.dart';
 
 /// Full-page centered empty state shown when no personalized content is available.
 class MusicEmptyState extends StatelessWidget {
@@ -18,7 +19,7 @@ class MusicEmptyState extends StatelessWidget {
                 size: 72, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
             const SizedBox(height: 20),
             Text(
-              'Your music, your way',
+              musicEmptyStateTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -26,7 +27,7 @@ class MusicEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Save some favorites to get personalized picks',
+              musicEmptyStateMessage,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall

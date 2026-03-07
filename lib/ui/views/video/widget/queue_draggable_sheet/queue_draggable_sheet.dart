@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/draggable_header.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/media_item_list.dart';
-
-const minChildSize = 0.08;
-const maxChildSize = 1.0;
-const snapSizes = [
-  0.4,
-];
 
 final queueDraggableController = DraggableScrollableController();
 
@@ -17,11 +12,11 @@ class QueueDraggableSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
         controller: queueDraggableController,
-        initialChildSize: minChildSize,
-        minChildSize: minChildSize,
-        maxChildSize: maxChildSize,
+        initialChildSize: queueSheetMinChildSize,
+        minChildSize: queueSheetMinChildSize,
+        maxChildSize: queueSheetMaxChildSize,
         snap: true,
-        snapSizes: snapSizes,
+        snapSizes: queueSheetSnapSizes,
         builder: (context, scrollController) {
           return Container(
             decoration: BoxDecoration(
@@ -44,16 +39,16 @@ class QueueDraggableSheet extends StatelessWidget {
   }
 
   void _expandCollapse() {
-    final targetSize = queueDraggableController.size == minChildSize
-        ? maxChildSize
-        : minChildSize;
+    final targetSize = queueDraggableController.size == queueSheetMinChildSize
+        ? queueSheetMaxChildSize
+        : queueSheetMinChildSize;
     _animateControllerTo(targetSize);
   }
 
   void _animateControllerTo(double targetSize) {
     queueDraggableController.animateTo(
       targetSize,
-      duration: const Duration(milliseconds: 500),
+      duration: queueSheetAnimationDuration,
       curve: Curves.easeInOut,
     );
   }

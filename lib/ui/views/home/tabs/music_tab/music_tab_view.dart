@@ -10,6 +10,7 @@ import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_horizontal_vi
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_see_all_sheet.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_section_header.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_trending_section.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class MusicTabView extends StatefulWidget {
   const MusicTabView({super.key});
@@ -37,8 +38,8 @@ class _MusicTabViewState extends State<MusicTabView> {
           if (state.status == MusicTabStatus.error) {
             return EnhancedErrorState(
               icon: Icons.music_off_outlined,
-              title: 'Could not load music',
-              message: state.error ?? 'Something went wrong. Try again.',
+              title: musicLoadErrorTitle,
+              message: state.error ?? musicLoadErrorMessage,
               showBackButton: false,
               onRetry: () =>
                   context.read<MusicTabBloc>().add(const GetMusicTabContent()),
@@ -63,6 +64,9 @@ class _MusicTabViewState extends State<MusicTabView> {
             final dedupedDiscover = state.discoverRelated
                 .where((v) => !newReleasesIds.contains(v.id))
                 .toList();
+            final discoverTitle = state.discoverVideo == null
+                ? null
+                : musicBecauseYouLikedTitle(state.discoverVideo!.title);
 
             return NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -77,7 +81,7 @@ class _MusicTabViewState extends State<MusicTabView> {
                   title: Padding(
                     padding: const EdgeInsets.only(left: 16, right: 8),
                     child: Text(
-                      'Music',
+                      musicTabAppBarTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -87,30 +91,31 @@ class _MusicTabViewState extends State<MusicTabView> {
                 ),
               ],
               body: RefreshIndicator(
-                onRefresh: () async =>
-                    context.read<MusicTabBloc>().add(const GetMusicTabContent()),
+                onRefresh: () async => context
+                    .read<MusicTabBloc>()
+                    .add(const GetMusicTabContent()),
                 child: CustomScrollView(
                   slivers: [
                     // ── 0a. Featured Channels ──────────────────────────
                     if (state.featuredChannels.isNotEmpty) ...[
-                      const MusicSectionHeader(title: 'Your Channels'),
+                      const MusicSectionHeader(title: musicSectionYourChannels),
                       MusicFeaturedChannelsSection(
                           channels: state.featuredChannels),
                     ],
 
                     // ── 0b. Explore by Genre ───────────────────────────
-                    const MusicSectionHeader(title: 'Explore by Genre'),
+                    const MusicSectionHeader(title: musicSectionExploreByGenre),
                     const MusicGenreChipsSection(),
                     const SliverToBoxAdapter(child: SizedBox(height: 4)),
 
                     // ── 0c. Continue Listening ─────────────────────────
                     if (state.recentlyPlayed.isNotEmpty) ...[
                       MusicSectionHeader(
-                        title: 'Continue Listening',
+                        title: musicSectionContinueListening,
                         onSeeAll: state.recentlyPlayed.length > 5
                             ? () => showMusicSeeAllSheet(
                                   context,
-                                  title: 'Continue Listening',
+                                  title: musicSectionContinueListening,
                                   videos: state.recentlyPlayed,
                                 )
                             : null,
@@ -124,11 +129,11 @@ class _MusicTabViewState extends State<MusicTabView> {
                       const SkeletonHorizontalCards(),
                     ] else if (state.newReleases.isNotEmpty) ...[
                       MusicSectionHeader(
-                        title: 'New Releases',
+                        title: musicSectionNewReleases,
                         onSeeAll: state.newReleases.length > 5
                             ? () => showMusicSeeAllSheet(
                                   context,
-                                  title: 'New Releases',
+                                  title: musicSectionNewReleases,
                                   videos: state.newReleases,
                                 )
                             : null,
@@ -143,13 +148,11 @@ class _MusicTabViewState extends State<MusicTabView> {
                     ] else if (state.discoverVideo != null &&
                         dedupedDiscover.isNotEmpty) ...[
                       MusicSectionHeader(
-                        title:
-                            'Because you liked "${state.discoverVideo!.title}"',
+                        title: discoverTitle!,
                         onSeeAll: dedupedDiscover.length > 5
                             ? () => showMusicSeeAllSheet(
                                   context,
-                                  title:
-                                      'Because you liked "${state.discoverVideo!.title}"',
+                                  title: discoverTitle,
                                   videos: dedupedDiscover,
                                 )
                             : null,
@@ -162,8 +165,8 @@ class _MusicTabViewState extends State<MusicTabView> {
                       const SkeletonSectionHeader(),
                       const SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 4),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           child: SkeletonTrendingHero(),
                         ),
                       ),
@@ -176,14 +179,14 @@ class _MusicTabViewState extends State<MusicTabView> {
                     ] else if (state.trending.isNotEmpty) ...[
                       MusicSectionHeader(
                         title: state.isInternationalTrending
-                            ? 'International Top Hits'
-                            : 'Trending Music',
+                            ? musicSectionInternationalTopHits
+                            : musicSectionTrendingMusic,
                         onSeeAll: state.trending.length > 5
                             ? () => showMusicSeeAllSheet(
                                   context,
                                   title: state.isInternationalTrending
-                                      ? 'International Top Hits'
-                                      : 'Trending Music',
+                                      ? musicSectionInternationalTopHits
+                                      : musicSectionTrendingMusic,
                                   videos: state.trending,
                                   ranked: true,
                                 )

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:my_tube/models/tiles.dart';
 import 'package:my_tube/utils/app_cache.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 
@@ -72,7 +73,7 @@ class YoutubeExplodeRepository {
 
   /// Simula getTrending usando ricerche predefinite, localizzate per [countryCode].
   Future<List<VideoTile>> getTrending(String trendingCategory,
-      {String countryCode = 'US'}) async {
+      {String countryCode = defaultCountryCode}) async {
     try {
       log('getTrending chiamato con categoria: $trendingCategory, paese: $countryCode');
 
@@ -98,7 +99,7 @@ class YoutubeExplodeRepository {
   /// Priorità 8: trending personalizzato basato sugli artisti dei preferiti.
   /// La cache key è deterministica (artisti ordinati + paese) con TTL 30 min.
   Future<List<VideoTile>> getPersonalizedTrending(List<String> artists,
-      {String countryCode = 'US'}) async {
+      {String countryCode = defaultCountryCode}) async {
     try {
       final sortedArtists = List<String>.from(artists)..sort();
       final cacheKey =

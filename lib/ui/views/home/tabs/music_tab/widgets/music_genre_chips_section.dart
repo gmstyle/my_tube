@@ -5,18 +5,7 @@ import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
-
-const _kMusicGenres = [
-  ('Pop', 'Pop'),
-  ('Hip-Hop', 'Hip Hop'),
-  ('Rock', 'Rock'),
-  ('R&B', 'R&B Soul'),
-  ('Electronic', 'Electronic'),
-  ('Latin', 'Latin'),
-  ('K-Pop', 'KPop'),
-  ('Jazz', 'Jazz'),
-  ('Classical', 'Classical'),
-];
+import 'package:my_tube/utils/constants.dart';
 
 /// Sliver with a horizontal row of genre action chips.
 /// Tapping a chip opens [_GenreSheet] which lazily fetches trending videos.
@@ -31,10 +20,12 @@ class MusicGenreChipsSection extends StatelessWidget {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: _kMusicGenres.length,
+          itemCount: musicGenres.length,
           separatorBuilder: (_, __) => const SizedBox(width: 8),
           itemBuilder: (context, index) {
-            final (label, query) = _kMusicGenres[index];
+            final genre = musicGenres[index];
+            final label = genre.key;
+            final query = genre.value;
             return ActionChip(
               label: Text(label),
               onPressed: () {

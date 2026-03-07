@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/download_service.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class VideoMenuDialog extends StatelessWidget {
   const VideoMenuDialog(
@@ -54,7 +55,7 @@ class VideoMenuDialog extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: const Text(actionCloseLabel),
             ),
           ],
         );
@@ -134,8 +135,8 @@ class VideoMenuDialog extends StatelessWidget {
             Icons.video_library,
             color: theme.colorScheme.primary,
           ),
-          title: const Text('Download Video'),
-          subtitle: const Text('Full quality with audio'),
+          title: const Text(downloadVideoTitle),
+          subtitle: const Text(downloadVideoSubtitleFullQuality),
           onTap: () {
             downloadService.download(
               videos: [
@@ -151,8 +152,8 @@ class VideoMenuDialog extends StatelessWidget {
             Icons.music_note,
             color: theme.colorScheme.secondary,
           ),
-          title: const Text('Download Audio Only'),
-          subtitle: const Text('Audio track only'),
+          title: const Text(downloadAudioOnlyTitle),
+          subtitle: const Text(downloadAudioOnlySubtitle),
           onTap: () {
             downloadService.download(
               videos: [

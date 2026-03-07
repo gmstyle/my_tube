@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/models/update.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class UpdateAvailableDialog extends StatelessWidget {
   const UpdateAvailableDialog({super.key, required this.update});
@@ -12,7 +13,7 @@ class UpdateAvailableDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Update available'),
+      title: const Text(updateDialogTitle),
       content: SingleChildScrollView(
         child: BlocBuilder<UpdateBloc, UpdateState>(
           builder: (context, state) {
@@ -20,7 +21,7 @@ class UpdateAvailableDialog extends StatelessWidget {
               return const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Downloading update...'),
+                  Text(updateDialogDownloadingMessage),
                   SizedBox(height: 16),
                   Center(child: CircularProgressIndicator()),
                 ],
@@ -32,21 +33,21 @@ class UpdateAvailableDialog extends StatelessWidget {
                 return const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Permission not granted to install packages. '
-                        'Please try again and grant the permission.'),
+                    Text(updateDialogPermissionMissingMessage),
                   ],
                 );
               } else {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Failed to download update: ${state.errorMessage}'),
+                    Text(
+                        '$updateDialogDownloadFailurePrefix${state.errorMessage}'),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
                         context.pop();
                       },
-                      child: const Text('Close'),
+                      child: const Text(actionCloseLabel),
                     ),
                   ],
                 );
@@ -56,11 +57,11 @@ class UpdateAvailableDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'A new version of the app is available: ${update.releaseVersion}',
+                  '$updateDialogAvailableVersionPrefix${update.releaseVersion}',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 16),
-                Text('CHANGELOG: ${update.changeLog}'),
+                Text('$updateDialogChangelogPrefix${update.changeLog}'),
               ],
             );
           },
@@ -74,7 +75,7 @@ class UpdateAvailableDialog extends StatelessWidget {
                 onPressed: () {
                   context.pop();
                 },
-                child: const Text('Cancel'),
+                child: const Text(actionCancelLabel),
               );
             }
 
@@ -89,7 +90,7 @@ class UpdateAvailableDialog extends StatelessWidget {
                   context.read<UpdateBloc>().add(
                       InstallUpdate(releaseVersion: update.releaseVersion));
                 },
-                child: const Text('Download update'),
+                child: const Text(updateDialogDownloadActionLabel),
               );
             }
 

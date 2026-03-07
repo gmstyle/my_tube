@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/theme_settings.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class ThemeCubit extends Cubit<ThemeSettings> {
   ThemeCubit() : super(const ThemeSettings());
 
-  final Box settingsBox = Hive.box('settings');
+  final Box settingsBox = Hive.box(hiveSettingsBoxName);
 
   void init() {
-    final themeSettingsJson = settingsBox.get('themeSettings');
+    final themeSettingsJson = settingsBox.get(settingsThemeSettingsKey);
     if (themeSettingsJson != null) {
       final themeSettings =
           ThemeSettings.fromJson(Map<String, dynamic>.from(themeSettingsJson));
@@ -20,13 +21,13 @@ class ThemeCubit extends Cubit<ThemeSettings> {
 
   void updateThemeMode(ThemeMode themeMode) {
     final newSettings = state.copyWith(themeMode: themeMode);
-    settingsBox.put('themeSettings', newSettings.toJson());
+    settingsBox.put(settingsThemeSettingsKey, newSettings.toJson());
     emit(newSettings);
   }
 
   void updateUseDynamicColor(bool enabled) {
     final newSettings = state.copyWith(useDynamicColor: enabled);
-    settingsBox.put('themeSettings', newSettings.toJson());
+    settingsBox.put(settingsThemeSettingsKey, newSettings.toJson());
     emit(newSettings);
   }
 

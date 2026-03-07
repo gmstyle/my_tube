@@ -5,6 +5,7 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_cha
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/enums.dart';
 import 'package:my_tube/utils/utils.dart';
 
@@ -69,7 +70,7 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: const Text(actionCloseLabel),
             ),
           ],
         );
