@@ -6,26 +6,26 @@ import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/media_item_list.dart';
 
 class QueueView extends StatefulWidget {
-  const QueueView({super.key});
+  const QueueView({super.key, this.restoreMiniPlayer = false});
+
+  final bool restoreMiniPlayer;
 
   @override
   State<QueueView> createState() => _QueueViewState();
 }
 
 class _QueueViewState extends State<QueueView> {
-
   late final PersistentUiCubit persistentUiCubit;
 
   @override
   void initState() {
     super.initState();
     persistentUiCubit = context.read<PersistentUiCubit>();
-
   }
+
   @override
   void dispose() {
-
-    if (persistentUiCubit.state.isPlayerVisible) {
+    if (widget.restoreMiniPlayer) {
       persistentUiCubit.setPlayerVisibility(true);
     }
     super.dispose();

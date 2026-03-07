@@ -255,9 +255,14 @@ class MiniPlayer extends StatelessWidget {
                                 visualDensity: VisualDensity.compact,
                                 tooltip: 'Queue',
                                 onPressed: () {
-                                  context.read<PersistentUiCubit>().setPlayerVisibility(false);
-                                  AppRouter.router
-                                    .pushNamed(AppRoute.queue.name);},
+                                  context
+                                      .read<PersistentUiCubit>()
+                                      .setPlayerVisibility(false);
+                                  AppRouter.router.pushNamed(
+                                    AppRoute.queue.name,
+                                    extra: {'restoreMiniPlayer': true},
+                                  );
+                                },
                                 icon: const Icon(
                                   Icons.queue_music,
                                   size: 22,

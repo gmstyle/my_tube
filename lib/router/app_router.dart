@@ -31,7 +31,12 @@ class AppRouter {
           parentNavigatorKey: rootNavigatorKey,
           name: AppRoute.queue.name,
           path: AppRoute.queue.path,
-          pageBuilder: (context, state) => const QueuePage(),
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final restoreMiniPlayer =
+                extra?['restoreMiniPlayer'] as bool? ?? false;
+            return QueuePage(restoreMiniPlayer: restoreMiniPlayer);
+          },
         ),
       ],
     ),
