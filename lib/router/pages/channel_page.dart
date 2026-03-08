@@ -19,7 +19,7 @@ class ChannelPage extends Page {
                 youtubeExplodeRepository:
                     context.read<YoutubeExplodeRepository>())
               ..add(GetChannelDetails(channelId: channelId)))
-      ], child: ChannelView(channelId: channelId)),
+      ], child: ChannelView(channelId: channelId, hideNavBar: true)),
     );
   }
 }

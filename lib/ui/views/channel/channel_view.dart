@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
@@ -20,9 +21,11 @@ import 'package:my_tube/utils/utils.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class ChannelView extends StatefulWidget {
-  const ChannelView({super.key, required this.channelId});
+  const ChannelView(
+      {super.key, required this.channelId, this.hideNavBar = false});
 
   final String channelId;
+  final bool hideNavBar;
 
   @override
   State<ChannelView> createState() => _ChannelViewState();
@@ -32,10 +35,22 @@ class _ChannelViewState extends State<ChannelView>
     with TickerProviderStateMixin {
   late final AnimationController _staggerController;
   late final TabController _tabController;
+  PersistentUiCubit? _uiCubit;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _uiCubit ??= context.read<PersistentUiCubit>();
+  }
 
   @override
   void initState() {
     super.initState();
+    if (widget.hideNavBar) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _uiCubit?.setNavBarVisibility(false);
+      });
+    }
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -68,6 +83,7 @@ class _ChannelViewState extends State<ChannelView>
 
   @override
   void dispose() {
+    if (widget.hideNavBar) _uiCubit?.setNavBarVisibility(true);
     _staggerController.dispose();
     _tabController
       ..removeListener(_onTabChanged)
