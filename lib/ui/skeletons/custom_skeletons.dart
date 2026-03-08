@@ -713,7 +713,7 @@ class SkeletonRankedTile extends StatelessWidget {
 }
 
 class SkeletonChannelRow extends StatelessWidget {
-  const SkeletonChannelRow();
+  const SkeletonChannelRow({super.key});
 
   @override
   Widget build(BuildContext context) {
