@@ -58,10 +58,10 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       // Emetti subito con i dati locali già disponibili + flag di caricamento
       // per le sezioni di rete ancora in attesa → la UI si aggiorna immediatamente.
       emit(MusicTabState.loaded(
-        featuredChannels: favoriteChannels,
         recentlyPlayed: recentlyPlayed,
         discoverVideo: discoverVideo,
         isInternationalTrending: !hasFavorites,
+        isFeaturedChannelsLoading: uniqueArtists.isNotEmpty,
         isNewReleasesLoading: favoriteChannels.isNotEmpty,
         isDiscoverLoading: discoverVideo != null,
         isTrendingLoading: true,
@@ -70,6 +70,8 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       // Le tre sezioni di rete partono in parallelo; ognuna emette non appena
       // ha i propri dati, senza aspettare le altre.
       await Future.wait([
+        _loadSectionFeaturedChannels(emit, uniqueArtists,
+            favoriteRepository.channelIds.toSet()),
         _loadSectionNewReleases(emit, favoriteChannels),
         _loadSectionDiscover(emit, discoverVideo),
         _loadSectionTrending(emit, uniqueArtists, !hasFavorites),
@@ -80,6 +82,24 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
   }
 
   // ── Section loaders ────────────────────────────────────────────────────────
+
+  Future<void> _loadSectionFeaturedChannels(Emitter<MusicTabState> emit,
+      List<String> artistNames, Set<String> favoriteChannelIds) async {
+    if (artistNames.isEmpty) {
+      emit(state.copyWith(isFeaturedChannelsLoading: false));
+      return;
+    }
+    try {
+      final channels = await youtubeExplodeRepository.getFeaturedChannels(
+          artistNames, favoriteChannelIds);
+      emit(state.copyWith(
+        featuredChannels: channels,
+        isFeaturedChannelsLoading: false,
+      ));
+    } catch (_) {
+      emit(state.copyWith(isFeaturedChannelsLoading: false));
+    }
+  }
 
   Future<void> _loadSectionNewReleases(
       Emitter<MusicTabState> emit, List<ChannelTile> favoriteChannels) async {

@@ -94,8 +94,12 @@ class _MusicTabViewState extends State<MusicTabView> {
               child: CustomScrollView(
                 slivers: [
                   // ── 0a. Featured Channels ──────────────────────────
-                  if (state.featuredChannels.isNotEmpty) ...[
-                    const MusicSectionHeader(title: musicSectionYourChannels),
+                  if (state.isFeaturedChannelsLoading) ...[
+                    const SkeletonSectionHeader(),
+                    const SkeletonChannelRow(),
+                  ] else if (state.featuredChannels.isNotEmpty) ...[
+                    const MusicSectionHeader(
+                        title: musicSectionFeaturedChannels),
                     MusicFeaturedChannelsSection(
                         channels: state.featuredChannels),
                   ],

@@ -13,6 +13,7 @@ class MusicTabState extends Equatable {
     this.discoverRelated = const [],
     this.trending = const [],
     this.isInternationalTrending = false,
+    this.isFeaturedChannelsLoading = false,
     this.isNewReleasesLoading = false,
     this.isDiscoverLoading = false,
     this.isTrendingLoading = false,
@@ -27,6 +28,9 @@ class MusicTabState extends Equatable {
   final List<VideoTile> discoverRelated;
   final List<VideoTile> trending;
   final bool isInternationalTrending;
+
+  /// True while the Featured Channels network call is in progress.
+  final bool isFeaturedChannelsLoading;
 
   /// True while the New Releases network call is in progress.
   final bool isNewReleasesLoading;
@@ -49,6 +53,7 @@ class MusicTabState extends Equatable {
     List<VideoTile> discoverRelated = const [],
     List<VideoTile> trending = const [],
     bool isInternationalTrending = false,
+    bool isFeaturedChannelsLoading = false,
     bool isNewReleasesLoading = false,
     bool isDiscoverLoading = false,
     bool isTrendingLoading = false,
@@ -61,6 +66,7 @@ class MusicTabState extends Equatable {
           discoverRelated: discoverRelated,
           trending: trending,
           isInternationalTrending: isInternationalTrending,
+          isFeaturedChannelsLoading: isFeaturedChannelsLoading,
           isNewReleasesLoading: isNewReleasesLoading,
           isDiscoverLoading: isDiscoverLoading,
           isTrendingLoading: isTrendingLoading,
@@ -79,6 +85,7 @@ class MusicTabState extends Equatable {
     List<VideoTile>? discoverRelated,
     List<VideoTile>? trending,
     bool? isInternationalTrending,
+    bool? isFeaturedChannelsLoading,
     bool? isNewReleasesLoading,
     bool? isDiscoverLoading,
     bool? isTrendingLoading,
@@ -94,6 +101,8 @@ class MusicTabState extends Equatable {
       trending: trending ?? this.trending,
       isInternationalTrending:
           isInternationalTrending ?? this.isInternationalTrending,
+      isFeaturedChannelsLoading:
+          isFeaturedChannelsLoading ?? this.isFeaturedChannelsLoading,
       isNewReleasesLoading: isNewReleasesLoading ?? this.isNewReleasesLoading,
       isDiscoverLoading: isDiscoverLoading ?? this.isDiscoverLoading,
       isTrendingLoading: isTrendingLoading ?? this.isTrendingLoading,
@@ -111,6 +120,7 @@ class MusicTabState extends Equatable {
         discoverRelated,
         trending,
         isInternationalTrending,
+        isFeaturedChannelsLoading,
         isNewReleasesLoading,
         isDiscoverLoading,
         isTrendingLoading,

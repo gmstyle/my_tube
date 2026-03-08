@@ -512,7 +512,7 @@ class CustomSkeletonMusicHome extends StatelessWidget {
           ),
           // Section 0a: Featured Channels
           const SkeletonSectionHeader(),
-          const _SkeletonChannelRow(),
+          const SkeletonChannelRow(),
           // Section 0b: Explore by Genre
           const SkeletonSectionHeader(),
           const _SkeletonGenreChips(),
@@ -710,8 +710,8 @@ class SkeletonRankedTile extends StatelessWidget {
   }
 }
 
-class _SkeletonChannelRow extends StatelessWidget {
-  const _SkeletonChannelRow();
+class SkeletonChannelRow extends StatelessWidget {
+  const SkeletonChannelRow();
 
   @override
   Widget build(BuildContext context) {
