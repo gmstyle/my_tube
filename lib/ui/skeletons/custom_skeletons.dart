@@ -510,13 +510,15 @@ class CustomSkeletonMusicHome extends StatelessWidget {
               child: ShimmerText(width: 80, height: 22),
             ),
           ),
-          // Section 0a: Featured Channels
-          const SkeletonSectionHeader(),
-          const SkeletonChannelRow(),
-          // Section 0b: Explore by Genre
+
+          // Section 0a: Explore by Genre
           const SkeletonSectionHeader(),
           const _SkeletonGenreChips(),
+          // Section 0b: Featured Channels
+          const SkeletonSectionHeader(),
+          const SkeletonChannelRow(),
           const SliverToBoxAdapter(child: SizedBox(height: 4)),
+
           // Section 0c: Continue Listening
           const SkeletonSectionHeader(),
           const SkeletonHorizontalCards(),

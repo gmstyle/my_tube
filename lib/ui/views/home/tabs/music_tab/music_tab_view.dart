@@ -93,7 +93,11 @@ class _MusicTabViewState extends State<MusicTabView> {
                   context.read<MusicTabBloc>().add(const GetMusicTabContent()),
               child: CustomScrollView(
                 slivers: [
-                  // ── 0a. Featured Channels ──────────────────────────
+                  // ── 0a. Explore by Genre ───────────────────────────
+                  const MusicSectionHeader(title: musicSectionExploreByGenre),
+                  const MusicGenreChipsSection(),
+                  const SliverToBoxAdapter(child: SizedBox(height: 4)),
+                  // ── 0b. Featured Channels ──────────────────────────
                   if (state.isFeaturedChannelsLoading) ...[
                     const SkeletonSectionHeader(),
                     const SkeletonChannelRow(),
@@ -103,11 +107,6 @@ class _MusicTabViewState extends State<MusicTabView> {
                     MusicFeaturedChannelsSection(
                         channels: state.featuredChannels),
                   ],
-
-                  // ── 0b. Explore by Genre ───────────────────────────
-                  const MusicSectionHeader(title: musicSectionExploreByGenre),
-                  const MusicGenreChipsSection(),
-                  const SliverToBoxAdapter(child: SizedBox(height: 4)),
 
                   // ── 0c. Continue Listening ─────────────────────────
                   if (state.recentlyPlayed.isNotEmpty) ...[
