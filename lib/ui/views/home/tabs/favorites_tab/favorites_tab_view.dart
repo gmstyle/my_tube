@@ -35,82 +35,87 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: NestedScrollView(
+    return NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            floating: true,
-            snap: true,
-            pinned: false,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 48,
-            forceElevated: innerBoxIsScrolled,
-            titleSpacing: 0,
-            title: Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                //right: 8,
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    'Favorites',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                pinned: false,
+                automaticallyImplyLeading: false,
+                toolbarHeight: 48,
+                forceElevated: innerBoxIsScrolled,
+                titleSpacing: 0,
+                title: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    //right: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Favorites',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      ),
+                      const Spacer(),
+                      if (_active == FavoriteCategory.videos)
+                        IconButton(
+                          onPressed: _playAllVideos,
+                          icon: Icon(Icons.play_circle_outline,
+                              color: Theme.of(context).colorScheme.onSurface),
+                          tooltip: 'Play all',
                         ),
+                      IconButton(
+                        onPressed: () async {
+                          await showSearch(
+                            context: context,
+                            delegate: FavoritesSearchDelegate(),
+                          );
+                        },
+                        icon: Icon(Icons.search,
+                            color: Theme.of(context).colorScheme.onSurface),
+                      ),
+                      _buildMoreMenu(context),
+                    ],
                   ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () async {
-                      await showSearch(
-                        context: context,
-                        delegate: FavoritesSearchDelegate(),
-                      );
-                    },
-                    icon: Icon(Icons.search,
-                        color: Theme.of(context).colorScheme.onSurface),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(44),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Videos'),
+                          selected: _active == FavoriteCategory.videos,
+                          onSelected: (s) =>
+                              setState(() => _active = FavoriteCategory.videos),
+                          showCheckmark: false,
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('Channels'),
+                          selected: _active == FavoriteCategory.channels,
+                          onSelected: (s) => setState(
+                              () => _active = FavoriteCategory.channels),
+                          showCheckmark: false,
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('Playlists'),
+                          selected: _active == FavoriteCategory.playlists,
+                          onSelected: (s) => setState(
+                              () => _active = FavoriteCategory.playlists),
+                          showCheckmark: false,
+                        ),
+                      ],
+                    ),
                   ),
-                  _buildMoreMenu(context),
-                ],
-              ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    ChoiceChip(
-                      label: const Text('Videos'),
-                      selected: _active == FavoriteCategory.videos,
-                      onSelected: (s) =>
-                          setState(() => _active = FavoriteCategory.videos),
-                      showCheckmark: false,
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('Channels'),
-                      selected: _active == FavoriteCategory.channels,
-                      onSelected: (s) =>
-                          setState(() => _active = FavoriteCategory.channels),
-                      showCheckmark: false,
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('Playlists'),
-                      selected: _active == FavoriteCategory.playlists,
-                      onSelected: (s) =>
-                          setState(() => _active = FavoriteCategory.playlists),
-                      showCheckmark: false,
-                    ),
-                  ],
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
         body: NotificationListener<UserScrollNotification>(
           onNotification: (notification) {
             if (notification.direction == ScrollDirection.reverse) {
@@ -131,9 +136,8 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                 return const PlaylistFavorites(searchQuery: '');
             }
           }),
-        ),
-      ),
-      floatingActionButton: _active == FavoriteCategory.videos
+        )
+        /* floatingActionButton: _active == FavoriteCategory.videos
           ? AnimatedScale(
               scale: _isFabVisible ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 200),
@@ -142,8 +146,8 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                 child: const Icon(Icons.play_arrow),
               ),
             )
-          : null,
-    );
+          : null, */
+        );
   }
 
   Widget _buildMoreMenu(BuildContext context) {

@@ -165,21 +165,23 @@ class ScaffoldWithNavbarView extends StatelessWidget {
 
   Widget _buildNavigationRailLayout(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: [
-          NavigationRail(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) =>
-                onDestinationSelected(index, context: context),
-            labelType: NavigationRailLabelType.all,
-            groupAlignment: -1.0,
-            destinations: _railDestinations,
-            // Optionally we can add leading/trailing here for aesthetics
-          ),
-          Expanded(
-            child: _buildContentPadding(context, navigationShell),
-          ),
-        ],
+      body: SafeArea(
+        child: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: navigationShell.currentIndex,
+              onDestinationSelected: (index) =>
+                  onDestinationSelected(index, context: context),
+              labelType: NavigationRailLabelType.all,
+              groupAlignment: -1.0,
+              destinations: _railDestinations,
+              // Optionally we can add leading/trailing here for aesthetics
+            ),
+            Expanded(
+              child: _buildContentPadding(context, navigationShell),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -192,19 +194,23 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         context: context,
         removeBottom:
             true, // Il padding inferiore lo forniamo noi via _buildContentPadding dinamicamente
-        child: NotificationListener<UserScrollNotification>(
-          onNotification: (notification) {
-            final cubit = context.read<PersistentUiCubit>();
-            if (notification.direction == ScrollDirection.reverse) {
-              // Utente scorre verso il basso -> Nascondiamo NavBar
-              cubit.setNavBarVisibility(false);
-            } else if (notification.direction == ScrollDirection.forward) {
-              // Utente scorre verso l'alto -> Mostriamo NavBar
-              cubit.setNavBarVisibility(true);
-            }
-            return false;
-          },
-          child: _buildContentPadding(context, navigationShell),
+        child: SafeArea(
+          bottom:
+              false, // Il bottom lo gestiamo manualmente via _buildContentPadding
+          child: NotificationListener<UserScrollNotification>(
+            onNotification: (notification) {
+              final cubit = context.read<PersistentUiCubit>();
+              if (notification.direction == ScrollDirection.reverse) {
+                // Utente scorre verso il basso -> Nascondiamo NavBar
+                cubit.setNavBarVisibility(false);
+              } else if (notification.direction == ScrollDirection.forward) {
+                // Utente scorre verso l'alto -> Mostriamo NavBar
+                cubit.setNavBarVisibility(true);
+              }
+              return false;
+            },
+            child: _buildContentPadding(context, navigationShell),
+          ),
         ),
       ),
       bottomNavigationBar: BlocBuilder<PersistentUiCubit, PersistentUiState>(
