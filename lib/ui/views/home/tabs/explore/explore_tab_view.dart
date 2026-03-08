@@ -31,78 +31,75 @@ class _ExploreTabViewState extends State<ExploreTabView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            floating: true,
-            snap: true,
-            pinned: false,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 48,
-            forceElevated: innerBoxIsScrolled,
-            titleSpacing: 0,
-            title: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 8),
-              child: Text(
-                'Explore',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-              ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (int i = 0; i < CategoryEnum.values.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 8),
-                        ChoiceChip(
-                          label: Text(_labelFor(CategoryEnum.values[i])),
-                          selected: _selectedCategory == CategoryEnum.values[i],
-                          showCheckmark: false,
-                          onSelected: (_) =>
-                              _selectCategory(CategoryEnum.values[i]),
-                        ),
-                      ],
-                    ],
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          pinned: false,
+          automaticallyImplyLeading: false,
+          toolbarHeight: 48,
+          forceElevated: innerBoxIsScrolled,
+          titleSpacing: 0,
+          title: Padding(
+            padding: const EdgeInsets.only(left: 16, right: 8),
+            child: Text(
+              'Explore',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
+            ),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (int i = 0; i < CategoryEnum.values.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: Text(_labelFor(CategoryEnum.values[i])),
+                        selected: _selectedCategory == CategoryEnum.values[i],
+                        showCheckmark: false,
+                        onSelected: (_) =>
+                            _selectCategory(CategoryEnum.values[i]),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
           ),
-        ],
-        body: BlocBuilder<ExploreTabBloc, ExploreTabState>(
-          builder: (context, state) {
-            switch (state.status) {
-              case YoutubeStatus.loading:
-                return const CustomSkeletonGridList();
-              case YoutubeStatus.error:
-                return EnhancedErrorState(
-                  icon: Icons.explore_off,
-                  title: 'Could not load trending',
-                  message: state.error ?? 'Something went wrong. Try again.',
-                  showBackButton: false,
-                  onRetry: () => context
-                      .read<ExploreTabBloc>()
-                      .add(GetTrendingVideos(category: _selectedCategory)),
-                );
-              case YoutubeStatus.loaded:
-                return _ExploreContent(
-                  state: state,
-                  onRefresh: () async => context
-                      .read<ExploreTabBloc>()
-                      .add(GetTrendingVideos(category: _selectedCategory)),
-                );
-            }
-          },
         ),
+      ],
+      body: BlocBuilder<ExploreTabBloc, ExploreTabState>(
+        builder: (context, state) {
+          switch (state.status) {
+            case YoutubeStatus.loading:
+              return const CustomSkeletonGridList();
+            case YoutubeStatus.error:
+              return EnhancedErrorState(
+                icon: Icons.explore_off,
+                title: 'Could not load trending',
+                message: state.error ?? 'Something went wrong. Try again.',
+                showBackButton: false,
+                onRetry: () => context
+                    .read<ExploreTabBloc>()
+                    .add(GetTrendingVideos(category: _selectedCategory)),
+              );
+            case YoutubeStatus.loaded:
+              return _ExploreContent(
+                state: state,
+                onRefresh: () async => context
+                    .read<ExploreTabBloc>()
+                    .add(GetTrendingVideos(category: _selectedCategory)),
+              );
+          }
+        },
       ),
     );
   }
