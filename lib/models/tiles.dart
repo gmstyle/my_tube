@@ -82,17 +82,26 @@ class ChannelTile extends Equatable {
   }
 
   factory ChannelTile.fromSearchChannel(SearchChannel channel) {
+    // youtube_explode_dart 3.0.5 prepends "https:" to URLs that already start
+    // with "https://", producing "https:https://...". Strip the duplicate.
+    String rawUrl = channel.thumbnails.isNotEmpty
+        ? channel.thumbnails.first.url.toString()
+        : '';
+    if (rawUrl.startsWith('https:https://')) {
+      rawUrl = rawUrl.substring('https:'.length);
+    }
     return ChannelTile(
       id: channel.id.value,
       title: channel.name,
       description: channel.description,
-      thumbnailUrl: channel.thumbnails.first.url.toString(),
+      thumbnailUrl: rawUrl,
       subscriberCount: null,
     );
   }
 
   @override
-  List<Object?> get props => [id, title, thumbnailUrl, subscriberCount];
+  List<Object?> get props =>
+      [id, title, description, thumbnailUrl, subscriberCount];
 }
 
 class PlaylistTile extends Equatable {

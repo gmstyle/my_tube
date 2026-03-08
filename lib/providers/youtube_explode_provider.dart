@@ -67,6 +67,12 @@ class YoutubeExplodeProvider {
     return uploads.nextPage();
   }
 
+  /// Fallback per [getChannelVideos]: usa lo stream playlist-based (UU…).
+  /// Non supporta paginazione ma è più robusto per canali con layout non standard.
+  Future<List<Video>> getChannelVideosFallback(String channelId) async {
+    return _yt.channels.getUploads(channelId).take(30).toList();
+  }
+
   /// Cerca le playlist di un canale tramite il titolo del canale.
   /// Non esiste un'API diretta in youtube_explode_dart per le playlist di un canale,
   /// quindi si usa la ricerca filtrata per playlist.
@@ -76,6 +82,12 @@ class YoutubeExplodeProvider {
 
   Future<SearchList?> getNextChannelPlaylists(SearchList searchList) async {
     return searchList.nextPage();
+  }
+
+  Future<List<SearchChannel>> searchChannels(String query) async {
+    final results =
+        await _yt.search.searchContent(query, filter: TypeFilters.channel);
+    return results.whereType<SearchChannel>().toList();
   }
 
   Future<List<dynamic>?> getNextSearchContent(SearchList searchList) async {

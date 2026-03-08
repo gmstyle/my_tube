@@ -286,26 +286,63 @@ class YoutubeExplodeRepository {
     }
   }
 
+  /// Recupera canali consigliati basandosi sui nomi degli artisti preferiti.
+  /// Prende al massimo 1 canale per artista (il top result, cioè il più
+  /// rilevante), esclude i canali già nelle preferenze ([excludeIds]).
+  Future<List<ChannelTile>> getFeaturedChannels(
+      List<String> artistNames, Set<String> excludeIds) async {
+    if (artistNames.isEmpty) return [];
+    final seenIds = <String>{...excludeIds};
+    final results = <ChannelTile>[];
+    for (final artist in artistNames.take(featuredChannelsMaxTotal)) {
+      if (results.length >= featuredChannelsMaxTotal) break;
+      try {
+        // Aggiunge "music" alla query per favorire canali ufficiali
+        final channels =
+            await youtubeExplodeProvider.searchChannels('$artist music');
+        // Prende solo il primo risultato (top = più rilevante/ufficiale)
+        // che non sia già nei preferiti né già selezionato
+        final candidates =
+            channels.where((ch) => !seenIds.contains(ch.id.value));
+        if (candidates.isNotEmpty) {
+          final top = candidates.first;
+          seenIds.add(top.id.value);
+          results.add(ChannelTile.fromSearchChannel(top));
+        }
+      } catch (e) {
+        log('Errore ricerca canali per artista "$artist": $e');
+      }
+    }
+    return results;
+  }
+
   /// Recupera informazioni di un canale
   Future<Map<String, dynamic>> getChannel(String channelId) async {
     try {
-      final channelPageFuture =
-          youtubeExplodeProvider.getChannelPage(channelId);
-      final channelVideosFuture =
-          youtubeExplodeProvider.getChannelVideos(channelId);
-      final results =
-          await Future.wait([channelPageFuture, channelVideosFuture]);
-      final channel = results[0] as Channel;
-      final uploads = results[1] as List<Video>;
-      final videoTiles =
-          uploads.map((video) => VideoTile.fromVideo(video)).toList();
+      final channel = await youtubeExplodeProvider.getChannelPage(channelId);
 
-      // Ritorniamo anche l'oggetto uploads (ChannelUploadsList) per permettere
-      // il caricamento di pagine successive.
+      // getUploadsFromPage fallisce su canali con layout non standard
+      // (FatalFailureException). In quel caso si usa il fallback stream-based.
+      List<Video> uploadVideos;
+      ChannelUploadsList? uploadsListObj;
+      try {
+        final ul = await youtubeExplodeProvider.getChannelVideos(channelId);
+        uploadsListObj = ul;
+        uploadVideos = ul;
+      } catch (e) {
+        log('getChannelVideos fallito per $channelId, uso fallback stream: $e');
+        uploadVideos =
+            await youtubeExplodeProvider.getChannelVideosFallback(channelId);
+      }
+
+      final videoTiles =
+          uploadVideos.map((video) => VideoTile.fromVideo(video)).toList();
+
+      // uploadsList è null quando si usa il fallback (nessuna paginazione).
       return {
         'channel': channel,
         'videos': videoTiles,
-        'uploadsList': uploads,
+        'uploadsList': uploadsListObj,
       };
     } catch (e) {
       log('Errore durante il recupero del canale: $e');

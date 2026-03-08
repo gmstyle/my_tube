@@ -510,13 +510,15 @@ class CustomSkeletonMusicHome extends StatelessWidget {
               child: ShimmerText(width: 80, height: 22),
             ),
           ),
-          // Section 0a: Featured Channels
-          const SkeletonSectionHeader(),
-          const _SkeletonChannelRow(),
-          // Section 0b: Explore by Genre
+
+          // Section 0a: Explore by Genre
           const SkeletonSectionHeader(),
           const _SkeletonGenreChips(),
+          // Section 0b: Featured Channels
+          const SkeletonSectionHeader(),
+          const SkeletonChannelRow(),
           const SliverToBoxAdapter(child: SizedBox(height: 4)),
+
           // Section 0c: Continue Listening
           const SkeletonSectionHeader(),
           const SkeletonHorizontalCards(),
@@ -710,8 +712,8 @@ class SkeletonRankedTile extends StatelessWidget {
   }
 }
 
-class _SkeletonChannelRow extends StatelessWidget {
-  const _SkeletonChannelRow();
+class SkeletonChannelRow extends StatelessWidget {
+  const SkeletonChannelRow({super.key});
 
   @override
   Widget build(BuildContext context) {
