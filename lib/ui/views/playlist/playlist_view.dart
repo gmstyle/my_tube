@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
@@ -16,9 +17,11 @@ import 'package:my_tube/models/tiles.dart' as models;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class PlaylistView extends StatefulWidget {
-  const PlaylistView({super.key, required this.playlistId});
+  const PlaylistView(
+      {super.key, required this.playlistId, this.hideNavBar = false});
 
   final String playlistId;
+  final bool hideNavBar;
 
   @override
   State<PlaylistView> createState() => _PlaylistViewState();
@@ -27,10 +30,22 @@ class PlaylistView extends StatefulWidget {
 class _PlaylistViewState extends State<PlaylistView>
     with SingleTickerProviderStateMixin {
   late AnimationController _staggerController;
+  PersistentUiCubit? _uiCubit;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _uiCubit ??= context.read<PersistentUiCubit>();
+  }
 
   @override
   void initState() {
     super.initState();
+    if (widget.hideNavBar) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _uiCubit?.setNavBarVisibility(false);
+      });
+    }
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -39,6 +54,7 @@ class _PlaylistViewState extends State<PlaylistView>
 
   @override
   void dispose() {
+    if (widget.hideNavBar) _uiCubit?.setNavBarVisibility(true);
     _staggerController.dispose();
     super.dispose();
   }
