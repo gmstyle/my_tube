@@ -10,49 +10,71 @@ on:
     types: [opened, synchronize, reopened] # Per attivare su apertura, aggiornamento o riapertura PR
 
 permissions:
-  contents: write # Questo darà al GITHUB_TOKEN i permessi di scrittura sui contenuti del repository, inclusi release e tag.
+  contents: write # Necessario per creare tag e release
 
 jobs:
+  # ─── JOB 1: Analisi e validazione (gira su ogni push e ogni PR) ───────────────
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          #flutter-version: '3.19.6' # Sostituisci con la versione specifica di Flutter che usi
+          channel: stable # o beta/master se usi un canale diverso
+          cache: true # Abilita la cache dell'SDK Flutter per velocizzare i run successivi
+
+      - name: Cache Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          # La chiave cambia solo se pubspec.lock cambia, massimizzando i cache hit
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Analyze Code
+        # --fatal-warnings fa fallire il job se ci sono warning, non solo errori
+        run: flutter analyze --fatal-warnings
+
+  # ─── JOB 2: Build e Release (gira solo su push a main) ───────────────────────
   build_and_release:
-    runs-on: ubuntu-latest # Useremo un runner Linux per il build Android
-    environment: production # Usa l'environment production per i secrets
+    runs-on: ubuntu-latest
+    environment: production # Usa l'environment production per i secrets — solo qui, non blocca le PR
+    needs: validate # Aspetta che validate passi prima di buildare
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Questo è importante per creare tag e release!
-          # Richiede un token con permessi di scrittura sui contenuti del repository.
+          # Richiede un token con permessi di scrittura per creare tag e release
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0 # Scarica l'intera storia del repo per poter leggere tutti i commit tra i tag
+          fetch-depth: 0 # Scarica l'intera storia del repo per leggere tutti i commit tra i tag
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          #flutter-version: '3.19.6' # Sostituisci con la versione specifica di Flutter che usi (es. 3.19.6, 3.22.0, etc.)
-          channel: stable # o beta/master se usi un canale diverso
+          channel: stable
+          cache: true # Riusa la cache dell'SDK Flutter
+
+      - name: Cache Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Get Dependencies
         run: flutter pub get
-
-      - name: Setup Android Keystore for Release
-        # Questo step configura il keystore per la firma di release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          # Crea il file keystore dal secret base64
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
-          
-          # Crea il file key.properties con i dati dal secret
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=upload-keystore.jks" >> android/key.properties
-
-      - name: Analyze Code
-        run: flutter analyze
-
-      # - name: Run Tests
-      #   run: flutter test
 
       - name: Get App Version
         id: get_version
@@ -61,6 +83,10 @@ jobs:
           # Esempio: version: 1.0.0+1
           # Otteniamo "1.0.0" come APP_VERSION e "1" come BUILD_NUMBER (se presente)
           VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          if [ -z "$VERSION" ]; then
+            echo "❌ ERROR: No version found in pubspec.yaml"
+            exit 1
+          fi
           APP_VERSION=$(echo $VERSION | cut -d'+' -f1)
 
           # Controlla se la versione contiene un build number (separato da '+')
@@ -70,18 +96,31 @@ jobs:
             BUILD_NUMBER="0" # Valore di default se non c'è build number
           fi
 
-          # Per ora, usiamo la versione dal pubspec.yaml
           echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_OUTPUT"
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
         shell: bash
 
+      - name: Check Version Not Already Released
+        id: version_check
+        run: |
+          # Se esiste già un tag con questa versione, salta la release per evitare errori
+          TARGET_TAG="v${{ steps.get_version.outputs.APP_VERSION }}+${{ steps.get_version.outputs.BUILD_NUMBER }}"
+          if git rev-parse "$TARGET_TAG" >/dev/null 2>&1; then
+            echo "⚠️ Tag $TARGET_TAG already exists. Skipping release."
+            echo "SKIP_RELEASE=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "✅ Tag $TARGET_TAG is new. Proceeding with release."
+            echo "SKIP_RELEASE=false" >> "$GITHUB_OUTPUT"
+          fi
+        shell: bash
+
       - name: Generate Release Notes
         id: release_notes
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: steps.version_check.outputs.SKIP_RELEASE == 'false'
         run: |
           # Ottieni l'ultimo tag di release per confrontare le modifiche
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
+
           if [ -z "$LAST_TAG" ]; then
             # Se non ci sono tag precedenti, prendi tutti i commit dell'ultimo mese
             COMMITS=$(git log --since="1 month ago" --pretty=format:"- %s (%an)" --no-merges)
@@ -94,7 +133,6 @@ jobs:
           else
             # Ottieni tutti i commit dal last tag ad ora (senza filtrare per tipo)
             COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%an)" --no-merges)
-            
             echo "CHANGELOG<<EOF" >> "$GITHUB_OUTPUT"
             echo "## 🚀 What's New" >> "$GITHUB_OUTPUT"
             echo "" >> "$GITHUB_OUTPUT"
@@ -104,9 +142,21 @@ jobs:
             echo "EOF" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Setup Android Keystore for Release
+        # Questo step configura il keystore per la firma di release
+        if: steps.version_check.outputs.SKIP_RELEASE == 'false'
+        run: |
+          # Crea il file keystore dal secret base64
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+
+          # Crea il file key.properties con i dati dal secret
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
+
       - name: Build Android Release APK
-        # Questo step viene eseguito solo quando si fa un push sul branch 'main'
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: steps.version_check.outputs.SKIP_RELEASE == 'false'
         run: |
           flutter build apk --release \
             --build-name=${{ steps.get_version.outputs.APP_VERSION }} \
@@ -114,48 +164,46 @@ jobs:
 
       - name: Rename APK with version
         # Rinomina l'APK includendo la versione nel nome del file
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: steps.version_check.outputs.SKIP_RELEASE == 'false'
         run: |
           mv build/app/outputs/flutter-apk/app-release.apk \
              build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.APP_VERSION }}.apk
 
       - name: Upload Android APK as Artifact
-        # Questo step viene eseguito solo quando si fa un push sul branch 'main'
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: steps.version_check.outputs.SKIP_RELEASE == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: app-release-${{ steps.get_version.outputs.APP_VERSION }}-apk
           path: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.APP_VERSION }}.apk
 
       - name: Create Git Tag and GitHub Release
-        # Questo step viene eseguito solo quando si fa un push sul branch 'main'
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: steps.version_check.outputs.SKIP_RELEASE == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          # Il tag sarà v<versione_app> (es. v1.0.0)
+          # Il tag sarà v<versione_app>+<build_number> (es. v1.0.0+1)
           tag_name: v${{ steps.get_version.outputs.APP_VERSION }}+${{ steps.get_version.outputs.BUILD_NUMBER }}
           name: Release v${{ steps.get_version.outputs.APP_VERSION }} (${{ steps.get_version.outputs.BUILD_NUMBER }})
           body: |
             # My Tube v${{ steps.get_version.outputs.APP_VERSION }}
-            
+
             **Version:** ${{ steps.get_version.outputs.APP_VERSION }}  
             **Build:** ${{ steps.get_version.outputs.BUILD_NUMBER }}  
             **Date:** ${{ github.event.head_commit.timestamp }}
-            
+
             ---
-            
+
             ${{ steps.release_notes.outputs.CHANGELOG }}
-            
+
             ---
-            
+
             ## 📱 Download
             Download the APK below to install My Tube on your Android device.
-            
+
             ## 🔧 Installation
             1. Download the APK file
             2. Enable "Unknown sources" in Android settings
             3. Install the APK
-            
+
             ## 🐛 Bug Report
             If you encounter any issues, please open an [issue](https://github.com/${{ github.repository }}/issues) on GitHub.
           draft: false # Metti a true se vuoi che la release sia una bozza all'inizio
