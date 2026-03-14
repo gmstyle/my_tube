@@ -28,3 +28,4 @@ doc/api/
 
 # exclude .kiro directory
 .kiro
+.github/copilot-instructions.md

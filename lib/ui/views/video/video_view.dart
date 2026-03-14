@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
@@ -20,9 +24,10 @@ class _VideoViewState extends State<VideoView> {
   late final PlayerCubit playerCubit;
   late final MtPlayerService mtPlayerService;
   late final PersistentUiCubit persistentUiCubit;
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  late final StreamSubscription<PlaybackState> _playbackStateSubscription;
+  Orientation? _lastOrientation;
 
-  double _setAspectRatio(MtPlayerService mtPlayerService) {
+  double get _aspectRatio {
     final ratio = mtPlayerService
         .chewieController?.videoPlayerController.value.aspectRatio;
     if (ratio == null || ratio <= 1) return 16 / 9;
@@ -36,10 +41,19 @@ class _VideoViewState extends State<VideoView> {
     mtPlayerService = playerCubit.mtPlayerService;
     persistentUiCubit = context.read<PersistentUiCubit>();
 
-    mtPlayerService.chewieController?.videoPlayerController.addListener(() {
-      WakelockPlus.toggle(
-          enable: mtPlayerService.chewieController!.isFullScreen);
+    // Unlock orientations to allow landscape
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    // Keep screen on while playing, allow sleep when paused
+    _playbackStateSubscription = mtPlayerService.playbackState.listen((state) {
+      WakelockPlus.toggle(enable: state.playing);
     });
+    // Apply initial state immediately
+    WakelockPlus.toggle(enable: mtPlayerService.playbackState.value.playing);
 
     // Hide mini player when video view is open
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -49,6 +63,11 @@ class _VideoViewState extends State<VideoView> {
 
   @override
   void dispose() {
+    _playbackStateSubscription.cancel();
+    // Lock back to portrait
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    // Allow screen to sleep again
+    WakelockPlus.toggle(enable: false);
     // Show mini player when video view is closed
     persistentUiCubit.setPlayerVisibility(true);
     super.dispose();
@@ -61,25 +80,38 @@ class _VideoViewState extends State<VideoView> {
         builder: (context, snapshot) {
           final mediaItem = snapshot.data;
           return Scaffold(
-            key: _scaffoldKey,
-            body: LayoutBuilder(builder: (context, constraints) {
+            body: OrientationBuilder(builder: (context, orientation) {
               if (mtPlayerService.chewieController == null) {
                 return const Center(child: CircularProgressIndicator());
               }
-              final bool isTablet = constraints.maxWidth > 600;
+
+              // Use shortestSide so the tablet check is orientation-independent:
+              // a phone in landscape has shortestSide ≈ 360dp, a tablet ≥ 600dp.
+              final bool isTablet =
+                  MediaQuery.of(context).size.shortestSide > 600;
+              if (!isTablet &&
+                  orientation == Orientation.landscape &&
+                  _lastOrientation == Orientation.portrait &&
+                  !(mtPlayerService.chewieController?.isFullScreen ?? true)) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  mtPlayerService.chewieController?.enterFullScreen();
+                });
+              }
+              _lastOrientation = orientation;
+
               if (isTablet) {
                 return VideoTabletScreen(
                   mtPlayerService: mtPlayerService,
-                  aspectRatio: _setAspectRatio(mtPlayerService),
-                  mediaItem: mediaItem,
-                );
-              } else {
-                return VideoPhoneScreen(
-                  mtPlayerService: mtPlayerService,
-                  aspectRatio: _setAspectRatio(mtPlayerService),
+                  aspectRatio: _aspectRatio,
                   mediaItem: mediaItem,
                 );
               }
+              return VideoPhoneScreen(
+                mtPlayerService: mtPlayerService,
+                aspectRatio: _aspectRatio,
+                mediaItem: mediaItem,
+              );
             }),
           );
         });
