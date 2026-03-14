@@ -24,6 +24,7 @@ jobs:
           # Questo è importante per creare tag e release!
           # Richiede un token con permessi di scrittura sui contenuti del repository.
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 # Scarica l'intera storia del repo per poter leggere tutti i commit tra i tag
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
@@ -61,9 +62,11 @@ jobs:
           # Otteniamo "1.0.0" come APP_VERSION e "1" come BUILD_NUMBER (se presente)
           VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
           APP_VERSION=$(echo $VERSION | cut -d'+' -f1)
-          BUILD_NUMBER=$(echo $VERSION | cut -d'+' -f2)
 
-          if [ -z "$BUILD_NUMBER" ]; then
+          # Controlla se la versione contiene un build number (separato da '+')
+          if [[ $VERSION == *"+"* ]]; then
+            BUILD_NUMBER=$(echo $VERSION | cut -d'+' -f2)
+          else
             BUILD_NUMBER="0" # Valore di default se non c'è build number
           fi
 
@@ -83,48 +86,21 @@ jobs:
             # Se non ci sono tag precedenti, prendi tutti i commit dell'ultimo mese
             COMMITS=$(git log --since="1 month ago" --pretty=format:"- %s (%an)" --no-merges)
             echo "CHANGELOG<<EOF" >> "$GITHUB_OUTPUT"
-            echo "## 🎉 Prima Release" >> "$GITHUB_OUTPUT"
+            echo "## 🎉 First Release" >> "$GITHUB_OUTPUT"
             echo "" >> "$GITHUB_OUTPUT"
-            echo "### 📝 Commit principali:" >> "$GITHUB_OUTPUT"
+            echo "### 📝 Main Commits:" >> "$GITHUB_OUTPUT"
             echo "$COMMITS" >> "$GITHUB_OUTPUT"
             echo "EOF" >> "$GITHUB_OUTPUT"
           else
-            # Ottieni i commit dal last tag ad ora
+            # Ottieni tutti i commit dal last tag ad ora (senza filtrare per tipo)
             COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%an)" --no-merges)
             
-            # Separa i commit per tipo
-            FEATURES=$(echo "$COMMITS" | grep -i "feat\|add\|new" || echo "")
-            FIXES=$(echo "$COMMITS" | grep -i "fix\|bug\|patch" || echo "")
-            IMPROVEMENTS=$(echo "$COMMITS" | grep -i "improve\|update\|enhance\|refactor" || echo "")
-            OTHERS=$(echo "$COMMITS" | grep -v -i "feat\|add\|new\|fix\|bug\|patch\|improve\|update\|enhance\|refactor" || echo "")
-            
             echo "CHANGELOG<<EOF" >> "$GITHUB_OUTPUT"
-            echo "## 🚀 Cosa c'è di nuovo" >> "$GITHUB_OUTPUT"
+            echo "## 🚀 What's New" >> "$GITHUB_OUTPUT"
             echo "" >> "$GITHUB_OUTPUT"
-            
-            if [ ! -z "$FEATURES" ]; then
-              echo "### ✨ Nuove Funzionalità" >> "$GITHUB_OUTPUT"
-              echo "$FEATURES" >> "$GITHUB_OUTPUT"
-              echo "" >> "$GITHUB_OUTPUT"
-            fi
-            
-            if [ ! -z "$FIXES" ]; then
-              echo "### 🐛 Bug Fix" >> "$GITHUB_OUTPUT"
-              echo "$FIXES" >> "$GITHUB_OUTPUT"
-              echo "" >> "$GITHUB_OUTPUT"
-            fi
-            
-            if [ ! -z "$IMPROVEMENTS" ]; then
-              echo "### 🔧 Miglioramenti" >> "$GITHUB_OUTPUT"
-              echo "$IMPROVEMENTS" >> "$GITHUB_OUTPUT"
-              echo "" >> "$GITHUB_OUTPUT"
-            fi
-            
-            if [ ! -z "$OTHERS" ]; then
-              echo "### 📝 Altri Cambiamenti" >> "$GITHUB_OUTPUT"
-              echo "$OTHERS" >> "$GITHUB_OUTPUT"
-              echo "" >> "$GITHUB_OUTPUT"
-            fi
+            echo "### 📝 Changes since ${LAST_TAG}" >> "$GITHUB_OUTPUT"
+            echo "$COMMITS" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
             echo "EOF" >> "$GITHUB_OUTPUT"
           fi
 
@@ -162,9 +138,9 @@ jobs:
           body: |
             # My Tube v${{ steps.get_version.outputs.APP_VERSION }}
             
-            **Versione:** ${{ steps.get_version.outputs.APP_VERSION }}  
+            **Version:** ${{ steps.get_version.outputs.APP_VERSION }}  
             **Build:** ${{ steps.get_version.outputs.BUILD_NUMBER }}  
-            **Data:** ${{ github.event.head_commit.timestamp }}
+            **Date:** ${{ github.event.head_commit.timestamp }}
             
             ---
             
@@ -173,15 +149,15 @@ jobs:
             ---
             
             ## 📱 Download
-            Scarica l'APK qui sotto per installare My Tube sul tuo dispositivo Android.
+            Download the APK below to install My Tube on your Android device.
             
-            ## 🔧 Installazione
-            1. Scarica il file APK
-            2. Abilita "Sorgenti sconosciute" nelle impostazioni Android
-            3. Installa l'APK
+            ## 🔧 Installation
+            1. Download the APK file
+            2. Enable "Unknown sources" in Android settings
+            3. Install the APK
             
             ## 🐛 Bug Report
-            Se riscontri problemi, apri una [issue](https://github.com/${{ github.repository }}/issues) su GitHub.
+            If you encounter any issues, please open an [issue](https://github.com/${{ github.repository }}/issues) on GitHub.
           draft: false # Metti a true se vuoi che la release sia una bozza all'inizio
           prerelease: false # Metti a true se è una pre-release (es. beta)
           files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.APP_VERSION }}.apk # Allega l'APK alla release
