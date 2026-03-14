@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
@@ -29,7 +29,7 @@ jobs:
           cache: true # Abilita la cache dell'SDK Flutter per velocizzare i run successivi
 
       - name: Cache Pub Dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.pub-cache
           # La chiave cambia solo se pubspec.lock cambia, massimizzando i cache hit
@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # Richiede un token con permessi di scrittura per creare tag e release
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -66,7 +66,7 @@ jobs:
           cache: true # Riusa la cache dell'SDK Flutter
 
       - name: Cache Pub Dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
