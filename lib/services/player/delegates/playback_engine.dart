@@ -133,7 +133,6 @@ class PlaybackEngine {
         },
         deviceOrientationsAfterFullScreen: [
           DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight,
         ],

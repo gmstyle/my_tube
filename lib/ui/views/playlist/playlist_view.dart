@@ -364,7 +364,8 @@ class _PlaylistViewState extends State<PlaylistView>
       animation: _staggerController,
       builder: (context, child) {
         // Calculate stagger delay based on index
-        final delay = (index * 0.1).clamp(0.0, 0.8);
+        // begin must be <= 1.0, so delay is clamped so that 0.4 + delay <= 1.0
+        final delay = (index * 0.1).clamp(0.0, 0.6);
         final itemAnimation = Tween<double>(
           begin: 0.0,
           end: 1.0,
