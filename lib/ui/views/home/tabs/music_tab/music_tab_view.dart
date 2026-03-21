@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_empty_state.dart';
@@ -22,6 +23,14 @@ class MusicTabView extends StatefulWidget {
 class _MusicTabViewState extends State<MusicTabView> {
   // NOTE: dispatch is already sent by MusicTabPage; initState is intentionally
   // left without an additional add() to avoid a double fetch.
+
+  @override
+  void initState() {
+    super.initState();
+    if (context.mounted) {
+      context.read<PersistentUiCubit>().setNavBarVisibility(true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

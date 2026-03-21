@@ -83,7 +83,6 @@ class _ChannelViewState extends State<ChannelView>
 
   @override
   void dispose() {
-    if (widget.hideNavBar) _uiCubit?.setNavBarVisibility(true);
     _staggerController.dispose();
     _tabController
       ..removeListener(_onTabChanged)
@@ -538,6 +537,7 @@ class _ChannelViewState extends State<ChannelView>
                   ),
                 ),
               ),
+              const SliverToBoxAdapter(child: SizedBox(height: 60)),
             ],
           ),
         ),
@@ -622,6 +622,7 @@ class _ChannelViewState extends State<ChannelView>
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
+              const SliverToBoxAdapter(child: SizedBox(height: 60)),
             ],
           ),
         ),
@@ -703,6 +704,7 @@ class _ChannelViewState extends State<ChannelView>
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
+              const SliverToBoxAdapter(child: SizedBox(height: 60)),
             ],
           ),
         ),
