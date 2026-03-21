@@ -6,6 +6,7 @@ import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_empty_state.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_featured_channels_section.dart';
+import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_featured_playlists_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_genre_chips_section.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_horizontal_video_list.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_see_all_sheet.dart';
@@ -61,9 +62,13 @@ class _MusicTabViewState extends State<MusicTabView> {
               state.newReleases.isNotEmpty ||
               state.discoverRelated.isNotEmpty ||
               state.trending.isNotEmpty ||
+              state.featuredChannels.isNotEmpty ||
+              state.featuredPlaylists.isNotEmpty ||
               state.isNewReleasesLoading ||
               state.isDiscoverLoading ||
-              state.isTrendingLoading;
+              state.isTrendingLoading ||
+              state.isFeaturedChannelsLoading ||
+              state.isFeaturedPlaylistsLoading;
 
           // Deduplicate Discover vs New Releases at render time (both
           // sections load in parallel so BLoC can't do it upfront).
@@ -117,7 +122,18 @@ class _MusicTabViewState extends State<MusicTabView> {
                         channels: state.featuredChannels),
                   ],
 
-                  // ── 0c. Continue Listening ─────────────────────────
+                  // ── 0c. Featured Playlists ─────────────────────────
+                  if (state.isFeaturedPlaylistsLoading) ...[
+                    const SkeletonSectionHeader(),
+                    const SkeletonFeaturedPlaylistsRow(),
+                  ] else if (state.featuredPlaylists.isNotEmpty) ...[
+                    const MusicSectionHeader(
+                        title: musicSectionFeaturedPlaylists),
+                    MusicFeaturedPlaylistsSection(
+                        playlists: state.featuredPlaylists),
+                  ],
+
+                  // ── 0d. Continue Listening ─────────────────────────
                   if (state.recentlyPlayed.isNotEmpty) ...[
                     MusicSectionHeader(
                       title: musicSectionContinueListening,

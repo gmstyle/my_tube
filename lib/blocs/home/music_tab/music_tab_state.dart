@@ -7,6 +7,7 @@ class MusicTabState extends Equatable {
     required this.status,
     this.error,
     this.featuredChannels = const [],
+    this.featuredPlaylists = const [],
     this.recentlyPlayed = const [],
     this.newReleases = const [],
     this.discoverVideo,
@@ -14,6 +15,7 @@ class MusicTabState extends Equatable {
     this.trending = const [],
     this.isInternationalTrending = false,
     this.isFeaturedChannelsLoading = false,
+    this.isFeaturedPlaylistsLoading = false,
     this.isNewReleasesLoading = false,
     this.isDiscoverLoading = false,
     this.isTrendingLoading = false,
@@ -22,6 +24,7 @@ class MusicTabState extends Equatable {
   final MusicTabStatus status;
   final String? error;
   final List<ChannelTile> featuredChannels;
+  final List<PlaylistTile> featuredPlaylists;
   final List<VideoTile> recentlyPlayed;
   final List<VideoTile> newReleases;
   final VideoTile? discoverVideo;
@@ -31,6 +34,9 @@ class MusicTabState extends Equatable {
 
   /// True while the Featured Channels network call is in progress.
   final bool isFeaturedChannelsLoading;
+
+  /// True while the Featured Playlists network call is in progress.
+  final bool isFeaturedPlaylistsLoading;
 
   /// True while the New Releases network call is in progress.
   final bool isNewReleasesLoading;
@@ -47,6 +53,7 @@ class MusicTabState extends Equatable {
 
   const MusicTabState.loaded({
     List<ChannelTile> featuredChannels = const [],
+    List<PlaylistTile> featuredPlaylists = const [],
     List<VideoTile> recentlyPlayed = const [],
     List<VideoTile> newReleases = const [],
     VideoTile? discoverVideo,
@@ -54,12 +61,14 @@ class MusicTabState extends Equatable {
     List<VideoTile> trending = const [],
     bool isInternationalTrending = false,
     bool isFeaturedChannelsLoading = false,
+    bool isFeaturedPlaylistsLoading = false,
     bool isNewReleasesLoading = false,
     bool isDiscoverLoading = false,
     bool isTrendingLoading = false,
   }) : this._(
           status: MusicTabStatus.success,
           featuredChannels: featuredChannels,
+          featuredPlaylists: featuredPlaylists,
           recentlyPlayed: recentlyPlayed,
           newReleases: newReleases,
           discoverVideo: discoverVideo,
@@ -67,6 +76,7 @@ class MusicTabState extends Equatable {
           trending: trending,
           isInternationalTrending: isInternationalTrending,
           isFeaturedChannelsLoading: isFeaturedChannelsLoading,
+          isFeaturedPlaylistsLoading: isFeaturedPlaylistsLoading,
           isNewReleasesLoading: isNewReleasesLoading,
           isDiscoverLoading: isDiscoverLoading,
           isTrendingLoading: isTrendingLoading,
@@ -79,6 +89,7 @@ class MusicTabState extends Equatable {
     MusicTabStatus? status,
     String? error,
     List<ChannelTile>? featuredChannels,
+    List<PlaylistTile>? featuredPlaylists,
     List<VideoTile>? recentlyPlayed,
     List<VideoTile>? newReleases,
     VideoTile? discoverVideo,
@@ -86,6 +97,7 @@ class MusicTabState extends Equatable {
     List<VideoTile>? trending,
     bool? isInternationalTrending,
     bool? isFeaturedChannelsLoading,
+    bool? isFeaturedPlaylistsLoading,
     bool? isNewReleasesLoading,
     bool? isDiscoverLoading,
     bool? isTrendingLoading,
@@ -94,6 +106,7 @@ class MusicTabState extends Equatable {
       status: status ?? this.status,
       error: error ?? this.error,
       featuredChannels: featuredChannels ?? this.featuredChannels,
+      featuredPlaylists: featuredPlaylists ?? this.featuredPlaylists,
       recentlyPlayed: recentlyPlayed ?? this.recentlyPlayed,
       newReleases: newReleases ?? this.newReleases,
       discoverVideo: discoverVideo ?? this.discoverVideo,
@@ -103,6 +116,8 @@ class MusicTabState extends Equatable {
           isInternationalTrending ?? this.isInternationalTrending,
       isFeaturedChannelsLoading:
           isFeaturedChannelsLoading ?? this.isFeaturedChannelsLoading,
+      isFeaturedPlaylistsLoading:
+          isFeaturedPlaylistsLoading ?? this.isFeaturedPlaylistsLoading,
       isNewReleasesLoading: isNewReleasesLoading ?? this.isNewReleasesLoading,
       isDiscoverLoading: isDiscoverLoading ?? this.isDiscoverLoading,
       isTrendingLoading: isTrendingLoading ?? this.isTrendingLoading,
@@ -114,6 +129,7 @@ class MusicTabState extends Equatable {
         status,
         error,
         featuredChannels,
+        featuredPlaylists,
         recentlyPlayed,
         newReleases,
         discoverVideo,
@@ -121,6 +137,7 @@ class MusicTabState extends Equatable {
         trending,
         isInternationalTrending,
         isFeaturedChannelsLoading,
+        isFeaturedPlaylistsLoading,
         isNewReleasesLoading,
         isDiscoverLoading,
         isTrendingLoading,
