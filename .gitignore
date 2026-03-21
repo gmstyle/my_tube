@@ -26,6 +26,4 @@ doc/api/
 .flutter-plugins
 .flutter-plugins-dependencies
 
-# exclude .kiro directory
-.kiro
 .github/copilot-instructions.md
