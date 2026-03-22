@@ -70,14 +70,14 @@ class _ChannelViewState extends State<ChannelView>
 
     switch (_tabController.index) {
       case 1:
-        // Lazy-load shorts on first visit
-        if (state.shorts == null && !state.isLoadingShorts) {
-          bloc.add(LoadChannelShorts(channelId: channel.id.value));
-        }
-      case 2:
         // Lazy-load playlists on first visit
         if (state.playlists == null && !state.isLoadingPlaylists) {
           bloc.add(LoadChannelPlaylists(channelTitle: channel.title));
+        }
+      case 2:
+        // Lazy-load shorts on first visit
+        if (state.shorts == null && !state.isLoadingShorts) {
+          bloc.add(LoadChannelShorts(channelId: channel.id.value));
         }
     }
   }
@@ -218,8 +218,8 @@ class _ChannelViewState extends State<ChannelView>
               controller: _tabController,
               tabs: const [
                 Tab(text: 'Videos'),
-                Tab(text: 'Shorts'),
                 Tab(text: 'Playlists'),
+                Tab(text: 'Shorts'),
               ],
             ),
             Theme.of(context).colorScheme.surface,
@@ -231,10 +231,10 @@ class _ChannelViewState extends State<ChannelView>
         children: [
           // ── Tab 0: Videos ──
           _buildVideosTab(context, state, videos, ids),
-          // ── Tab 1: Shorts ──
-          _buildShortsTab(context, state),
-          // ── Tab 2: Playlists ──
+          // ── Tab 1: Playlists ──
           _buildPlaylistsTab(context, state),
+          // ── Tab 2: Shorts ──
+          _buildShortsTab(context, state),
         ],
       ),
     );

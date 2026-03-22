@@ -2,7 +2,6 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';

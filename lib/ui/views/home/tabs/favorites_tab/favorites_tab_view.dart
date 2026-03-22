@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
@@ -25,7 +24,6 @@ class FavoritesTabView extends StatefulWidget {
 class _FavoritesTabViewState extends State<FavoritesTabView> {
   // active chip selection (exclusive)
   FavoriteCategory _active = FavoriteCategory.videos;
-  bool _isFabVisible = true;
 
   @override
   void initState() {
@@ -111,7 +109,7 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                           ),
                           const SizedBox(width: 8),
                           ChoiceChip(
-                            label: const Text('Saved Playlists'),
+                            label: const Text('Playlists'),
                             selected: _active == FavoriteCategory.playlists,
                             onSelected: (s) => setState(
                                 () => _active = FavoriteCategory.playlists),
@@ -119,7 +117,7 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                           ),
                           const SizedBox(width: 8),
                           ChoiceChip(
-                            label: const Text('My Playlists'),
+                            label: const Text('My playlists'),
                             selected: _active == FavoriteCategory.myPlaylists,
                             onSelected: (s) => setState(
                                 () => _active = FavoriteCategory.myPlaylists),
@@ -132,40 +130,18 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                 ),
               ),
             ],
-        body: NotificationListener<UserScrollNotification>(
-          onNotification: (notification) {
-            if (notification.direction == ScrollDirection.reverse) {
-              if (_isFabVisible) setState(() => _isFabVisible = false);
-            } else if (notification.direction == ScrollDirection.forward) {
-              if (!_isFabVisible) setState(() => _isFabVisible = true);
-            }
-            // Ritorna `false` per permettere allo scroll di "galleggiare" fino al listener principale della NavBar
-            return false;
-          },
-          child: Builder(builder: (context) {
-            switch (_active) {
-              case FavoriteCategory.videos:
-                return const VideoFavorites(searchQuery: '');
-              case FavoriteCategory.channels:
-                return const ChannelFavorites(searchQuery: '');
-              case FavoriteCategory.playlists:
-                return const PlaylistFavorites(searchQuery: '');
-              case FavoriteCategory.myPlaylists:
-                return const CustomPlaylistList();
-            }
-          }),
-        )
-        /* floatingActionButton: _active == FavoriteCategory.videos
-          ? AnimatedScale(
-              scale: _isFabVisible ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 200),
-              child: FloatingActionButton(
-                onPressed: _playAllVideos,
-                child: const Icon(Icons.play_arrow),
-              ),
-            )
-          : null, */
-        );
+        body: Builder(builder: (context) {
+          switch (_active) {
+            case FavoriteCategory.videos:
+              return const VideoFavorites(searchQuery: '');
+            case FavoriteCategory.channels:
+              return const ChannelFavorites(searchQuery: '');
+            case FavoriteCategory.playlists:
+              return const PlaylistFavorites(searchQuery: '');
+            case FavoriteCategory.myPlaylists:
+              return const CustomPlaylistList();
+          }
+        }));
   }
 
   Widget _buildMoreMenu(BuildContext context) {
