@@ -6,9 +6,13 @@ import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/media_item_list.dart';
 
 class QueueView extends StatefulWidget {
-  const QueueView({super.key, this.restoreMiniPlayer = false});
-
-  final bool restoreMiniPlayer;
+  const QueueView({
+    super.key,
+    this.showMiniPlayer = true,
+    this.hideMiniPlayerOnDispose = false,
+  });
+  final bool showMiniPlayer;
+  final bool hideMiniPlayerOnDispose;
 
   @override
   State<QueueView> createState() => _QueueViewState();
@@ -21,12 +25,18 @@ class _QueueViewState extends State<QueueView> {
   void initState() {
     super.initState();
     persistentUiCubit = context.read<PersistentUiCubit>();
+    if (mounted) {
+      persistentUiCubit.setNavBarVisibility(false);
+      if (widget.showMiniPlayer) {
+        persistentUiCubit.setPlayerVisibility(true);
+      }
+    }
   }
 
   @override
   void dispose() {
-    if (widget.restoreMiniPlayer) {
-      persistentUiCubit.setPlayerVisibility(true);
+    if (widget.hideMiniPlayerOnDispose) {
+      persistentUiCubit.setPlayerVisibility(false);
     }
     super.dispose();
   }
