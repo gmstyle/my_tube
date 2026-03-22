@@ -110,11 +110,23 @@ class _PlaylistListItem extends StatelessWidget {
       trailing: PopupMenuButton<String>(
         icon: Icon(Icons.more_vert, color: theme.colorScheme.onSurface),
         onSelected: (value) {
-          if (value == 'delete') {
+          if (value == 'rename') {
+            _showRenameDialog(context, playlist);
+          } else if (value == 'delete') {
             _showDeleteDialog(context, playlist);
           }
         },
         itemBuilder: (context) => [
+          const PopupMenuItem(
+            value: 'rename',
+            child: Row(
+              children: [
+                Icon(Icons.edit_outlined),
+                SizedBox(width: 8),
+                Text('Rename playlist'),
+              ],
+            ),
+          ),
           const PopupMenuItem(
             value: 'delete',
             child: Row(
@@ -167,6 +179,51 @@ class _PlaylistListItem extends StatelessWidget {
                 style:
                     TextStyle(color: Theme.of(context).colorScheme.error),
               ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showRenameDialog(BuildContext parentContext, CustomPlaylist playlist) {
+    final TextEditingController controller =
+        TextEditingController(text: playlist.title);
+    showDialog(
+      context: parentContext,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Rename Playlist'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'New playlist name',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final text = controller.text.trim();
+                if (text.isNotEmpty && text != playlist.title) {
+                  parentContext
+                      .read<CustomPlaylistsCubit>()
+                      .updatePlaylistTitle(playlist.id, text);
+                  Navigator.of(context).pop();
+                } else if (text == playlist.title) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save'),
             ),
           ],
         );

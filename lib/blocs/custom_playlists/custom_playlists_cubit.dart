@@ -45,6 +45,10 @@ class CustomPlaylistsCubit extends Cubit<CustomPlaylistsState> {
     await repository.deletePlaylist(id);
   }
 
+  Future<void> updatePlaylistTitle(String id, String newTitle) async {
+    await repository.updatePlaylistTitle(id, newTitle);
+  }
+
   Future<void> addVideoToPlaylist(String playlistId, String videoId) async {
     await repository.addVideoToPlaylist(playlistId, videoId);
   }

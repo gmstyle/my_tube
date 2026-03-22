@@ -56,22 +56,22 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
   Widget build(BuildContext context) {
     return BlocConsumer<CustomPlaylistsCubit, CustomPlaylistsState>(
       listener: (context, state) {
-        final currentPlaylist = state.playlists.cast<CustomPlaylist?>().firstWhere(
-              (p) => p?.id == widget.initialPlaylist.id,
-              orElse: () => null,
-            );
+        final currentPlaylist =
+            state.playlists.cast<CustomPlaylist?>().firstWhere(
+                  (p) => p?.id == widget.initialPlaylist.id,
+                  orElse: () => null,
+                );
         if (currentPlaylist != null &&
             currentPlaylist.videoIds.join() != _loadedIds.join()) {
           _loadMetadata(currentPlaylist);
         }
       },
       builder: (context, state) {
-        final currentPlaylist = state.playlists
-            .cast<CustomPlaylist?>()
-            .firstWhere(
-              (p) => p?.id == widget.initialPlaylist.id,
-              orElse: () => widget.initialPlaylist,
-            );
+        final currentPlaylist =
+            state.playlists.cast<CustomPlaylist?>().firstWhere(
+                  (p) => p?.id == widget.initialPlaylist.id,
+                  orElse: () => widget.initialPlaylist,
+                );
 
         if (currentPlaylist == null) {
           return const Scaffold(
@@ -91,6 +91,39 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
                       ),
                   overflow: TextOverflow.ellipsis,
                 ),
+                actions: [
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'rename') {
+                        _showRenameDialog(context, currentPlaylist);
+                      } else if (value == 'delete') {
+                        _showDeleteDialog(context, currentPlaylist);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'rename',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_outlined),
+                            SizedBox(width: 8),
+                            Text('Rename playlist'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline),
+                            SizedBox(width: 8),
+                            Text('Delete playlist'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
 
               // ── Play All / Add to Queue row ─────────────────────
@@ -129,9 +162,12 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
                             direction: DismissDirection.endToStart,
                             background: Container(
                               alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.errorContainer,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .errorContainer,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
@@ -267,6 +303,97 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showRenameDialog(BuildContext parentContext, CustomPlaylist playlist) {
+    final TextEditingController controller =
+        TextEditingController(text: playlist.title);
+    showDialog(
+      context: parentContext,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Rename Playlist'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'New playlist name',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final text = controller.text.trim();
+                if (text.isNotEmpty && text != playlist.title) {
+                  parentContext
+                      .read<CustomPlaylistsCubit>()
+                      .updatePlaylistTitle(playlist.id, text);
+                  Navigator.of(context).pop();
+                } else if (text == playlist.title) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteDialog(BuildContext parentContext, CustomPlaylist playlist) {
+    showDialog(
+      context: parentContext,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.delete_outline,
+                  color: Theme.of(parentContext).colorScheme.error),
+              const SizedBox(width: 8),
+              const Text('Delete Playlist'),
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Text('Are you sure you want to delete "${playlist.title}"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                parentContext
+                    .read<CustomPlaylistsCubit>()
+                    .deletePlaylist(playlist.id);
+                // First close the dialog
+                Navigator.of(ctx).pop();
+                // Then pop the playlist view itself since it was deleted
+                if (mounted) {
+                  Navigator.of(parentContext).pop();
+                }
+              },
+              child: Text(
+                'Delete',
+                style:
+                    TextStyle(color: Theme.of(parentContext).colorScheme.error),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
