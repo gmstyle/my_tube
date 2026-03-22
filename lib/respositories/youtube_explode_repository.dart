@@ -316,6 +316,38 @@ class YoutubeExplodeRepository {
     return results;
   }
 
+  /// Recupera playlist consigliate basandosi sui nomi degli artisti preferiti.
+  /// Prende al massimo 1 playlist per artista (il top result, cioè il più
+  /// rilevante), esclude le playlist già nelle preferenze ([excludeIds])
+  /// e quelle senza video (videoCount == 0 o null).
+  Future<List<PlaylistTile>> getFeaturedPlaylists(
+      List<String> artistNames, Set<String> excludeIds) async {
+    if (artistNames.isEmpty) return [];
+    final seenIds = <String>{...excludeIds};
+    final results = <PlaylistTile>[];
+    for (final artist in artistNames.take(featuredPlaylistsMaxTotal)) {
+      if (results.length >= featuredPlaylistsMaxTotal) break;
+      try {
+        // Cerca playlist con "$artist playlist" per trovare raccolte musicali
+        final searchResults =
+            await youtubeExplodeProvider.searchContent('$artist playlist');
+        final playlists = searchResults.whereType<SearchPlaylist>();
+        // Filtra: esclude playlist già nei preferiti e quelle senza video
+        final candidates = playlists.where((p) =>
+            !seenIds.contains(p.id.value) &&
+            p.videoCount > 0);
+        if (candidates.isNotEmpty) {
+          final top = candidates.first;
+          seenIds.add(top.id.value);
+          results.add(PlaylistTile.fromSearchPlaylist(top));
+        }
+      } catch (e) {
+        log('Errore ricerca playlist per artista "$artist": $e');
+      }
+    }
+    return results;
+  }
+
   /// Recupera informazioni di un canale
   Future<Map<String, dynamic>> getChannel(String channelId) async {
     try {

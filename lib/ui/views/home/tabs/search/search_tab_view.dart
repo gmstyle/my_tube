@@ -20,6 +20,10 @@ class _SearchTabViewState extends State<SearchTabView> {
   void initState() {
     super.initState();
     context.read<SearchSuggestionCubit>().getQueryHistory();
+
+    if (context.mounted) {
+      context.read<PersistentUiCubit>().setNavBarVisibility(true);
+    }
   }
 
   @override

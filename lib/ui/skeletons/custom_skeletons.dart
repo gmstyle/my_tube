@@ -740,6 +740,49 @@ class SkeletonChannelRow extends StatelessWidget {
   }
 }
 
+class SkeletonFeaturedPlaylistsRow extends StatelessWidget {
+  const SkeletonFeaturedPlaylistsRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isCompact = MediaQuery.of(context).size.width < 720;
+    final cardHeight = isCompact ? 180.0 : 220.0;
+    final cardWidth = isCompact ? 180.0 : 240.0;
+
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: cardHeight,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: 3,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (_, __) => SizedBox(
+            width: cardWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: ShimmerImage(
+                    width: double.infinity,
+                    height: double.infinity,
+                    borderRadius: isCompact ? 12 : 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const ShimmerText(width: double.infinity, height: 14),
+                const SizedBox(height: 4),
+                const ShimmerText(width: 80, height: 12),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _SkeletonGenreChips extends StatelessWidget {
   const _SkeletonGenreChips();
 

@@ -19,7 +19,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_session-0.2.2" />
       <root url="file://$PROJECT_DIR$/video_player_android-2.7.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/permission_handler-12.0.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player-2.10.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/wakelock_plus-1.4.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_android-2.4.2+2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/package_info_plus-9.0.0" />
@@ -28,13 +27,14 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-12.3.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/dynamic_color-1.8.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_foundation-2.6.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-7.0.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file_mac-1.0.4" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file_ios-1.0.4" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file-3.5.11" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.9.3" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-20.1.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_windows-2.0.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-21.0.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player-2.11.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.9.4" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_windows-3.0.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-8.0.0" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

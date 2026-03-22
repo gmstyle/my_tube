@@ -62,16 +62,19 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
         discoverVideo: discoverVideo,
         isInternationalTrending: !hasFavorites,
         isFeaturedChannelsLoading: uniqueArtists.isNotEmpty,
+        isFeaturedPlaylistsLoading: uniqueArtists.isNotEmpty,
         isNewReleasesLoading: favoriteChannels.isNotEmpty,
         isDiscoverLoading: discoverVideo != null,
         isTrendingLoading: true,
       ));
 
-      // Le tre sezioni di rete partono in parallelo; ognuna emette non appena
+      // Le sezioni di rete partono in parallelo; ognuna emette non appena
       // ha i propri dati, senza aspettare le altre.
       await Future.wait([
         _loadSectionFeaturedChannels(emit, uniqueArtists,
             favoriteRepository.channelIds.toSet()),
+        _loadSectionFeaturedPlaylists(emit, uniqueArtists,
+            favoriteRepository.playlistIds.toSet()),
         _loadSectionNewReleases(emit, favoriteChannels),
         _loadSectionDiscover(emit, discoverVideo),
         _loadSectionTrending(emit, uniqueArtists, !hasFavorites),
@@ -98,6 +101,24 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       ));
     } catch (_) {
       emit(state.copyWith(isFeaturedChannelsLoading: false));
+    }
+  }
+
+  Future<void> _loadSectionFeaturedPlaylists(Emitter<MusicTabState> emit,
+      List<String> artistNames, Set<String> favoritePlaylistIds) async {
+    if (artistNames.isEmpty) {
+      emit(state.copyWith(isFeaturedPlaylistsLoading: false));
+      return;
+    }
+    try {
+      final playlists = await youtubeExplodeRepository.getFeaturedPlaylists(
+          artistNames, favoritePlaylistIds);
+      emit(state.copyWith(
+        featuredPlaylists: playlists,
+        isFeaturedPlaylistsLoading: false,
+      ));
+    } catch (_) {
+      emit(state.copyWith(isFeaturedPlaylistsLoading: false));
     }
   }
 

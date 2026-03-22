@@ -54,7 +54,6 @@ class _PlaylistViewState extends State<PlaylistView>
 
   @override
   void dispose() {
-    if (widget.hideNavBar) _uiCubit?.setNavBarVisibility(true);
     _staggerController.dispose();
     super.dispose();
   }
@@ -180,7 +179,7 @@ class _PlaylistViewState extends State<PlaylistView>
                 ),
               ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        const SliverToBoxAdapter(child: SizedBox(height: 60)),
       ],
     );
   }

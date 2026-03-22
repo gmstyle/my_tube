@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/explore_tab/explore_tab_bloc.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/common/play_pause_gesture_detector.dart';
@@ -26,6 +27,9 @@ class _ExploreTabViewState extends State<ExploreTabView> {
       context
           .read<ExploreTabBloc>()
           .add(GetTrendingVideos(category: _selectedCategory));
+      if (context.mounted) {
+        context.read<PersistentUiCubit>().setNavBarVisibility(true);
+      }
     });
   }
 
