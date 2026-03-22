@@ -302,7 +302,9 @@ class PlaybackEngine {
     return MediaItem(
         id: video.id.value,
         title: video.title,
-        album: video.musicData.isNotEmpty ? video.musicData.first.album : null,
+        album: video.musicData.isNotEmpty
+            ? video.musicData.first.album
+            : video.author,
         artUri: Uri.parse(video.thumbnails.highResUrl),
         duration: video.duration,
         extras: {
