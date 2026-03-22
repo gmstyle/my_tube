@@ -11,6 +11,7 @@ import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/video_favorites
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/favorites_search_delegate.dart';
+import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/custom_playlist_list.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:go_router/go_router.dart';
 
@@ -89,32 +90,43 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                   preferredSize: const Size.fromHeight(44),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        ChoiceChip(
-                          label: const Text('Videos'),
-                          selected: _active == FavoriteCategory.videos,
-                          onSelected: (s) =>
-                              setState(() => _active = FavoriteCategory.videos),
-                          showCheckmark: false,
-                        ),
-                        const SizedBox(width: 8),
-                        ChoiceChip(
-                          label: const Text('Channels'),
-                          selected: _active == FavoriteCategory.channels,
-                          onSelected: (s) => setState(
-                              () => _active = FavoriteCategory.channels),
-                          showCheckmark: false,
-                        ),
-                        const SizedBox(width: 8),
-                        ChoiceChip(
-                          label: const Text('Playlists'),
-                          selected: _active == FavoriteCategory.playlists,
-                          onSelected: (s) => setState(
-                              () => _active = FavoriteCategory.playlists),
-                          showCheckmark: false,
-                        ),
-                      ],
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Videos'),
+                            selected: _active == FavoriteCategory.videos,
+                            onSelected: (s) => setState(
+                                () => _active = FavoriteCategory.videos),
+                            showCheckmark: false,
+                          ),
+                          const SizedBox(width: 8),
+                          ChoiceChip(
+                            label: const Text('Channels'),
+                            selected: _active == FavoriteCategory.channels,
+                            onSelected: (s) => setState(
+                                () => _active = FavoriteCategory.channels),
+                            showCheckmark: false,
+                          ),
+                          const SizedBox(width: 8),
+                          ChoiceChip(
+                            label: const Text('Saved Playlists'),
+                            selected: _active == FavoriteCategory.playlists,
+                            onSelected: (s) => setState(
+                                () => _active = FavoriteCategory.playlists),
+                            showCheckmark: false,
+                          ),
+                          const SizedBox(width: 8),
+                          ChoiceChip(
+                            label: const Text('My Playlists'),
+                            selected: _active == FavoriteCategory.myPlaylists,
+                            onSelected: (s) => setState(
+                                () => _active = FavoriteCategory.myPlaylists),
+                            showCheckmark: false,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -138,6 +150,8 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
                 return const ChannelFavorites(searchQuery: '');
               case FavoriteCategory.playlists:
                 return const PlaylistFavorites(searchQuery: '');
+              case FavoriteCategory.myPlaylists:
+                return const CustomPlaylistList();
             }
           }),
         )
@@ -242,4 +256,4 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
   }
 }
 
-enum FavoriteCategory { videos, channels, playlists }
+enum FavoriteCategory { videos, channels, playlists, myPlaylists }

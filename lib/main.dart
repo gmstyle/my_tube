@@ -16,6 +16,7 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
+import 'package:my_tube/blocs/custom_playlists/custom_playlists_cubit.dart';
 import 'package:my_tube/ui/views/common/global_mini_player.dart';
 import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
@@ -23,6 +24,7 @@ import 'package:my_tube/providers/update_provider.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/update_repository.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
+import 'package:my_tube/respositories/custom_playlist_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
@@ -45,6 +47,7 @@ void main() async {
   await Hive.openBox<String>(hiveFavoriteVideosBoxName);
   await Hive.openBox<String>(hiveFavoriteChannelsBoxName);
   await Hive.openBox<String>(hiveFavoritePlaylistsBoxName);
+  await Hive.openBox<String>(hiveCustomPlaylistsBoxName);
   await Hive.openBox<String>(hiveRecentlyPlayedBoxName);
   await LocalNotificationHelper.init();
 
@@ -58,6 +61,7 @@ void main() async {
   final FavoriteRepository favoriteRepository = FavoriteRepository(
     youtubeExplodeRepository: youtubeExplodeRepository,
   );
+  final CustomPlaylistRepository customPlaylistRepository = CustomPlaylistRepository();
 
   // Inizializza AudioService con gestione degli errori per Android Auto
   late MtPlayerService mtPlayerService;
@@ -115,6 +119,7 @@ void main() async {
         RepositoryProvider<YoutubeExplodeRepository>.value(
             value: youtubeExplodeRepository),
         RepositoryProvider<FavoriteRepository>.value(value: favoriteRepository),
+        RepositoryProvider<CustomPlaylistRepository>.value(value: customPlaylistRepository),
         RepositoryProvider<UpdateRepository>(
             create: (context) => UpdateRepository(
                 updateProvider: context.read<UpdateProvider>())),
@@ -150,6 +155,10 @@ void main() async {
         BlocProvider<UpdateBloc>(
             create: (context) =>
                 UpdateBloc(updateRepository: context.read<UpdateRepository>())),
+        BlocProvider<CustomPlaylistsCubit>(
+            create: (context) => CustomPlaylistsCubit(
+                  repository: context.read<CustomPlaylistRepository>(),
+                )),
         BlocProvider<PersistentUiCubit>(
             create: (context) => PersistentUiCubit()),
       ], child: const MyApp()),

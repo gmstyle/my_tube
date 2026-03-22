@@ -11,6 +11,7 @@ const String hiveSettingsBoxName = 'settings';
 const String hiveFavoriteVideosBoxName = 'favoriteVideos';
 const String hiveFavoriteChannelsBoxName = 'favoriteChannels';
 const String hiveFavoritePlaylistsBoxName = 'favoritePlaylists';
+const String hiveCustomPlaylistsBoxName = 'customPlaylists';
 const String hiveRecentlyPlayedBoxName = 'recentlyPlayed';
 
 // Settings keys

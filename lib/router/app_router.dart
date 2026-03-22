@@ -10,6 +10,8 @@ import 'package:my_tube/router/pages/queue_page.dart';
 import 'package:my_tube/router/pages/search_tab_page.dart';
 import 'package:my_tube/router/pages/settings_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
+import 'package:my_tube/models/custom_playlist.dart';
+import 'package:my_tube/ui/views/playlist/custom_playlist_view.dart';
 
 class AppRouter {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -58,6 +60,15 @@ class AppRouter {
         final extra = state.extra as Map<String, dynamic>;
         final playlistId = extra['playlistId'] as String;
         return PlaylistPage(playlistId: playlistId);
+      },
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      name: AppRoute.customPlaylist.name,
+      path: AppRoute.customPlaylist.path,
+      builder: (context, state) {
+        final playlist = state.extra as CustomPlaylist;
+        return CustomPlaylistView(initialPlaylist: playlist);
       },
     ),
 
@@ -140,6 +151,7 @@ enum AppRoute {
   search('/search'),
   video('/video'),
   queue('queue'),
+  customPlaylist('/custom_playlist'),
   testYoutubeExplode('/test-youtube-explode');
 
   final String path;
