@@ -197,6 +197,8 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               false, // Il bottom lo gestiamo manualmente via _buildContentPadding
           child: NotificationListener<UserScrollNotification>(
             onNotification: (notification) {
+              if (notification.metrics.axis != Axis.vertical) return false;
+
               final cubit = context.read<PersistentUiCubit>();
               if (notification.direction == ScrollDirection.reverse) {
                 // Utente scorre verso il basso -> Nascondiamo NavBar
