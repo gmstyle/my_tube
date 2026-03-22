@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/media_item_list.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class QueueView extends StatefulWidget {
   const QueueView({
@@ -54,7 +55,12 @@ class _QueueViewState extends State<QueueView> {
         centerTitle: true,
         actions: const [ClearQueueButton()],
       ),
-      body: const MediaItemList(),
+      body: Column(
+        children: [
+          Expanded(child: const MediaItemList()),
+          const SizedBox(height: miniPlayerHeight)
+        ],
+      ),
     );
   }
 }

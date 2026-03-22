@@ -10,13 +10,11 @@ import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
-
-  static const double _miniPlayerHeight = 60.0;
-  static const double _bottomNavigationBarHeight = 65.0;
 
   final _navigationBarDestinations = const [
     NavigationDestination(
@@ -121,7 +119,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             // Material 3 NavigationBar custom squeezed height is 65.0
             // Material 3 NavigationRail default width is 80.0
             context.read<PersistentUiCubit>().setBottomLayout(
-                  useNavigationRail ? 0 : _bottomNavigationBarHeight,
+                  useNavigationRail ? 0 : bottomNavigationBarHeight,
                   bottomSafeArea,
                 );
             context.read<PersistentUiCubit>().setLeftPadding(
@@ -147,7 +145,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             final isPlayerVisible = playerState.status != PlayerStatus.hidden &&
                 uiState.isPlayerVisible;
             // The content needs padding if the player is visible, plus the dynamic uiState padding (NavBar height, safe areas, etc.)
-            final playerHeight = isPlayerVisible ? _miniPlayerHeight : 0.0;
+            final playerHeight = isPlayerVisible ? miniPlayerHeight : 0.0;
             final double currentBottomPadding =
                 playerHeight + uiState.bottomPadding;
 
@@ -273,7 +271,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               ),
               child: NavigationBar(
                 height:
-                    _bottomNavigationBarHeight, // Ridotto considerevolmente rispetto al default (80)
+                    bottomNavigationBarHeight, // Ridotto considerevolmente rispetto al default (80)
                 selectedIndex: navigationShell.currentIndex,
                 onDestinationSelected: (index) =>
                     onDestinationSelected(index, context: context),

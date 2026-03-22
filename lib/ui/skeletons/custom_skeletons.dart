@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/ui/skeletons/custom_shimmer.dart';
+import 'package:my_tube/utils/constants.dart';
 
 /// Skeleton personalizzato per liste e grid di video/contenuti
 class CustomSkeletonGridList extends StatelessWidget {
@@ -119,7 +120,7 @@ class CustomSkeletonMiniPlayer extends StatelessWidget {
           topLeft: Radius.circular(10), topRight: Radius.circular(10)),
       child: Container(
         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-        height: 72,
+        height: miniPlayerHeight,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(

@@ -12,6 +12,7 @@ import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -179,7 +180,7 @@ class _PlaylistViewState extends State<PlaylistView>
                 ),
               ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 60)),
+        const SliverToBoxAdapter(child: SizedBox(height: miniPlayerHeight)),
       ],
     );
   }

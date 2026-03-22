@@ -128,6 +128,10 @@ const double queueSheetMaxChildSize = 1.0;
 const List<double> queueSheetSnapSizes = [0.4];
 const Duration queueSheetAnimationDuration = Duration(milliseconds: 500);
 
+// UI Layout
+const double miniPlayerHeight = 60.0;
+const double bottomNavigationBarHeight = 65.0;
+
 // Query/suggestion presets
 const List<String> musicHomeQueries = [
   'top music',
