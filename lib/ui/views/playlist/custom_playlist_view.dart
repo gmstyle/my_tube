@@ -9,6 +9,7 @@ import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/constants.dart';
 
 class CustomPlaylistView extends StatefulWidget {
@@ -20,28 +21,40 @@ class CustomPlaylistView extends StatefulWidget {
   State<CustomPlaylistView> createState() => _CustomPlaylistViewState();
 }
 
-class _CustomPlaylistViewState extends State<CustomPlaylistView> {
+class _CustomPlaylistViewState extends State<CustomPlaylistView>
+    with SingleTickerProviderStateMixin {
   bool _isLoading = true;
   List<models.VideoTile?> _cachedVideos = [];
   PersistentUiCubit? _uiCubit;
+  late AnimationController _staggerController;
   // track the last loaded IDs to avoid unnecessary re-fetches
   List<String> _loadedIds = [];
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _uiCubit ??= context.read<PersistentUiCubit>();
+  }
+
+  @override
   void initState() {
     super.initState();
-    _uiCubit = context.read<PersistentUiCubit>();
     // Questa view non ha la navbar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _uiCubit?.setHasNavBar(false);
       }
     });
+    _staggerController = AnimationController(
+      duration: AppAnimations.slow,
+      vsync: this,
+    );
     _loadMetadata(widget.initialPlaylist);
   }
 
   @override
   void dispose() {
+    _staggerController.dispose();
     // Ripristina hasNavBar a true quando si esce dalla view
     _uiCubit?.setHasNavBar(true);
     super.dispose();
@@ -71,18 +84,18 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CustomPlaylistsCubit, CustomPlaylistsState>(
-      listener: (context, state) {
-        final currentPlaylist =
-            state.playlists.cast<CustomPlaylist?>().firstWhere(
-                  (p) => p?.id == widget.initialPlaylist.id,
-                  orElse: () => null,
-                );
-        if (currentPlaylist != null &&
-            currentPlaylist.videoIds.join() != _loadedIds.join()) {
-          _loadMetadata(currentPlaylist);
-        }
-      },
+    return BlocListener<CustomPlaylistsCubit, CustomPlaylistsState>(
+        listener: (context, state) {
+      final currentPlaylist =
+          state.playlists.cast<CustomPlaylist?>().firstWhere(
+                (p) => p?.id == widget.initialPlaylist.id,
+                orElse: () => null,
+              );
+      if (currentPlaylist != null &&
+          currentPlaylist.videoIds.join() != _loadedIds.join()) {
+        _loadMetadata(currentPlaylist);
+      }
+    }, child: BlocBuilder<CustomPlaylistsCubit, CustomPlaylistsState>(
       builder: (context, state) {
         final currentPlaylist =
             state.playlists.cast<CustomPlaylist?>().firstWhere(
@@ -94,6 +107,16 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
           return const Scaffold(
             body: Center(child: Text('Playlist not found')),
           );
+        }
+
+        // Trigger stagger animation when content loads
+        if (!_isLoading && !_staggerController.isAnimating) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _staggerController.reset();
+              _staggerController.forward();
+            }
+          });
         }
 
         return Scaffold(
@@ -174,43 +197,12 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
                         };
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Dismissible(
-                            key: Key(videoTile.id),
-                            direction: DismissDirection.endToStart,
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .errorContainer,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.delete_outline,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onErrorContainer,
-                              ),
-                            ),
-                            onDismissed: (direction) {
-                              context
-                                  .read<CustomPlaylistsCubit>()
-                                  .removeVideoFromPlaylist(
-                                      currentPlaylist.id, videoTile.id);
-                              setState(() {
-                                _cachedVideos.removeAt(index);
-                                _loadedIds.remove(videoTile.id);
-                              });
-                            },
-                            child: VideoMenuDialog(
-                              quickVideo: quickVideo,
-                              child: VideoTile(
-                                video: videoTile,
-                                index: index,
-                              ),
-                            ),
+                          child: _buildStaggeredVideoItem(
+                            context,
+                            videoTile,
+                            quickVideo,
+                            index,
+                            currentPlaylist,
                           ),
                         );
                       },
@@ -219,8 +211,83 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
                   ),
                 ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: miniPlayerHeight)),
+              const SliverToBoxAdapter(
+                  child: SizedBox(height: miniPlayerHeight)),
             ],
+          ),
+        );
+      },
+    ));
+  }
+
+  Widget _buildStaggeredVideoItem(
+    BuildContext context,
+    models.VideoTile video,
+    Map<String, String> quickVideo,
+    int index,
+    CustomPlaylist playlist,
+  ) {
+    return AnimatedBuilder(
+      animation: _staggerController,
+      builder: (context, child) {
+        final delay = (index * 0.1).clamp(0.0, 0.6);
+        final itemAnimation = Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).animate(CurvedAnimation(
+          parent: _staggerController,
+          curve: Interval(0.4 + delay, 1.0, curve: Curves.easeOut),
+        ));
+
+        final itemSlide = Tween<double>(
+          begin: 20.0,
+          end: 0.0,
+        ).animate(CurvedAnimation(
+          parent: _staggerController,
+          curve: Interval(0.4 + delay, 1.0, curve: Curves.easeOut),
+        ));
+
+        return Transform.translate(
+          offset: Offset(0, itemSlide.value),
+          child: FadeTransition(
+            opacity: itemAnimation,
+            child: AnimatedContainer(
+              duration: AppAnimations.fast,
+              curve: AppAnimations.easeOut,
+              child: Dismissible(
+                key: Key(video.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+                onDismissed: (direction) {
+                  context
+                      .read<CustomPlaylistsCubit>()
+                      .removeVideoFromPlaylist(playlist.id, video.id);
+                  setState(() {
+                    _cachedVideos.removeAt(index);
+                    _loadedIds.remove(video.id);
+                  });
+                },
+                child: VideoMenuDialog(
+                  quickVideo: quickVideo,
+                  child: VideoTile(
+                    video: video,
+                    index: index,
+                    enableScrollAnimation: true,
+                  ),
+                ),
+              ),
+            ),
           ),
         );
       },
