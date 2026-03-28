@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
@@ -255,7 +256,7 @@ class MiniPlayer extends StatelessWidget {
                                 visualDensity: VisualDensity.compact,
                                 tooltip: 'Queue',
                                 onPressed: () {
-                                  AppRouter.router.pushNamed(
+                                  context.pushNamed(
                                     AppRoute.queue.name,
                                     extra: {'showMiniPlayer': true},
                                   );
