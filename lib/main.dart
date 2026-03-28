@@ -42,8 +42,13 @@ void main() async {
   // set edge to edge rendering
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-  //Only portrait mode
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // Unlock orientations to allow landscape
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
 
   await Hive.initFlutter();
   await Hive.openBox(hiveSettingsBoxName);

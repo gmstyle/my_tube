@@ -41,13 +41,6 @@ class _VideoViewState extends State<VideoView> {
     mtPlayerService = playerCubit.mtPlayerService;
     persistentUiCubit = context.read<PersistentUiCubit>();
 
-    // Unlock orientations to allow landscape
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-
     // Keep screen on while playing, allow sleep when paused
     _playbackStateSubscription = mtPlayerService.playbackState.listen((state) {
       WakelockPlus.toggle(enable: state.playing);
