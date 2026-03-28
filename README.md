@@ -1,51 +1,73 @@
+<p align="center">
+  <img src="new.png" width="128" height="128" alt="My Tube Icon">
+</p>
+
 # My Tube
 
- A Youtube flutter client
+A powerful, modern YouTube client built with Flutter. My Tube provides a premium streaming experience on mobile and is fully compatible with Android Auto.
 
-## Description
+## 🚀 Features
 
- With this app you can search for videos, channels and playlists. You can also watch videos and save to your local Favorites list.
+### 🔍 Explore & Search
+- **Advanced Search**: Find videos, channels, and playlists with ease.
+- **Search Suggestions**: Get instant suggestions as you type.
+- **Explore Feed**: Discover new content and trending videos.
+- **Dedicated Music Section**: A smooth interface for your favorite tracks and music videos.
 
-## Features
+### 🎧 Premium Playback Experience
+- **Background Playback**: Keep listening to your favorite content while using other apps or with the screen off.
+- **Continuous Listening**: Intelligent queue management with "Play All" and "Add to Queue" functionality.
+- **Global Mini Player**: Control your playback from anywhere in the app with a seamless mini player.
+- **Picture-in-Picture (PiP)**: Watch videos while multitasking on your device.
 
-- Search for videos, channels and playlists
-- Watch videos or listen only audio in the background
-- Save videos to your local Favorites list
-- Download videos/audios to your local device storage
+### 🚗 Android Auto Support
+- **Full Integration**: Browse and play your favorites directly from your car's dashboard.
+- **Driving Optimized**: Simple, safe, and intuitive interface for a better on-the-road experience.
+- **Search Support**: Search for content via voice or car keyboard.
 
-## Screenshots
+### 💾 Offline & Personalization
+- **Downloads**: Save videos or audio locally to enjoy them anywhere, anytime.
+- **Local Favorites**: Create and manage your own library of favorite content without needing an account.
+- **Recently Played**: Easily access your history.
+- **Persistent UI**: The app remembers your state and preferences for a consistent experience.
 
-### Home
+### 🎨 Modern UI/UX
+- **Material 3 Design**: Clean and modern interface following the latest design standards.
+- **Dynamic Color**: Support for system-wide dynamic themes.
+- **Smooth Navigation**: Fast and fluid transitions between views.
 
-<img src="screenshots/Screenshot_1707650978.png" width="50%">
+## 📦 Download
 
-### Music
+You can download the latest version of My Tube from the [Releases](https://github.com/gmstyle/my_tube/releases) page.
 
-<img src="screenshots/Screenshot_1707650985.png" width="50%">
+Alternatively, you can build the APK yourself:
 
-### Favorites
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/gmstyle/my_tube.git
+   ```
+2. Navigate to the project folder:
+   ```bash
+   cd my_tube
+   ```
+3. Get dependencies:
+   ```bash
+   flutter pub get
+   ```
+4. Build the APK:
+   ```bash
+   flutter build apk --release
+   ```
 
-<img src="screenshots/Screenshot_1708245739.png" width="50%">
+## 🛠️ Built With
 
-<img src="screenshots/Screenshot_1708245745.png" width="50%">
+- **Flutter**: For a beautiful cross-platform experience.
+- **BLOC / Cubit**: Robust state management for a responsive UI.
+- **Hive**: High-performance local storage for your favorites and settings.
+- **Audio Service**: Advanced background audio and Android Auto integration.
+- **YouTube Explode**: Efficient and reliable YouTube content fetching.
 
-<img src="screenshots/Screenshot_1708245752.png" width="50%">
+## ⚖️ Disclaimer
 
-### Search
-
-<img src="screenshots/Screenshot_1707651024.png" width="50%">
-
-### Video Player and Features
-
-<img src="screenshots/Screenshot_1707651032.png" width="50%">
-
-<img src="screenshots/Screenshot_1707651046.png" width="50%">
-
-<img src="screenshots/Screenshot_1707651058.png" width="50%">
-
-<img src="screenshots/Screenshot_1707651066.png" width="50%">
-
-## Disclaimer
-
-This app is not affiliated with Youtube. It is a third-party app to access Youtube content.
-The author does not endorse or encourage any illegal activity related to downloading or saving copyrighted content.
+This app is not affiliated with YouTube. It is a third-party application designed to access YouTube content through publicly available interfaces.
+The author does not endorse or encourage any illegal activity related to downloading or saving copyrighted content. Please respect the terms of service of the content providers.

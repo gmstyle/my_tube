@@ -17,6 +17,8 @@ import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/blocs/custom_playlists/custom_playlists_cubit.dart';
+import 'package:my_tube/blocs/backup_restore/backup_restore_cubit.dart';
+import 'package:my_tube/services/backup_restore_service.dart';
 import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/providers/update_provider.dart';
@@ -162,6 +164,8 @@ void main() async {
                 )),
         BlocProvider<PersistentUiCubit>(
             create: (context) => PersistentUiCubit()),
+        BlocProvider<BackupRestoreCubit>(
+            create: (context) => BackupRestoreCubit(BackupRestoreService())),
       ], child: const MyApp()),
     ),
   ));

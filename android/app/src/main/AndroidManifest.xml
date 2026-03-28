@@ -17,6 +17,13 @@
     <uses-permission android:name="android.permission.BIND_MEDIA_BROWSER_SERVICE"/>
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
 
+    <!-- Aggiungi questo -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
 
     <application
         android:label="My Tube"

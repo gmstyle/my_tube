@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/blocs/settings/cubit/settings_cubit.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
+import 'package:my_tube/blocs/backup_restore/backup_restore_cubit.dart';
+import 'package:my_tube/blocs/backup_restore/backup_restore_state.dart';
 import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/utils/app_theme_extensions.dart';
@@ -47,6 +49,26 @@ class SettingsView extends StatelessWidget {
                       content: Text(
                           '$settingsUpdateCheckFailurePrefix${state.errorMessage}'),
                       backgroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                  );
+                }
+              },
+            ),
+            BlocListener<BackupRestoreCubit, BackupRestoreState>(
+              listener: (context, state) {
+                if (state.status == BackupRestoreStatus.success && state.successMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.successMessage!),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                } else if (state.status == BackupRestoreStatus.failure && state.errorMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.errorMessage!),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      duration: const Duration(seconds: 4),
                     ),
                   );
                 }
@@ -208,6 +230,85 @@ class SettingsView extends StatelessWidget {
                                 if (selectedCountry != null) {
                                   settingsCubit.setCountry(selectedCountry);
                                 }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // ── Data & Backup ───────────────────────────────────────
+                        _SettingsCard(
+                          label: 'Data & Backup',
+                          icon: Icons.save_outlined,
+                          iconColor: cs.tertiaryContainer,
+                          iconOnColor: cs.onTertiaryContainer,
+                          children: [
+                            BlocBuilder<BackupRestoreCubit, BackupRestoreState>(
+                              builder: (context, backupState) {
+                                final isLoading = backupState.status == BackupRestoreStatus.loading;
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      leading: _IconContainer(
+                                        icon: Icons.upload_file_outlined,
+                                        color: cs.tertiaryContainer,
+                                        onColor: cs.onTertiaryContainer,
+                                      ),
+                                      title: const Text('Export Data'),
+                                      subtitle: Text(
+                                        'Save settings, favorites and playlists',
+                                        style: TextStyle(color: cs.onSurfaceVariant),
+                                      ),
+                                      trailing: isLoading 
+                                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                                          : const Icon(Icons.chevron_right),
+                                      onTap: isLoading ? null : () => context.read<BackupRestoreCubit>().exportData(),
+                                    ),
+                                    Divider(
+                                      color: cs.outline.withValues(alpha: 0.15),
+                                      height: 1,
+                                      indent: 64,
+                                      endIndent: 16,
+                                    ),
+                                    ListTile(
+                                      leading: _IconContainer(
+                                        icon: Icons.file_download_outlined,
+                                        color: cs.tertiaryContainer,
+                                        onColor: cs.onTertiaryContainer,
+                                      ),
+                                      title: const Text('Import Data'),
+                                      subtitle: Text(
+                                        'Restore from a previous backup',
+                                        style: TextStyle(color: cs.onSurfaceVariant),
+                                      ),
+                                      trailing: isLoading 
+                                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                                          : const Icon(Icons.chevron_right),
+                                      onTap: isLoading ? null : () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Restore Data'),
+                                            content: const Text('Importing data will overwrite your current settings, favorites, and playlists. Are you sure you want to proceed?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.of(context).pop(false),
+                                                child: const Text(actionCancelLabel),
+                                              ),
+                                              FilledButton(
+                                                onPressed: () => Navigator.of(context).pop(true),
+                                                child: const Text('Restore'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        if (confirm == true && context.mounted) {
+                                          context.read<BackupRestoreCubit>().importData();
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                );
                               },
                             ),
                           ],
