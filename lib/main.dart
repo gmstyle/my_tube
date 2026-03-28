@@ -32,11 +32,13 @@ import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/services/local_notification_helper.dart.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:terminate_restart/terminate_restart.dart';
 
 import 'app_bloc_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  TerminateRestart.instance.initialize();
   // set edge to edge rendering
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 

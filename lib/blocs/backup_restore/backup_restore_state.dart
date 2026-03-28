@@ -4,7 +4,8 @@ enum BackupRestoreStatus {
   initial,
   loadingExport,
   loadingImport,
-  success,
+  successExport,
+  successImport,
   failure
 }
 

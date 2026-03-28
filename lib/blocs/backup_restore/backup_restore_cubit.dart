@@ -12,7 +12,7 @@ class BackupRestoreCubit extends Cubit<BackupRestoreState> {
     try {
       final savedPath = await _service.exportData();
       emit(state.copyWith(
-          status: BackupRestoreStatus.success,
+          status: BackupRestoreStatus.successExport,
           successMessage: 'Backup salvato con successo in:\n$savedPath'));
       emit(state.copyWith(
           status: BackupRestoreStatus.initial, successMessage: null));
@@ -30,7 +30,7 @@ class BackupRestoreCubit extends Cubit<BackupRestoreState> {
       final success = await _service.importData();
       if (success) {
         emit(state.copyWith(
-            status: BackupRestoreStatus.success,
+            status: BackupRestoreStatus.successImport,
             successMessage:
                 'Import successful. Please restart the app for all changes to take effect.'));
         emit(state.copyWith(

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart' hide ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
@@ -10,6 +11,7 @@ import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/utils/app_theme_extensions.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:terminate_restart/terminate_restart.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SettingsView
@@ -56,12 +58,37 @@ class SettingsView extends StatelessWidget {
             ),
             BlocListener<BackupRestoreCubit, BackupRestoreState>(
               listener: (context, state) {
-                if (state.status == BackupRestoreStatus.success &&
+                if (state.status == BackupRestoreStatus.successExport &&
                     state.successMessage != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Export Complete'),
                       content: Text(state.successMessage!),
-                      duration: const Duration(seconds: 3),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (state.status == BackupRestoreStatus.successImport &&
+                    state.successMessage != null) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Import Complete'),
+                      content: Text(state.successMessage!),
+                      actions: [
+                        FilledButton(
+                          onPressed: () => TerminateRestart.instance.restartApp(
+                            options: const TerminateRestartOptions(),
+                          ),
+                          child: const Text('Restart App'),
+                        ),
+                      ],
                     ),
                   );
                 } else if (state.status == BackupRestoreStatus.failure &&
