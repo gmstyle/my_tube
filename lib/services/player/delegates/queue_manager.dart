@@ -17,7 +17,14 @@ class QueueManager {
 
   // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(String id) async {
-    // inizializza il media item da passare riprodurre con stream URL
+    // ⚠️ FERMARE il video corrente PRIMA di fare il fetch dello stream URL
+    // Questo previene che il video vecchio continui a suonare durante il caricamento
+    dev.log('Stopping current playback before fetching new video...');
+    await _service.stop();
+    await _service.seek(Duration.zero);
+
+    // Ora posso fare il fetch senza che il vecchio video suoni
+    dev.log('Fetching new video metadata...');
     final item =
         await _service._engine.createMediaItem(id, loadStreamUrl: true);
 
@@ -32,6 +39,7 @@ class QueueManager {
     // ignore: unawaited_futures
     _service.favoriteRepository?.addRecentlyPlayed(id);
 
+    // Ora avvio il nuovo video (non c'è più audio in sovrapposizione)
     await _service._engine.playCurrentTrack();
   }
 
