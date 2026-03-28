@@ -24,7 +24,6 @@ class _QueueViewState extends State<QueueView> {
   late final PersistentUiCubit persistentUiCubit;
   late final PlayerCubit playerCubit;
 
-  bool _queueIsEmpty = false;
   bool _isFistRoutePopped = false;
 
   @override
@@ -43,9 +42,6 @@ class _QueueViewState extends State<QueueView> {
     // Ascolta quando la queue diventa vuota (dopo rimozione ultimo video)
     playerCubit.mtPlayerService.queue.listen((queue) {
       if (queue.isEmpty && mounted) {
-        setState(() {
-          _queueIsEmpty = true;
-        });
         // Torna alla rotta root quando la queue è vuota
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {

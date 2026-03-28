@@ -9,6 +9,7 @@ import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class CustomPlaylistView extends StatefulWidget {
   final CustomPlaylist initialPlaylist;
@@ -218,7 +219,7 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView> {
                   ),
                 ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 80)),
+              const SliverToBoxAdapter(child: SizedBox(height: miniPlayerHeight)),
             ],
           ),
         );

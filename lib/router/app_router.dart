@@ -11,7 +11,7 @@ import 'package:my_tube/router/pages/search_tab_page.dart';
 import 'package:my_tube/router/pages/settings_page.dart';
 import 'package:my_tube/router/pages/video_page.dart';
 import 'package:my_tube/models/custom_playlist.dart';
-import 'package:my_tube/ui/views/playlist/custom_playlist_view.dart';
+import 'package:my_tube/router/pages/custom_playlist_page.dart';
 import 'package:my_tube/ui/views/common/global_mini_player.dart';
 
 class AppRouter {
@@ -83,9 +83,9 @@ class AppRouter {
             parentNavigatorKey: shellNavigatorKey,
             name: AppRoute.customPlaylist.name,
             path: AppRoute.customPlaylist.path,
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final playlist = state.extra as CustomPlaylist;
-              return CustomPlaylistView(initialPlaylist: playlist);
+              return CustomPlaylistPage(playlist: playlist);
             },
           ),
 
