@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/blocs/settings/cubit/settings_cubit.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
 import 'package:my_tube/blocs/backup_restore/backup_restore_cubit.dart';
@@ -21,9 +20,6 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.mounted) {
-      context.read<PersistentUiCubit>().setNavBarVisibility(true);
-    }
     final settingsCubit = context.read<SettingsCubit>()..init();
     final themeCubit = context.read<ThemeCubit>();
 

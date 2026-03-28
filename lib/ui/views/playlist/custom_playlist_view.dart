@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/custom_playlists/custom_playlists_cubit.dart';
 import 'package:my_tube/blocs/custom_playlists/custom_playlists_state.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/models/custom_playlist.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/models/tiles.dart' as models;
@@ -21,13 +22,28 @@ class CustomPlaylistView extends StatefulWidget {
 class _CustomPlaylistViewState extends State<CustomPlaylistView> {
   bool _isLoading = true;
   List<models.VideoTile?> _cachedVideos = [];
+  PersistentUiCubit? _uiCubit;
   // track the last loaded IDs to avoid unnecessary re-fetches
   List<String> _loadedIds = [];
 
   @override
   void initState() {
     super.initState();
+    _uiCubit = context.read<PersistentUiCubit>();
+    // Questa view non ha la navbar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _uiCubit?.setHasNavBar(false);
+      }
+    });
     _loadMetadata(widget.initialPlaylist);
+  }
+
+  @override
+  void dispose() {
+    // Ripristina hasNavBar a true quando si esce dalla view
+    _uiCubit?.setHasNavBar(true);
+    super.dispose();
   }
 
   Future<void> _loadMetadata(CustomPlaylist playlist) async {

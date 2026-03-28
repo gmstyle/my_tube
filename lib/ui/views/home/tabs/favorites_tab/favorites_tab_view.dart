@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
-import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/channel_favorites.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/playlist_favorites.dart';
@@ -31,9 +30,6 @@ class _FavoritesTabViewState extends State<FavoritesTabView> {
     context.read<FavoritesVideoBloc>().add(const GetFavorites());
     context.read<FavoritesChannelBloc>().add(const GetFavoritesChannel());
     context.read<FavoritesPlaylistBloc>().add(const GetFavoritesPlaylist());
-    if (context.mounted) {
-      context.read<PersistentUiCubit>().setNavBarVisibility(true);
-    }
   }
 
   @override

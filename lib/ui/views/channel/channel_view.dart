@@ -22,11 +22,9 @@ import 'package:my_tube/utils/utils.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class ChannelView extends StatefulWidget {
-  const ChannelView(
-      {super.key, required this.channelId, this.hideNavBar = false});
+  const ChannelView({super.key, required this.channelId});
 
   final String channelId;
-  final bool hideNavBar;
 
   @override
   State<ChannelView> createState() => _ChannelViewState();
@@ -47,11 +45,12 @@ class _ChannelViewState extends State<ChannelView>
   @override
   void initState() {
     super.initState();
-    if (widget.hideNavBar) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _uiCubit?.setNavBarVisibility(false);
-      });
-    }
+    // Imposta hasNavBar in base al parametro hideNavBar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _uiCubit?.setHasNavBar(false);
+      }
+    });
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -88,6 +87,8 @@ class _ChannelViewState extends State<ChannelView>
     _tabController
       ..removeListener(_onTabChanged)
       ..dispose();
+    // Ripristina hasNavBar a true quando si esce dalla view
+    _uiCubit?.setHasNavBar(true);
     super.dispose();
   }
 

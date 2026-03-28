@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
@@ -195,30 +194,14 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         child: SafeArea(
           bottom:
               false, // Il bottom lo gestiamo manualmente via _buildContentPadding
-          child: NotificationListener<UserScrollNotification>(
-            onNotification: (notification) {
-              if (notification.metrics.axis != Axis.vertical) return false;
-
-              final cubit = context.read<PersistentUiCubit>();
-              if (notification.direction == ScrollDirection.reverse) {
-                // Utente scorre verso il basso -> Nascondiamo NavBar
-                cubit.setNavBarVisibility(false);
-              } else if (notification.direction == ScrollDirection.forward) {
-                // Utente scorre verso l'alto -> Mostriamo NavBar
-                cubit.setNavBarVisibility(true);
-              }
-              return false;
-            },
-            child: _buildContentPadding(context, navigationShell),
-          ),
+          child: _buildContentPadding(context, navigationShell),
         ),
       ),
       bottomNavigationBar: BlocBuilder<PersistentUiCubit, PersistentUiState>(
         buildWhen: (previous, current) =>
-            previous.isNavBarVisible != current.isNavBarVisible ||
             previous.isSearchOpen != current.isSearchOpen,
         builder: (context, uiState) {
-          final hideBar = !uiState.isNavBarVisible || uiState.isSearchOpen;
+          final hideBar = uiState.isSearchOpen;
 
           return AnimatedSlide(
             duration: const Duration(milliseconds: 300),

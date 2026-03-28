@@ -20,7 +20,7 @@ class PlaylistPage extends Page {
                     youtubeExplodeRepository:
                         context.read<YoutubeExplodeRepository>())
                   ..add(GetPlaylist(playlistId: playlistId))),
-          ], child: PlaylistView(playlistId: playlistId, hideNavBar: true));
+          ], child: PlaylistView(playlistId: playlistId));
         });
   }
 }

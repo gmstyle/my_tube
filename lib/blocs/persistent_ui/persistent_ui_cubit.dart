@@ -5,12 +5,12 @@ class PersistentUiState {
   final double navBarHeight;
   final double rawLeftPadding;
   final bool isPlayerVisible;
-  final bool isNavBarVisible;
   final bool isSearchOpen;
+  final bool hasNavBar;
 
   double get bottomPadding {
     if (isSearchOpen) return 0.0;
-    return isNavBarVisible ? navBarHeight + bottomSafeArea : bottomSafeArea;
+    return (hasNavBar ? navBarHeight : 0.0) + bottomSafeArea;
   }
 
   double get leftPadding => isSearchOpen ? 0.0 : rawLeftPadding;
@@ -20,8 +20,8 @@ class PersistentUiState {
     this.navBarHeight = 0,
     this.rawLeftPadding = 0,
     this.isPlayerVisible = true,
-    this.isNavBarVisible = true,
     this.isSearchOpen = false,
+    this.hasNavBar = true,
   });
 
   PersistentUiState copyWith({
@@ -29,16 +29,16 @@ class PersistentUiState {
     double? navBarHeight,
     double? rawLeftPadding,
     bool? isPlayerVisible,
-    bool? isNavBarVisible,
     bool? isSearchOpen,
+    bool? hasNavBar,
   }) {
     return PersistentUiState(
       bottomSafeArea: bottomSafeArea ?? this.bottomSafeArea,
       navBarHeight: navBarHeight ?? this.navBarHeight,
       rawLeftPadding: rawLeftPadding ?? this.rawLeftPadding,
       isPlayerVisible: isPlayerVisible ?? this.isPlayerVisible,
-      isNavBarVisible: isNavBarVisible ?? this.isNavBarVisible,
       isSearchOpen: isSearchOpen ?? this.isSearchOpen,
+      hasNavBar: hasNavBar ?? this.hasNavBar,
     );
   }
 }
@@ -63,9 +63,9 @@ class PersistentUiCubit extends Cubit<PersistentUiState> {
     emit(state.copyWith(isPlayerVisible: visible));
   }
 
-  void setNavBarVisibility(bool visible) {
-    if (state.isNavBarVisible == visible) return;
-    emit(state.copyWith(isNavBarVisible: visible));
+  void setHasNavBar(bool hasNavBar) {
+    if (state.hasNavBar == hasNavBar) return;
+    emit(state.copyWith(hasNavBar: hasNavBar));
   }
 
   void setSearchOpen(bool isOpen) {

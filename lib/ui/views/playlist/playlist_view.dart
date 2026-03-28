@@ -18,11 +18,9 @@ import 'package:my_tube/models/tiles.dart' as models;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class PlaylistView extends StatefulWidget {
-  const PlaylistView(
-      {super.key, required this.playlistId, this.hideNavBar = false});
+  const PlaylistView({super.key, required this.playlistId});
 
   final String playlistId;
-  final bool hideNavBar;
 
   @override
   State<PlaylistView> createState() => _PlaylistViewState();
@@ -42,11 +40,12 @@ class _PlaylistViewState extends State<PlaylistView>
   @override
   void initState() {
     super.initState();
-    if (widget.hideNavBar) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _uiCubit?.setNavBarVisibility(false);
-      });
-    }
+    // Imposta hasNavBar in base al parametro hideNavBar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _uiCubit?.setHasNavBar(false);
+      }
+    });
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -56,6 +55,8 @@ class _PlaylistViewState extends State<PlaylistView>
   @override
   void dispose() {
     _staggerController.dispose();
+    // Ripristina hasNavBar a true quando si esce dalla view
+    _uiCubit?.setHasNavBar(true);
     super.dispose();
   }
 

@@ -33,7 +33,7 @@ class _QueueViewState extends State<QueueView> {
     persistentUiCubit = context.read<PersistentUiCubit>();
     playerCubit = context.read<PlayerCubit>();
     if (mounted) {
-      persistentUiCubit.setNavBarVisibility(false);
+      persistentUiCubit.setHasNavBar(false);
       // Mostra mini player in queue view (a meno che non sia esplicitamente nascosto)
       if (widget.showMiniPlayer) {
         persistentUiCubit.setPlayerVisibility(true);
@@ -51,7 +51,8 @@ class _QueueViewState extends State<QueueView> {
           if (mounted) {
             Navigator.of(context).popUntil((route) {
               if (route.isFirst) _isFistRoutePopped = true;
-              persistentUiCubit.setNavBarVisibility(true);
+              persistentUiCubit.setPlayerVisibility(true);
+              persistentUiCubit.setHasNavBar(true);
               return _isFistRoutePopped;
             });
           }
@@ -65,6 +66,7 @@ class _QueueViewState extends State<QueueView> {
     if (widget.hideMiniPlayerOnDispose && !_isFistRoutePopped) {
       persistentUiCubit.setPlayerVisibility(false);
     }
+    persistentUiCubit.setHasNavBar(true);
     super.dispose();
   }
 
