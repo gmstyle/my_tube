@@ -17,7 +17,14 @@ class QueueManager {
 
   // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(String id) async {
-    // inizializza il media item da passare riprodurre con stream URL
+    // ⚠️ FERMARE il video corrente PRIMA di fare il fetch dello stream URL
+    // Questo previene che il video vecchio continui a suonare durante il caricamento
+    dev.log('Stopping current playback before fetching new video...');
+    await _service.stop();
+    await _service.seek(Duration.zero);
+
+    // Ora posso fare il fetch senza che il vecchio video suoni
+    dev.log('Fetching new video metadata...');
     final item =
         await _service._engine.createMediaItem(id, loadStreamUrl: true);
 
@@ -32,6 +39,7 @@ class QueueManager {
     // ignore: unawaited_futures
     _service.favoriteRepository?.addRecentlyPlayed(id);
 
+    // Ora avvio il nuovo video (non c'è più audio in sovrapposizione)
     await _service._engine.playCurrentTrack();
   }
 
@@ -214,6 +222,17 @@ class QueueManager {
     }
   }
 
+  /// Rimuove un video dalla coda.
+  ///
+  /// Gestisce tre casi:
+  /// 1. Rimuovo video non corrente → solo rimuovi
+  /// 2. Rimuovo video corrente con altri video in coda → passa al prossimo (o precedente)
+  /// 3. Rimuovo ultimo video → stop playback, clear media item, queue vuota
+  ///
+  /// Returns:
+  /// - `true`: video rimosso, altri video presenti in coda
+  /// - `false`: video rimosso, coda ora vuota
+  /// - `null`: video non trovato nella coda
   Future<bool?> removeFromQueue(String id) async {
     final index = playlist.indexWhere((element) => element.id == id);
 
@@ -221,33 +240,57 @@ class QueueManager {
       return null;
     }
 
-    if (index < currentIndex) {
-      currentIndex--;
-    } else if (index == currentIndex) {
-      playlist.removeAt(index);
-      _service.queue.add(playlist);
+    final bool isCurrentTrack = index == currentIndex;
+    final bool wasOnlyTrack = playlist.length == 1;
 
-      if (playlist.isNotEmpty) {
-        currentIndex = index < playlist.length ? index : playlist.length - 1;
-        await _service._engine.chewieController?.videoPlayerController
-            .seekTo(Duration.zero);
-        await _service._engine.playCurrentTrack();
-        return true;
-      } else {
-        _service.stop();
-        currentIndex = -1;
-        currentTrack = null;
-        _service.mediaItem.add(null);
-        return false;
+    // Caso 1: Rimuovo video non corrente → solo rimuovi
+    if (!isCurrentTrack) {
+      playlist.removeAt(index);
+      // Aggiorna currentIndex se necessario
+      if (index < currentIndex) {
+        currentIndex--;
       }
-    } else {
-      currentIndex = playlist.indexOf(currentTrack!);
+      _service.queue.add(playlist);
+      return true;
     }
 
+    // Caso 2 & 3: Rimuovo video corrente
     playlist.removeAt(index);
     _service.queue.add(playlist);
 
-    return true;
+    // Caso 3: Era l'unico video → stop e clear
+    if (wasOnlyTrack) {
+      await _service.stop();
+      await _service._engine.disposeControllers();
+      currentIndex = -1;
+      currentTrack = null;
+      _service.mediaItem.add(null);
+      _service.playbackState.add(_service.playbackState.value.copyWith(
+        processingState: AudioProcessingState.idle,
+        playing: false,
+      ));
+      return false;
+    }
+
+    // Caso 2: Ci sono altri video → passa al prossimo o precedente
+    if (playlist.isNotEmpty) {
+      // Determina il nuovo indice: preferibilmente lo stesso indice (prossimo video)
+      // se ero all'ultimo, vai al precedente
+      currentIndex = index < playlist.length ? index : playlist.length - 1;
+
+      // Avvia il nuovo video corrente
+      await _service._engine.chewieController?.videoPlayerController
+          .seekTo(Duration.zero);
+      await _service._engine.playCurrentTrack();
+      return true;
+    }
+
+    // Fallback (non dovrebbe mai accadere)
+    await _service.stop();
+    currentIndex = -1;
+    currentTrack = null;
+    _service.mediaItem.add(null);
+    return false;
   }
 
   Future<void> clearQueue() async {

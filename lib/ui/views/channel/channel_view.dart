@@ -16,16 +16,15 @@ import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/utils.dart';
 
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class ChannelView extends StatefulWidget {
-  const ChannelView(
-      {super.key, required this.channelId, this.hideNavBar = false});
+  const ChannelView({super.key, required this.channelId});
 
   final String channelId;
-  final bool hideNavBar;
 
   @override
   State<ChannelView> createState() => _ChannelViewState();
@@ -46,11 +45,12 @@ class _ChannelViewState extends State<ChannelView>
   @override
   void initState() {
     super.initState();
-    if (widget.hideNavBar) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _uiCubit?.setNavBarVisibility(false);
-      });
-    }
+    // Imposta hasNavBar in base al parametro hideNavBar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _uiCubit?.setHasNavBar(false);
+      }
+    });
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -69,14 +69,14 @@ class _ChannelViewState extends State<ChannelView>
 
     switch (_tabController.index) {
       case 1:
-        // Lazy-load shorts on first visit
-        if (state.shorts == null && !state.isLoadingShorts) {
-          bloc.add(LoadChannelShorts(channelId: channel.id.value));
-        }
-      case 2:
         // Lazy-load playlists on first visit
         if (state.playlists == null && !state.isLoadingPlaylists) {
           bloc.add(LoadChannelPlaylists(channelTitle: channel.title));
+        }
+      case 2:
+        // Lazy-load shorts on first visit
+        if (state.shorts == null && !state.isLoadingShorts) {
+          bloc.add(LoadChannelShorts(channelId: channel.id.value));
         }
     }
   }
@@ -87,6 +87,8 @@ class _ChannelViewState extends State<ChannelView>
     _tabController
       ..removeListener(_onTabChanged)
       ..dispose();
+    // Ripristina hasNavBar a true quando si esce dalla view
+    _uiCubit?.setHasNavBar(true);
     super.dispose();
   }
 
@@ -217,8 +219,8 @@ class _ChannelViewState extends State<ChannelView>
               controller: _tabController,
               tabs: const [
                 Tab(text: 'Videos'),
-                Tab(text: 'Shorts'),
                 Tab(text: 'Playlists'),
+                Tab(text: 'Shorts'),
               ],
             ),
             Theme.of(context).colorScheme.surface,
@@ -230,10 +232,10 @@ class _ChannelViewState extends State<ChannelView>
         children: [
           // ── Tab 0: Videos ──
           _buildVideosTab(context, state, videos, ids),
-          // ── Tab 1: Shorts ──
-          _buildShortsTab(context, state),
-          // ── Tab 2: Playlists ──
+          // ── Tab 1: Playlists ──
           _buildPlaylistsTab(context, state),
+          // ── Tab 2: Shorts ──
+          _buildShortsTab(context, state),
         ],
       ),
     );
@@ -537,7 +539,8 @@ class _ChannelViewState extends State<ChannelView>
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 60)),
+              const SliverToBoxAdapter(
+                  child: SizedBox(height: miniPlayerHeight)),
             ],
           ),
         ),
@@ -622,7 +625,8 @@ class _ChannelViewState extends State<ChannelView>
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
-              const SliverToBoxAdapter(child: SizedBox(height: 60)),
+              const SliverToBoxAdapter(
+                  child: SizedBox(height: miniPlayerHeight)),
             ],
           ),
         ),
@@ -704,7 +708,6 @@ class _ChannelViewState extends State<ChannelView>
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
-              const SliverToBoxAdapter(child: SizedBox(height: 60)),
             ],
           ),
         ),

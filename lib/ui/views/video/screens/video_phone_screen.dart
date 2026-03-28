@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
@@ -158,7 +159,9 @@ class VideoPhoneScreen extends StatelessWidget {
           right: 8,
           child: _OverlayIconButton(
             icon: Icons.queue_music,
-            onTap: () => context.pushNamed('queue'),
+            onTap: () => context.pushNamed(AppRoute.queue.name, extra: {
+              'hideMiniPlayerOnDispose': true,
+            }),
           ),
         ),
       ],

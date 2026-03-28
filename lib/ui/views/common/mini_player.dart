@@ -1,13 +1,14 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
-import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({
@@ -131,7 +132,7 @@ class MiniPlayer extends StatelessWidget {
                   topLeft: Radius.circular(16), topRight: Radius.circular(16)),
               child: Container(
                 color: Theme.of(context).colorScheme.surfaceContainer,
-                height: 60, // Ridotto per l'approccio Fusione
+                height: miniPlayerHeight, // Ridotto per l'approccio Fusione
                 child: HorizontalSwipeToSkip(
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -255,12 +256,9 @@ class MiniPlayer extends StatelessWidget {
                                 visualDensity: VisualDensity.compact,
                                 tooltip: 'Queue',
                                 onPressed: () {
-                                  context
-                                      .read<PersistentUiCubit>()
-                                      .setPlayerVisibility(false);
-                                  AppRouter.router.pushNamed(
+                                  context.pushNamed(
                                     AppRoute.queue.name,
-                                    extra: {'restoreMiniPlayer': true},
+                                    extra: {'showMiniPlayer': true},
                                   );
                                 },
                                 icon: const Icon(

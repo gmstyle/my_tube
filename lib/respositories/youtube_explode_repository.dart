@@ -124,55 +124,6 @@ class YoutubeExplodeRepository {
     }
   }
 
-  /// Simula getMusicHome usando ricerche musicali predefinite
-  /* Future<MusicHomeMT> getMusicHome() async {
-    try {
-      final videos = await youtubeExplodeProvider.getMusicHomeSimulated();
-
-      // Dividi i video in sezioni simulate
-      final carouselVideos = videos.take(5).toList();
-      final topMusic = videos.skip(5).take(10).toList();
-      final newReleases = videos.skip(15).take(10).toList();
-
-      final carouselResources = await Future.wait(
-          carouselVideos.map((video) => getResourceMTFromVideo(video)));
-
-      final sections = <SectionMT>[];
-
-      if (topMusic.isNotEmpty) {
-        final topMusicResources = await Future.wait(
-            topMusic.map((video) => getResourceMTFromVideo(video)));
-        sections.add(SectionMT(
-          title: 'Top Music',
-          playlistId: null,
-          videos: topMusicResources,
-          playlists: [],
-        ));
-      }
-
-      if (newReleases.isNotEmpty) {
-        final newReleasesResources = await Future.wait(
-            newReleases.map((video) => getResourceMTFromVideo(video)));
-        sections.add(SectionMT(
-          title: 'New Releases',
-          playlistId: null,
-          videos: newReleasesResources,
-          playlists: [],
-        ));
-      }
-
-      return MusicHomeMT(
-        title: 'Music',
-        description: 'Discover new music',
-        carouselVideos: carouselResources,
-        sections: sections,
-      );
-    } catch (e) {
-      log('Errore durante il recupero della home music: $e');
-      rethrow;
-    }
-  } */
-
   Future<List<Video>> getPlaylistVideos(String playlistId) async {
     return await youtubeExplodeProvider.getPlaylistVideos(playlistId);
   }
@@ -333,9 +284,8 @@ class YoutubeExplodeRepository {
             await youtubeExplodeProvider.searchContent('$artist playlist');
         final playlists = searchResults.whereType<SearchPlaylist>();
         // Filtra: esclude playlist già nei preferiti e quelle senza video
-        final candidates = playlists.where((p) =>
-            !seenIds.contains(p.id.value) &&
-            p.videoCount > 0);
+        final candidates = playlists
+            .where((p) => !seenIds.contains(p.id.value) && p.videoCount > 0);
         if (candidates.isNotEmpty) {
           final top = candidates.first;
           seenIds.add(top.id.value);

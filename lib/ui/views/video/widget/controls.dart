@@ -59,7 +59,10 @@ class Controls extends StatelessWidget {
               stream: mtPlayerService.queue,
               builder: ((context, snapshot) {
                 final queue = snapshot.data ?? [];
-                final index = queue.indexOf(mtPlayerService.mediaItem.value!);
+                final currentMediaItem = mtPlayerService.mediaItem.value;
+                final index = currentMediaItem != null
+                    ? queue.indexOf(currentMediaItem)
+                    : -1;
                 bool isEnabled = index > 0;
                 return IconButton(
                   icon: Icon(
@@ -110,8 +113,11 @@ class Controls extends StatelessWidget {
               stream: mtPlayerService.queue,
               builder: ((context, snapshot) {
                 final queue = snapshot.data ?? [];
-                final index = queue.indexOf(mtPlayerService.mediaItem.value!);
-                bool isEnable = index < queue.length - 1;
+                final currentMediaItem = mtPlayerService.mediaItem.value;
+                final index = currentMediaItem != null
+                    ? queue.indexOf(currentMediaItem)
+                    : -1;
+                bool isEnable = index >= 0 && index < queue.length - 1;
                 return IconButton(
                   icon: Icon(
                     Icons.skip_next,

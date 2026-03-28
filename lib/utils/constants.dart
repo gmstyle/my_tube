@@ -11,6 +11,7 @@ const String hiveSettingsBoxName = 'settings';
 const String hiveFavoriteVideosBoxName = 'favoriteVideos';
 const String hiveFavoriteChannelsBoxName = 'favoriteChannels';
 const String hiveFavoritePlaylistsBoxName = 'favoritePlaylists';
+const String hiveCustomPlaylistsBoxName = 'customPlaylists';
 const String hiveRecentlyPlayedBoxName = 'recentlyPlayed';
 
 // Settings keys
@@ -126,6 +127,10 @@ const double queueSheetMinChildSize = 0.08;
 const double queueSheetMaxChildSize = 1.0;
 const List<double> queueSheetSnapSizes = [0.4];
 const Duration queueSheetAnimationDuration = Duration(milliseconds: 500);
+
+// UI Layout
+const double miniPlayerHeight = 60.0;
+const double bottomNavigationBarHeight = 65.0;
 
 // Query/suggestion presets
 const List<String> musicHomeQueries = [

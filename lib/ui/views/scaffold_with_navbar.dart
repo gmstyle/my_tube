@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
@@ -10,13 +9,11 @@ import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
+import 'package:my_tube/utils/constants.dart';
 
 class ScaffoldWithNavbarView extends StatelessWidget {
   const ScaffoldWithNavbarView({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
-
-  static const double _miniPlayerHeight = 60.0;
-  static const double _bottomNavigationBarHeight = 65.0;
 
   final _navigationBarDestinations = const [
     NavigationDestination(
@@ -121,7 +118,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             // Material 3 NavigationBar custom squeezed height is 65.0
             // Material 3 NavigationRail default width is 80.0
             context.read<PersistentUiCubit>().setBottomLayout(
-                  useNavigationRail ? 0 : _bottomNavigationBarHeight,
+                  useNavigationRail ? 0 : bottomNavigationBarHeight,
                   bottomSafeArea,
                 );
             context.read<PersistentUiCubit>().setLeftPadding(
@@ -147,7 +144,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
             final isPlayerVisible = playerState.status != PlayerStatus.hidden &&
                 uiState.isPlayerVisible;
             // The content needs padding if the player is visible, plus the dynamic uiState padding (NavBar height, safe areas, etc.)
-            final playerHeight = isPlayerVisible ? _miniPlayerHeight : 0.0;
+            final playerHeight = isPlayerVisible ? miniPlayerHeight : 0.0;
             final double currentBottomPadding =
                 playerHeight + uiState.bottomPadding;
 
@@ -197,28 +194,14 @@ class ScaffoldWithNavbarView extends StatelessWidget {
         child: SafeArea(
           bottom:
               false, // Il bottom lo gestiamo manualmente via _buildContentPadding
-          child: NotificationListener<UserScrollNotification>(
-            onNotification: (notification) {
-              final cubit = context.read<PersistentUiCubit>();
-              if (notification.direction == ScrollDirection.reverse) {
-                // Utente scorre verso il basso -> Nascondiamo NavBar
-                cubit.setNavBarVisibility(false);
-              } else if (notification.direction == ScrollDirection.forward) {
-                // Utente scorre verso l'alto -> Mostriamo NavBar
-                cubit.setNavBarVisibility(true);
-              }
-              return false;
-            },
-            child: _buildContentPadding(context, navigationShell),
-          ),
+          child: _buildContentPadding(context, navigationShell),
         ),
       ),
       bottomNavigationBar: BlocBuilder<PersistentUiCubit, PersistentUiState>(
         buildWhen: (previous, current) =>
-            previous.isNavBarVisible != current.isNavBarVisible ||
             previous.isSearchOpen != current.isSearchOpen,
         builder: (context, uiState) {
-          final hideBar = !uiState.isNavBarVisible || uiState.isSearchOpen;
+          final hideBar = uiState.isSearchOpen;
 
           return AnimatedSlide(
             duration: const Duration(milliseconds: 300),
@@ -273,7 +256,7 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               ),
               child: NavigationBar(
                 height:
-                    _bottomNavigationBarHeight, // Ridotto considerevolmente rispetto al default (80)
+                    bottomNavigationBarHeight, // Ridotto considerevolmente rispetto al default (80)
                 selectedIndex: navigationShell.currentIndex,
                 onDestinationSelected: (index) =>
                     onDestinationSelected(index, context: context),

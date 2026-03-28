@@ -4,6 +4,7 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_video_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/utils/constants.dart';
+import 'package:my_tube/ui/views/common/add_to_playlist_dialog.dart';
 
 class VideoMenuDialog extends StatelessWidget {
   const VideoMenuDialog(
@@ -37,20 +38,26 @@ class VideoMenuDialog extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Favorite toggle with enhanced animation
-              _buildFavoriteOption(context, videoId),
-              const Divider(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Favorite toggle with enhanced animation
+                _buildFavoriteOption(context, videoId),
+                const Divider(),
 
-              // Queue management
-              _buildQueueOption(context, videoId),
-              const Divider(),
+                // Custom Playlist management
+                _buildPlaylistOption(context, videoId),
+                const Divider(),
 
-              // Download options
-              _buildDownloadOptions(context, videoId, videoTitle),
-            ],
+                // Queue management
+                _buildQueueOption(context, videoId),
+                const Divider(),
+
+                // Download options
+                _buildDownloadOptions(context, videoId, videoTitle),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -58,6 +65,24 @@ class VideoMenuDialog extends StatelessWidget {
               child: const Text(actionCloseLabel),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPlaylistOption(BuildContext context, String videoId) {
+    return ListTile(
+      leading: Icon(
+        Icons.playlist_add,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+      title: const Text('Save to Playlist...'),
+      subtitle: const Text('Add this video to a custom playlist'),
+      onTap: () {
+        Navigator.of(context).pop();
+        showDialog(
+          context: context,
+          builder: (context) => AddToPlaylistDialog(videoId: videoId),
         );
       },
     );

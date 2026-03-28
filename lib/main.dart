@@ -16,35 +16,46 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
 import 'package:my_tube/blocs/theme_cubit/theme_cubit.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
-import 'package:my_tube/ui/views/common/global_mini_player.dart';
+import 'package:my_tube/blocs/custom_playlists/custom_playlists_cubit.dart';
+import 'package:my_tube/blocs/backup_restore/backup_restore_cubit.dart';
+import 'package:my_tube/services/backup_restore_service.dart';
 import 'package:my_tube/models/theme_settings.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/providers/update_provider.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/update_repository.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
+import 'package:my_tube/respositories/custom_playlist_repository.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/services/local_notification_helper.dart.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:terminate_restart/terminate_restart.dart';
 
 import 'app_bloc_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  TerminateRestart.instance.initialize();
   // set edge to edge rendering
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-  //Only portrait mode
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // Unlock orientations to allow landscape
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
 
   await Hive.initFlutter();
   await Hive.openBox(hiveSettingsBoxName);
   await Hive.openBox<String>(hiveFavoriteVideosBoxName);
   await Hive.openBox<String>(hiveFavoriteChannelsBoxName);
   await Hive.openBox<String>(hiveFavoritePlaylistsBoxName);
+  await Hive.openBox<String>(hiveCustomPlaylistsBoxName);
   await Hive.openBox<String>(hiveRecentlyPlayedBoxName);
   await LocalNotificationHelper.init();
 
@@ -58,6 +69,8 @@ void main() async {
   final FavoriteRepository favoriteRepository = FavoriteRepository(
     youtubeExplodeRepository: youtubeExplodeRepository,
   );
+  final CustomPlaylistRepository customPlaylistRepository =
+      CustomPlaylistRepository();
 
   // Inizializza AudioService con gestione degli errori per Android Auto
   late MtPlayerService mtPlayerService;
@@ -115,6 +128,8 @@ void main() async {
         RepositoryProvider<YoutubeExplodeRepository>.value(
             value: youtubeExplodeRepository),
         RepositoryProvider<FavoriteRepository>.value(value: favoriteRepository),
+        RepositoryProvider<CustomPlaylistRepository>.value(
+            value: customPlaylistRepository),
         RepositoryProvider<UpdateRepository>(
             create: (context) => UpdateRepository(
                 updateProvider: context.read<UpdateProvider>())),
@@ -150,8 +165,14 @@ void main() async {
         BlocProvider<UpdateBloc>(
             create: (context) =>
                 UpdateBloc(updateRepository: context.read<UpdateRepository>())),
+        BlocProvider<CustomPlaylistsCubit>(
+            create: (context) => CustomPlaylistsCubit(
+                  repository: context.read<CustomPlaylistRepository>(),
+                )),
         BlocProvider<PersistentUiCubit>(
             create: (context) => PersistentUiCubit()),
+        BlocProvider<BackupRestoreCubit>(
+            create: (context) => BackupRestoreCubit(BackupRestoreService())),
       ], child: const MyApp()),
     ),
   ));
@@ -183,20 +204,6 @@ class MyApp extends StatelessWidget {
               darkTheme: themeCubit.darkTheme(darkDynamic),
               themeMode: themeCubit.flutterThemeMode,
               routerConfig: router,
-              builder: (context, child) {
-                return Stack(
-                  children: [
-                    if (child != null) child,
-                    Overlay(
-                      initialEntries: [
-                        OverlayEntry(
-                          builder: (context) => const GlobalMiniPlayer(),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
             );
           },
         );

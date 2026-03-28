@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/music_tab/music_tab_bloc.dart';
-import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_empty_state.dart';
@@ -28,9 +27,6 @@ class _MusicTabViewState extends State<MusicTabView> {
   @override
   void initState() {
     super.initState();
-    if (context.mounted) {
-      context.read<PersistentUiCubit>().setNavBarVisibility(true);
-    }
   }
 
   @override
