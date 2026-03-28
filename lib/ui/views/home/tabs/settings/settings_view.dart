@@ -56,14 +56,16 @@ class SettingsView extends StatelessWidget {
             ),
             BlocListener<BackupRestoreCubit, BackupRestoreState>(
               listener: (context, state) {
-                if (state.status == BackupRestoreStatus.success && state.successMessage != null) {
+                if (state.status == BackupRestoreStatus.success &&
+                    state.successMessage != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.successMessage!),
                       duration: const Duration(seconds: 3),
                     ),
                   );
-                } else if (state.status == BackupRestoreStatus.failure && state.errorMessage != null) {
+                } else if (state.status == BackupRestoreStatus.failure &&
+                    state.errorMessage != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.errorMessage!),
@@ -245,7 +247,10 @@ class SettingsView extends StatelessWidget {
                           children: [
                             BlocBuilder<BackupRestoreCubit, BackupRestoreState>(
                               builder: (context, backupState) {
-                                final isLoading = backupState.status == BackupRestoreStatus.loading;
+                                final isLoadingExport = backupState.status ==
+                                    BackupRestoreStatus.loadingExport;
+                                final isLoadingImport = backupState.status ==
+                                    BackupRestoreStatus.loadingImport;
                                 return Column(
                                   children: [
                                     ListTile(
@@ -257,12 +262,21 @@ class SettingsView extends StatelessWidget {
                                       title: const Text('Export Data'),
                                       subtitle: Text(
                                         'Save settings, favorites and playlists',
-                                        style: TextStyle(color: cs.onSurfaceVariant),
+                                        style: TextStyle(
+                                            color: cs.onSurfaceVariant),
                                       ),
-                                      trailing: isLoading 
-                                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                                      trailing: isLoadingExport
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2))
                                           : const Icon(Icons.chevron_right),
-                                      onTap: isLoading ? null : () => context.read<BackupRestoreCubit>().exportData(),
+                                      onTap: isLoadingExport
+                                          ? null
+                                          : () => context
+                                              .read<BackupRestoreCubit>()
+                                              .exportData(),
                                     ),
                                     Divider(
                                       color: cs.outline.withValues(alpha: 0.15),
@@ -279,33 +293,53 @@ class SettingsView extends StatelessWidget {
                                       title: const Text('Import Data'),
                                       subtitle: Text(
                                         'Restore from a previous backup',
-                                        style: TextStyle(color: cs.onSurfaceVariant),
+                                        style: TextStyle(
+                                            color: cs.onSurfaceVariant),
                                       ),
-                                      trailing: isLoading 
-                                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                                      trailing: isLoadingImport
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2))
                                           : const Icon(Icons.chevron_right),
-                                      onTap: isLoading ? null : () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text('Restore Data'),
-                                            content: const Text('Importing data will overwrite your current settings, favorites, and playlists. Are you sure you want to proceed?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.of(context).pop(false),
-                                                child: const Text(actionCancelLabel),
-                                              ),
-                                              FilledButton(
-                                                onPressed: () => Navigator.of(context).pop(true),
-                                                child: const Text('Restore'),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                        if (confirm == true && context.mounted) {
-                                          context.read<BackupRestoreCubit>().importData();
-                                        }
-                                      },
+                                      onTap: isLoadingImport
+                                          ? null
+                                          : () async {
+                                              final confirm =
+                                                  await showDialog<bool>(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  title: const Text(
+                                                      'Restore Data'),
+                                                  content: const Text(
+                                                      'Importing data will overwrite your current settings, favorites, and playlists. Are you sure you want to proceed?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.of(context)
+                                                              .pop(false),
+                                                      child: const Text(
+                                                          actionCancelLabel),
+                                                    ),
+                                                    FilledButton(
+                                                      onPressed: () =>
+                                                          Navigator.of(context)
+                                                              .pop(true),
+                                                      child:
+                                                          const Text('Restore'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                              if (confirm == true &&
+                                                  context.mounted) {
+                                                context
+                                                    .read<BackupRestoreCubit>()
+                                                    .importData();
+                                              }
+                                            },
                                     ),
                                   ],
                                 );

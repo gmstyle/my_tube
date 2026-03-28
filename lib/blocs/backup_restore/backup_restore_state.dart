@@ -1,6 +1,12 @@
 import 'package:equatable/equatable.dart';
 
-enum BackupRestoreStatus { initial, loading, success, failure }
+enum BackupRestoreStatus {
+  initial,
+  loadingExport,
+  loadingImport,
+  success,
+  failure
+}
 
 class BackupRestoreState extends Equatable {
   final BackupRestoreStatus status;
