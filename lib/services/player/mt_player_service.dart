@@ -5,7 +5,9 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:my_tube/models/custom_playlist.dart';
 import 'package:my_tube/models/tiles.dart';
+import 'package:my_tube/respositories/custom_playlist_repository.dart';
 import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/services/player/delegates/android_auto/android_auto_content_helper.dart';
@@ -35,11 +37,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   MtPlayerService({
     required this.youtubeExplodeProvider,
     this.favoriteRepository,
+    this.customPlaylistRepository,
     this.youtubeExplodeRepository,
   });
 
   final YoutubeExplodeProvider youtubeExplodeProvider;
   final FavoriteRepository? favoriteRepository;
+  final CustomPlaylistRepository? customPlaylistRepository;
   final YoutubeExplodeRepository? youtubeExplodeRepository;
 
   // ============ Delegate Components ============

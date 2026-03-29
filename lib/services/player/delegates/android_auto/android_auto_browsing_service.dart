@@ -89,6 +89,15 @@ class AndroidAutoBrowsingService {
         return;
       }
 
+      if (AndroidAutoContentHelper.isMyPlaylistId(mediaId)) {
+        final playlistId =
+            AndroidAutoContentHelper.extractMyPlaylistId(mediaId);
+        final items = await _getMyPlaylistVideos(playlistId);
+        final firstInsertedIndex = await qm.insertMediaItemsNext(items);
+        await qm.startIfIdle(firstInsertedIndex);
+        return;
+      }
+
       if (AndroidAutoContentHelper.isPlaylistId(mediaId)) {
         final playlistId = AndroidAutoContentHelper.extractPlaylistId(mediaId);
         final items = await _getPlaylistVideos(playlistId);
@@ -157,17 +166,32 @@ class AndroidAutoBrowsingService {
           dev.log('Building Exploded Music Hub...');
           final hubItems = <MediaItem>[];
 
-          // Nuove Uscite
+          // Featured Channels
+          hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
+              AndroidAutoContentHelper.musicFeaturedChannelsId,
+              musicSectionFeaturedChannels));
+          final featuredChannels = await _getFeaturedChannels(limit: 6);
+          hubItems.addAll(featuredChannels);
+
+          // Featured Playlists
+          hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
+              AndroidAutoContentHelper.musicFeaturedPlaylistsId,
+              musicSectionFeaturedPlaylists));
+          final featuredPlaylists = await _getFeaturedPlaylists(limit: 6);
+          hubItems.addAll(featuredPlaylists);
+
+          // Continue Listening (Recently Played)
+          hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
+              AndroidAutoContentHelper.musicRecentlyPlayedId,
+              'Continue Listening'));
+          final recentlyPlayed = await _getRecentlyPlayed(limit: 10);
+          hubItems.addAll(recentlyPlayed);
+
+          // New Releases
           hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
               AndroidAutoContentHelper.musicNewReleasesId, 'New Releases'));
           final newReleases = await _getNewReleases(limit: 6);
           hubItems.addAll(newReleases);
-
-          // Scopri
-          hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
-              AndroidAutoContentHelper.musicDiscoverId, 'Discover'));
-          final discover = await _getDiscoverVideos(limit: 6);
-          hubItems.addAll(discover);
 
           // Trending
           hubItems.add(AndroidAutoContentHelper.getMusicCategoryFolder(
@@ -184,23 +208,44 @@ class AndroidAutoBrowsingService {
 
           // Video
           hubItemsFav.add(AndroidAutoContentHelper.getFavoritesCategoryFolder(
-              AndroidAutoContentHelper.favoritesVideosId, 'My Videos'));
+              AndroidAutoContentHelper.favoritesVideosId, 'Videos'));
           final favVideos = await _getFavoriteVideos(limit: 10);
           hubItemsFav.addAll(favVideos);
 
           // Canali
           hubItemsFav.add(AndroidAutoContentHelper.getFavoritesCategoryFolder(
-              AndroidAutoContentHelper.favoritesChannelsId, 'My Channels'));
+              AndroidAutoContentHelper.favoritesChannelsId, 'Channels'));
           final favChannels = await _getFavoriteChannels(limit: 6);
           hubItemsFav.addAll(favChannels);
 
           // Playlist
           hubItemsFav.add(AndroidAutoContentHelper.getFavoritesCategoryFolder(
-              AndroidAutoContentHelper.favoritesPlaylistsId, 'My Playlists'));
+              AndroidAutoContentHelper.favoritesPlaylistsId, 'Playlists'));
           final favPlaylists = await _getFavoritePlaylists(limit: 6);
           hubItemsFav.addAll(favPlaylists);
 
+          // My Playlists
+          hubItemsFav.add(AndroidAutoContentHelper.getFavoritesCategoryFolder(
+              AndroidAutoContentHelper.favoritesMyPlaylistsId, 'My Playlists'));
+          final myPlaylists = await _getMyPlaylists(limit: 6);
+          hubItemsFav.addAll(myPlaylists);
+
           return hubItemsFav;
+
+        // Musica > Featured Channels
+        case AndroidAutoContentHelper.musicFeaturedChannelsId:
+          dev.log('Loading Featured Channels...');
+          return await _getFeaturedChannels();
+
+        // Musica > Featured Playlists
+        case AndroidAutoContentHelper.musicFeaturedPlaylistsId:
+          dev.log('Loading Featured Playlists...');
+          return await _getFeaturedPlaylists();
+
+        // Musica > Continue Listening (Recently Played)
+        case AndroidAutoContentHelper.musicRecentlyPlayedId:
+          dev.log('Loading Recently Played...');
+          return _prependAddAllItem(parentMediaId, await _getRecentlyPlayed());
 
         // Musica > Nuove Uscite (Lista completa)
         case AndroidAutoContentHelper.musicNewReleasesId:
@@ -232,6 +277,11 @@ class AndroidAutoBrowsingService {
           dev.log('Loading Favorite Playlists...');
           return await _getFavoritePlaylists();
 
+        // Preferiti > My Playlists
+        case AndroidAutoContentHelper.favoritesMyPlaylistsId:
+          dev.log('Loading My Playlists...');
+          return await _getMyPlaylists();
+
         // Ricerca > Cronologia ricerche
         case AndroidAutoContentHelper.searchId:
           dev.log('Loading Recent Searches...');
@@ -252,6 +302,13 @@ class AndroidAutoBrowsingService {
             dev.log('Loading videos for channel: $channelId');
             return _prependAddAllItem(
                 parentMediaId, await _getChannelVideos(channelId));
+          }
+          if (AndroidAutoContentHelper.isMyPlaylistId(parentMediaId)) {
+            final playlistId =
+                AndroidAutoContentHelper.extractMyPlaylistId(parentMediaId);
+            dev.log('Loading videos for custom playlist: $playlistId');
+            return _prependAddAllItem(
+                parentMediaId, await _getMyPlaylistVideos(playlistId));
           }
           if (AndroidAutoContentHelper.isPlaylistId(parentMediaId)) {
             final playlistId =
@@ -405,6 +462,14 @@ class AndroidAutoBrowsingService {
   Future<List<MediaItem>> _getPlayableItemsForParent(
       String parentMediaId) async {
     switch (parentMediaId) {
+      case AndroidAutoContentHelper.musicFeaturedChannelsId:
+        // Featured Channels are not directly playable, return empty
+        return [];
+      case AndroidAutoContentHelper.musicFeaturedPlaylistsId:
+        // Featured Playlists are not directly playable, return empty
+        return [];
+      case AndroidAutoContentHelper.musicRecentlyPlayedId:
+        return await _getRecentlyPlayed();
       case AndroidAutoContentHelper.musicNewReleasesId:
         return await _getNewReleases();
       case AndroidAutoContentHelper.musicDiscoverId:
@@ -413,11 +478,25 @@ class AndroidAutoBrowsingService {
         return await _getTrendingMusic();
       case AndroidAutoContentHelper.favoritesVideosId:
         return await _getFavoriteVideos();
+      case AndroidAutoContentHelper.favoritesChannelsId:
+        // Channels are not directly playable, return empty
+        return [];
+      case AndroidAutoContentHelper.favoritesPlaylistsId:
+        // Playlists are not directly playable, return empty
+        return [];
+      case AndroidAutoContentHelper.favoritesMyPlaylistsId:
+        // My Playlists are not directly playable, return empty
+        return [];
       default:
         if (AndroidAutoContentHelper.isChannelId(parentMediaId)) {
           final channelId =
               AndroidAutoContentHelper.extractChannelId(parentMediaId);
           return await _getChannelVideos(channelId);
+        }
+        if (AndroidAutoContentHelper.isMyPlaylistId(parentMediaId)) {
+          final playlistId =
+              AndroidAutoContentHelper.extractMyPlaylistId(parentMediaId);
+          return await _getMyPlaylistVideos(playlistId);
         }
         if (AndroidAutoContentHelper.isPlaylistId(parentMediaId)) {
           final playlistId =
@@ -535,6 +614,80 @@ class AndroidAutoBrowsingService {
     }
   }
 
+  Future<List<MediaItem>> _getMyPlaylists({int? limit}) async {
+    try {
+      final playlists = _service.customPlaylistRepository!.getPlaylists();
+      final result = playlists.reversed.toList();
+      return _customPlaylistsToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getMyPlaylists: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getFeaturedChannels({int? limit}) async {
+    try {
+      final favoriteVideos = await _service.favoriteRepository!.favoriteVideos;
+      final uniqueArtists = favoriteVideos
+          .map((v) => v.artist)
+          .whereType<String>()
+          .toSet()
+          .toList();
+
+      if (uniqueArtists.isEmpty) return [];
+
+      final favoriteChannelIds =
+          _service.favoriteRepository!.channelIds.toSet();
+      final channels = await _service.youtubeExplodeRepository!
+          .getFeaturedChannels(uniqueArtists, favoriteChannelIds);
+
+      final result = channels.toList();
+      return AndroidAutoContentHelper.channelTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getFeaturedChannels: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getFeaturedPlaylists({int? limit}) async {
+    try {
+      final favoriteVideos = await _service.favoriteRepository!.favoriteVideos;
+      final uniqueArtists = favoriteVideos
+          .map((v) => v.artist)
+          .whereType<String>()
+          .toSet()
+          .toList();
+
+      if (uniqueArtists.isEmpty) return [];
+
+      final favoritePlaylistIds =
+          _service.favoriteRepository!.playlistIds.toSet();
+      final playlists = await _service.youtubeExplodeRepository!
+          .getFeaturedPlaylists(uniqueArtists, favoritePlaylistIds);
+
+      final result = playlists.toList();
+      return AndroidAutoContentHelper.playlistTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getFeaturedPlaylists: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getRecentlyPlayed({int? limit}) async {
+    try {
+      final recentlyPlayed = await _service.favoriteRepository!.recentlyPlayed;
+      final result = recentlyPlayed.reversed.toList();
+      return AndroidAutoContentHelper.videoTilesToMediaItems(
+          limit != null ? result.take(limit).toList() : result);
+    } catch (e) {
+      dev.log('Errore in _getRecentlyPlayed: $e');
+      return [];
+    }
+  }
+
   Future<List<MediaItem>> _getChannelVideos(String channelId) async {
     if (_service.youtubeExplodeRepository == null) return [];
 
@@ -559,6 +712,41 @@ class AndroidAutoBrowsingService {
       return AndroidAutoContentHelper.videoTilesToMediaItems(videos.toList());
     } catch (e) {
       dev.log('Errore in _getPlaylistVideos: $e');
+      return [];
+    }
+  }
+
+  Future<List<MediaItem>> _getMyPlaylistVideos(String playlistId) async {
+    try {
+      final playlists = _service.customPlaylistRepository!.getPlaylists();
+      final playlist = playlists.firstWhere(
+        (p) => p.id == playlistId,
+        orElse: () => CustomPlaylist(
+          id: '',
+          title: '',
+          videoIds: [],
+          createdAt: DateTime.now(),
+        ),
+      );
+
+      if (playlist.videoIds.isEmpty) return [];
+
+      final videoTiles = await Future.wait(
+        playlist.videoIds.map((id) async {
+          try {
+            return await _service.youtubeExplodeRepository!
+                .getVideoMetadata(id);
+          } catch (e) {
+            dev.log('Errore caricamento video $id: $e');
+            return null;
+          }
+        }),
+      );
+
+      return AndroidAutoContentHelper.videoTilesToMediaItems(
+          videoTiles.whereType<VideoTile>().toList());
+    } catch (e) {
+      dev.log('Errore in _getMyPlaylistVideos: $e');
       return [];
     }
   }
@@ -608,5 +796,20 @@ class AndroidAutoBrowsingService {
       dev.log('Errore in _getSearchResults: $e');
       return [];
     }
+  }
+
+  List<MediaItem> _customPlaylistsToMediaItems(List<CustomPlaylist> playlists) {
+    return playlists
+        .map((playlist) => MediaItem(
+              id: '${AndroidAutoContentHelper.myPlaylistPrefix}${playlist.id}',
+              title: playlist.title,
+              playable: false,
+              extras: {
+                'browsable': true,
+                'videoCount': playlist.videoIds.length,
+                'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+              },
+            ))
+        .toList();
   }
 }
