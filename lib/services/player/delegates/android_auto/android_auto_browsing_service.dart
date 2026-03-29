@@ -617,9 +617,8 @@ class AndroidAutoBrowsingService {
   Future<List<MediaItem>> _getMyPlaylists({int? limit}) async {
     try {
       final playlists = _service.customPlaylistRepository!.getPlaylists();
-      final result = playlists.reversed.toList();
-      return _customPlaylistsToMediaItems(
-          limit != null ? result.take(limit).toList() : result);
+      final result = limit != null ? playlists.take(limit).toList() : playlists;
+      return _customPlaylistsToMediaItems(result);
     } catch (e) {
       dev.log('Errore in _getMyPlaylists: $e');
       return [];
