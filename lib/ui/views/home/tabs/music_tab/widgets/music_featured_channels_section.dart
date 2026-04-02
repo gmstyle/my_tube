@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/tiles.dart' as models;
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 
 /// Sliver with a horizontal row of circular channel avatars.
 class MusicFeaturedChannelsSection extends StatelessWidget {
@@ -22,10 +21,7 @@ class MusicFeaturedChannelsSection extends StatelessWidget {
           itemBuilder: (context, index) {
             final channel = channels[index];
             return GestureDetector(
-              onTap: () => context.pushNamed(
-                AppRoute.channel.name,
-                extra: {'channelId': channel.id},
-              ),
+              onTap: () => AppNavigator.pushChannel(context, channel.id),
               child: SizedBox(
                 width: 72,
                 child: Column(

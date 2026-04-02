@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/enums.dart';
@@ -168,7 +167,8 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
         title: const Text('View Channel'),
         subtitle: const Text('Open channel page'),
         onTap: () {
-          context.pushNamed(AppRoute.channel.name, extra: {'channelId': id});
+          Navigator.of(context).pop();
+          AppNavigator.pushChannel(context, id);
         },
       );
     } else {
@@ -180,7 +180,8 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
         title: const Text('View Playlist'),
         subtitle: const Text('Open playlist page'),
         onTap: () {
-          context.pushNamed(AppRoute.playlist.name, extra: {'playlistId': id});
+          Navigator.of(context).pop();
+          AppNavigator.pushPlaylist(context, id);
         },
       );
     }

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/custom_playlists/custom_playlists_cubit.dart';
 import 'package:my_tube/blocs/custom_playlists/custom_playlists_state.dart';
 import 'package:my_tube/models/custom_playlist.dart';
-import 'package:go_router/go_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 
 class CustomPlaylistList extends StatelessWidget {
   const CustomPlaylistList({super.key});
@@ -140,7 +140,7 @@ class _PlaylistListItem extends StatelessWidget {
         ],
       ),
       onTap: () {
-        context.push('/custom_playlist', extra: playlist);
+        AppNavigator.pushCustomPlaylist(context, playlist);
       },
     );
   }
@@ -176,8 +176,7 @@ class _PlaylistListItem extends StatelessWidget {
               },
               child: Text(
                 'Delete',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.error),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/tiles.dart' as models;
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/material_interactive_components.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
@@ -29,8 +28,7 @@ class ChannelTile extends StatelessWidget {
     Widget tileContent = MaterialHoverContainer(
       onTap: onTap ??
           () {
-            context.pushNamed(AppRoute.channel.name,
-                extra: {'channelId': channel.id});
+            AppNavigator.pushChannel(context, channel.id);
           },
       borderRadius: BorderRadius.circular(
           50), // Pill shape for channel list items looks modern
@@ -141,8 +139,7 @@ class ChannelTile extends StatelessWidget {
         label: 'View Channel',
         icon: Icons.account_box_outlined,
         onTap: () {
-          context.pushNamed(AppRoute.channel.name,
-              extra: {'channelId': channel.id});
+          AppNavigator.pushChannel(context, channel.id);
         },
       ),
       OverflowMenuAction(

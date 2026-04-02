@@ -1,12 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/search_bloc/search_bloc.dart';
 import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dart';
 import 'package:my_tube/models/tiles.dart' as models;
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
@@ -354,8 +352,7 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
       BuildContext context, models.ChannelTile channel, bool isTablet) {
     void handleTap() {
       close(context, null);
-      context
-          .pushNamed(AppRoute.channel.name, extra: {'channelId': channel.id});
+      AppNavigator.pushChannel(context, channel.id);
     }
 
     return ChannelPlaylistMenuDialog(
@@ -377,8 +374,7 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
       BuildContext context, models.PlaylistTile playlist, bool isTablet) {
     void handleTap() {
       close(context, null);
-      context.pushNamed(AppRoute.playlist.name,
-          extra: {'playlistId': playlist.id});
+      AppNavigator.pushPlaylist(context, playlist.id);
     }
 
     return ChannelPlaylistMenuDialog(

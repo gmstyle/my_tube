@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:my_tube/models/tiles.dart';
+import 'package:my_tube/utils/constants.dart';
 
 /// Helper class per Android Auto content browsing.
 /// Gestisce la conversione dei tiles in MediaItem e definisce la struttura di navigazione.
@@ -9,6 +10,9 @@ class AndroidAutoContentHelper {
 
   // Musica
   static const String musicId = 'music';
+  static const String musicRecentlyPlayedId = 'music_recently_played';
+  static const String musicFeaturedChannelsId = 'music_featured_channels';
+  static const String musicFeaturedPlaylistsId = 'music_featured_playlists';
   static const String musicNewReleasesId = 'music_new_releases';
   static const String musicDiscoverId = 'music_discover';
   static const String musicTrendingId = 'music_trending';
@@ -18,6 +22,7 @@ class AndroidAutoContentHelper {
   static const String favoritesVideosId = 'favorites_videos';
   static const String favoritesChannelsId = 'favorites_channels';
   static const String favoritesPlaylistsId = 'favorites_playlists';
+  static const String favoritesMyPlaylistsId = 'favorites_my_playlists';
 
   // Ricerca
   static const String searchId = 'search';
@@ -25,6 +30,7 @@ class AndroidAutoContentHelper {
   // Prefissi per navigazione dinamica
   static const String channelPrefix = 'channel_';
   static const String playlistPrefix = 'playlist_';
+  static const String myPlaylistPrefix = 'my_playlist_';
   static const String searchResultsPrefix = 'search_results_';
   static const String addAllToQueuePrefix = 'add_all_';
   static const String playAllPrefix = 'play_all_';
@@ -62,8 +68,8 @@ class AndroidAutoContentHelper {
   static List<MediaItem> getMusicCategories() {
     return [
       const MediaItem(
-        id: musicNewReleasesId,
-        title: 'New Releases',
+        id: musicFeaturedChannelsId,
+        title: musicSectionFeaturedChannels,
         playable: false,
         extras: {
           'browsable': true,
@@ -72,8 +78,28 @@ class AndroidAutoContentHelper {
         },
       ),
       const MediaItem(
-        id: musicDiscoverId,
-        title: 'Discover',
+        id: musicFeaturedPlaylistsId,
+        title: musicSectionFeaturedPlaylists,
+        playable: false,
+        extras: {
+          'browsable': true,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+        },
+      ),
+      const MediaItem(
+        id: musicRecentlyPlayedId,
+        title: musicSectionContinueListening,
+        playable: false,
+        extras: {
+          'browsable': true,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+        },
+      ),
+      const MediaItem(
+        id: musicNewReleasesId,
+        title: musicSectionNewReleases,
         playable: false,
         extras: {
           'browsable': true,
@@ -83,7 +109,7 @@ class AndroidAutoContentHelper {
       ),
       const MediaItem(
         id: musicTrendingId,
-        title: 'Trending',
+        title: musicSectionTrendingMusic,
         playable: false,
         extras: {
           'browsable': true,
@@ -120,6 +146,16 @@ class AndroidAutoContentHelper {
       const MediaItem(
         id: favoritesPlaylistsId,
         title: 'Playlists',
+        playable: false,
+        extras: {
+          'browsable': true,
+          'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT': 1,
+          'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT': 1,
+        },
+      ),
+      const MediaItem(
+        id: favoritesMyPlaylistsId,
+        title: 'My Playlists',
         playable: false,
         extras: {
           'browsable': true,
@@ -279,6 +315,16 @@ class AndroidAutoContentHelper {
   /// Verifica se l'ID è di una playlist
   static bool isPlaylistId(String parentId) {
     return parentId.startsWith(playlistPrefix);
+  }
+
+  /// Verifica se l'ID è di una playlist personalizzata
+  static bool isMyPlaylistId(String parentId) {
+    return parentId.startsWith(myPlaylistPrefix);
+  }
+
+  /// Estrae l'ID reale della playlist personalizzata dal parentId
+  static String extractMyPlaylistId(String parentId) {
+    return parentId.substring(myPlaylistPrefix.length);
   }
 
   /// Verifica se l'ID è di risultati ricerca

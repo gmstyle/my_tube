@@ -13,20 +13,41 @@ class QueueManager {
 
   bool get hasNextVideo => currentIndex < playlist.length - 1;
 
+  // Token per proteggere dalla race condition: se l'utente tappa più video
+  // rapidamente, solo l'ultimo fetch "vince". Ogni chiamata a startPlaying()
+  // invalida quella precedente prima di attendere la rete.
+  Object? _currentPlayToken;
+
   // ============ Start Playing ============
 
   // Inizializza il player per la riproduzione singola
   Future<void> startPlaying(String id) async {
-    // ⚠️ FERMARE il video corrente PRIMA di fare il fetch dello stream URL
-    // Questo previene che il video vecchio continui a suonare durante il caricamento
-    dev.log('Stopping current playback before fetching new video...');
-    await _service.stop();
-    await _service.seek(Duration.zero);
+    // Crea un token unico per questa invocazione
+    final token = Object();
+    _currentPlayToken = token;
 
-    // Ora posso fare il fetch senza che il vecchio video suoni
-    dev.log('Fetching new video metadata...');
+    // Fetch PRIMA di fermare: il video corrente continua a suonare durante
+    // il fetch (cache hit ~50-200ms, miss ~500-1500ms), eliminando lo schermo
+    // nero. Con la cache attiva l'overlap è impercettibile.
+    dev.log('Fetching new video metadata (overlap mode)...');
     final item =
         await _service._engine.createMediaItem(id, loadStreamUrl: true);
+
+    // Se nel frattempo l'utente ha tappato un altro video, abbandona
+    if (_currentPlayToken != token) {
+      dev.log('startPlaying: token invalidato, skip per id=$id');
+      return;
+    }
+
+    // Ora ferma il vecchio video e sostituisci immediatamente
+    dev.log('Stopping previous playback...');
+    await _service.stop();
+
+    // Secondo controllo: stop() è async, potrebbe arrivare un'altra richiesta
+    if (_currentPlayToken != token) {
+      dev.log('startPlaying: token invalidato dopo stop, skip per id=$id');
+      return;
+    }
 
     // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
@@ -39,7 +60,6 @@ class QueueManager {
     // ignore: unawaited_futures
     _service.favoriteRepository?.addRecentlyPlayed(id);
 
-    // Ora avvio il nuovo video (non c'è più audio in sovrapposizione)
     await _service._engine.playCurrentTrack();
   }
 
@@ -144,6 +164,26 @@ class QueueManager {
       playlist.add(item);
       _service.queue.add(playlist);
 
+      // Pre-fetch dello stream URL in background: quando toccherà a questo
+      // video nella coda, l'URL sarà già pronto e la transizione sarà istantanea
+      if (currentIndex != -1) {
+        final itemIndex = playlist.length - 1;
+        unawaited(_service._engine.getStreamUrl(id).then((url) {
+          if (itemIndex < playlist.length && playlist[itemIndex].id == id) {
+            playlist[itemIndex] = playlist[itemIndex].copyWith(
+              extras: {
+                ...playlist[itemIndex].extras ?? {},
+                'streamUrl': url,
+              },
+            );
+            _service.queue.add(playlist);
+            dev.log('Pre-fetched stream URL for queued track: $id');
+          }
+        }).catchError((e) {
+          dev.log('Errore pre-fetching queued track $id: $e');
+        }));
+      }
+
       // se non è stato ancora inizializzato il player, inizializzalo e riproduci il brano
       if (currentIndex == -1) {
         currentIndex = playlist.length - 1;
@@ -164,20 +204,31 @@ class QueueManager {
 
     // Limita il numero di video da aggiungere allo spazio rimanente
     final idsToAdd = ids.take(remainingSpace).toList();
+    const batchSize = 8;
 
     int? firstAddedIndex;
+    int loaded = 0;
 
-    for (int i = 0; i < idsToAdd.length; i++) {
-      final item =
-          await _service._engine.createMediaItem(ids[i], loadStreamUrl: false);
+    // Caricamento in batch paralleli per ridurre la latenza totale
+    for (int batchStart = 0;
+        batchStart < idsToAdd.length;
+        batchStart += batchSize) {
+      final batchEnd = min(batchStart + batchSize, idsToAdd.length);
+      final batch = idsToAdd.sublist(batchStart, batchEnd);
 
-      if (!playlist.contains(item)) {
-        playlist.add(item);
-        firstAddedIndex ??= playlist.length - 1;
+      final items = await Future.wait(
+        batch.map((id) =>
+            _service._engine.createMediaItem(id, loadStreamUrl: false)),
+      );
+
+      for (final item in items) {
+        if (!playlist.contains(item)) {
+          playlist.add(item);
+          firstAddedIndex ??= playlist.length - 1;
+        }
+        loaded++;
+        onProgress?.call(loaded, idsToAdd.length);
       }
-
-      // Notifica il progresso
-      onProgress?.call(i + 1, idsToAdd.length);
     }
 
     _service.queue.add(playlist);

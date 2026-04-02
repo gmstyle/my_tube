@@ -1,12 +1,10 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
@@ -16,7 +14,6 @@ import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
-import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/utils.dart';
 
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -45,12 +42,6 @@ class _ChannelViewState extends State<ChannelView>
   @override
   void initState() {
     super.initState();
-    // Imposta hasNavBar in base al parametro hideNavBar
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _uiCubit?.setHasNavBar(false);
-      }
-    });
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -87,8 +78,6 @@ class _ChannelViewState extends State<ChannelView>
     _tabController
       ..removeListener(_onTabChanged)
       ..dispose();
-    // Ripristina hasNavBar a true quando si esce dalla view
-    _uiCubit?.setHasNavBar(true);
     super.dispose();
   }
 
@@ -540,7 +529,7 @@ class _ChannelViewState extends State<ChannelView>
                 ),
               ),
               const SliverToBoxAdapter(
-                  child: SizedBox(height: miniPlayerHeight)),
+                  child: SizedBox(height: 16)),
             ],
           ),
         ),
@@ -626,7 +615,7 @@ class _ChannelViewState extends State<ChannelView>
                   ),
                 ),
               const SliverToBoxAdapter(
-                  child: SizedBox(height: miniPlayerHeight)),
+                  child: SizedBox(height: 16)),
             ],
           ),
         ),
@@ -691,9 +680,9 @@ class _ChannelViewState extends State<ChannelView>
                       final playlist = playlists[index];
                       return PlaylistGridItem(
                         playlist: playlist,
-                        onTap: () => context.pushNamed(
-                          AppRoute.playlist.name,
-                          extra: {'playlistId': playlist.id},
+                        onTap: () => AppNavigator.pushPlaylist(
+                          context,
+                          playlist.id,
                         ),
                       );
                     },

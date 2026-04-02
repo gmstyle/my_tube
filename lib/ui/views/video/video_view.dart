@@ -61,14 +61,21 @@ class _VideoViewState extends State<VideoView> {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     // Allow screen to sleep again
     WakelockPlus.toggle(enable: false);
-    // Show mini player when video view is closed
+    // Show mini player when video view is closed (fallback for non-pop dismissals)
     persistentUiCubit.setPlayerVisibility(true);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return PopScope(
+      canPop: true,
+      // Restore mini player visibility BEFORE the pop transition starts so the
+      // Hero controller can find the destination Hero widget in GlobalMiniPlayer.
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) persistentUiCubit.setPlayerVisibility(true);
+      },
+      child: StreamBuilder(
         stream: mtPlayerService.mediaItem,
         builder: (context, snapshot) {
           final mediaItem = snapshot.data;
@@ -107,6 +114,7 @@ class _VideoViewState extends State<VideoView> {
               );
             }),
           );
-        });
+        }),
+    );
   }
 }

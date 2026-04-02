@@ -15,6 +15,38 @@ import 'package:my_tube/router/pages/custom_playlist_page.dart';
 import 'package:my_tube/ui/views/common/global_mini_player.dart';
 
 class AppRouter {
+  /// Shared secondary routes injected into every tab branch.
+  /// Using relative paths (no leading `/`) so they resolve correctly under any branch.
+  static List<RouteBase> _buildSharedSubRoutes() => [
+        GoRoute(
+          path: 'channel',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final channelId = extra['channelId'] as String;
+            return ChannelPage(channelId: channelId);
+          },
+        ),
+        GoRoute(
+          path: 'playlist',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final playlistId = extra['playlistId'] as String;
+            return PlaylistPage(playlistId: playlistId);
+          },
+        ),
+        GoRoute(
+          path: 'custom-playlist',
+          pageBuilder: (context, state) {
+            final playlist = state.extra as CustomPlaylist;
+            return CustomPlaylistPage(playlist: playlist);
+          },
+        ),
+        GoRoute(
+          path: 'queue',
+          pageBuilder: (context, state) => const QueuePage(),
+        ),
+      ];
+
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
   static final exploreKey = GlobalKey<NavigatorState>();
@@ -24,6 +56,22 @@ class AppRouter {
   static final settingsKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
+    // ── Video player (full-screen, root navigator) ─────────────────────────
+    // Declared at the root level (outside ShellRoute) so it is pushed on
+    // rootNavigatorKey.
+    GoRoute(
+      name: AppRoute.video.name,
+      path: AppRoute.video.path,
+      pageBuilder: (context, state) => const VideoPage(),
+      routes: [
+        GoRoute(
+          name: AppRoute.queue.name,
+          path: AppRoute.queue.path,
+          pageBuilder: (context, state) => const QueuePage(),
+        ),
+      ],
+    ),
+
     ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (context, state, child) {
@@ -35,61 +83,7 @@ class AppRouter {
           );
         },
         routes: [
-          // Root
-          GoRoute(
-            parentNavigatorKey: shellNavigatorKey,
-            name: AppRoute.video.name,
-            path: AppRoute.video.path,
-            pageBuilder: (context, state) => const VideoPage(),
-            routes: [
-              GoRoute(
-                parentNavigatorKey: shellNavigatorKey,
-                name: AppRoute.queue.name,
-                path: AppRoute.queue.path,
-                pageBuilder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>?;
-                  final showMiniPlayer =
-                      extra?['showMiniPlayer'] as bool? ?? true;
-                  final hideMiniPlayerOnDispose =
-                      extra?['hideMiniPlayerOnDispose'] as bool? ?? false;
-                  return QueuePage(
-                      showMiniPlayer: showMiniPlayer,
-                      hideMiniPlayerOnDispose: hideMiniPlayerOnDispose);
-                },
-              ),
-            ],
-          ),
-          GoRoute(
-            parentNavigatorKey: shellNavigatorKey,
-            name: AppRoute.channel.name,
-            path: AppRoute.channel.path,
-            pageBuilder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>;
-              final channelId = extra['channelId'] as String;
-              return ChannelPage(channelId: channelId);
-            },
-          ),
-          GoRoute(
-            parentNavigatorKey: shellNavigatorKey,
-            name: AppRoute.playlist.name,
-            path: AppRoute.playlist.path,
-            pageBuilder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>;
-              final playlistId = extra['playlistId'] as String;
-              return PlaylistPage(playlistId: playlistId);
-            },
-          ),
-          GoRoute(
-            parentNavigatorKey: shellNavigatorKey,
-            name: AppRoute.customPlaylist.name,
-            path: AppRoute.customPlaylist.path,
-            pageBuilder: (context, state) {
-              final playlist = state.extra as CustomPlaylist;
-              return CustomPlaylistPage(playlist: playlist);
-            },
-          ),
-
-          // Shell
+          // ── Tab shell (Navbar always visible) ─────────────────────────
           StatefulShellRoute.indexedStack(
               builder: (context, state, navigationShell) =>
                   AppShellPage(navigationShell: navigationShell),
@@ -99,7 +93,8 @@ class AppRouter {
                   GoRoute(
                       name: AppRoute.explore.name,
                       path: AppRoute.explore.path,
-                      pageBuilder: (context, state) => const ExploreTabPage()),
+                      pageBuilder: (context, state) => const ExploreTabPage(),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Music
@@ -107,7 +102,8 @@ class AppRouter {
                   GoRoute(
                       name: AppRoute.music.name,
                       path: AppRoute.music.path,
-                      pageBuilder: (context, state) => const MusicTabPage())
+                      pageBuilder: (context, state) => const MusicTabPage(),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Favorites
@@ -116,24 +112,7 @@ class AppRouter {
                       name: AppRoute.favorites.name,
                       path: AppRoute.favorites.path,
                       pageBuilder: (context, state) => const FavoritesTabPage(),
-                      routes: [
-                        GoRoute(
-                            name: AppRoute.channelFavorites.name,
-                            path: AppRoute.channelFavorites.path,
-                            pageBuilder: (context, state) {
-                              final extra = state.extra as Map<String, dynamic>;
-                              final channelId = extra['channelId'] as String;
-                              return ChannelPage(channelId: channelId);
-                            }),
-                        GoRoute(
-                            name: AppRoute.playlistFavorites.name,
-                            path: AppRoute.playlistFavorites.path,
-                            pageBuilder: (context, state) {
-                              final extra = state.extra as Map<String, dynamic>;
-                              final playlistId = extra['playlistId'] as String;
-                              return PlaylistPage(playlistId: playlistId);
-                            }),
-                      ]),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Search
@@ -141,7 +120,8 @@ class AppRouter {
                   GoRoute(
                       name: AppRoute.search.name,
                       path: AppRoute.search.path,
-                      pageBuilder: (context, state) => const SearchTabPage()),
+                      pageBuilder: (context, state) => const SearchTabPage(),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Settings
@@ -149,7 +129,8 @@ class AppRouter {
                   GoRoute(
                       name: AppRoute.settings.name,
                       path: AppRoute.settings.path,
-                      pageBuilder: (context, state) => const SettingsPage()),
+                      pageBuilder: (context, state) => const SettingsPage(),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ])
               ]),
         ]),
@@ -160,17 +141,13 @@ enum AppRoute {
   explore('/'),
   music('/music'),
   account('/account'),
-  channel('/channel'),
-  channelFavorites('channelFavorite'),
-  playlist('/playlist'),
-  playlistFavorites('playlistFavorite'),
   favorites('/favorites'),
   settings('/settings'),
   search('/search'),
+  // Video player (full-screen, root navigator level)
   video('/video'),
-  queue('queue'),
-  customPlaylist('/custom_playlist'),
-  testYoutubeExplode('/test-youtube-explode');
+  // Queue as sub-route of video (root navigator level)
+  queue('queue');
 
   final String path;
 

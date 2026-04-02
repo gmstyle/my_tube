@@ -17,8 +17,13 @@ class YoutubeExplodeRepository {
   // Cache per i trending con TTL di 30 minuti
   final _trendingCache = AppCache<List<VideoTile>>(ttl: Duration(minutes: 30));
 
-  /// Recupera un video dalla cache o dalla rete
-  Future<Video> _getCachedVideo(String id) async {
+  // Cache per gli stream URL con TTL di 15 minuti.
+  // Gli URL CDN di YouTube sono validi ~6 ore; 15 min è un buon compromesso
+  // tra freschezza e riduzione delle chiamate di rete.
+  final _streamUrlCache = AppCache<String>(ttl: Duration(minutes: 15));
+
+  /// Recupera un oggetto [Video] raw dalla cache o dalla rete.
+  Future<Video> getCachedVideo(String id) async {
     final cached = _videoCache.get(id);
     if (cached != null) {
       log('Video $id recuperato dalla cache');
@@ -30,13 +35,29 @@ class YoutubeExplodeRepository {
     return video;
   }
 
+  /// Recupera lo stream URL dalla cache o dalla rete.
+  Future<String> getCachedStreamUrl(String id) async {
+    final cached = _streamUrlCache.get(id);
+    if (cached != null) {
+      log('Stream URL $id recuperato dalla cache');
+      return cached;
+    }
+
+    final manifest = await youtubeExplodeProvider.getVideoStreamManifest(id);
+    final url = manifest.muxed.isNotEmpty
+        ? manifest.muxed.withHighestBitrate().url.toString()
+        : manifest.audioOnly.withHighestBitrate().url.toString();
+    _streamUrlCache.set(id, url);
+    return url;
+  }
+
   Future<VideoTile> getVideoMetadata(String id) async {
-    final video = await _getCachedVideo(id);
+    final video = await getCachedVideo(id);
     return VideoTile.fromVideo(video);
   }
 
   Future<List<VideoTile>> getRelatedVideos(String id) async {
-    final video = await _getCachedVideo(id);
+    final video = await getCachedVideo(id);
     final relatedVideos = await youtubeExplodeProvider.getRelatedVideos(video);
     return relatedVideos.map((v) => VideoTile.fromVideo(v)).toList();
   }
@@ -244,24 +265,33 @@ class YoutubeExplodeRepository {
       List<String> artistNames, Set<String> excludeIds) async {
     if (artistNames.isEmpty) return [];
     final seenIds = <String>{...excludeIds};
-    final results = <ChannelTile>[];
-    for (final artist in artistNames.take(featuredChannelsMaxTotal)) {
-      if (results.length >= featuredChannelsMaxTotal) break;
-      try {
-        // Aggiunge "music" alla query per favorire canali ufficiali
-        final channels =
-            await youtubeExplodeProvider.searchChannels('$artist music');
-        // Prende solo il primo risultato (top = più rilevante/ufficiale)
-        // che non sia già nei preferiti né già selezionato
-        final candidates =
-            channels.where((ch) => !seenIds.contains(ch.id.value));
-        if (candidates.isNotEmpty) {
-          final top = candidates.first;
-          seenIds.add(top.id.value);
-          results.add(ChannelTile.fromSearchChannel(top));
+    final artistsToSearch =
+        artistNames.take(featuredChannelsMaxTotal).toList();
+
+    // Ricerca in parallelo per tutti gli artisti
+    final searchResults = await Future.wait(
+      artistsToSearch.map((artist) async {
+        try {
+          return await youtubeExplodeProvider.searchChannels('$artist music');
+        } catch (e) {
+          log('Errore ricerca canali per artista "$artist": $e');
+          return <SearchChannel>[];
         }
-      } catch (e) {
-        log('Errore ricerca canali per artista "$artist": $e');
+      }),
+    );
+
+    final results = <ChannelTile>[];
+    for (int i = 0; i < artistsToSearch.length; i++) {
+      if (results.length >= featuredChannelsMaxTotal) break;
+      final channels = searchResults[i];
+      // Prende solo il primo risultato (top = più rilevante/ufficiale)
+      // che non sia già nei preferiti né già selezionato
+      final candidates =
+          channels.where((ch) => !seenIds.contains(ch.id.value));
+      if (candidates.isNotEmpty) {
+        final top = candidates.first;
+        seenIds.add(top.id.value);
+        results.add(ChannelTile.fromSearchChannel(top));
       }
     }
     return results;
@@ -275,24 +305,34 @@ class YoutubeExplodeRepository {
       List<String> artistNames, Set<String> excludeIds) async {
     if (artistNames.isEmpty) return [];
     final seenIds = <String>{...excludeIds};
-    final results = <PlaylistTile>[];
-    for (final artist in artistNames.take(featuredPlaylistsMaxTotal)) {
-      if (results.length >= featuredPlaylistsMaxTotal) break;
-      try {
-        // Cerca playlist con "$artist playlist" per trovare raccolte musicali
-        final searchResults =
-            await youtubeExplodeProvider.searchContent('$artist playlist');
-        final playlists = searchResults.whereType<SearchPlaylist>();
-        // Filtra: esclude playlist già nei preferiti e quelle senza video
-        final candidates = playlists
-            .where((p) => !seenIds.contains(p.id.value) && p.videoCount > 0);
-        if (candidates.isNotEmpty) {
-          final top = candidates.first;
-          seenIds.add(top.id.value);
-          results.add(PlaylistTile.fromSearchPlaylist(top));
+    final artistsToSearch =
+        artistNames.take(featuredPlaylistsMaxTotal).toList();
+
+    // Ricerca in parallelo per tutti gli artisti
+    final searchResults = await Future.wait(
+      artistsToSearch.map((artist) async {
+        try {
+          return await youtubeExplodeProvider
+              .searchContent('$artist playlist');
+        } catch (e) {
+          log('Errore ricerca playlist per artista "$artist": $e');
+          return <dynamic>[];
         }
-      } catch (e) {
-        log('Errore ricerca playlist per artista "$artist": $e');
+      }),
+    );
+
+    final results = <PlaylistTile>[];
+    for (int i = 0; i < artistsToSearch.length; i++) {
+      if (results.length >= featuredPlaylistsMaxTotal) break;
+      final searchItems = searchResults[i];
+      // Filtra: esclude playlist già nei preferiti e quelle senza video
+      final playlists = searchItems.whereType<SearchPlaylist>();
+      final candidates =
+          playlists.where((p) => !seenIds.contains(p.id.value) && p.videoCount > 0);
+      if (candidates.isNotEmpty) {
+        final top = candidates.first;
+        seenIds.add(top.id.value);
+        results.add(PlaylistTile.fromSearchPlaylist(top));
       }
     }
     return results;

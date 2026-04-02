@@ -79,6 +79,7 @@ void main() async {
         builder: () => MtPlayerService(
               youtubeExplodeProvider: youtubeExplodeProvider,
               favoriteRepository: favoriteRepository,
+              customPlaylistRepository: customPlaylistRepository,
               youtubeExplodeRepository: youtubeExplodeRepository,
             ),
         config: const AudioServiceConfig(
