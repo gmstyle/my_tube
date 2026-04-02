@@ -288,15 +288,24 @@ class PlaybackEngine {
 
   Future<MediaItem> createMediaItem(String id,
       {bool loadStreamUrl = false}) async {
-    final video = await _service.youtubeExplodeProvider.getVideo(id);
+    final repo = _service.youtubeExplodeRepository;
 
-    String? muxedStream;
+    final Video video;
+    final String? muxedStream;
+
     if (loadStreamUrl) {
-      final manifest =
-          await _service.youtubeExplodeProvider.getVideoStreamManifest(id);
-      muxedStream = manifest.muxed.isNotEmpty
-          ? manifest.muxed.withHighestBitrate().url.toString()
-          : manifest.audioOnly.withHighestBitrate().url.toString();
+      // Parallelizza il fetch dei metadata e dello stream URL: sono indipendenti
+      final videoFuture = repo != null
+          ? repo.getCachedVideo(id)
+          : _service.youtubeExplodeProvider.getVideo(id);
+      final results = await Future.wait([videoFuture, getStreamUrl(id)]);
+      video = results[0] as Video;
+      muxedStream = results[1] as String;
+    } else {
+      video = repo != null
+          ? await repo.getCachedVideo(id)
+          : await _service.youtubeExplodeProvider.getVideo(id);
+      muxedStream = null;
     }
 
     return MediaItem(
@@ -314,6 +323,11 @@ class PlaybackEngine {
   }
 
   Future<String> getStreamUrl(String id) async {
+    // Usa la cache del repository se disponibile per evitare chiamate di rete ripetute
+    final repo = _service.youtubeExplodeRepository;
+    if (repo != null) {
+      return repo.getCachedStreamUrl(id);
+    }
     final manifest =
         await _service.youtubeExplodeProvider.getVideoStreamManifest(id);
     return manifest.muxed.isNotEmpty
