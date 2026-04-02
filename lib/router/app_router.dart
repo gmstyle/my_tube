@@ -56,6 +56,22 @@ class AppRouter {
   static final settingsKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(navigatorKey: rootNavigatorKey, routes: [
+    // ── Video player (full-screen, root navigator) ─────────────────────────
+    // Declared at the root level (outside ShellRoute) so it is pushed on
+    // rootNavigatorKey.
+    GoRoute(
+      name: AppRoute.video.name,
+      path: AppRoute.video.path,
+      pageBuilder: (context, state) => const VideoPage(),
+      routes: [
+        GoRoute(
+          name: AppRoute.queue.name,
+          path: AppRoute.queue.path,
+          pageBuilder: (context, state) => const QueuePage(),
+        ),
+      ],
+    ),
+
     ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (context, state, child) {
@@ -67,23 +83,6 @@ class AppRouter {
           );
         },
         routes: [
-          // ── Video player (full-screen, no navbar) ──────────────────────
-          GoRoute(
-            parentNavigatorKey: shellNavigatorKey,
-            name: AppRoute.video.name,
-            path: AppRoute.video.path,
-            pageBuilder: (context, state) => const VideoPage(),
-            routes: [
-              // Queue accessible from the full-screen player
-              GoRoute(
-                parentNavigatorKey: shellNavigatorKey,
-                name: AppRoute.queue.name,
-                path: AppRoute.queue.path,
-                pageBuilder: (context, state) => const QueuePage(),
-              ),
-            ],
-          ),
-
           // ── Tab shell (Navbar always visible) ─────────────────────────
           StatefulShellRoute.indexedStack(
               builder: (context, state, navigationShell) =>
@@ -145,11 +144,10 @@ enum AppRoute {
   favorites('/favorites'),
   settings('/settings'),
   search('/search'),
-  // Video player (full-screen, shell level)
+  // Video player (full-screen, root navigator level)
   video('/video'),
-  // Queue as sub-route of video (shell level, from full-screen player)
-  queue('queue'),
-  testYoutubeExplode('/test-youtube-explode');
+  // Queue as sub-route of video (root navigator level)
+  queue('queue');
 
   final String path;
 
