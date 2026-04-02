@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/models/tiles.dart' as models;
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
 
@@ -27,10 +26,7 @@ class MusicFeaturedPlaylistsSection extends StatelessWidget {
             final playlist = playlists[index];
             return PlaylistGridItem(
               playlist: playlist,
-              onTap: () => context.pushNamed(
-                AppRoute.playlist.name,
-                extra: {'playlistId': playlist.id},
-              ),
+              onTap: () => AppNavigator.pushPlaylist(context, playlist.id),
             );
           },
         ),

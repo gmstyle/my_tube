@@ -12,7 +12,6 @@ import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
-import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -40,12 +39,6 @@ class _PlaylistViewState extends State<PlaylistView>
   @override
   void initState() {
     super.initState();
-    // Imposta hasNavBar in base al parametro hideNavBar
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _uiCubit?.setHasNavBar(false);
-      }
-    });
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -55,8 +48,6 @@ class _PlaylistViewState extends State<PlaylistView>
   @override
   void dispose() {
     _staggerController.dispose();
-    // Ripristina hasNavBar a true quando si esce dalla view
-    _uiCubit?.setHasNavBar(true);
     super.dispose();
   }
 
@@ -181,7 +172,7 @@ class _PlaylistViewState extends State<PlaylistView>
                 ),
               ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: miniPlayerHeight)),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
       ],
     );
   }

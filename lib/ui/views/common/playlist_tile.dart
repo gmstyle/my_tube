@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/models/tiles.dart' as models;
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/material_interactive_components.dart';
 import 'package:my_tube/utils/app_breakpoints.dart';
@@ -31,8 +30,7 @@ class PlaylistTile extends StatelessWidget {
     Widget tileContent = MaterialHoverContainer(
       onTap: onTap ??
           () {
-            context.pushNamed(AppRoute.playlist.name,
-                extra: {'playlistId': playlist.id});
+            AppNavigator.pushPlaylist(context, playlist.id);
           },
       borderRadius: BorderRadius.circular(12),
       fillColor: Colors.transparent,
@@ -210,8 +208,7 @@ class PlaylistTile extends StatelessWidget {
         label: 'View Playlist',
         icon: Icons.playlist_play,
         onTap: () {
-          context.pushNamed(AppRoute.playlist.name,
-              extra: {'playlistId': playlist.id});
+          AppNavigator.pushPlaylist(context, playlist.id);
         },
       ),
       OverflowMenuAction(

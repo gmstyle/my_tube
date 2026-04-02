@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
-import 'package:my_tube/router/app_router.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
-
 import 'package:my_tube/utils/enums.dart';
 
 class PlaylistFavorites extends StatelessWidget {
@@ -43,8 +41,7 @@ class PlaylistFavorites extends StatelessWidget {
                       final playlist = favorites[index];
                       return GestureDetector(
                         onTap: () {
-                          context.goNamed(AppRoute.playlistFavorites.name,
-                              extra: {'playlistId': playlist.id});
+                          AppNavigator.pushPlaylist(context, playlist.id);
                         },
                         child: ChannelPlaylistMenuDialog(
                             id: playlist.id,

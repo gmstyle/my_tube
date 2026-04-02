@@ -1,8 +1,8 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
@@ -255,12 +255,8 @@ class MiniPlayer extends StatelessWidget {
                               IconButton(
                                 visualDensity: VisualDensity.compact,
                                 tooltip: 'Queue',
-                                onPressed: () {
-                                  context.pushNamed(
-                                    AppRoute.queue.name,
-                                    extra: {'showMiniPlayer': true},
-                                  );
-                                },
+                                onPressed: () =>
+                                    AppNavigator.pushQueue(context),
                                 icon: const Icon(
                                   Icons.queue_music,
                                   size: 22,

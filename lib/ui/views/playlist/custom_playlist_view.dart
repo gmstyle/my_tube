@@ -10,7 +10,6 @@ import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/utils/app_animations.dart';
-import 'package:my_tube/utils/constants.dart';
 
 class CustomPlaylistView extends StatefulWidget {
   final CustomPlaylist initialPlaylist;
@@ -39,12 +38,6 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView>
   @override
   void initState() {
     super.initState();
-    // Questa view non ha la navbar
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _uiCubit?.setHasNavBar(false);
-      }
-    });
     _staggerController = AnimationController(
       duration: AppAnimations.slow,
       vsync: this,
@@ -55,8 +48,6 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView>
   @override
   void dispose() {
     _staggerController.dispose();
-    // Ripristina hasNavBar a true quando si esce dalla view
-    _uiCubit?.setHasNavBar(true);
     super.dispose();
   }
 
@@ -212,7 +203,7 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView>
                 ),
 
               const SliverToBoxAdapter(
-                  child: SizedBox(height: miniPlayerHeight)),
+                  child: SizedBox(height: 16)),
             ],
           ),
         );
