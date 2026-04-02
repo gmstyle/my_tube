@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +16,7 @@ class QueueView extends StatefulWidget {
 
 class _QueueViewState extends State<QueueView> {
   late final PlayerCubit playerCubit;
+  StreamSubscription<List<MediaItem>>? _queueSubscription;
 
   @override
   void initState() {
@@ -21,7 +24,7 @@ class _QueueViewState extends State<QueueView> {
     playerCubit = context.read<PlayerCubit>();
 
     // Ascolta quando la queue diventa vuota
-    playerCubit.mtPlayerService.queue.listen((queue) {
+    _queueSubscription = playerCubit.mtPlayerService.queue.listen((queue) {
       if (queue.isEmpty && mounted) {
         context.pop();
       }
@@ -30,6 +33,7 @@ class _QueueViewState extends State<QueueView> {
 
   @override
   void dispose() {
+    _queueSubscription?.cancel();
     super.dispose();
   }
 

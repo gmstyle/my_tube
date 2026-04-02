@@ -20,11 +20,21 @@ class AppNavigator {
   /// including the GlobalMiniPlayer overlay which lives at the ShellRoute level.
   static String _currentBranchPrefix() {
     final path = AppRouter.router.routerDelegate.currentConfiguration.uri.path;
-    if (path.startsWith('/music')) return '/music';
-    if (path.startsWith('/favorites')) return '/favorites';
-    if (path.startsWith('/search')) return '/search';
-    if (path.startsWith('/settings')) return '/settings';
-    // Root explore branch (path starts with '/')
+    final segments = path.split('/');
+    if (segments.length > 1) {
+      final firstSegment = '/${segments[1]}';
+      final validPrefixes = [
+        '/music',
+        '/favorites',
+        '/search',
+        '/settings',
+        '/account'
+      ];
+      if (validPrefixes.contains(firstSegment)) {
+        return firstSegment;
+      }
+    }
+    // Default to root (explore) branch
     return '';
   }
 

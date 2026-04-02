@@ -59,8 +59,6 @@ class PersistentUiCubit extends Cubit<PersistentUiState> {
     emit(state.copyWith(isPlayerVisible: visible));
   }
 
-
-
   void setSearchOpen(bool isOpen) {
     if (state.isSearchOpen == isOpen) return;
     emit(state.copyWith(isSearchOpen: isOpen));

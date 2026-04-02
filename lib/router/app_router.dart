@@ -14,39 +14,39 @@ import 'package:my_tube/models/custom_playlist.dart';
 import 'package:my_tube/router/pages/custom_playlist_page.dart';
 import 'package:my_tube/ui/views/common/global_mini_player.dart';
 
-/// Shared secondary routes injected into every tab branch.
-/// Using relative paths (no leading `/`) so they resolve correctly under any branch.
-List<RouteBase> _buildSharedSubRoutes() => [
-  GoRoute(
-    path: 'channel',
-    pageBuilder: (context, state) {
-      final extra = state.extra as Map<String, dynamic>;
-      final channelId = extra['channelId'] as String;
-      return ChannelPage(channelId: channelId);
-    },
-  ),
-  GoRoute(
-    path: 'playlist',
-    pageBuilder: (context, state) {
-      final extra = state.extra as Map<String, dynamic>;
-      final playlistId = extra['playlistId'] as String;
-      return PlaylistPage(playlistId: playlistId);
-    },
-  ),
-  GoRoute(
-    path: 'custom-playlist',
-    pageBuilder: (context, state) {
-      final playlist = state.extra as CustomPlaylist;
-      return CustomPlaylistPage(playlist: playlist);
-    },
-  ),
-  GoRoute(
-    path: 'queue',
-    pageBuilder: (context, state) => const QueuePage(),
-  ),
-];
-
 class AppRouter {
+  /// Shared secondary routes injected into every tab branch.
+  /// Using relative paths (no leading `/`) so they resolve correctly under any branch.
+  static List<RouteBase> _buildSharedSubRoutes() => [
+        GoRoute(
+          path: 'channel',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final channelId = extra['channelId'] as String;
+            return ChannelPage(channelId: channelId);
+          },
+        ),
+        GoRoute(
+          path: 'playlist',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final playlistId = extra['playlistId'] as String;
+            return PlaylistPage(playlistId: playlistId);
+          },
+        ),
+        GoRoute(
+          path: 'custom-playlist',
+          pageBuilder: (context, state) {
+            final playlist = state.extra as CustomPlaylist;
+            return CustomPlaylistPage(playlist: playlist);
+          },
+        ),
+        GoRoute(
+          path: 'queue',
+          pageBuilder: (context, state) => const QueuePage(),
+        ),
+      ];
+
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
   static final exploreKey = GlobalKey<NavigatorState>();
@@ -95,7 +95,7 @@ class AppRouter {
                       name: AppRoute.explore.name,
                       path: AppRoute.explore.path,
                       pageBuilder: (context, state) => const ExploreTabPage(),
-                      routes: _buildSharedSubRoutes()),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Music
@@ -104,7 +104,7 @@ class AppRouter {
                       name: AppRoute.music.name,
                       path: AppRoute.music.path,
                       pageBuilder: (context, state) => const MusicTabPage(),
-                      routes: _buildSharedSubRoutes()),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Favorites
@@ -113,7 +113,7 @@ class AppRouter {
                       name: AppRoute.favorites.name,
                       path: AppRoute.favorites.path,
                       pageBuilder: (context, state) => const FavoritesTabPage(),
-                      routes: _buildSharedSubRoutes()),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Search
@@ -122,7 +122,7 @@ class AppRouter {
                       name: AppRoute.search.name,
                       path: AppRoute.search.path,
                       pageBuilder: (context, state) => const SearchTabPage(),
-                      routes: _buildSharedSubRoutes()),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ]),
 
                 // Tab Settings
@@ -131,7 +131,7 @@ class AppRouter {
                       name: AppRoute.settings.name,
                       path: AppRoute.settings.path,
                       pageBuilder: (context, state) => const SettingsPage(),
-                      routes: _buildSharedSubRoutes()),
+                      routes: AppRouter._buildSharedSubRoutes()),
                 ])
               ]),
         ]),
