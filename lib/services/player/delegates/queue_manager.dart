@@ -61,6 +61,9 @@ class QueueManager {
     _service.favoriteRepository?.addRecentlyPlayed(id);
 
     await _service._engine.playCurrentTrack();
+
+    // Carica in background i video correlati e appendili alla coda
+    unawaited(_loadRelatedVideosInBackground(id, token));
   }
 
   // Inizializza il player per la riproduzione di una coda di video
@@ -375,6 +378,49 @@ class QueueManager {
       currentIndex--;
     } else if (oldIndex > currentIndex && currentIndex >= newIndex) {
       currentIndex++;
+    }
+  }
+
+  // ============ Related Videos Autoplay ============
+
+  /// Recupera i video correlati per [id] e li appende in background alla coda.
+  /// [token] è lo stesso usato in [startPlaying]: se l'utente ha tappato un altro
+  /// video nel frattempo il token cambia e il caricamento viene annullato.
+  Future<void> _loadRelatedVideosInBackground(String id, Object token) async {
+    try {
+      final repo = _service.youtubeExplodeRepository;
+      if (repo == null) return;
+
+      dev.log('Caricamento video correlati per: $id');
+      final relatedTiles = await repo.getRelatedVideos(id);
+
+      // Se l'utente ha già tappato un altro video, annulla
+      if (_currentPlayToken != token) {
+        dev.log(
+            '_loadRelatedVideosInBackground: token invalidato, skip per id=$id');
+        return;
+      }
+
+      final existingIds = playlist.map((item) => item.id).toSet();
+      final toAdd = relatedTiles
+          .where((tile) => !existingIds.contains(tile.id))
+          .take(relatedVideosQueueSize)
+          .map(PlaybackEngine.mediaItemFromVideoTile)
+          .toList();
+
+      if (toAdd.isEmpty) return;
+
+      final remainingSpace = maxQueueSize - playlist.length;
+      final capped = toAdd.take(remainingSpace).toList();
+
+      for (final item in capped) {
+        playlist.add(item);
+      }
+      _service.queue.add(playlist);
+      dev.log(
+          'Aggiunti ${capped.length} video correlati alla coda per: $id');
+    } catch (e) {
+      dev.log('Errore durante il caricamento dei video correlati: $e');
     }
   }
 }

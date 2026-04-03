@@ -122,6 +122,9 @@ const int musicHomeMaxVideosPerQuery = 8;
 const int localSuggestionsInsertQueryMinLength = 2;
 const int localSuggestionsMaxResults = 10;
 
+// Autoplay related videos
+const int relatedVideosQueueSize = 10;
+
 // Queue draggable sheet
 const double queueSheetMinChildSize = 0.08;
 const double queueSheetMaxChildSize = 1.0;
