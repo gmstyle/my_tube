@@ -322,6 +322,19 @@ class PlaybackEngine {
         });
   }
 
+  /// Converts a [VideoTile] to a [MediaItem] without any network requests.
+  /// Used for eagerly appending related videos to the queue.
+  static MediaItem mediaItemFromVideoTile(VideoTile tile) {
+    return MediaItem(
+      id: tile.id,
+      title: tile.title,
+      album: tile.artist,
+      artUri: Uri.parse(tile.thumbnailUrl),
+      duration: tile.duration,
+      extras: const {'streamUrl': null},
+    );
+  }
+
   Future<String> getStreamUrl(String id) async {
     // Usa la cache del repository se disponibile per evitare chiamate di rete ripetute
     final repo = _service.youtubeExplodeRepository;
