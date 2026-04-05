@@ -265,8 +265,7 @@ class YoutubeExplodeRepository {
       List<String> artistNames, Set<String> excludeIds) async {
     if (artistNames.isEmpty) return [];
     final seenIds = <String>{...excludeIds};
-    final artistsToSearch =
-        artistNames.take(featuredChannelsMaxTotal).toList();
+    final artistsToSearch = artistNames.take(featuredChannelsMaxTotal).toList();
 
     // Ricerca in parallelo per tutti gli artisti
     final searchResults = await Future.wait(
@@ -286,8 +285,7 @@ class YoutubeExplodeRepository {
       final channels = searchResults[i];
       // Prende solo il primo risultato (top = più rilevante/ufficiale)
       // che non sia già nei preferiti né già selezionato
-      final candidates =
-          channels.where((ch) => !seenIds.contains(ch.id.value));
+      final candidates = channels.where((ch) => !seenIds.contains(ch.id.value));
       if (candidates.isNotEmpty) {
         final top = candidates.first;
         seenIds.add(top.id.value);
@@ -312,8 +310,7 @@ class YoutubeExplodeRepository {
     final searchResults = await Future.wait(
       artistsToSearch.map((artist) async {
         try {
-          return await youtubeExplodeProvider
-              .searchContent('$artist playlist');
+          return await youtubeExplodeProvider.searchContent('$artist playlist');
         } catch (e) {
           log('Errore ricerca playlist per artista "$artist": $e');
           return <dynamic>[];
@@ -327,8 +324,8 @@ class YoutubeExplodeRepository {
       final searchItems = searchResults[i];
       // Filtra: esclude playlist già nei preferiti e quelle senza video
       final playlists = searchItems.whereType<SearchPlaylist>();
-      final candidates =
-          playlists.where((p) => !seenIds.contains(p.id.value) && p.videoCount > 0);
+      final candidates = playlists
+          .where((p) => !seenIds.contains(p.id.value) && p.videoCount > 0);
       if (candidates.isNotEmpty) {
         final top = candidates.first;
         seenIds.add(top.id.value);

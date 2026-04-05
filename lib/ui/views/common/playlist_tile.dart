@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/router/app_navigator.dart';
@@ -203,7 +204,23 @@ class PlaylistTile extends StatelessWidget {
   }
 
   List<OverflowMenuAction> _buildPlaylistOverflowActions(BuildContext context) {
+    final playerCubit = context.read<PlayerCubit>();
+
     return [
+      OverflowMenuAction(
+        label: 'Play All',
+        icon: Icons.play_arrow,
+        onTap: () {
+          playerCubit.startPlayingPlaylistById(playlist.id);
+        },
+      ),
+      OverflowMenuAction(
+        label: 'Add to Queue',
+        icon: Icons.queue_music,
+        onTap: () {
+          playerCubit.addAllToQueueById(playlist.id);
+        },
+      ),
       OverflowMenuAction(
         label: 'View Playlist',
         icon: Icons.playlist_play,
@@ -212,11 +229,10 @@ class PlaylistTile extends StatelessWidget {
         },
       ),
       OverflowMenuAction(
-        label: 'Download All',
+        label: 'Download Playlist',
         icon: Icons.download,
         subtitle: '${playlist.videoCount} videos',
         onTap: () {
-          // Implement playlist download
           Utils.showDownloadSelectionDialog(
             context,
             onDownloadSelected: (isAudioOnly) {

@@ -53,7 +53,8 @@ class AppNavigator {
   }
 
   /// Push the CustomPlaylist page within the current tab branch.
-  static void pushCustomPlaylist(BuildContext context, CustomPlaylist playlist) {
+  static void pushCustomPlaylist(
+      BuildContext context, CustomPlaylist playlist) {
     final prefix = _currentBranchPrefix();
     context.push('$prefix/custom-playlist', extra: playlist);
   }
@@ -62,6 +63,8 @@ class AppNavigator {
   /// Use only from the MiniPlayer / tab context.
   /// From the full-screen VideoPage, navigate using [AppRoute.queue] instead.
   static void pushQueue(BuildContext context) {
+    final matchedRoute = AppRouter.router.state.matchedLocation;
+    if (matchedRoute.endsWith('/queue')) return;
     final prefix = _currentBranchPrefix();
     context.push('$prefix/queue');
   }

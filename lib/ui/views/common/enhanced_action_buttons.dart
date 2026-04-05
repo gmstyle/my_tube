@@ -5,6 +5,7 @@ import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_pl
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/services/download_service.dart';
+import 'package:my_tube/ui/views/common/add_to_playlist_dialog.dart';
 import 'package:my_tube/utils/app_animations.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/app_theme_extensions.dart';
@@ -785,6 +786,16 @@ extension ActionButtonHelpers on BuildContext {
           } else {
             playerCubit.addToQueue(videoId);
           }
+        },
+      ),
+      OverflowMenuAction(
+        label: 'Save to Playlist...',
+        icon: Icons.playlist_add_check,
+        onTap: () {
+          showDialog(
+            context: this,
+            builder: (context) => AddToPlaylistDialog(videoId: videoId),
+          );
         },
       ),
       OverflowMenuAction(
