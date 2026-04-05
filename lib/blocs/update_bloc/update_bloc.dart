@@ -32,7 +32,7 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
       final cleanVersion = updateRepository.updateProvider
           .cleanVersionString(update.releaseVersion);
       // If the current release version is minor than the latest release version
-      var result = currentReleaseVersion.compareTo(cleanVersion);
+      var result = _compareSemanticVersion(currentReleaseVersion, cleanVersion);
       if (result < 0) {
         emit(UpdateState.updateAvailable(update));
       } else {
@@ -72,5 +72,20 @@ class UpdateBloc extends Bloc<UpdateEvent, UpdateState> {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
     return packageInfo.version;
+  }
+
+  // Compares two semantic version strings (e.g. "1.9.9" vs "1.9.10").
+  // Returns negative if v1 < v2, 0 if equal, positive if v1 > v2.
+  int _compareSemanticVersion(String v1, String v2) {
+    final parts1 = v1.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    final parts2 = v2.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    final length =
+        parts1.length > parts2.length ? parts1.length : parts2.length;
+    for (var i = 0; i < length; i++) {
+      final a = i < parts1.length ? parts1[i] : 0;
+      final b = i < parts2.length ? parts2[i] : 0;
+      if (a != b) return a.compareTo(b);
+    }
+    return 0;
   }
 }
