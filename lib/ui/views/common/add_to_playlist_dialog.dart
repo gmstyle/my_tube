@@ -26,69 +26,72 @@ class AddToPlaylistDialog extends StatelessWidget {
 
             final playlists = state.playlists;
 
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (playlists.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(
-                      'No playlists yet.\nCreate one below!',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (playlists.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(
+                        'No playlists yet.\nCreate one below!',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
-                  ),
-                if (playlists.isNotEmpty)
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 240),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: playlists.length,
-                      itemBuilder: (context, index) {
-                        final playlist = playlists[index];
-                        final isInPlaylist =
-                            playlist.videoIds.contains(videoId);
+                  if (playlists.isNotEmpty)
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 240),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: playlists.length,
+                        itemBuilder: (context, index) {
+                          final playlist = playlists[index];
+                          final isInPlaylist =
+                              playlist.videoIds.contains(videoId);
 
-                        return CheckboxListTile(
-                          title: Text(playlist.title),
-                          subtitle: Text(
-                            '${playlist.videoIds.length} videos',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
+                          return CheckboxListTile(
+                            title: Text(playlist.title),
+                            subtitle: Text(
+                              '${playlist.videoIds.length} videos',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                          value: isInPlaylist,
-                          onChanged: (bool? value) {
-                            if (value == true) {
-                              context
-                                  .read<CustomPlaylistsCubit>()
-                                  .addVideoToPlaylist(playlist.id, videoId);
-                            } else {
-                              context
-                                  .read<CustomPlaylistsCubit>()
-                                  .removeVideoFromPlaylist(
-                                      playlist.id, videoId);
-                            }
-                          },
-                        );
-                      },
+                            value: isInPlaylist,
+                            onChanged: (bool? value) {
+                              if (value == true) {
+                                context
+                                    .read<CustomPlaylistsCubit>()
+                                    .addVideoToPlaylist(playlist.id, videoId);
+                              } else {
+                                context
+                                    .read<CustomPlaylistsCubit>()
+                                    .removeVideoFromPlaylist(
+                                        playlist.id, videoId);
+                              }
+                            },
+                          );
+                        },
+                      ),
                     ),
+                  const SizedBox(height: 4),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(Icons.add_circle_outline,
+                        color: theme.colorScheme.primary),
+                    title: Text(
+                      'New Playlist',
+                      style: TextStyle(color: theme.colorScheme.primary),
+                    ),
+                    onTap: () => _showCreatePlaylistDialog(context),
                   ),
-                const SizedBox(height: 4),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.add_circle_outline,
-                      color: theme.colorScheme.primary),
-                  title: Text(
-                    'New Playlist',
-                    style: TextStyle(color: theme.colorScheme.primary),
-                  ),
-                  onTap: () => _showCreatePlaylistDialog(context),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),

@@ -155,4 +155,40 @@ class PlayerCubit extends Cubit<PlayerState> {
     await mtPlayerService.stopPlayingAndClearQueue();
     emit(const PlayerState.hidden());
   }
+
+  Future<void> startPlayingPlaylistById(String playlistId) async {
+    emit(const PlayerState.loading(operation: LoadingOperation.play));
+    try {
+      final videos =
+          await youtubeExplodeRepository.getPlaylistVideos(playlistId);
+      final ids = videos.map((v) => v.id.value).toList();
+      await mtPlayerService.clearQueue();
+      await _startPlayingPlaylist(ids);
+    } on Exception catch (e) {
+      emit(PlayerState.error(e.toString()));
+      emit(const PlayerState.shown());
+    }
+  }
+
+  Future<void> addAllToQueueById(String playlistId) async {
+    emit(const PlayerState.loading(operation: LoadingOperation.addToQueue));
+    try {
+      final videos =
+          await youtubeExplodeRepository.getPlaylistVideos(playlistId);
+      final ids = videos.map((v) => v.id.value).toList();
+      await mtPlayerService.addAllToQueue(
+        ids,
+        onProgress: (current, total) {
+          emit(PlayerState.loadingWithProgress(
+            current: current,
+            total: total,
+            operation: LoadingOperation.addToQueue,
+          ));
+        },
+      );
+    } on Exception catch (e) {
+      emit(PlayerState.error(e.toString()));
+    }
+    emit(const PlayerState.shown());
+  }
 }

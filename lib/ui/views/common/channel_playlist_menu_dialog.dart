@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_playlist/favorites_playlist_bloc.dart';
+import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/services/download_service.dart';
 import 'package:my_tube/utils/constants.dart';
@@ -216,9 +217,34 @@ class ChannelPlaylistMenuDialog extends StatelessWidget {
 
   Widget _buildPlaylistSpecificOptions(BuildContext context) {
     final theme = Theme.of(context);
+    final playerCubit = context.read<PlayerCubit>();
 
     return Column(
       children: [
+        ListTile(
+          leading: Icon(
+            Icons.play_arrow,
+            color: theme.colorScheme.primary,
+          ),
+          title: const Text('Play All'),
+          subtitle: const Text('Play all videos in this playlist'),
+          onTap: () {
+            Navigator.of(context).pop();
+            playerCubit.startPlayingPlaylistById(id);
+          },
+        ),
+        ListTile(
+          leading: Icon(
+            Icons.queue_music,
+            color: theme.colorScheme.primary,
+          ),
+          title: const Text('Add to Queue'),
+          subtitle: const Text('Add all videos to the current queue'),
+          onTap: () {
+            Navigator.of(context).pop();
+            playerCubit.addAllToQueueById(id);
+          },
+        ),
         ListTile(
           leading: Icon(
             Icons.download,
