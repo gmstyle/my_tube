@@ -149,10 +149,56 @@ class _QueueViewState extends State<QueueView> {
 
 /// Expanded content shown in the [SliverAppBar]'s flexible space:
 /// video, title, seek bar and playback controls.
-class _ExpandedPlayer extends StatelessWidget {
+class _ExpandedPlayer extends StatefulWidget {
   const _ExpandedPlayer({required this.playerCubit});
 
   final PlayerCubit playerCubit;
+
+  @override
+  State<_ExpandedPlayer> createState() => _ExpandedPlayerState();
+}
+
+class _ExpandedPlayerState extends State<_ExpandedPlayer> {
+  /// The source controller from the engine — used only to detect changes.
+  ChewieController? _sourceController;
+
+  /// A cached copy with [showControls] = false and [autoPlay] = false.
+  /// Recreated only when the engine swaps in a new controller (new track).
+  ChewieController? _cachedController;
+
+  StreamSubscription<MediaItem?>? _mediaItemSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncController();
+    // Re-sync whenever the track changes so the thumbnail updates too.
+    _mediaItemSubscription =
+        widget.playerCubit.mtPlayerService.mediaItem.listen((_) {
+      if (mounted) _syncController();
+    });
+  }
+
+  @override
+  void dispose() {
+    _mediaItemSubscription?.cancel();
+    _cachedController?.dispose();
+    super.dispose();
+  }
+
+  /// Compares the engine's current [ChewieController] reference to the cached
+  /// one. If it changed (new track loaded), disposes the stale copy and creates
+  /// a fresh one — without triggering autoPlay so playback state is preserved.
+  void _syncController() {
+    final source = widget.playerCubit.mtPlayerService.chewieController;
+    if (source == _sourceController) return;
+    setState(() {
+      _cachedController?.dispose();
+      _sourceController = source;
+      _cachedController =
+          source?.copyWith(showControls: false, autoPlay: false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +213,7 @@ class _ExpandedPlayer extends StatelessWidget {
             children: [
               // Video + title/artist
               StreamBuilder(
-                stream: playerCubit.mtPlayerService.mediaItem,
+                stream: widget.playerCubit.mtPlayerService.mediaItem,
                 builder: (context, snapshot) {
                   final item = snapshot.data;
                   return Row(
@@ -179,17 +225,9 @@ class _ExpandedPlayer extends StatelessWidget {
                           child: SizedBox(
                             width: 72,
                             height: 72,
-                            child: Builder(builder: (context) {
-                              final chewie =
-                                  playerCubit.mtPlayerService.chewieController;
-                              if (chewie == null) {
-                                return const ColoredBox(color: Colors.black);
-                              }
-                              return Chewie(
-                                controller:
-                                    chewie.copyWith(showControls: false),
-                              );
-                            }),
+                            child: _cachedController == null
+                                ? const ColoredBox(color: Colors.black)
+                                : Chewie(controller: _cachedController!),
                           ),
                         ),
                       ),

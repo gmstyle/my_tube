@@ -11,11 +11,21 @@ class PlaybackEngine {
   bool _isPreparing = false;
   VoidCallback? _currentPlayerListener;
 
+  /// True when playback was stopped intentionally (end of queue, user stop,
+  /// notification dismissed, etc.).  Prevents Chewie's internal
+  /// [WidgetsBindingObserver] from auto-resuming the video after the phone is
+  /// unlocked: Chewie records "was playing" at lock-time and calls
+  /// [VideoPlayerController.play] on resume regardless of whether the queue has
+  /// since ended.  The flag is cleared whenever an intentional play request
+  /// arrives via [play] or [playCurrentTrack].
+  bool _intentionallyStopped = false;
+
   bool get isPreparing => _isPreparing;
 
   // ============ Playback Controls ============
 
   Future<void> play() async {
+    _intentionallyStopped = false;
     try {
       await chewieController?.videoPlayerController.play();
     } catch (e) {
@@ -32,6 +42,7 @@ class PlaybackEngine {
   }
 
   Future<void> stop() async {
+    _intentionallyStopped = true;
     await chewieController?.videoPlayerController.pause();
     await chewieController?.videoPlayerController.seekTo(Duration.zero);
   }
@@ -44,6 +55,8 @@ class PlaybackEngine {
 
   Future<void> playCurrentTrack() async {
     dev.log('--- _playCurrentTrack started ---');
+
+    _intentionallyStopped = false;
 
     // Rimuovi il listener dal controller corrente PRIMA di qualsiasi altra operazione
     // per evitare callback spurie durante il teardown
@@ -238,10 +251,22 @@ class PlaybackEngine {
   /// Configura il listener per il rilevamento fine traccia e aggiornamento stato
   void _setupPlaybackListener() {
     _currentPlayerListener = () {
-      broadcastState();
       // Protezione: se il controller è stato disposed, non procedere
       if (chewieController == null) return;
       final value = chewieController!.videoPlayerController.value;
+
+      // Chewie has an internal WidgetsBindingObserver that records whether the
+      // video was playing when the phone was locked and calls
+      // videoPlayerController.play() on unlock, regardless of whether the
+      // queue has since ended.  If we intentionally stopped (end of queue,
+      // user/notification stop), intercept that auto-resume and re-pause
+      // immediately before broadcasting any state to the rest of the app.
+      if (_intentionallyStopped && value.isPlaying) {
+        unawaited(chewieController!.videoPlayerController.pause());
+        return;
+      }
+
+      broadcastState();
       final hasEnded = value.isInitialized &&
           value.duration > Duration.zero &&
           value.position >= value.duration;
