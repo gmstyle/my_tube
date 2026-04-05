@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,17 +13,25 @@ import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/utils/constants.dart';
 
-class MiniPlayer extends StatelessWidget {
+class MiniPlayer extends StatefulWidget {
   const MiniPlayer({
     super.key,
   });
 
-  double _setAspectRatio(MtPlayerService mtPlayerService) {
-    final chewie = mtPlayerService.chewieController;
-    if (chewie == null) return 16 / 9;
-    final vpc = chewie.videoPlayerController;
+  @override
+  State<MiniPlayer> createState() => _MiniPlayerState();
+}
+
+class _MiniPlayerState extends State<MiniPlayer> {
+  late final MtPlayerService _mtPlayerService;
+  ChewieController? _sourceController;
+  ChewieController? _cachedController;
+  StreamSubscription<MediaItem?>? _mediaItemSubscription;
+
+  double _setAspectRatio() {
+    if (_sourceController == null) return 16 / 9;
     try {
-      final ratio = vpc.value.aspectRatio;
+      final ratio = _sourceController!.videoPlayerController.value.aspectRatio;
       return ratio <= 1 ? 16 / 9 : ratio;
     } catch (_) {
       return 16 / 9;
@@ -28,9 +39,36 @@ class MiniPlayer extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final PlayerCubit playerCubit = context.read<PlayerCubit>();
+  void initState() {
+    super.initState();
+    _mtPlayerService = context.read<PlayerCubit>().mtPlayerService;
+    _syncController();
+    _mediaItemSubscription =
+        _mtPlayerService.mediaItem.listen((_) {
+      if (mounted) _syncController();
+    });
+  }
 
+  @override
+  void dispose() {
+    _mediaItemSubscription?.cancel();
+    _cachedController?.dispose();
+    super.dispose();
+  }
+
+  void _syncController() {
+    final source = _mtPlayerService.chewieController;
+    if (source == _sourceController) return;
+    setState(() {
+      _cachedController?.dispose();
+      _sourceController = source;
+      _cachedController =
+          source?.copyWith(showControls: false, autoPlay: false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<PlayerCubit, PlayerState>(
       builder: (context, state) {
         if (state.status == PlayerStatus.loading &&
@@ -145,7 +183,7 @@ class MiniPlayer extends StatelessWidget {
                             children: [
                               // Video
                               StreamBuilder(
-                                stream: playerCubit.mtPlayerService.mediaItem,
+                                stream: _mtPlayerService.mediaItem,
                                 builder: (context, snapshot) {
                                   return Hero(
                                     tag: 'video_image_or_player',
@@ -155,25 +193,16 @@ class MiniPlayer extends StatelessWidget {
                                         width: 64,
                                         height: 36,
                                         child: AspectRatio(
-                                            aspectRatio: _setAspectRatio(
-                                                playerCubit.mtPlayerService),
-                                            child: Builder(builder: (context) {
-                                              final chewie = playerCubit
-                                                  .mtPlayerService
-                                                  .chewieController;
-                                              if (chewie == null) {
-                                                // fallback small placeholder if controller not ready
-                                                return Container(
-                                                  color: Colors.black,
-                                                  child:
-                                                      const SizedBox.shrink(),
-                                                );
-                                              }
-                                              return Chewie(
-                                                  controller: chewie.copyWith(
-                                                showControls: false,
-                                              ));
-                                            })),
+                                            aspectRatio: _setAspectRatio(),
+                                            child: _cachedController == null
+                                                ? Container(
+                                                    color: Colors.black,
+                                                    child:
+                                                        const SizedBox.shrink(),
+                                                  )
+                                                : Chewie(
+                                                    controller:
+                                                        _cachedController!)),
                                       ),
                                     ),
                                   );
@@ -181,8 +210,7 @@ class MiniPlayer extends StatelessWidget {
                               ),
                               Expanded(
                                 child: StreamBuilder(
-                                    stream:
-                                        playerCubit.mtPlayerService.mediaItem,
+                                    stream: _mtPlayerService.mediaItem,
                                     builder: (context, snapshot) {
                                       final mediaItem = snapshot.data;
                                       return Column(
@@ -223,8 +251,7 @@ class MiniPlayer extends StatelessWidget {
                               ),
                               // Play/Pause Button
                               StreamBuilder(
-                                  stream: playerCubit
-                                      .mtPlayerService.playbackState
+                                  stream: _mtPlayerService.playbackState
                                       .map((playbackState) =>
                                           playbackState.playing)
                                       .distinct(),
@@ -236,11 +263,9 @@ class MiniPlayer extends StatelessWidget {
                                           visualDensity: VisualDensity.compact,
                                           onPressed: () {
                                             if (isPlaying) {
-                                              playerCubit.mtPlayerService
-                                                  .pause();
+                                              _mtPlayerService.pause();
                                             } else {
-                                              playerCubit.mtPlayerService
-                                                  .play();
+                                              _mtPlayerService.play();
                                             }
                                           },
                                           icon: Icon(
