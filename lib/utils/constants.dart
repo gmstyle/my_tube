@@ -123,7 +123,7 @@ const int localSuggestionsInsertQueryMinLength = 2;
 const int localSuggestionsMaxResults = 10;
 
 // Autoplay related videos
-const int relatedVideosQueueSize = 10;
+const int relatedVideosQueueSize = 20;
 
 // Queue draggable sheet
 const double queueSheetMinChildSize = 0.08;
