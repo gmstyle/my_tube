@@ -17,14 +17,20 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   void init() {
     mtPlayerService.queue.listen((value) {
-      if (value.isEmpty) {
+      // Non interrompere un'operazione di caricamento in corso (es. Play All
+      // chiama clearQueue() che svuota la coda temporaneamente, ma non deve
+      // sovrascrivere lo stato loading con hidden).
+      if (value.isEmpty && state.status != PlayerStatus.loading) {
         emit(const PlayerState.hidden());
       }
     });
 
     mtPlayerService.mediaItem.listen((value) {
       if (value == null && mtPlayerService.queue.value.isNotEmpty) {
-        emit(const PlayerState.loading());
+        // Preserva il loadingOperation esistente (es. LoadingOperation.play /
+        // addToQueue) in modo che i pulsanti con spinner specifici non vengano
+        // azzerati quando _doPlay emette mediaItem=null all'inizio del caricamento.
+        emit(PlayerState.loading(operation: state.loadingOperation));
       } else if (value != null) {
         emit(const PlayerState.shown());
       }
