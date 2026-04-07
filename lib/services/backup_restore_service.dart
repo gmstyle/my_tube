@@ -30,7 +30,8 @@ class BackupRestoreService {
     };
 
     final jsonString = jsonEncode(data);
-    final fileName = 'mytube_backup_${DateTime.now().millisecondsSinceEpoch}.json';
+    final fileName =
+        'mytube_backup_${DateTime.now().millisecondsSinceEpoch}.json';
 
     // 2. Definizione del percorso (come in DownloadService)
     final directory = Directory('/storage/emulated/0/Download/MyTube/Backups');
@@ -48,7 +49,7 @@ class BackupRestoreService {
   }
 
   Future<bool> importData() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
