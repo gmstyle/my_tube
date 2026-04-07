@@ -21,11 +21,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          #flutter-version: '3.19.6' # Sostituisci con la versione specifica di Flutter che usi
-          channel: stable # o beta/master se usi un canale diverso
+          flutter-version: '3.41.6'
+          channel: stable
           cache: true # Abilita la cache dell'SDK Flutter per velocizzare i run successivi
 
       - name: Cache Pub Dependencies
@@ -59,9 +65,16 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0 # Scarica l'intera storia del repo per leggere tutti i commit tra i tag
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.41.6'
           channel: stable
           cache: true # Riusa la cache dell'SDK Flutter
 
