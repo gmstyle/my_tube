@@ -30,9 +30,7 @@ class AndroidAutoBrowsingService {
       // Se è un video singolo, lo mettiamo in playlist e lo riproduciamo
       final qm = _service._queueManager;
       qm.playlist = [mediaItem];
-      qm.currentIndex = 0;
-      qm.currentTrack = mediaItem;
-      await _service._engine.playCurrentTrack();
+      await _service._engine.playAtIndex(0);
     } else {
       // Se è una categoria/canale/playlist (browsable), Android Auto dovrebbe navigare,
       // ma se viene "riprodotta" direttamente la trattiamo come "seleziona e riproduci tutto"
@@ -73,8 +71,7 @@ class AndroidAutoBrowsingService {
       final qm = _service._queueManager;
 
       if (mediaItem.playable == true) {
-        final item = await _service._engine
-            .createMediaItem(mediaItem.id, loadStreamUrl: false);
+        final item = await _service._engine.createMediaItem(mediaItem.id);
         final firstInsertedIndex = await qm.insertMediaItemsNext([item]);
         await qm.startIfIdle(firstInsertedIndex);
         return;
@@ -117,8 +114,7 @@ class AndroidAutoBrowsingService {
       final playableItems = <MediaItem>[];
       for (final mediaItem in mediaItems) {
         if (mediaItem.playable == true) {
-          final item = await _service._engine
-              .createMediaItem(mediaItem.id, loadStreamUrl: false);
+          final item = await _service._engine.createMediaItem(mediaItem.id);
           playableItems.add(item);
         } else if (AndroidAutoContentHelper.isChannelId(mediaItem.id)) {
           final channelId =
@@ -375,11 +371,8 @@ class AndroidAutoBrowsingService {
     final items = await _getPlayableItemsForParent(parentMediaId);
     if (items.isEmpty) return;
 
-    final qm = _service._queueManager;
-    qm.playlist = items;
-    qm.currentIndex = 0;
-    qm.currentTrack = items[0];
-    await _service._engine.playCurrentTrack();
+    _service._queueManager.playlist = items;
+    await _service._engine.playAtIndex(0);
   }
 
   List<MediaItem> _prependAddAllItem(

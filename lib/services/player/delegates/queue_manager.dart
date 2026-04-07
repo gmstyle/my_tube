@@ -20,49 +20,54 @@ class QueueManager {
 
   // ============ Start Playing ============
 
-  // Inizializza il player per la riproduzione singola
+  // Avvia la riproduzione di un singolo video.
+  //
+  // Struttura overlap-mode: il pre-warm dell'URL e il fetch dei metadata
+  // avvengono mentre il video corrente suona ancora, quindi lo stop avviene
+  // solo quando tutto è pronto. Il token annulla le richieste stale se
+  // l'utente tappa un nuovo video prima che questa finisca.
   Future<void> startPlaying(String id) async {
-    // Crea un token unico per questa invocazione
     final token = Object();
     _currentPlayToken = token;
 
-    // Fetch PRIMA di fermare: il video corrente continua a suonare durante
-    // il fetch (cache hit ~50-200ms, miss ~500-1500ms), eliminando lo schermo
-    // nero. Con la cache attiva l'overlap è impercettibile.
-    dev.log('Fetching new video metadata (overlap mode)...');
-    final item =
-        await _service._engine.createMediaItem(id, loadStreamUrl: true);
+    // 1. Pre-warm AppCache in parallelo con il fetch dei metadata.
+    //    getStreamUrl() salva il risultato in AppCache (TTL 1h); quando
+    //    _doPlay lo chiamerà pochi ms dopo, troverà un cache hit.
+    unawaited(() async {
+      try {
+        await _service._engine.getStreamUrl(id);
+      } catch (e) {
+        dev.log('startPlaying: pre-warm URL fallito per $id: $e');
+      }
+    }());
 
-    // Se nel frattempo l'utente ha tappato un altro video, abbandona
+    dev.log('Fetching video metadata for: $id');
+    final item = await _service._engine.createMediaItem(id);
+
     if (_currentPlayToken != token) {
       dev.log('startPlaying: token invalidato, skip per id=$id');
       return;
     }
 
-    // Ora ferma il vecchio video e sostituisci immediatamente
     dev.log('Stopping previous playback...');
     await _service.stop();
 
-    // Secondo controllo: stop() è async, potrebbe arrivare un'altra richiesta
     if (_currentPlayToken != token) {
       dev.log('startPlaying: token invalidato dopo stop, skip per id=$id');
       return;
     }
 
-    // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
       playlist.add(item);
     }
-
-    currentIndex = playlist.indexOf(item);
 
     // Record in play history (fire-and-forget — Hive write is fast)
     // ignore: unawaited_futures
     _service.favoriteRepository?.addRecentlyPlayed(id);
 
-    await _service._engine.playCurrentTrack();
+    await _service._engine.playAtIndex(playlist.indexOf(item));
 
-    // Carica in background i video correlati e appendili alla coda
+    // Carica in background i video correlati e appendili alla coda.
     unawaited(_loadRelatedVideosInBackground(id, token));
   }
 
@@ -72,35 +77,43 @@ class QueueManager {
     Function(int current, int total)? onProgress,
     VoidCallback? onFirstVideoReady,
   }) async {
-    // Carica il primo video con lo stream URL per avviare subito la riproduzione
-    final firstItem =
-        await _service._engine.createMediaItem(ids.first, loadStreamUrl: true);
+    final token = Object();
+    _currentPlayToken = token;
+
+    // Pre-warm AppCache del primo video in parallelo.
+    unawaited(() async {
+      try {
+        await _service._engine.getStreamUrl(ids.first);
+      } catch (e) {
+        dev.log('startPlayingPlaylist: pre-warm URL fallito: $e');
+      }
+    }());
+
+    final firstItem = await _service._engine.createMediaItem(ids.first);
+
+    if (_currentPlayToken != token) {
+      dev.log('startPlayingPlaylist: token invalidato, skip');
+      return;
+    }
 
     if (!playlist.contains(firstItem)) {
       playlist.add(firstItem);
     }
 
-    currentIndex = playlist.indexOf(firstItem);
+    await _service._engine.playAtIndex(playlist.indexOf(firstItem));
 
-    // Avvia la riproduzione del primo video
-    await _service._engine.playCurrentTrack();
-
-    // Notifica che il primo video è pronto (nasconde il progresso nella UI)
     onFirstVideoReady?.call();
 
-    // Carica gli altri video in background senza stream URL
     if (ids.length > 1) {
-      // Limita il caricamento al massimo consentito (maxQueueSize - 1 per il primo video già caricato)
       final maxToLoad = min(maxQueueSize - 1, ids.length - 1);
       final remainingIds = ids.sublist(1, min(ids.length, maxToLoad + 1));
 
-      // Tenta di usare l'isolate per il caricamento in background
       try {
-        await _loadVideosInIsolate(remainingIds, onProgress);
+        await _loadVideosInIsolate(remainingIds, onProgress, token);
       } catch (e) {
         dev.log('Errore nell\'isolate, fallback a caricamento sequenziale: $e');
-        // Fallback: caricamento sequenziale sul main thread
-        await _loadVideosSequentially(remainingIds, onProgress, offset: 2);
+        await _loadVideosSequentially(remainingIds, onProgress,
+            offset: 2, token: token);
       }
     }
   }
@@ -109,16 +122,15 @@ class QueueManager {
   Future<void> _loadVideosInIsolate(
     List<String> videoIds,
     Function(int current, int total)? onProgress,
+    Object token,
   ) async {
     await BulkVideoLoader.loadVideosInIsolate(
       videoIds: videoIds,
       onProgress: (current, total) {
-        // Il progresso viene ignorato nella UI (onFirstVideoReady già chiamato)
-        // ma possiamo loggarlo per debug
         dev.log('Loading background: $current/$total');
       },
       onItemLoaded: (item) {
-        // Aggiungi ogni item alla playlist man mano che viene caricato
+        if (_currentPlayToken != token) return;
         if (!playlist.contains(item)) {
           playlist.add(item);
           _service.queue.add(playlist);
@@ -126,8 +138,9 @@ class QueueManager {
       },
     );
 
-    // Aggiorna la coda finale
-    _service.queue.add(playlist);
+    if (_currentPlayToken == token) {
+      _service.queue.add(playlist);
+    }
   }
 
   /// Carica i video sequenzialmente sul main thread (fallback)
@@ -135,62 +148,50 @@ class QueueManager {
     List<String> videoIds,
     Function(int current, int total)? onProgress, {
     int offset = 0,
+    required Object token,
   }) async {
     for (int i = 0; i < videoIds.length; i++) {
-      final item = await _service._engine
-          .createMediaItem(videoIds[i], loadStreamUrl: false);
+      if (_currentPlayToken != token) return;
+      final item = await _service._engine.createMediaItem(videoIds[i]);
 
+      if (_currentPlayToken != token) return;
       if (!playlist.contains(item)) {
         playlist.add(item);
       }
 
-      // Notifica il progresso (se fornito)
       onProgress?.call(i + offset, videoIds.length + offset - 1);
     }
 
-    _service.queue.add(playlist);
+    if (_currentPlayToken == token) {
+      _service.queue.add(playlist);
+    }
   }
 
   // ============ Queue Operations ============
 
   Future<void> addToQueue(String id) async {
-    // Verifica il limite della coda
     if (playlist.length >= maxQueueSize) {
       throw Exception('Coda piena (max $maxQueueSize video)');
     }
 
-    final item =
-        await _service._engine.createMediaItem(id, loadStreamUrl: false);
+    final item = await _service._engine.createMediaItem(id);
 
-    // aggiungi il brano alla coda se non è già presente
     if (!playlist.contains(item)) {
       playlist.add(item);
       _service.queue.add(playlist);
 
-      // Pre-fetch dello stream URL in background: quando toccherà a questo
-      // video nella coda, l'URL sarà già pronto e la transizione sarà istantanea
-      if (currentIndex != -1) {
-        final itemIndex = playlist.length - 1;
-        unawaited(_service._engine.getStreamUrl(id).then((url) {
-          if (itemIndex < playlist.length && playlist[itemIndex].id == id) {
-            playlist[itemIndex] = playlist[itemIndex].copyWith(
-              extras: {
-                ...playlist[itemIndex].extras ?? {},
-                'streamUrl': url,
-              },
-            );
-            _service.queue.add(playlist);
-            dev.log('Pre-fetched stream URL for queued track: $id');
-          }
-        }).catchError((e) {
-          dev.log('Errore pre-fetching queued track $id: $e');
-        }));
-      }
+      // Pre-warm AppCache: quando toccherà a questo video, getStreamUrl()
+      // troverà un cache hit invece di andare in rete.
+      unawaited(() async {
+        try {
+          await _service._engine.getStreamUrl(id);
+        } catch (e) {
+          dev.log('Errore pre-warm cache per queued track $id: $e');
+        }
+      }());
 
-      // se non è stato ancora inizializzato il player, inizializzalo e riproduci il brano
       if (currentIndex == -1) {
-        currentIndex = playlist.length - 1;
-        await _service._engine.playCurrentTrack();
+        await _service._engine.playAtIndex(playlist.length - 1);
       }
     }
   }
@@ -220,8 +221,7 @@ class QueueManager {
       final batch = idsToAdd.sublist(batchStart, batchEnd);
 
       final items = await Future.wait(
-        batch.map((id) =>
-            _service._engine.createMediaItem(id, loadStreamUrl: false)),
+        batch.map((id) => _service._engine.createMediaItem(id)),
       );
 
       for (final item in items) {
@@ -237,8 +237,7 @@ class QueueManager {
     _service.queue.add(playlist);
 
     if (currentIndex == -1 && firstAddedIndex != null) {
-      currentIndex = firstAddedIndex;
-      await _service._engine.playCurrentTrack();
+      await _service._engine.playAtIndex(firstAddedIndex);
     }
   }
 
@@ -271,8 +270,7 @@ class QueueManager {
 
   Future<void> startIfIdle(int? firstInsertedIndex) async {
     if (currentIndex == -1 && firstInsertedIndex != null) {
-      currentIndex = firstInsertedIndex;
-      await _service._engine.playCurrentTrack();
+      await _service._engine.playAtIndex(firstInsertedIndex);
     }
   }
 
@@ -328,14 +326,8 @@ class QueueManager {
 
     // Caso 2: Ci sono altri video → passa al prossimo o precedente
     if (playlist.isNotEmpty) {
-      // Determina il nuovo indice: preferibilmente lo stesso indice (prossimo video)
-      // se ero all'ultimo, vai al precedente
       currentIndex = index < playlist.length ? index : playlist.length - 1;
-
-      // Avvia il nuovo video corrente
-      await _service._engine.chewieController?.videoPlayerController
-          .seekTo(Duration.zero);
-      await _service._engine.playCurrentTrack();
+      await _service._engine.playAtIndex(currentIndex);
       return true;
     }
 
@@ -348,9 +340,10 @@ class QueueManager {
   }
 
   Future<void> clearQueue() async {
-    //await _disposeControllers();
     playlist.clear();
-    _service.queue.value.clear();
+    currentIndex = -1;
+    currentTrack = null;
+    _service.queue.add([]);
   }
 
   Future<void> stopPlayingAndClearQueue() async {
@@ -417,8 +410,7 @@ class QueueManager {
         playlist.add(item);
       }
       _service.queue.add(playlist);
-      dev.log(
-          'Aggiunti ${capped.length} video correlati alla coda per: $id');
+      dev.log('Aggiunti ${capped.length} video correlati alla coda per: $id');
     } catch (e) {
       dev.log('Errore durante il caricamento dei video correlati: $e');
     }
