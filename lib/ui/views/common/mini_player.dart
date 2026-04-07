@@ -43,8 +43,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
     super.initState();
     _mtPlayerService = context.read<PlayerCubit>().mtPlayerService;
     _syncController();
-    _mediaItemSubscription =
-        _mtPlayerService.mediaItem.listen((_) {
+    _mediaItemSubscription = _mtPlayerService.mediaItem.listen((_) {
       if (mounted) _syncController();
     });
   }
@@ -277,14 +276,17 @@ class _MiniPlayerState extends State<MiniPlayer> {
                                     );
                                   }),
                               // Queue Button
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                tooltip: 'Queue',
-                                onPressed: () =>
-                                    AppNavigator.pushQueue(context),
-                                icon: const Icon(
-                                  Icons.queue_music,
-                                  size: 22,
+                              Hero(
+                                tag: 'queue_button',
+                                child: IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  tooltip: 'Queue',
+                                  onPressed: () =>
+                                      AppNavigator.pushQueue(context),
+                                  icon: const Icon(
+                                    Icons.queue_music,
+                                    size: 22,
+                                  ),
                                 ),
                               ),
                             ],

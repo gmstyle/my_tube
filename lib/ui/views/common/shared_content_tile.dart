@@ -20,6 +20,7 @@ class TileData {
     this.thumbnailUrl,
     this.subtitle,
     this.darkBackground = false,
+    this.hasError = false,
   });
 
   final String id;
@@ -27,6 +28,7 @@ class TileData {
   final String? thumbnailUrl;
   final String? subtitle;
   final bool darkBackground;
+  final bool hasError;
 
   factory TileData.fromVideo(models.VideoTile v) => TileData(
         id: v.id,
@@ -41,6 +43,7 @@ class TileData {
         thumbnailUrl: m.artUri?.toString(),
         subtitle: m.album,
         darkBackground: false,
+        hasError: m.extras?['hasError'] == true,
       );
 }
 
@@ -157,6 +160,12 @@ class SharedContentTile extends StatelessWidget {
             },
           ),
           Positioned.fill(child: _buildPlayingIndicator(context, isCompact)),
+          if (data.hasError)
+            const Positioned(
+              bottom: 4,
+              right: 4,
+              child: _ErrorBadge(),
+            ),
         ],
       ),
     );
@@ -283,6 +292,29 @@ class SharedContentTile extends StatelessWidget {
           size: isCompact ? 20.0 : 24.0,
         ),
       ],
+    );
+  }
+}
+
+/// Badge M3 mostrato sul thumbnail degli item che non possono essere riprodotti
+/// a causa di un errore sullo stream (es. video privato, rimosso, geo-blocked).
+class _ErrorBadge extends StatelessWidget {
+  const _ErrorBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Icon(
+        Icons.warning_rounded,
+        color: colorScheme.onErrorContainer,
+        size: 14,
+      ),
     );
   }
 }

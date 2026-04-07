@@ -157,11 +157,14 @@ class VideoPhoneScreen extends StatelessWidget {
         Positioned(
           top: topPadding + 8,
           right: 8,
-          child: _OverlayIconButton(
-            icon: Icons.queue_music,
-            onTap: () => context.pushNamed(AppRoute.queue.name, extra: {
-              'hideMiniPlayerOnDispose': true,
-            }),
+          child: Hero(
+            tag: 'queue_button',
+            child: _OverlayIconButton(
+              icon: Icons.queue_music,
+              onTap: () => context.pushNamed(AppRoute.queue.name, extra: {
+                'hideMiniPlayerOnDispose': true,
+              }),
+            ),
           ),
         ),
       ],

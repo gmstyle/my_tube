@@ -1038,6 +1038,138 @@ class SkeletonEmptyState extends StatelessWidget {
   }
 }
 
+/// Skeleton for the _ExpandedPlayer header in QueueView.
+/// Mirrors the layout: video thumbnail + title/album row, seek bar, controls.
+class CustomSkeletonExpandedPlayer extends StatelessWidget {
+  const CustomSkeletonExpandedPlayer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Video thumbnail + title/album row
+              Row(
+                children: [
+                  const ShimmerImage(width: 72, height: 72, borderRadius: 10),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ShimmerText(width: double.infinity, height: 14),
+                        SizedBox(height: 6),
+                        ShimmerText(width: double.infinity, height: 14),
+                        SizedBox(height: 6),
+                        ShimmerText(width: 100, height: 12),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              // Seek bar placeholder
+              const ShimmerText(
+                  width: double.infinity, height: 4, borderRadius: 2),
+              const SizedBox(height: 10),
+              // Controls row: shuffle | skip-prev | play | skip-next | repeat
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ShimmerCircle(size: 24),
+                  ShimmerCircle(size: 24),
+                  ShimmerCircle(size: 40),
+                  ShimmerCircle(size: 24),
+                  ShimmerCircle(size: 24),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Skeleton for the full-screen VideoView loading state.
+/// Mimics the VideoPhoneScreen layout: video area at top + info card below.
+class CustomSkeletonVideoView extends StatelessWidget {
+  const CustomSkeletonVideoView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final videoHeight = size.height * 0.37;
+    const cardOverlap = 24.0;
+
+    return Stack(
+      children: [
+        // Video area
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: ShimmerImage(
+            width: double.infinity,
+            height: videoHeight,
+            borderRadius: 0,
+          ),
+        ),
+        // Info card
+        Positioned(
+          top: videoHeight - cardOverlap,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // drag-handle pill
+                Center(
+                  child: ShimmerText(width: 36, height: 4, borderRadius: 2),
+                ),
+                SizedBox(height: 14),
+                ShimmerText(width: double.infinity, height: 18),
+                SizedBox(height: 8),
+                ShimmerText(width: 200, height: 14),
+                SizedBox(height: 16),
+                // seek bar
+                ShimmerText(width: double.infinity, height: 4, borderRadius: 2),
+                SizedBox(height: 12),
+                // controls row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ShimmerCircle(size: 24),
+                    ShimmerCircle(size: 24),
+                    ShimmerCircle(size: 48),
+                    ShimmerCircle(size: 24),
+                    ShimmerCircle(size: 24),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Skeleton for loading more content at the bottom of lists
 class SkeletonLoadingMore extends StatefulWidget {
   const SkeletonLoadingMore({super.key});

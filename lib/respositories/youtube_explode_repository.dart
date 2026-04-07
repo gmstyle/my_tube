@@ -11,16 +11,16 @@ class YoutubeExplodeRepository {
 
   final YoutubeExplodeProvider youtubeExplodeProvider;
 
-  // Cache per i metadata dei video con TTL di 1 ora
-  final _videoCache = AppCache<Video>(ttl: Duration(hours: 1));
+  // Cache per i metadata dei video con TTL di 24 ore
+  final _videoCache = AppCache<Video>(ttl: Duration(hours: 24));
 
-  // Cache per i trending con TTL di 30 minuti
-  final _trendingCache = AppCache<List<VideoTile>>(ttl: Duration(minutes: 30));
+  // Cache per i trending con TTL di 1 ora
+  final _trendingCache = AppCache<List<VideoTile>>(ttl: Duration(hours: 1));
 
-  // Cache per gli stream URL con TTL di 15 minuti.
-  // Gli URL CDN di YouTube sono validi ~6 ore; 15 min è un buon compromesso
+  // Cache per gli stream URL con TTL di 1 ora.
+  // Gli URL CDN di YouTube sono validi ~6 ore; 1 ora è un buon compromesso
   // tra freschezza e riduzione delle chiamate di rete.
-  final _streamUrlCache = AppCache<String>(ttl: Duration(minutes: 15));
+  final _streamUrlCache = AppCache<String>(ttl: Duration(hours: 1));
 
   /// Recupera un oggetto [Video] raw dalla cache o dalla rete.
   Future<Video> getCachedVideo(String id) async {
@@ -118,7 +118,7 @@ class YoutubeExplodeRepository {
   }
 
   /// Priorità 8: trending personalizzato basato sugli artisti dei preferiti.
-  /// La cache key è deterministica (artisti ordinati + paese) con TTL 30 min.
+  /// La cache key è deterministica (artisti ordinati + paese) con TTL 1 ora.
   Future<List<VideoTile>> getPersonalizedTrending(List<String> artists,
       {String countryCode = defaultCountryCode}) async {
     try {

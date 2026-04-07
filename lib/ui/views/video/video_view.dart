@@ -9,6 +9,7 @@ import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/video/screens/video_phone_screen.dart';
 import 'package:my_tube/ui/views/video/screens/video_tablet_screen.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class VideoView extends StatefulWidget {
@@ -76,45 +77,46 @@ class _VideoViewState extends State<VideoView> {
         if (didPop) persistentUiCubit.setPlayerVisibility(true);
       },
       child: StreamBuilder(
-        stream: mtPlayerService.mediaItem,
-        builder: (context, snapshot) {
-          final mediaItem = snapshot.data;
-          return Scaffold(
-            body: OrientationBuilder(builder: (context, orientation) {
-              if (mtPlayerService.chewieController == null) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          stream: mtPlayerService.mediaItem,
+          builder: (context, snapshot) {
+            final mediaItem = snapshot.data;
+            return Scaffold(
+              body: OrientationBuilder(builder: (context, orientation) {
+                if (mediaItem == null ||
+                    mtPlayerService.chewieController == null) {
+                  return const CustomSkeletonVideoView();
+                }
 
-              // Use shortestSide so the tablet check is orientation-independent:
-              // a phone in landscape has shortestSide ≈ 360dp, a tablet ≥ 600dp.
-              final bool isTablet =
-                  MediaQuery.of(context).size.shortestSide > 600;
-              if (!isTablet &&
-                  orientation == Orientation.landscape &&
-                  _lastOrientation == Orientation.portrait &&
-                  !(mtPlayerService.chewieController?.isFullScreen ?? true)) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!mounted) return;
-                  mtPlayerService.chewieController?.enterFullScreen();
-                });
-              }
-              _lastOrientation = orientation;
+                // Use shortestSide so the tablet check is orientation-independent:
+                // a phone in landscape has shortestSide ≈ 360dp, a tablet ≥ 600dp.
+                final bool isTablet =
+                    MediaQuery.of(context).size.shortestSide > 600;
+                if (!isTablet &&
+                    orientation == Orientation.landscape &&
+                    _lastOrientation == Orientation.portrait &&
+                    !(mtPlayerService.chewieController?.isFullScreen ?? true)) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    mtPlayerService.chewieController?.enterFullScreen();
+                  });
+                }
+                _lastOrientation = orientation;
 
-              if (isTablet) {
-                return VideoTabletScreen(
+                if (isTablet) {
+                  return VideoTabletScreen(
+                    mtPlayerService: mtPlayerService,
+                    aspectRatio: _aspectRatio,
+                    mediaItem: mediaItem,
+                  );
+                }
+                return VideoPhoneScreen(
                   mtPlayerService: mtPlayerService,
                   aspectRatio: _aspectRatio,
                   mediaItem: mediaItem,
                 );
-              }
-              return VideoPhoneScreen(
-                mtPlayerService: mtPlayerService,
-                aspectRatio: _aspectRatio,
-                mediaItem: mediaItem,
-              );
-            }),
-          );
-        }),
+              }),
+            );
+          }),
     );
   }
 }

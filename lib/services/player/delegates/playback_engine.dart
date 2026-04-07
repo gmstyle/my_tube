@@ -8,8 +8,14 @@ class PlaybackEngine {
 
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
-  bool _isPreparing = false;
   VoidCallback? _currentPlayerListener;
+
+  // Token di serializzazione: ogni chiamata a playAtIndex() imposta un nuovo
+  // token. Il _doPlay in volo controlla il token ad ogni await; se il token è
+  // cambiato significa che una richiesta più recente ha preso il controllo e
+  // l'operazione corrente viene abortita pulitamente. Stesso principio del
+  // Rx switchMap usato da Spotify/YouTube Music, senza dipendenze esterne.
+  Object? _activeToken;
 
   /// True when playback was stopped intentionally (end of queue, user stop,
   /// notification dismissed, etc.).  Prevents Chewie's internal
@@ -17,10 +23,10 @@ class PlaybackEngine {
   /// unlocked: Chewie records "was playing" at lock-time and calls
   /// [VideoPlayerController.play] on resume regardless of whether the queue has
   /// since ended.  The flag is cleared whenever an intentional play request
-  /// arrives via [play] or [playCurrentTrack].
+  /// arrives via [play] or [playAtIndex].
   bool _intentionallyStopped = false;
 
-  bool get isPreparing => _isPreparing;
+  bool get isPreparing => _activeToken != null;
 
   // ============ Playback Controls ============
 
@@ -53,124 +59,186 @@ class PlaybackEngine {
 
   // ============ Core Playback ============
 
-  Future<void> playCurrentTrack() async {
-    dev.log('--- _playCurrentTrack started ---');
-
+  /// Avvia la riproduzione dell'item all'indice [index] nella playlist.
+  ///
+  /// Serializza le richieste tramite token (pattern switchMap): se una nuova
+  /// chiamata arriva mentre una è in corso, quella precedente viene annullata
+  /// al prossimo await, dopo aver disposto pulitamente le risorse già allocate.
+  ///
+  /// [step] indica la direzione da seguire in caso di errore sullo stream:
+  ///  - `1`  (default) = avanti → usato da auto-advance, next, tap su item
+  ///  - `-1`           = indietro → usato da skipToPrevious
+  /// In questo modo, se l'utente preme "precedente" e quel brano va in errore,
+  /// l'auto-skip continua all'indietro invece di cambiare direzione.
+  Future<void> playAtIndex(int index, {int step = 1}) async {
+    // Rimuovi il listener corrente prima di qualsiasi await per evitare
+    // callback spurie durante il teardown del controller esistente.
+    _removeCurrentListener();
     _intentionallyStopped = false;
 
-    // Rimuovi il listener dal controller corrente PRIMA di qualsiasi altra operazione
-    // per evitare callback spurie durante il teardown
-    _removeCurrentListener();
-
-    _isPreparing = true;
-    try {
-      // Segnala che stiamo caricando (buffering state per Android Auto)
-      // Mantieni playing: true per tutto il ciclo di transizione
-      _service.playbackState.add(_service.playbackState.value.copyWith(
-        processingState: AudioProcessingState.buffering,
-        playing: true,
-      ));
-
-      final qm = _service._queueManager;
-      qm.currentTrack = qm.playlist[qm.currentIndex];
-      dev.log(
-          'Current item: ${qm.currentTrack?.id} - ${qm.currentTrack?.title}');
-
-      // Non settiamo a null se abbiamo già un track (evita schermate nere improvvise)
-      if (qm.currentTrack != null) {
-        _service.mediaItem.add(qm.currentTrack);
-      } else {
-        _service.mediaItem.add(null);
-      }
-
-      if (chewieController != null && videoPlayerController != null) {
-        await _disposeControllers();
-      }
-
-      // Carica lo stream URL se non è ancora stato caricato
-      if (qm.currentTrack?.extras?['streamUrl'] == null) {
-        dev.log('Fetching stream URL for: ${qm.currentTrack?.id}');
-        final streamUrl = await getStreamUrl(qm.currentTrack!.id);
-        dev.log('Stream URL fetched successfully');
-        qm.currentTrack = qm.currentTrack!.copyWith(
-          extras: {
-            ...qm.currentTrack!.extras ?? {},
-            'streamUrl': streamUrl,
-          },
-        );
-        // Aggiorna anche nella playlist
-        qm.playlist[qm.currentIndex] = qm.currentTrack!;
-      }
-
-      dev.log('Initializing VideoPlayerController...');
-      // inizializza il video player controller da passare a chewie
-      videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(qm.currentTrack?.extras!['streamUrl']),
-        videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
-      );
-
-      await videoPlayerController!.initialize();
-      dev.log('VideoPlayerController initialized');
-
-      // Aggiorna la durata effettiva se disponibile
-      final videoDuration = videoPlayerController!.value.duration;
-      if (videoDuration > Duration.zero &&
-          (qm.currentTrack?.duration == null ||
-              qm.currentTrack?.duration == Duration.zero)) {
-        qm.currentTrack = qm.currentTrack!.copyWith(duration: videoDuration);
-        qm.playlist[qm.currentIndex] = qm.currentTrack!;
-        _service.mediaItem.add(qm.currentTrack);
+    // Pre-clear del flag di errore sull'item target: se l'utente retappa
+    // un item che aveva già fallito, rimuoviamo subito il badge così la UI
+    // non mostra più il warning mentre il caricamento è in corso.
+    final qm = _service._queueManager;
+    if (index >= 0 && index < qm.playlist.length) {
+      final item = qm.playlist[index];
+      final currentExtras = Map<String, dynamic>.from(item.extras ?? {});
+      if (currentExtras['hasError'] == true) {
+        currentExtras['hasError'] = false;
+        qm.playlist[index] = item.copyWith(extras: currentExtras);
         _service.queue.add(qm.playlist);
       }
-
-      // Forza il play immediato per notifiche e background
-      await videoPlayerController!.play();
-      dev.log('VideoPlayerController.play() called');
-
-      // Attendi un breve momento per assicurare la propagazione dello stato
-      // su Android Auto hardware reale (più sensibile dell'emulatore)
-      await Future.delayed(const Duration(milliseconds: 150));
-
-      // inizializza il chewie controller per la riproduzione del video
-      dev.log('Creating ChewieController...');
-      chewieController = ChewieController(
-        videoPlayerController: videoPlayerController!,
-        autoPlay: true,
-        showOptions: false,
-        routePageBuilder: (context, animation, __, ___) {
-          // uso un widget per il full screen personalizzato
-          // per poter gestire il cambio di brano anche in full screen
-          return FullScreenVideoView(
-            mtPlayerService: _service,
-          );
-        },
-        deviceOrientationsAfterFullScreen: [
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ],
-      );
-      dev.log('ChewieController created');
-
-      // inizializza lo stato iniziale
-      broadcastState();
-
-      // aggiungi il brano alla coda
-      _service.queue.add(qm.playlist);
-      // aggiungi il brano al media item per la notifica
-      _service.mediaItem.add(qm.currentTrack);
-
-      // propaga lo stato del player ad audio_service e a tutti i listeners
-      _setupPlaybackListener();
-
-      // Pre-fetching del prossimo brano per velocizzare la transizione
-      _prefetchNextTrack();
-    } catch (e) {
-      dev.log('Errore durante _playCurrentTrack: $e');
-    } finally {
-      _isPreparing = false;
-      broadcastState();
     }
+
+    // Emetti un nuovo token: qualsiasi _doPlay in volo che legga il vecchio
+    // token abortirà al prossimo check e libererà le proprie risorse.
+    final token = Object();
+    _activeToken = token;
+
+    _service.playbackState.add(_service.playbackState.value.copyWith(
+      processingState: AudioProcessingState.buffering,
+      playing: true,
+    ));
+
+    try {
+      await _doPlay(index, token);
+    } catch (e) {
+      dev.log('Errore durante playAtIndex($index): $e');
+      // Se il token è ancora attivo (nessuna richiesta più recente), marca
+      // l'item come in errore, notifica la UI e salta nella direzione [step].
+      if (_activeToken == token) {
+        if (index >= 0 && index < qm.playlist.length) {
+          final item = qm.playlist[index];
+          final errorExtras = Map<String, dynamic>.from(item.extras ?? {});
+          errorExtras['hasError'] = true;
+          qm.playlist[index] = item.copyWith(extras: errorExtras);
+          _service.queue.add(qm.playlist);
+          _service._onPlayErrorController.add((id: item.id, title: item.title));
+        }
+        final skipIndex = index + step;
+        final playlist = qm.playlist;
+        if (skipIndex >= 0 && skipIndex < playlist.length) {
+          dev.log(
+              'Stream error su index=$index: salto automatico a $skipIndex (step=$step)');
+          unawaited(Future(() => playAtIndex(skipIndex, step: step)));
+        }
+      }
+    } finally {
+      if (_activeToken == token) {
+        _activeToken = null;
+        broadcastState();
+      }
+    }
+  }
+
+  Future<void> _doPlay(int index, Object token) async {
+    final qm = _service._queueManager;
+
+    // Cattura il track in una variabile locale immutabile rispetto alle
+    // modifiche esterne: qm.currentTrack è un campo dell'istanza che altri
+    // coroutine (es. stopPlayingAndClearMediaItem) possono nullificare tra un
+    // await e l'altro. Usare 'var' permette l'aggiornamento via copyWith.
+    var track = qm.playlist[index];
+    qm.currentIndex = index;
+    qm.currentTrack = track;
+    final id = track.id;
+    dev.log('_doPlay: index=$index id=$id "${track.title}"');
+
+    // Segnala subito che "nessun item è in riproduzione": il listener in
+    // PlayerCubit.init() lo trasforma in PlayerState.loading() se la coda
+    // non è vuota. Questo garantisce che lo skeleton sia visibile per tutta
+    // la durata dell'inizializzazione, indipendentemente da chi ha chiamato
+    // playAtIndex (PlayerCubit, auto-advance, skip da notifica, ecc.).
+    _service.mediaItem.add(null);
+
+    // ── Dispose vecchio controller ──────────────────────────────────────────
+    if (chewieController != null || videoPlayerController != null) {
+      await _disposeControllers();
+    }
+    if (_activeToken != token) {
+      dev.log('_doPlay cancelled after dispose (id=$id)');
+      return;
+    }
+
+    // ── Fetch stream URL sempre fresco dall'AppCache (mai dagli extras) ─────
+    dev.log('Fetching stream URL for: $id');
+    final streamUrl = await getStreamUrl(id);
+    dev.log('Stream URL fetched for: $id');
+    if (_activeToken != token) {
+      dev.log('_doPlay cancelled after getStreamUrl (id=$id)');
+      return;
+    }
+
+    // ── Inizializza VideoPlayerController ───────────────────────────────────
+    dev.log('Initializing VideoPlayerController...');
+    final vpc = VideoPlayerController.networkUrl(
+      Uri.parse(streamUrl),
+      videoPlayerOptions: VideoPlayerOptions(allowBackgroundPlayback: true),
+    );
+    videoPlayerController = vpc;
+    await vpc.initialize();
+    dev.log('VideoPlayerController initialized');
+
+    if (_activeToken != token) {
+      await vpc.dispose();
+      videoPlayerController = null;
+      dev.log('_doPlay cancelled after initialize (id=$id)');
+      return;
+    }
+
+    // ── Aggiorna durata effettiva se necessario ──────────────────────────────
+    final videoDuration = vpc.value.duration;
+    if (videoDuration > Duration.zero &&
+        (track.duration == null || track.duration == Duration.zero)) {
+      track = track.copyWith(duration: videoDuration);
+      qm.currentTrack = track;
+      qm.playlist[qm.currentIndex] = track;
+    }
+
+    // ── Avvia riproduzione ──────────────────────────────────────────────────
+    await vpc.play();
+    dev.log('VideoPlayerController.play() called');
+    if (_activeToken != token) {
+      dev.log('_doPlay cancelled after play() (id=$id)');
+      return;
+    }
+
+    // ── Delay per propagazione stato su Android Auto hardware ───────────────
+    await Future.delayed(const Duration(milliseconds: 150));
+    if (_activeToken != token) {
+      dev.log('_doPlay cancelled after delay (id=$id)');
+      return;
+    }
+
+    // ── Crea ChewieController ───────────────────────────────────────────────
+    dev.log('Creating ChewieController...');
+    chewieController = ChewieController(
+      videoPlayerController: vpc,
+      autoPlay: true,
+      showOptions: false,
+      routePageBuilder: (context, animation, __, ___) {
+        return FullScreenVideoView(mtPlayerService: _service);
+      },
+      deviceOrientationsAfterFullScreen: [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ],
+    );
+    dev.log('ChewieController created');
+    if (_activeToken != token) {
+      dev.log('_doPlay cancelled after ChewieController (id=$id)');
+      return;
+    }
+
+    // ── Broadcast finale, queue, listener e pre-warm ────────────────────────
+    // mediaItem viene emesso solo ora: il listener di PlayerCubit.init()
+    // riceve un valore non-null → emit(shown()), lo skeleton scompare.
+    _service.queue.add(qm.playlist);
+    _service.mediaItem.add(track);
+    broadcastState();
+    _setupPlaybackListener();
+    _warmNextTrackCache();
   }
 
   // ============ State Broadcasting ============
@@ -187,7 +255,7 @@ class PlaybackEngine {
       }
 
       bool isPlaying() {
-        if (_isPreparing || _service._autoAdvance._isAutoAdvancing) return true;
+        if (_activeToken != null) return true;
         if (chewieController == null) return false;
         final value = chewieController!.videoPlayerController.value;
         return value.isPlaying || value.isBuffering;
@@ -198,12 +266,12 @@ class PlaybackEngine {
           !chewieController!.videoPlayerController.value.isInitialized) {
         final isBuffering = _service.playbackState.value.processingState ==
                 AudioProcessingState.buffering ||
-            _isPreparing;
+            _activeToken != null;
         _service.playbackState.add(_service.playbackState.value.copyWith(
           processingState: isBuffering
               ? AudioProcessingState.buffering
               : AudioProcessingState.idle,
-          playing: _isPreparing || _service._autoAdvance._isAutoAdvancing,
+          playing: _activeToken != null,
         ));
         return;
       }
@@ -241,7 +309,7 @@ class PlaybackEngine {
       // Fallback state per Android Auto
       _service.playbackState.add(_service.playbackState.value.copyWith(
         processingState: AudioProcessingState.idle,
-        playing: _isPreparing || _service._autoAdvance._isAutoAdvancing,
+        playing: _activeToken != null,
       ));
     }
   }
@@ -271,14 +339,15 @@ class PlaybackEngine {
           value.duration > Duration.zero &&
           value.position >= value.duration;
 
-      if (hasEnded && !_service._autoAdvance._isAutoAdvancing) {
+      // Controlla _intentionallyStopped per evitare auto-advance spurio quando
+      // stop() mette in pausa un video quasi terminato (isPlaying=false, ma
+      // hasEnded potrebbe essere true). Questo era la race condition principale.
+      if (hasEnded && !_intentionallyStopped) {
         _service._autoAdvance.handleTrackEnded();
       }
 
       if (value.hasError) {
-        if (kDebugMode) {
-          print('Errore di riproduzione: ${value.errorDescription}');
-        }
+        dev.log('Errore di riproduzione: ${value.errorDescription}');
       }
     };
     chewieController?.videoPlayerController
@@ -311,40 +380,24 @@ class PlaybackEngine {
 
   // ============ Media Item & Stream URL ============
 
-  Future<MediaItem> createMediaItem(String id,
-      {bool loadStreamUrl = false}) async {
+  Future<MediaItem> createMediaItem(String id) async {
     final repo = _service.youtubeExplodeRepository;
-
-    final Video video;
-    final String? muxedStream;
-
-    if (loadStreamUrl) {
-      // Parallelizza il fetch dei metadata e dello stream URL: sono indipendenti
-      final videoFuture = repo != null
-          ? repo.getCachedVideo(id)
-          : _service.youtubeExplodeProvider.getVideo(id);
-      final results = await Future.wait([videoFuture, getStreamUrl(id)]);
-      video = results[0] as Video;
-      muxedStream = results[1] as String;
-    } else {
-      video = repo != null
-          ? await repo.getCachedVideo(id)
-          : await _service.youtubeExplodeProvider.getVideo(id);
-      muxedStream = null;
-    }
+    final video = repo != null
+        ? await repo.getCachedVideo(id)
+        : await _service.youtubeExplodeProvider.getVideo(id);
 
     return MediaItem(
-        id: video.id.value,
-        title: video.title,
-        album: video.musicData.isNotEmpty
-            ? video.musicData.first.album
-            : video.author,
-        artUri: Uri.parse(video.thumbnails.highResUrl),
-        duration: video.duration,
-        extras: {
-          'streamUrl': muxedStream,
-          'description': video.description,
-        });
+      id: video.id.value,
+      title: video.title,
+      album: video.musicData.isNotEmpty
+          ? video.musicData.first.album
+          : video.author,
+      artUri: Uri.parse(video.thumbnails.highResUrl),
+      duration: video.duration,
+      extras: {
+        'description': video.description,
+      },
+    );
   }
 
   /// Converts a [VideoTile] to a [MediaItem] without any network requests.
@@ -356,7 +409,6 @@ class PlaybackEngine {
       album: tile.artist,
       artUri: Uri.parse(tile.thumbnailUrl),
       duration: tile.duration,
-      extras: const {'streamUrl': null},
     );
   }
 
@@ -386,27 +438,21 @@ class PlaybackEngine {
         .add(_service.playbackState.value.copyWith(repeatMode: repeatMode));
   }
 
-  // ============ Pre-fetching ============
+  // ============ Pre-warm cache ============
 
-  void _prefetchNextTrack() {
+  /// Richiede lo stream URL del prossimo brano in background, cosi l'AppCache
+  /// sarà pronto quando toccherà a lui. Non muta mai la playlist.
+  void _warmNextTrackCache() {
     final qm = _service._queueManager;
     if (qm.hasNextVideo) {
-      final nextIndex = qm.currentIndex + 1;
-      final nextTrack = qm.playlist[nextIndex];
-      if (nextTrack.extras?['streamUrl'] == null) {
-        unawaited(getStreamUrl(nextTrack.id).then((url) {
-          qm.playlist[nextIndex] = nextTrack.copyWith(
-            extras: {
-              ...nextTrack.extras ?? {},
-              'streamUrl': url,
-            },
-          );
-          _service.queue.add(qm.playlist);
-          dev.log('Pre-fetched stream URL for next track: ${nextTrack.id}');
-        }).catchError((e) {
-          dev.log('Errore pre-fetching prossimo brano: $e');
-        }));
-      }
+      final nextTrack = qm.playlist[qm.currentIndex + 1];
+      unawaited(() async {
+        try {
+          await getStreamUrl(nextTrack.id);
+        } catch (e) {
+          dev.log('Errore pre-warm cache per ${nextTrack.id}: $e');
+        }
+      }());
     }
   }
 }

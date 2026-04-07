@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/video/widget/controls.dart';
 import 'package:my_tube/ui/views/video/widget/mediaitem_tile.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_button.dart';
@@ -166,16 +167,33 @@ class _ExpandedPlayerState extends State<_ExpandedPlayer> {
   /// Recreated only when the engine swaps in a new controller (new track).
   ChewieController? _cachedController;
 
+  bool _isLoading = false;
+
   StreamSubscription<MediaItem?>? _mediaItemSubscription;
 
   @override
   void initState() {
     super.initState();
+    // Determina lo stato iniziale dal valore corrente del BehaviorSubject.
+    _isLoading =
+        widget.playerCubit.mtPlayerService.mediaItem.valueOrNull == null;
     _syncController();
     // Re-sync whenever the track changes so the thumbnail updates too.
     _mediaItemSubscription =
-        widget.playerCubit.mtPlayerService.mediaItem.listen((_) {
-      if (mounted) _syncController();
+        widget.playerCubit.mtPlayerService.mediaItem.listen((item) {
+      if (!mounted) return;
+      if (item == null) {
+        // Nuovo brano in caricamento: azzera il controller e mostra skeleton.
+        setState(() {
+          _isLoading = true;
+          _cachedController?.dispose();
+          _cachedController = null;
+          _sourceController = null;
+        });
+      } else {
+        setState(() => _isLoading = false);
+        _syncController();
+      }
     });
   }
 
@@ -202,6 +220,8 @@ class _ExpandedPlayerState extends State<_ExpandedPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) return const CustomSkeletonExpandedPlayer();
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [

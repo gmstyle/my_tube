@@ -12,7 +12,6 @@ import 'package:my_tube/respositories/favorite_repository.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/services/player/delegates/android_auto/android_auto_content_helper.dart';
 import 'package:chewie/chewie.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:my_tube/providers/youtube_explode_provider.dart';
 import 'package:my_tube/services/bulk_video_loader.dart';
@@ -74,6 +73,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
       StreamController<void>.broadcast();
   Stream<void> get onSkip => skipController.stream;
 
+  // Stream per notificare la UI quando uno stream non è riproducibile.
+  // Il record contiene l'id e il titolo dell'item fallito.
+  final StreamController<({String id, String title})> _onPlayErrorController =
+      StreamController<({String id, String title})>.broadcast();
+  Stream<({String id, String title})> get onPlayError =>
+      _onPlayErrorController.stream;
+
   // ============ Playback Controls (BaseAudioHandler overrides) ============
 
   @override
@@ -112,10 +118,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   @override
   Future<void> skipToPrevious() async {
     if (_queueManager.currentIndex > 0) {
-      _queueManager.currentIndex--;
-      await _engine.chewieController?.videoPlayerController
-          .seekTo(Duration.zero);
-      await _engine.playCurrentTrack();
+      await _engine.playAtIndex(_queueManager.currentIndex - 1, step: -1);
       skipController.add(null);
     }
   }
@@ -123,10 +126,7 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
   @override
   Future<void> skipToNext() async {
     if (_queueManager.currentIndex < _queueManager.playlist.length - 1) {
-      _queueManager.currentIndex++;
-      await _engine.chewieController?.videoPlayerController
-          .seekTo(Duration.zero);
-      await _engine.playCurrentTrack();
+      await _engine.playAtIndex(_queueManager.currentIndex + 1);
       skipController.add(null);
     }
   }
