@@ -9,6 +9,7 @@ import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
 import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
+import 'package:my_tube/ui/views/common/short_video_tile.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/models/tiles.dart' as models;
@@ -528,8 +529,7 @@ class _ChannelViewState extends State<ChannelView>
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(
-                  child: SizedBox(height: 16)),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
             ],
           ),
         ),
@@ -596,10 +596,8 @@ class _ChannelViewState extends State<ChannelView>
                       };
                       return VideoMenuDialog(
                         quickVideo: quickVideo,
-                        child: VideoTile(
+                        child: ShortVideoTile(
                           video: short,
-                          index: index,
-                          enableScrollAnimation: false,
                         ),
                       );
                     },
@@ -614,8 +612,7 @@ class _ChannelViewState extends State<ChannelView>
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
-              const SliverToBoxAdapter(
-                  child: SizedBox(height: 16)),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
             ],
           ),
         ),
