@@ -97,7 +97,12 @@ class YoutubeExplodeProvider {
 
   Future<StreamManifest> getVideoStreamManifest(String videoId) async {
     final manifest = await _yt.videos.streams.getManifest(videoId,
-        ytClients: [YoutubeApiClient.androidVr, YoutubeApiClient.ios]);
+        ytClients: [
+          YoutubeApiClient.androidVr,
+          YoutubeApiClient.ios,
+          YoutubeApiClient.androidSdkless
+        ],
+        requireWatchPage: false);
     return manifest;
   }
 
