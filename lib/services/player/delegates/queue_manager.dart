@@ -26,7 +26,7 @@ class QueueManager {
   // avvengono mentre il video corrente suona ancora, quindi lo stop avviene
   // solo quando tutto è pronto. Il token annulla le richieste stale se
   // l'utente tappa un nuovo video prima che questa finisca.
-  Future<void> startPlaying(String id) async {
+  Future<void> startPlaying(String id, {bool getRelatedVideos = true}) async {
     final token = Object();
     _currentPlayToken = token;
 
@@ -68,7 +68,9 @@ class QueueManager {
     await _service._engine.playAtIndex(playlist.indexOf(item));
 
     // Carica in background i video correlati e appendili alla coda.
-    unawaited(_loadRelatedVideosInBackground(id, token));
+    if (getRelatedVideos) {
+      unawaited(_loadRelatedVideosInBackground(id, token));
+    }
   }
 
   // Inizializza il player per la riproduzione di una coda di video

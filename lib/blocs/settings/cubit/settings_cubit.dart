@@ -6,19 +6,23 @@ import 'package:my_tube/utils/constants.dart';
 class SettingsState {
   final String country;
   final ThemeSettings themeSettings;
+  final bool getRelatedVideos;
 
   const SettingsState({
     required this.country,
     required this.themeSettings,
+    required this.getRelatedVideos,
   });
 
   SettingsState copyWith({
     String? country,
     ThemeSettings? themeSettings,
+    bool? getRelatedVideos,
   }) {
     return SettingsState(
       country: country ?? this.country,
       themeSettings: themeSettings ?? this.themeSettings,
+      getRelatedVideos: getRelatedVideos ?? this.getRelatedVideos,
     );
   }
 }
@@ -28,6 +32,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       : super(const SettingsState(
           country: defaultCountryCode,
           themeSettings: ThemeSettings(),
+          getRelatedVideos: true,
         ));
 
   final settingsBox = Hive.box(hiveSettingsBoxName);
@@ -41,9 +46,13 @@ class SettingsCubit extends Cubit<SettingsState> {
         ? ThemeSettings.fromJson(Map<String, dynamic>.from(themeSettingsJson))
         : const ThemeSettings();
 
+    final getRelatedVideos =
+        settingsBox.get(settingsGetRelatedVideosKey, defaultValue: true);
+
     emit(SettingsState(
       country: countryCode,
       themeSettings: themeSettings,
+      getRelatedVideos: getRelatedVideos,
     ));
   }
 
@@ -63,5 +72,10 @@ class SettingsCubit extends Cubit<SettingsState> {
         state.themeSettings.copyWith(useDynamicColor: enabled);
     settingsBox.put(settingsThemeSettingsKey, newThemeSettings.toJson());
     emit(state.copyWith(themeSettings: newThemeSettings));
+  }
+
+  void setGetRelatedVideos(bool enabled) {
+    settingsBox.put(settingsGetRelatedVideosKey, enabled);
+    emit(state.copyWith(getRelatedVideos: enabled));
   }
 }

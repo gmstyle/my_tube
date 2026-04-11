@@ -256,6 +256,21 @@ class SettingsView extends StatelessWidget {
                                 }
                               },
                             ),
+                            SwitchListTile(
+                              secondary: _IconContainer(
+                                icon: Icons.video_library_outlined,
+                                color: cs.secondaryContainer,
+                                onColor: cs.onSecondaryContainer,
+                              ),
+                              title: const Text(settingsRelatedVideosTitle),
+                              subtitle: Text(
+                                settingsRelatedVideosSubtitle,
+                                style: TextStyle(color: cs.onSurfaceVariant),
+                              ),
+                              value: state.getRelatedVideos,
+                              onChanged: (value) =>
+                                  settingsCubit.setGetRelatedVideos(value),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),

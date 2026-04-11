@@ -139,7 +139,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   // ============ Public Playback API ============
 
-  Future<void> startPlaying(String id) => _queueManager.startPlaying(id);
+  Future<void> startPlaying(String id, {bool getRelatedVideos = true}) =>
+      _queueManager.startPlaying(id, getRelatedVideos: getRelatedVideos);
 
   Future<void> startPlayingPlaylist(
     List<String> ids, {

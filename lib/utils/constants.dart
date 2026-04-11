@@ -19,6 +19,7 @@ const String settingsCountryCodeKey = 'countryCode';
 const String settingsThemeSettingsKey = 'themeSettings';
 const String settingsQueryHistoryKey = 'queryHistory';
 const String settingsMusicDiscoverSeedKey = 'musicDiscoverSeedIndex';
+const String settingsGetRelatedVideosKey = 'getRelatedVideos';
 
 // Generic limits
 const int searchHistoryMaxItems = 15;
@@ -63,6 +64,9 @@ const String settingsDynamicColorSubtitle = 'Use system colors (Material You)';
 const String settingsGeneralLabel = 'General';
 const String settingsCountryTitle = 'Country';
 const String settingsCountrySubtitle = 'Content region for trending & explore';
+const String settingsRelatedVideosTitle = 'Related Videos';
+const String settingsRelatedVideosSubtitle =
+    'Load related videos automatically when a video is selected';
 const String settingsAboutLabel = 'About';
 const String settingsCheckUpdatesTitle = 'Check for Updates';
 const String settingsCheckingSubtitle = 'Checking...';
