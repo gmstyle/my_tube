@@ -131,6 +131,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
+  @override
+  Future<void> skipToQueueItem(int index) async {
+    if (index < 0 || index >= _queueManager.playlist.length) return;
+    await _engine.playAtIndex(index);
+    skipController.add(null);
+  }
+
   Future<void> skipToNextInShuffleMode() =>
       _autoAdvance.skipToNextInShuffleMode();
 
