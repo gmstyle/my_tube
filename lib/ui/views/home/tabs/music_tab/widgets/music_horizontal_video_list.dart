@@ -13,8 +13,10 @@ class MusicHorizontalVideoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardHeight = context.isTablet ? 210.0 : 175.0;
-    final cardWidth = context.isTablet ? 290.0 : 240.0;
+    final isExpanded =
+        MediaQuery.sizeOf(context).width >= AppBreakpoints.medium;
+    final cardHeight = isExpanded ? 210.0 : 175.0;
+    final cardWidth = isExpanded ? 290.0 : 240.0;
 
     return SliverToBoxAdapter(
       child: SizedBox(

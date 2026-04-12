@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/ui/skeletons/custom_shimmer.dart';
+import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:my_tube/utils/constants.dart';
 
 /// Skeleton personalizzato per liste e grid di video/contenuti
@@ -9,7 +10,7 @@ class CustomSkeletonGridList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isTablet = constraints.maxWidth > 600;
+      final isTablet = constraints.maxWidth >= AppBreakpoints.compact;
 
       if (isTablet) {
         // Grid per tablet
@@ -192,7 +193,8 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
+    final isCompact =
+        MediaQuery.sizeOf(context).width < AppBreakpoints.sideBySide;
     final headerHeight = isCompact ? 200.0 : 240.0;
     final avatarSize = isCompact ? 64.0 : 80.0;
 
@@ -371,7 +373,8 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
+    final isCompact =
+        MediaQuery.sizeOf(context).width < AppBreakpoints.sideBySide;
     final headerHeight = isCompact ? 220.0 : 260.0;
 
     return FadeTransition(
@@ -512,23 +515,34 @@ class CustomSkeletonMusicHome extends StatelessWidget {
             ),
           ),
 
-          // Section 0a: Explore by Genre
+          // Section 0a: Explore by Mood — header + chips + preselected card row
           const SkeletonSectionHeader(),
           const _SkeletonGenreChips(),
-          // Section 0b: Featured Channels
+          const SkeletonHorizontalCards(),
+
+          // Section 0b: Explore by Genre — header + chips + preselected card row
+          const SkeletonSectionHeader(),
+          const _SkeletonGenreChips(),
+          const SkeletonHorizontalCards(),
+
+          // Section 0c: Featured Channels
           const SkeletonSectionHeader(),
           const SkeletonChannelRow(),
           const SliverToBoxAdapter(child: SizedBox(height: 4)),
 
-          // Section 0c: Continue Listening
+          // Section 0d: Featured Playlists
           const SkeletonSectionHeader(),
-          const SkeletonHorizontalCards(),
+          const SkeletonFeaturedPlaylistsRow(),
+          const SliverToBoxAdapter(child: SizedBox(height: 4)),
+
           // Section 1: New Releases
           const SkeletonSectionHeader(),
           const SkeletonHorizontalCards(),
+
           // Section 2: Discover
           const SkeletonSectionHeader(),
           const SkeletonHorizontalCards(),
+
           // Section 3: Trending
           const SkeletonSectionHeader(),
           const SliverToBoxAdapter(
@@ -545,6 +559,82 @@ class CustomSkeletonMusicHome extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Skeleton for the Explore tab tablet loading state.
+/// Mirrors the actual loaded layout: full-width hero (260 px) + 4-col grid
+/// constrained to 1200 px, matching [ExploreTabletLayout].
+class CustomSkeletonExploreTablet extends StatelessWidget {
+  const CustomSkeletonExploreTablet({super.key});
+
+  static const double _contentMaxWidth = 1200.0;
+  static const double _gridPadding = 16.0;
+  static const double _gridSpacing = 12.0;
+  static const int _crossAxisCount = 4;
+  static const double _childAspectRatio = 16 / 10;
+  static const double _heroHeight = 260.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: _contentMaxWidth),
+        child: CustomScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          slivers: [
+            // Hero skeleton — matches _ExploreHeroCard dimensions
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    _gridPadding, _gridPadding, _gridPadding, 8),
+                child: ShimmerImage(
+                  width: double.infinity,
+                  height: _heroHeight,
+                  borderRadius: 16,
+                ),
+              ),
+            ),
+            // 4-col grid skeleton
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                  _gridPadding, 8, _gridPadding, _gridPadding),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _crossAxisCount,
+                  mainAxisSpacing: _gridSpacing,
+                  crossAxisSpacing: _gridSpacing,
+                  childAspectRatio: _childAspectRatio,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (_, __) => _buildGridCard(),
+                  childCount: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGridCard() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ShimmerImage(
+            width: double.infinity,
+            height: double.infinity,
+            borderRadius: 8,
+          ),
+        ),
+        SizedBox(height: 6),
+        ShimmerText(width: double.infinity, height: 12),
+        SizedBox(height: 3),
+        ShimmerText(width: 80, height: 10),
+      ],
     );
   }
 }
@@ -582,7 +672,7 @@ class SkeletonHorizontalCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+    final isTablet = MediaQuery.sizeOf(context).width >= AppBreakpoints.compact;
     final cardHeight = isTablet ? 210.0 : 175.0;
     final cardWidth = isTablet ? 290.0 : 240.0;
     return SliverToBoxAdapter(
@@ -746,7 +836,8 @@ class SkeletonFeaturedPlaylistsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
+    final isCompact =
+        MediaQuery.sizeOf(context).width < AppBreakpoints.sideBySide;
     final cardHeight = isCompact ? 180.0 : 220.0;
     final cardWidth = isCompact ? 180.0 : 240.0;
 
@@ -1240,6 +1331,54 @@ class _SkeletonLoadingMoreState extends State<SkeletonLoadingMore>
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// Horizontal row of shimmer cards used by music chip sections (mood & genre)
+/// while the FutureBuilder is in the waiting state.
+class MusicHorizontalSkeletonCards extends StatelessWidget {
+  const MusicHorizontalSkeletonCards({
+    super.key,
+    this.cardHeight = 175,
+    this.cardWidth = 240,
+  });
+
+  final double cardHeight;
+  final double cardWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final thumbHeight = cardWidth * 9 / 16;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: SizedBox(
+        height: cardHeight,
+        child: ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: 3,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (_, __) => SizedBox(
+            width: cardWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerImage(
+                  width: cardWidth,
+                  height: thumbHeight,
+                  borderRadius: 8,
+                ),
+                const SizedBox(height: 8),
+                ShimmerText(width: cardWidth * 0.75, height: 12),
+                const SizedBox(height: 6),
+                ShimmerText(width: cardWidth * 0.5, height: 10),
+              ],
+            ),
+          ),
         ),
       ),
     );

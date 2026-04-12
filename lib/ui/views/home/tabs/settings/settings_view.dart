@@ -576,8 +576,7 @@ class _SettingsCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     label,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: cs.onSurfaceVariant,
+                    style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.4,
                     ),

@@ -10,8 +10,8 @@ import 'package:my_tube/ui/views/common/seek_bar.dart';
 import 'package:my_tube/ui/views/video/widget/controls.dart';
 import 'package:my_tube/ui/views/video/widget/video_action_row.dart';
 
-class VideoPhoneScreen extends StatelessWidget {
-  const VideoPhoneScreen({
+class VideoMobileLayout extends StatelessWidget {
+  const VideoMobileLayout({
     super.key,
     required this.mtPlayerService,
     this.mediaItem,

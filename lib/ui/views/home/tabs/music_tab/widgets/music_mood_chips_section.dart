@@ -9,27 +9,28 @@ import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/home/tabs/music_tab/widgets/music_see_all_sheet.dart';
 import 'package:my_tube/utils/constants.dart';
 
-/// Sliver that shows genre filter chips (one selectable at a time).
+/// Sliver that shows mood filter chips (one selectable at a time).
 /// Tapping a chip fetches videos inline and shows a horizontal card preview
 /// with a "See all" button that opens a side sheet (tablet) or bottom sheet
 /// (mobile) with the full list.
-class MusicGenreExploreSection extends StatefulWidget {
-  const MusicGenreExploreSection({super.key, this.isTablet = false});
+class MusicMoodExploreSection extends StatefulWidget {
+  const MusicMoodExploreSection({super.key, this.isTablet = false});
 
   final bool isTablet;
 
   @override
-  State<MusicGenreExploreSection> createState() =>
-      _MusicGenreExploreSectionState();
+  State<MusicMoodExploreSection> createState() =>
+      _MusicMoodExploreSectionState();
 }
 
-class _MusicGenreExploreSectionState extends State<MusicGenreExploreSection> {
+class _MusicMoodExploreSectionState extends State<MusicMoodExploreSection> {
   String? _selectedLabel;
   Future<List<models.VideoTile>>? _future;
 
   void _onChipTap(String label, String query, YoutubeExplodeRepository repo) {
     setState(() {
       if (_selectedLabel == label) {
+        // Deselect — collapse content
         _selectedLabel = null;
         _future = null;
       } else {
@@ -43,9 +44,9 @@ class _MusicGenreExploreSectionState extends State<MusicGenreExploreSection> {
   void initState() {
     super.initState();
     final repo = context.read<YoutubeExplodeRepository>();
-    final firstGenre = musicGenres.first;
-    _selectedLabel = firstGenre.key;
-    _future = repo.getMoodMusic(firstGenre.value);
+    final firstMood = musicMoods.first;
+    _selectedLabel = firstMood.key;
+    _future = repo.getMoodMusic(firstMood.value);
   }
 
   @override
@@ -75,7 +76,7 @@ class _MusicGenreExploreSectionState extends State<MusicGenreExploreSection> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  musicSectionExploreByGenre,
+                  musicSectionExploreByMood,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: cs.onSurface,
@@ -84,18 +85,18 @@ class _MusicGenreExploreSectionState extends State<MusicGenreExploreSection> {
               ],
             ),
           ),
-          // ── Genre chips ─────────────────────────────────────────────
+          // ── Mood chips ──────────────────────────────────────────────
           SizedBox(
             height: 40,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: musicGenres.length,
+              itemCount: musicMoods.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
-                final genre = musicGenres[index];
-                final label = genre.key;
-                final query = genre.value;
+                final mood = musicMoods[index];
+                final label = mood.key;
+                final query = mood.value;
                 return FilterChip(
                   label: Text(label),
                   selected: _selectedLabel == label,

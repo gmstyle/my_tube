@@ -7,9 +7,7 @@ import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/play_pause_g
 import 'package:my_tube/utils/app_breakpoints.dart';
 
 class MediaItemList extends StatefulWidget {
-  const MediaItemList({super.key, this.isTablet = false});
-
-  final bool isTablet;
+  const MediaItemList({super.key});
 
   @override
   State<MediaItemList> createState() => _MediaItemListState();
@@ -33,11 +31,11 @@ class _MediaItemListState extends State<MediaItemList> {
         playerCubit.mtPlayerService.playbackState.value.queueIndex;
     if (currentIndex == null || currentIndex < 0) return;
 
-    final isCompact = AppBreakpoints.isCompact(context);
+    final isExpanded = AppBreakpoints.isExpanded(context);
     // thumbnail height + inner padding (top+bottom) + outer Padding(vertical: 4) * 2
-    final itemHeight = isCompact
-        ? (120.0 * 9 / 16) + 16.0 + 8.0 // ≈ 91.5
-        : (160.0 * 9 / 16) + 20.0 + 8.0; // ≈ 118.0
+    final itemHeight = isExpanded
+        ? (160.0 * 9 / 16) + 20.0 + 8.0 // ≈ 118.0
+        : (120.0 * 9 / 16) + 16.0 + 8.0; // ≈ 91.5
 
     final viewportHeight = _scrollController.position.viewportDimension;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -85,7 +83,8 @@ class _MediaItemListState extends State<MediaItemList> {
                         mediaItem: mediaItem,
                         child: MediaitemTile(
                             mediaItem: mediaItem,
-                            darkBackground: widget.isTablet)));
+                            darkBackground:
+                                AppBreakpoints.isExpanded(context))));
               },
               onReorder: (int oldIndex, int newIndex) async {
                 await playerCubit.mtPlayerService

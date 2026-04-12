@@ -2,22 +2,41 @@ import 'package:flutter/material.dart';
 
 /// Responsive design utilities for consistent breakpoints and layout adaptations
 /// Provides standardized breakpoints and helper methods for responsive design
+///
+/// Breakpoints follow Material Design 3 responsive layout guidelines:
+/// - Compact (phone): < 600dp
+/// - Medium (tablet): 600dp - 839dp
+/// - Expanded (desktop): >= 840dp
+/// - Large desktop: >= 1200dp
 class AppBreakpoints {
   // Private constructor to prevent instantiation
   AppBreakpoints._();
 
   // Breakpoint Constants
-  /// Mobile breakpoint (up to 600dp)
-  static const double mobile = 600;
+  /// Compact/mobile breakpoint (up to 600dp)
+  static const double compact = 600;
 
-  /// Tablet breakpoint (600dp to 900dp)
-  static const double tablet = 900;
+  /// Medium/tablet breakpoint (600dp to 840dp)
+  static const double medium = 840;
 
-  /// Desktop breakpoint (900dp to 1200dp)
-  static const double desktop = 1200;
+  /// Expanded/desktop breakpoint (840dp to 1199dp)
+  static const double expanded = 840;
 
   /// Large desktop breakpoint (1200dp and above)
-  static const double largeDesktop = 1200;
+  static const double large = 1200;
+
+  // Legacy aliases for backward compatibility
+  /// @deprecated Use [compact] instead
+  static double get mobile => compact;
+
+  /// @deprecated Use [medium] instead
+  static double get tablet => medium;
+
+  /// @deprecated Use [expanded] instead
+  static double get desktop => large;
+
+  /// @deprecated Use [large] instead
+  static double get largeDesktop => large;
 
   // Compact breakpoints for specific components
   /// Compact layout threshold for headers
@@ -30,36 +49,36 @@ class AppBreakpoints {
   static const double sideBySide = 720;
 
   // Device Type Detection
-  /// Check if current screen size is mobile
+  /// Check if current screen is compact (phone, < 600dp)
   static bool isMobile(BuildContext context) {
-    return MediaQuery.of(context).size.width < mobile;
+    return MediaQuery.sizeOf(context).width < compact;
   }
 
-  /// Check if current screen size is tablet
+  /// Check if current screen is medium (tablet, 600dp - 839dp)
   static bool isTablet(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    return width >= mobile && width < desktop;
+    final width = MediaQuery.sizeOf(context).width;
+    return width >= compact && width < expanded;
   }
 
-  /// Check if current screen size is desktop
+  /// Check if current screen is expanded (desktop, 840dp - 1199dp)
   static bool isDesktop(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    return width >= desktop && width < largeDesktop;
+    final width = MediaQuery.sizeOf(context).width;
+    return width >= expanded && width < large;
   }
 
-  /// Check if current screen size is large desktop
+  /// Check if current screen is large desktop (>= 1200dp)
   static bool isLargeDesktop(BuildContext context) {
-    return MediaQuery.of(context).size.width >= largeDesktop;
+    return MediaQuery.sizeOf(context).width >= large;
   }
 
-  /// Check if current screen size is compact (mobile or small tablet)
+  /// Check if current screen is compact (mobile or small tablet, < 840dp)
   static bool isCompact(BuildContext context) {
-    return MediaQuery.of(context).size.width < tablet;
+    return MediaQuery.sizeOf(context).width < medium;
   }
 
-  /// Check if current screen size is expanded (tablet or desktop)
+  /// Check if current screen is expanded (tablet or desktop, >= 840dp)
   static bool isExpanded(BuildContext context) {
-    return MediaQuery.of(context).size.width >= tablet;
+    return MediaQuery.sizeOf(context).width >= medium;
   }
 
   // Layout Utilities
@@ -71,11 +90,11 @@ class AppBreakpoints {
     int desktopColumns = 3,
     int largeDesktopColumns = 4,
   }) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
-    if (width >= largeDesktop) return largeDesktopColumns;
-    if (width >= desktop) return desktopColumns;
-    if (width >= tablet) return tabletColumns;
+    if (width >= large) return largeDesktopColumns;
+    if (width >= expanded) return desktopColumns;
+    if (width >= compact) return tabletColumns;
     return mobileColumns;
   }
 
@@ -103,69 +122,68 @@ class AppBreakpoints {
 
   /// Get appropriate horizontal padding based on screen size
   static double getHorizontalPadding(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
-    if (width >= largeDesktop) return 32.0;
-    if (width >= desktop) return 24.0;
-    if (width >= tablet) return 20.0;
+    if (width >= large) return 32.0;
+    if (width >= expanded) return 24.0;
+    if (width >= compact) return 20.0;
     return 16.0;
   }
 
   /// Get appropriate vertical padding based on screen size
   static double getVerticalPadding(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
-    if (width >= desktop) return 24.0;
-    if (width >= tablet) return 20.0;
+    if (width >= expanded) return 24.0;
+    if (width >= compact) return 20.0;
     return 16.0;
   }
 
   /// Get appropriate content max width for readability
   static double getContentMaxWidth(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
-    if (width >= largeDesktop) return 1200.0;
-    if (width >= desktop) return 900.0;
+    if (width >= large) return 1200.0;
+    if (width >= expanded) return 900.0;
     return double.infinity;
   }
 
   // Component-Specific Utilities
   /// Check if header should use compact layout
   static bool shouldUseCompactHeader(BuildContext context) {
-    return MediaQuery.of(context).size.width < compactHeader;
+    return MediaQuery.sizeOf(context).width < compactHeader;
   }
 
   /// Check if cards should use compact layout
   static bool shouldUseCompactCards(BuildContext context) {
-    return MediaQuery.of(context).size.width < compactCard;
+    return MediaQuery.sizeOf(context).width < compactCard;
   }
 
   /// Check if layout should be side-by-side (e.g., image + content)
   static bool shouldUseSideBySideLayout(BuildContext context) {
-    return MediaQuery.of(context).size.width >= sideBySide;
+    return MediaQuery.sizeOf(context).width >= sideBySide;
   }
 
   /// Get appropriate aspect ratio for video thumbnails
   static double getVideoThumbnailAspectRatio(BuildContext context) {
-    if (isMobile(context)) return 16 / 9;
-    if (isTablet(context)) return 16 / 9;
-    return 16 / 9; // Consistent aspect ratio across all devices
+    return 16 / 9; // Consistent across all devices
   }
 
   /// Get appropriate image size for channel avatars
   static double getChannelAvatarSize(BuildContext context) {
-    if (isMobile(context)) return 64.0;
-    if (isTablet(context)) return 80.0;
+    final width = MediaQuery.sizeOf(context).width;
+    if (width < compact) return 64.0;
+    if (width < expanded) return 80.0;
     return 96.0;
   }
 
-  /// Get appropriate font scale factor for different screen sizes
+  /// Get responsive font scale factor
   static double getFontScaleFactor(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
-    if (width >= largeDesktop) return 1.1;
-    if (width >= desktop) return 1.05;
-    if (width >= tablet) return 1.0;
+    if (width >= large) return 1.1;
+    if (width >= expanded) return 1.05;
+    if (width >= compact) return 1.0;
     return 0.95;
   }
 
@@ -178,15 +196,15 @@ class AppBreakpoints {
     T? desktop,
     T? largeDesktop,
   }) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
 
-    if (width >= AppBreakpoints.largeDesktop && largeDesktop != null) {
+    if (width >= AppBreakpoints.large && largeDesktop != null) {
       return largeDesktop;
     }
-    if (width >= AppBreakpoints.desktop && desktop != null) {
+    if (width >= AppBreakpoints.expanded && desktop != null) {
       return desktop;
     }
-    if (width >= AppBreakpoints.tablet && tablet != null) {
+    if (width >= AppBreakpoints.compact && tablet != null) {
       return tablet;
     }
     return mobile;
