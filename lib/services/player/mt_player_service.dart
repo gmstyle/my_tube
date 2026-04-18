@@ -131,6 +131,13 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
     }
   }
 
+  @override
+  Future<void> skipToQueueItem(int index) async {
+    if (index < 0 || index >= _queueManager.playlist.length) return;
+    await _engine.playAtIndex(index);
+    skipController.add(null);
+  }
+
   Future<void> skipToNextInShuffleMode() =>
       _autoAdvance.skipToNextInShuffleMode();
 
@@ -139,7 +146,8 @@ class MtPlayerService extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   // ============ Public Playback API ============
 
-  Future<void> startPlaying(String id) => _queueManager.startPlaying(id);
+  Future<void> startPlaying(String id, {bool getRelatedVideos = true}) =>
+      _queueManager.startPlaying(id, getRelatedVideos: getRelatedVideos);
 
   Future<void> startPlayingPlaylist(
     List<String> ids, {

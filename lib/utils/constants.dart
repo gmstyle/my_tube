@@ -19,6 +19,7 @@ const String settingsCountryCodeKey = 'countryCode';
 const String settingsThemeSettingsKey = 'themeSettings';
 const String settingsQueryHistoryKey = 'queryHistory';
 const String settingsMusicDiscoverSeedKey = 'musicDiscoverSeedIndex';
+const String settingsGetRelatedVideosKey = 'getRelatedVideos';
 
 // Generic limits
 const int searchHistoryMaxItems = 15;
@@ -63,6 +64,9 @@ const String settingsDynamicColorSubtitle = 'Use system colors (Material You)';
 const String settingsGeneralLabel = 'General';
 const String settingsCountryTitle = 'Country';
 const String settingsCountrySubtitle = 'Content region for trending & explore';
+const String settingsRelatedVideosTitle = 'Related Videos';
+const String settingsRelatedVideosSubtitle =
+    'Load related videos automatically when a video is selected';
 const String settingsAboutLabel = 'About';
 const String settingsCheckUpdatesTitle = 'Check for Updates';
 const String settingsCheckingSubtitle = 'Checking...';
@@ -102,6 +106,7 @@ const int featuredChannelsMaxTotal = 10;
 const String musicSectionFeaturedPlaylists = 'Playlists You Might Like';
 const int featuredPlaylistsMaxTotal = 10;
 const String musicSectionExploreByGenre = 'Explore by Genre';
+const String musicSectionExploreByMood = 'Explore by Mood';
 const String musicSectionContinueListening = 'Continue Listening';
 const String musicSectionNewReleases = 'New Releases';
 const String musicSectionInternationalTopHits = 'International Top Hits';
@@ -116,6 +121,9 @@ String musicBecauseYouLikedTitle(String videoTitle) =>
 // Trending and search heuristics
 const Duration trendingMinDuration = Duration(minutes: 2);
 const Duration trendingMaxDuration = Duration(minutes: 12);
+// Mood music has wider bounds: shorter singles + longer ambient tracks
+const Duration musicMoodMinDuration = Duration(minutes: 1);
+const Duration musicMoodMaxDuration = Duration(minutes: 15);
 const int personalizedMaxPerArtist = 4;
 const int personalizedArtistQueryLimit = 5;
 const int musicHomeMaxVideosPerQuery = 8;
@@ -157,6 +165,19 @@ const List<String> predefinedSearchSuggestions = [
   'education',
 ];
 
+// Music moods for explore section chips.
+// The value is the key used to look up queries in [trendingEnglishQueriesByCategory].
+const List<MapEntry<String, String>> musicMoods = [
+  MapEntry('Chill', 'chill'),
+  MapEntry('Party', 'party'),
+  MapEntry('Workout', 'workout'),
+  MapEntry('Focus', 'focus'),
+  MapEntry('Sleep', 'sleep'),
+  MapEntry('Hype', 'hype'),
+  MapEntry('Sad', 'sad'),
+  MapEntry('Romantic', 'romantic'),
+];
+
 // Music genres for chips section
 const List<MapEntry<String, String>> musicGenres = [
   MapEntry('Pop', 'Pop'),
@@ -179,20 +200,137 @@ const List<String> defaultTrendingQueries = [
 
 const Map<String, List<String>> trendingEnglishQueriesByCategory = {
   'music': ['trending music', 'top songs', 'new music'],
-  'pop': ['top pop songs', 'pop music hits', 'best pop music'],
-  'hip hop': ['hip hop music', 'rap songs', 'hip hop hits'],
-  'rock': ['rock music', 'rock songs', 'rock hits'],
-  'r&b soul': ['r&b music', 'soul music', 'rnb songs'],
-  'r&b': ['r&b music', 'soul music', 'rnb songs'],
-  'electronic': ['electronic music', 'edm songs', 'house music'],
-  'latin': ['latin music', 'reggaeton hits', 'latin pop'],
-  'kpop': ['kpop music', 'k-pop hits', 'korean pop songs'],
-  'jazz': ['jazz music', 'jazz songs', 'best jazz'],
-  'classical': ['classical music', 'classical songs', 'orchestra music'],
+  'pop': [
+    'top pop songs official video',
+    'pop music hits official audio',
+    'best pop music ',
+    'pop chart hits official video',
+    'popular pop songs official audio',
+  ],
+  'hip hop': [
+    'hip hop music official video',
+    'rap songs official audio',
+    'hip hop hits ',
+    'best rap music official video',
+    'hip hop new songs official audio',
+  ],
+  'rock': [
+    'rock music official video',
+    'rock songs official audio',
+    'rock hits ',
+    'best rock songs official video',
+    'classic rock hits official audio',
+  ],
+  'r&b soul': [
+    'r&b music official video',
+    'soul music official audio',
+    'rnb songs ',
+    'best r&b songs official video',
+    'soul hits official audio',
+  ],
+  'r&b': [
+    'r&b music official video',
+    'soul music official audio',
+    'rnb songs ',
+    'best r&b songs official video',
+    'soul hits official audio',
+  ],
+  'electronic': [
+    'electronic music official video',
+    'edm songs official audio',
+    'house music ',
+    'best electronic music official video',
+    'edm hits official audio',
+  ],
+  'latin': [
+    'latin music official video',
+    'reggaeton hits official audio',
+    'latin pop ',
+    'best latin songs official video',
+    'latin music hits official audio',
+  ],
+  'kpop': [
+    'kpop music official video',
+    'k-pop hits official audio',
+    'korean pop songs ',
+    'best kpop songs official video',
+    'kpop new music official audio',
+  ],
+  'jazz': [
+    'jazz music official video',
+    'jazz songs official audio',
+    'best jazz ',
+    'smooth jazz official video',
+    'jazz hits official audio',
+  ],
+  'classical': [
+    'classical music official video',
+    'classical songs official audio',
+    'orchestra music ',
+    'best classical music official video',
+    'piano classical music official audio',
+  ],
   'gaming': ['gaming', 'gameplay'],
   'film': ['new movies', 'movie trailers', 'film reviews'],
   'movies': ['new movies', 'movie trailers', 'film reviews'],
   'now': ['trending videos', 'popular videos', 'trending today'],
+  // Mood categories — 5 queries each, targeting individual songs via official video/audio
+  'chill': [
+    'chill music official video',
+    'relaxing songs official audio',
+    'lofi chill music video',
+    'chill vibes songs',
+    'chill acoustic songs official',
+  ],
+  'party': [
+    'party music official video',
+    'dance hits official audio',
+    'best party songs',
+    'club music official video',
+    'dance music official audio',
+  ],
+  'workout': [
+    'workout music official video',
+    'gym motivation songs official audio',
+    'best workout songs',
+    'running music official video',
+    'pump up songs official audio',
+  ],
+  'focus': [
+    'focus music official audio',
+    'study songs official video',
+    'concentration music songs',
+    'deep focus music official',
+    'instrumental focus music official audio',
+  ],
+  'sleep': [
+    'sleep music official audio',
+    'calming songs official video',
+    'peaceful music for sleep official',
+    'soft piano songs official audio',
+    'relaxing sleep songs',
+  ],
+  'hype': [
+    'hype songs official video',
+    'energetic music official audio',
+    'pump up songs official video',
+    'high energy music ',
+    'motivational songs official video',
+  ],
+  'sad': [
+    'sad songs official video',
+    'emotional songs official audio',
+    'heartbreak songs official video',
+    'melancholic music ',
+    'sad ballad official audio',
+  ],
+  'romantic': [
+    'romantic songs official video',
+    'love songs official audio',
+    'best romantic ballads official',
+    'slow love songs official video',
+    'romantic music  official audio',
+  ],
 };
 
 // Country/language helpers
@@ -325,7 +463,7 @@ const Map<String, Map<String, List<String>>> localizedTrendingOverrides = {
     'fr': ['bandes annonces', 'cinéma français', 'nouveaux films'],
     'es': ['trailers cine', 'películas nuevas', 'cine español'],
     'de': ['film trailer', 'neue filme', 'kino deutschland'],
-    'ru': ['трейлеры фильмов', 'новые фильмы', 'кино 2025'],
+    'ru': ['трейлеры фильмов', 'новые фильмы', 'кино '],
     'ja': ['映画予告', '新作映画', '日本映画'],
     'ko': ['영화 예고편', '신작 영화', '한국 영화'],
     'pt': ['trailers filmes', 'novos filmes', 'cinema brasileiro'],

@@ -4,6 +4,7 @@ import 'package:my_tube/blocs/custom_playlists/custom_playlists_cubit.dart';
 import 'package:my_tube/blocs/custom_playlists/custom_playlists_state.dart';
 import 'package:my_tube/models/custom_playlist.dart';
 import 'package:my_tube/router/app_navigator.dart';
+import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
 
 class CustomPlaylistList extends StatelessWidget {
   const CustomPlaylistList({super.key});
@@ -13,7 +14,7 @@ class CustomPlaylistList extends StatelessWidget {
     return BlocBuilder<CustomPlaylistsCubit, CustomPlaylistsState>(
       builder: (context, state) {
         if (state.status == CustomPlaylistsStatus.loading) {
-          return const Center(child: CircularProgressIndicator());
+          return const CustomSkeletonGridList();
         }
 
         if (state.playlists.isEmpty) {

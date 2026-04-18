@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:my_tube/respositories/youtube_explode_repository.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
+import 'package:my_tube/utils/constants.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 part 'player_state.dart';
@@ -10,6 +12,7 @@ class PlayerCubit extends Cubit<PlayerState> {
   final YoutubeExplodeRepository youtubeExplodeRepository;
 
   final MtPlayerService mtPlayerService;
+  final settingsBox = Hive.box(hiveSettingsBoxName);
 
   PlayerCubit(
       {required this.youtubeExplodeRepository, required this.mtPlayerService})
@@ -80,7 +83,9 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   Future<void> _startPlaying(String id) async {
-    await mtPlayerService.startPlaying(id);
+    final getRelatedVideos =
+        settingsBox.get(settingsGetRelatedVideosKey, defaultValue: true);
+    await mtPlayerService.startPlaying(id, getRelatedVideos: getRelatedVideos);
   }
 
   Future<void> _startPlayingPlaylist(List<String> ids) async {

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/update_bloc/update_bloc.dart';
+import 'package:my_tube/ui/shared/responsive_layout_builder.dart';
 
 import 'package:my_tube/ui/views/common/update_available_dialog.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
@@ -106,31 +107,30 @@ class ScaffoldWithNavbarView extends StatelessWidget {
               });
         }
       },
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final bool useNavigationRail = constraints.maxWidth >= 640;
-          // Compensiamo il rialzo di sistema (es. la barra dei gesti di Android/iOS)
+      child: ResponsiveLayoutBuilder(
+        mobile: (context) {
           final bottomSafeArea = MediaQuery.of(context).padding.bottom;
-          final leftSafeArea = MediaQuery.of(context).padding.left;
-
-          // Update global UI state to keep MiniPlayer hovering perfectly
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            // Material 3 NavigationBar custom squeezed height is 65.0
-            // Material 3 NavigationRail default width is 80.0
             context.read<PersistentUiCubit>().setBottomLayout(
-                  useNavigationRail ? 0 : bottomNavigationBarHeight,
+                  bottomNavigationBarHeight,
                   bottomSafeArea,
                 );
-            context.read<PersistentUiCubit>().setLeftPadding(
-                  useNavigationRail ? 80.0 + leftSafeArea : 0,
-                );
+            context.read<PersistentUiCubit>().setLeftPadding(0);
           });
-
-          if (useNavigationRail) {
-            return _buildNavigationRailLayout(context);
-          } else {
-            return _buildMobileLayout(context);
-          }
+          return _buildMobileLayout(context);
+        },
+        tablet: (context) {
+          final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+          final leftSafeArea = MediaQuery.of(context).padding.left;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context
+                .read<PersistentUiCubit>()
+                .setBottomLayout(0, bottomSafeArea);
+            context
+                .read<PersistentUiCubit>()
+                .setLeftPadding(80.0 + leftSafeArea);
+          });
+          return _buildNavigationRailLayout(context);
         },
       ),
     );

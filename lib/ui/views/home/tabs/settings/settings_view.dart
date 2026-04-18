@@ -256,6 +256,21 @@ class SettingsView extends StatelessWidget {
                                 }
                               },
                             ),
+                            SwitchListTile(
+                              secondary: _IconContainer(
+                                icon: Icons.video_library_outlined,
+                                color: cs.secondaryContainer,
+                                onColor: cs.onSecondaryContainer,
+                              ),
+                              title: const Text(settingsRelatedVideosTitle),
+                              subtitle: Text(
+                                settingsRelatedVideosSubtitle,
+                                style: TextStyle(color: cs.onSurfaceVariant),
+                              ),
+                              value: state.getRelatedVideos,
+                              onChanged: (value) =>
+                                  settingsCubit.setGetRelatedVideos(value),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -561,8 +576,7 @@ class _SettingsCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Text(
                     label,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: cs.onSurfaceVariant,
+                    style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.4,
                     ),

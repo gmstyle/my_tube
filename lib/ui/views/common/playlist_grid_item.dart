@@ -19,47 +19,45 @@ class PlaylistGridItem extends StatelessWidget {
     final theme = Theme.of(context);
     final isCompact = context.isCompact;
     final borderRadius = BorderRadius.circular(isCompact ? 12 : 16);
-    final width = MediaQuery.of(context).size.width * (isCompact ? 0.46 : 0.8);
 
-    // Stacked effect using pseudo-cards behind the main card
-    return SizedBox(
-      width: width,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background Card 2 (Bottom)
-          Positioned(
-            top: 4,
-            child: Container(
-              width: width * 0.9,
-              height: width * 0.6, // Approximate height relative to width
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.5),
-                borderRadius: borderRadius,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Background Card 2 (Bottom)
+            Positioned(
+              top: 4,
+              child: Container(
+                width: width * 0.9,
+                height: width * 0.6,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5),
+                  borderRadius: borderRadius,
+                ),
               ),
             ),
-          ),
-          // Background Card 1 (Middle)
-          Positioned(
-            top: 2,
-            child: Container(
-              width: width * 0.95,
-              height: width * 0.61,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHigh
-                    .withValues(alpha: 0.7),
-                borderRadius: borderRadius,
+            // Background Card 1 (Middle)
+            Positioned(
+              top: 2,
+              child: Container(
+                width: width * 0.95,
+                height: width * 0.61,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHigh
+                      .withValues(alpha: 0.7),
+                  borderRadius: borderRadius,
+                ),
               ),
             ),
-          ),
 
-          // Main Card (Top)
-          MaterialHoverContainer(
-            borderRadius: borderRadius,
-            onTap: onTap,
-            child: SizedBox(
-              width: width,
+            // Main Card (Top)
+            MaterialHoverContainer(
+              borderRadius: borderRadius,
+              onTap: onTap,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -168,9 +166,9 @@ class PlaylistGridItem extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
