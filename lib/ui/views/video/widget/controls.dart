@@ -14,10 +14,9 @@ class Controls extends StatelessWidget {
         // Derive icon size from the available width, capped to avoid
         // overflow in constrained containers (e.g. queue_view SliverAppBar).
         final iconSize = (constraints.maxWidth * 0.15).clamp(48.0, 72.0);
-        return Wrap(
-          spacing: 8,
-          alignment: WrapAlignment.spaceAround,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Shuffle
             StreamBuilder(

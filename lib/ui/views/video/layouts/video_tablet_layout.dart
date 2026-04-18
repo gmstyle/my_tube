@@ -1,7 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/seek_bar.dart';
@@ -34,16 +33,6 @@ class VideoTabletLayout extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // back button row
-                  if (context.canPop())
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        tooltip: 'Back',
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
                   // video player
                   ConstrainedBox(
                     constraints: BoxConstraints(

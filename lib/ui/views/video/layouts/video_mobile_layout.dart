@@ -142,17 +142,6 @@ class VideoMobileLayout extends StatelessWidget {
           ),
         ),
 
-        // ── Semi-transparent back button overlay on the video ─────────
-        if (context.canPop())
-          Positioned(
-            top: topPadding + 8,
-            left: 8,
-            child: _OverlayIconButton(
-              icon: Icons.keyboard_arrow_down,
-              onTap: () => context.pop(),
-            ),
-          ),
-
         // ── Queue button overlay (top-right) ──────────────────────────
         Positioned(
           top: topPadding + 8,

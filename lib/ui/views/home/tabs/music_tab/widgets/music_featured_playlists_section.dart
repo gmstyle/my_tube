@@ -13,6 +13,10 @@ class MusicFeaturedPlaylistsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompact = context.isCompact;
+    // Card width derived from the list height so PlaylistGridItem
+    // (which bases all dimensions on constraints.maxWidth) is never
+    // given an unconstrained width inside the horizontal ListView.
+    final cardWidth = (isCompact ? 180.0 : 220.0) * 1.4;
 
     return SliverToBoxAdapter(
       child: SizedBox(
@@ -24,9 +28,12 @@ class MusicFeaturedPlaylistsSection extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(width: 16),
           itemBuilder: (context, index) {
             final playlist = playlists[index];
-            return PlaylistGridItem(
-              playlist: playlist,
-              onTap: () => AppNavigator.pushPlaylist(context, playlist.id),
+            return SizedBox(
+              width: cardWidth,
+              child: PlaylistGridItem(
+                playlist: playlist,
+                onTap: () => AppNavigator.pushPlaylist(context, playlist.id),
+              ),
             );
           },
         ),

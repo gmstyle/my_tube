@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/router/app_navigator.dart';
+import 'package:my_tube/ui/views/common/channel_grid_item.dart';
+import 'package:my_tube/utils/app_breakpoints.dart';
 
 /// Sliver with a horizontal row of circular channel avatars.
 class MusicFeaturedChannelsSection extends StatelessWidget {
@@ -10,9 +12,11 @@ class MusicFeaturedChannelsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = context.isCompact;
+    final width = isCompact ? 120.0 : 160.0;
     return SliverToBoxAdapter(
       child: SizedBox(
-        height: 104,
+        height: width,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -22,29 +26,9 @@ class MusicFeaturedChannelsSection extends StatelessWidget {
             final channel = channels[index];
             return GestureDetector(
               onTap: () => AppNavigator.pushChannel(context, channel.id),
-              child: SizedBox(
-                width: 72,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 36,
-                      backgroundImage: NetworkImage(channel.thumbnailUrl),
-                      backgroundColor:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                      onBackgroundImageError: (_, __) {},
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      channel.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                  ],
-                ),
-              ),
+              child: ConstrainedBox(
+                  constraints: BoxConstraints.tightFor(width: width),
+                  child: ChannelGridItem(channel: channel)),
             );
           },
         ),

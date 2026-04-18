@@ -11,6 +11,7 @@ class MaterialHoverContainer extends StatefulWidget {
     this.borderRadius,
     this.padding,
     this.fillColor,
+    this.onHoverChanged,
   });
 
   final Widget child;
@@ -18,6 +19,10 @@ class MaterialHoverContainer extends StatefulWidget {
   final BorderRadiusGeometry? borderRadius;
   final EdgeInsetsGeometry? padding;
   final Color? fillColor;
+
+  /// Called whenever the hover state changes. Useful for driving child
+  /// animations (e.g. avatar scale) from the card-level hover region.
+  final ValueChanged<bool>? onHoverChanged;
 
   @override
   State<MaterialHoverContainer> createState() => _MaterialHoverContainerState();
@@ -51,8 +56,14 @@ class _MaterialHoverContainerState extends State<MaterialHoverContainer> {
         widget.borderRadius ?? BorderRadius.circular(12);
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        widget.onHoverChanged?.call(true);
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        widget.onHoverChanged?.call(false);
+      },
       cursor: widget.onTap != null
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,

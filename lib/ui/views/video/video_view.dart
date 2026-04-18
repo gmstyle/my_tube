@@ -81,6 +81,10 @@ class _VideoViewState extends State<VideoView> {
           }
 
           return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            ),
             body: ResponsiveLayoutBuilder(
               mobile: (_) => VideoMobileLayout(
                 mtPlayerService: mtPlayerService,
@@ -102,38 +106,5 @@ class _VideoViewState extends State<VideoView> {
         },
       ),
     );
-  }
-}
-
-/// Determines which responsive layout tier to use based on shortestSide.
-/// This ensures the decision is orientation-independent.
-class ResponsiveScaffold extends StatelessWidget {
-  const ResponsiveScaffold({
-    super.key,
-    required this.mobile,
-    this.tablet,
-    this.desktop,
-    this.largeDesktop,
-  });
-
-  final WidgetBuilder mobile;
-  final WidgetBuilder? tablet;
-  final WidgetBuilder? desktop;
-  final WidgetBuilder? largeDesktop;
-
-  @override
-  Widget build(BuildContext context) {
-    final shortestSide = MediaQuery.sizeOf(context).shortestSide;
-
-    if (shortestSide >= AppBreakpoints.large && largeDesktop != null) {
-      return largeDesktop!(context);
-    }
-    if (shortestSide >= AppBreakpoints.expanded && desktop != null) {
-      return desktop!(context);
-    }
-    if (shortestSide >= AppBreakpoints.medium && tablet != null) {
-      return tablet!(context);
-    }
-    return mobile(context);
   }
 }
