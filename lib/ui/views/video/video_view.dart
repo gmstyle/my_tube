@@ -4,7 +4,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
+import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/shared/responsive_layout_builder.dart';
 import 'package:my_tube/ui/views/video/layouts/video_desktop_layout.dart';
@@ -84,6 +86,20 @@ class _VideoViewState extends State<VideoView> {
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              actions: [
+                if (context.isPhone) ...[
+                  Hero(
+                    tag: 'queue_button',
+                    child: IconButton(
+                      icon: const Icon(Icons.queue_music),
+                      onPressed: () =>
+                          context.pushNamed(AppRoute.queue.name, extra: {
+                        'hideMiniPlayerOnDispose': true,
+                      }),
+                    ),
+                  )
+                ]
+              ],
             ),
             body: ResponsiveLayoutBuilder(
               mobile: (_) => VideoMobileLayout(

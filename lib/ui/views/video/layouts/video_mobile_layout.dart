@@ -1,8 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:my_tube/router/app_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
 import 'package:my_tube/ui/views/common/horizontal_swipe_to_skip.dart';
@@ -27,7 +25,6 @@ class VideoMobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
     final videoHeight = MediaQuery.of(context).size.height * 0.37;
 
     return Stack(
@@ -141,53 +138,7 @@ class VideoMobileLayout extends StatelessWidget {
             ),
           ),
         ),
-
-        // ── Queue button overlay (top-right) ──────────────────────────
-        Positioned(
-          top: topPadding + 8,
-          right: 8,
-          child: Hero(
-            tag: 'queue_button',
-            child: _OverlayIconButton(
-              icon: Icons.queue_music,
-              onTap: () => context.pushNamed(AppRoute.queue.name, extra: {
-                'hideMiniPlayerOnDispose': true,
-              }),
-            ),
-          ),
-        ),
       ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Semi-transparent circular icon button for overlaying on the video
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _OverlayIconButton extends StatelessWidget {
-  const _OverlayIconButton({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Icon(icon, color: Colors.white, size: 22),
-        ),
-      ),
     );
   }
 }
