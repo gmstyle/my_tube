@@ -11,8 +11,13 @@ import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites
 import 'package:my_tube/utils/enums.dart';
 
 class PlaylistFavorites extends StatelessWidget {
-  const PlaylistFavorites({super.key, required this.searchQuery});
+  const PlaylistFavorites({
+    super.key,
+    required this.searchQuery,
+    this.isTablet = false,
+  });
   final String searchQuery;
+  final bool isTablet;
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +62,8 @@ class PlaylistFavorites extends StatelessWidget {
                         )
                       : GridView.builder(
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isTablet ? 3 : 2,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
                             childAspectRatio: 16 / 13,

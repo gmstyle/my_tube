@@ -25,123 +25,174 @@ class ExploreTabletLayout extends StatelessWidget {
   final void Function(CategoryEnum) onSelectCategory;
   final String Function(CategoryEnum) labelFor;
 
+  static const double _sidebarWidth = 220.0;
   static const double _contentMaxWidth = 1200.0;
   static const int _crossAxisCount = 4;
   static const double _gridSpacing = 12.0;
   static const double _gridPadding = 16.0;
   static const double _childAspectRatio = 16 / 10;
 
+  IconData _iconFor(CategoryEnum c) {
+    switch (c) {
+      case CategoryEnum.now:
+        return Icons.whatshot;
+      case CategoryEnum.music:
+        return Icons.music_note;
+      case CategoryEnum.film:
+        return Icons.movie;
+      case CategoryEnum.gaming:
+        return Icons.sports_esports;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverAppBar(
-          floating: true,
-          snap: false,
-          pinned: true,
-          automaticallyImplyLeading: false,
-          toolbarHeight: 56,
-          forceElevated: innerBoxIsScrolled,
-          titleSpacing: 0,
-          title: Padding(
-            padding: const EdgeInsets.only(left: 24, right: 8),
-            child: Text(
-              'Explore',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Column(
+      children: [
+        // ── Top AppBar ────────────────────────────────────────────────
+        Material(
+          color: cs.surface,
+          elevation: 0,
+          child: SafeArea(
+            bottom: false,
+            child: SizedBox(
+              height: 56,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Explore',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
                   ),
+                ),
+              ),
             ),
           ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(58),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 24, right: 16, bottom: 10),
-              child: _CategoryChipsRow(
-                selectedCategory: selectedCategory,
-                onSelectCategory: onSelectCategory,
-                labelFor: labelFor,
+        ),
+        const Divider(height: 1),
+        // ── Body ──────────────────────────────────────────────────────
+        Expanded(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: _contentMaxWidth),
+              child: Row(
+                children: [
+                  // ── Sidebar ────────────────────────────────────────
+                  SizedBox(
+                    width: _sidebarWidth,
+                    child: Material(
+                      color: cs.surfaceContainerLow,
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 8),
+                        children: [
+                          for (final cat in CategoryEnum.values)
+                            _SidebarItem(
+                              icon: _iconFor(cat),
+                              label: labelFor(cat),
+                              selected: selectedCategory == cat,
+                              onTap: () => onSelectCategory(cat),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const VerticalDivider(width: 1),
+                  // ── Content ────────────────────────────────────────
+                  Expanded(
+                    child: BlocBuilder<ExploreTabBloc, ExploreTabState>(
+                      builder: (context, state) {
+                        switch (state.status) {
+                          case YoutubeStatus.loading:
+                            return const CustomSkeletonExploreTablet();
+                          case YoutubeStatus.error:
+                            return EnhancedErrorState(
+                              icon: Icons.explore_off,
+                              title: 'Could not load trending',
+                              message: state.error ??
+                                  'Something went wrong. Try again.',
+                              showBackButton: false,
+                              onRetry: () => context.read<ExploreTabBloc>().add(
+                                  GetTrendingVideos(
+                                      category: selectedCategory)),
+                            );
+                          case YoutubeStatus.loaded:
+                            final videos = state.videos ?? [];
+                            if (videos.isEmpty) return const SizedBox.shrink();
+                            final hero = videos.first;
+                            final rest = videos.skip(1).toList();
+                            return RefreshIndicator(
+                              onRefresh: () async => context
+                                  .read<ExploreTabBloc>()
+                                  .add(GetTrendingVideos(
+                                      category: selectedCategory)),
+                              child: CustomScrollView(
+                                slivers: [
+                                  // ── Hero card ──────────────────────
+                                  SliverToBoxAdapter(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          _gridPadding,
+                                          _gridPadding,
+                                          _gridPadding,
+                                          8),
+                                      child: _ExploreHeroCard(video: hero),
+                                    ),
+                                  ),
+                                  // ── 4-column grid ──────────────────
+                                  SliverPadding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        _gridPadding,
+                                        8,
+                                        _gridPadding,
+                                        _gridPadding),
+                                    sliver: SliverGrid(
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: _crossAxisCount,
+                                        mainAxisSpacing: _gridSpacing,
+                                        crossAxisSpacing: _gridSpacing,
+                                        childAspectRatio: _childAspectRatio,
+                                      ),
+                                      delegate: SliverChildBuilderDelegate(
+                                        (context, index) {
+                                          final video = rest[index];
+                                          return PlayPauseGestureDetector(
+                                            id: video.id,
+                                            child: VideoMenuDialog(
+                                              quickVideo: {
+                                                'id': video.id,
+                                                'title': video.title,
+                                              },
+                                              child:
+                                                  VideoGridItem(video: video),
+                                            ),
+                                          );
+                                        },
+                                        childCount: rest.length,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
       ],
-      body: BlocBuilder<ExploreTabBloc, ExploreTabState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case YoutubeStatus.loading:
-              return const CustomSkeletonExploreTablet();
-            case YoutubeStatus.error:
-              return EnhancedErrorState(
-                icon: Icons.explore_off,
-                title: 'Could not load trending',
-                message: state.error ?? 'Something went wrong. Try again.',
-                showBackButton: false,
-                onRetry: () => context
-                    .read<ExploreTabBloc>()
-                    .add(GetTrendingVideos(category: selectedCategory)),
-              );
-            case YoutubeStatus.loaded:
-              final videos = state.videos ?? [];
-              if (videos.isEmpty) return const SizedBox.shrink();
-              final hero = videos.first;
-              final rest = videos.skip(1).toList();
-              return RefreshIndicator(
-                onRefresh: () async => context
-                    .read<ExploreTabBloc>()
-                    .add(GetTrendingVideos(category: selectedCategory)),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints:
-                        const BoxConstraints(maxWidth: _contentMaxWidth),
-                    child: CustomScrollView(
-                      slivers: [
-                        // ── Hero card ──────────────────────────────────
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                                _gridPadding, _gridPadding, _gridPadding, 8),
-                            child: _ExploreHeroCard(video: hero),
-                          ),
-                        ),
-                        // ── 4-column grid ──────────────────────────────
-                        SliverPadding(
-                          padding: const EdgeInsets.fromLTRB(
-                              _gridPadding, 8, _gridPadding, _gridPadding),
-                          sliver: SliverGrid(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: _crossAxisCount,
-                              mainAxisSpacing: _gridSpacing,
-                              crossAxisSpacing: _gridSpacing,
-                              childAspectRatio: _childAspectRatio,
-                            ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                final video = rest[index];
-                                return PlayPauseGestureDetector(
-                                  id: video.id,
-                                  child: VideoMenuDialog(
-                                    quickVideo: {
-                                      'id': video.id,
-                                      'title': video.title,
-                                    },
-                                    child: VideoGridItem(video: video),
-                                  ),
-                                );
-                              },
-                              childCount: rest.length,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-          }
-        },
-      ),
     );
   }
 }
@@ -307,36 +358,58 @@ class _ExploreHeroCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Category chips row (local copy — mirrors explore_mobile_layout.dart)
+// Sidebar navigation item
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CategoryChipsRow extends StatelessWidget {
-  const _CategoryChipsRow({
-    required this.selectedCategory,
-    required this.onSelectCategory,
-    required this.labelFor,
+class _SidebarItem extends StatelessWidget {
+  const _SidebarItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
   });
 
-  final CategoryEnum selectedCategory;
-  final void Function(CategoryEnum) onSelectCategory;
-  final String Function(CategoryEnum) labelFor;
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (int i = 0; i < CategoryEnum.values.length; i++) ...[
-            if (i > 0) const SizedBox(width: 8),
-            ChoiceChip(
-              label: Text(labelFor(CategoryEnum.values[i])),
-              selected: selectedCategory == CategoryEnum.values[i],
-              showCheckmark: false,
-              onSelected: (_) => onSelectCategory(CategoryEnum.values[i]),
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Material(
+        color: selected ? cs.secondaryContainer : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 22,
+                  color:
+                      selected ? cs.onSecondaryContainer : cs.onSurfaceVariant,
+                ),
+                const SizedBox(width: 14),
+                Text(
+                  label,
+                  style: tt.bodyMedium?.copyWith(
+                    color: selected
+                        ? cs.onSecondaryContainer
+                        : cs.onSurfaceVariant,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ],
+          ),
+        ),
       ),
     );
   }

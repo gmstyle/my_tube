@@ -12,7 +12,6 @@ import 'package:my_tube/ui/views/video/layouts/video_mobile_layout.dart';
 import 'package:my_tube/ui/views/video/layouts/video_tablet_layout.dart';
 import 'package:my_tube/blocs/persistent_ui/persistent_ui_cubit.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
-import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class VideoView extends StatefulWidget {

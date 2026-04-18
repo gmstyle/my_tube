@@ -18,90 +18,92 @@ class ChannelGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCompact = context.isCompact;
-    final double size =
-        MediaQuery.of(context).size.width * (isCompact ? 0.28 : 0.4);
     final borderRadius = BorderRadius.circular(isCompact ? 12 : 16);
 
-    return MaterialHoverContainer(
-      borderRadius: borderRadius,
-      onTap: onTap,
-      // Channel items often look better with a slightly distinct background to differentiate from videos
-      fillColor: theme.colorScheme.surfaceContainer,
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Prominent Avatar
-            ExpressiveImage(
-              borderRadius: BorderRadius.circular(size / 2), // Make it circular
-              child: Container(
-                width: size * 0.5,
-                height: size * 0.5,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: theme.colorScheme.outlineVariant,
-                    width: 1,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Use available width so the widget fills its grid cell exactly.
+        final size = constraints.maxWidth;
+        final avatarSize = size * 0.45;
+
+        return MaterialHoverContainer(
+          borderRadius: borderRadius,
+          onTap: onTap,
+          fillColor: theme.colorScheme.surfaceContainer,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              // Prominent Avatar
+              ExpressiveImage(
+                borderRadius: BorderRadius.circular(avatarSize / 2),
+                child: Container(
+                  width: avatarSize,
+                  height: avatarSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: theme.colorScheme.outlineVariant,
+                      width: 1,
+                    ),
                   ),
-                ),
-                child: ClipOval(
-                  child: Utils.buildImageWithFallback(
-                    thumbnailUrl: channel.thumbnailUrl,
-                    context: context,
-                    fit: BoxFit.cover,
-                    placeholder: Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: Icon(
-                        Icons.person,
-                        size: size * 0.25,
-                        color: theme.colorScheme.onSurfaceVariant,
+                  child: ClipOval(
+                    child: Utils.buildImageWithFallback(
+                      thumbnailUrl: channel.thumbnailUrl,
+                      context: context,
+                      fit: BoxFit.cover,
+                      placeholder: Container(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: Icon(
+                          Icons.person,
+                          size: avatarSize * 0.5,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            SizedBox(height: isCompact ? 8 : 12),
+              SizedBox(height: size * 0.06),
 
-            // Channel Info
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    channel.title,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (channel.subscriberCount != null) ...[
-                    const SizedBox(height: 4),
+              // Channel Info
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Text(
-                      Utils.formatNumber(channel.subscriberCount!),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontSize: isCompact ? 11 : 12,
+                      channel.title,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
+                        color: theme.colorScheme.onSurface,
                       ),
                       textAlign: TextAlign.center,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (channel.subscriberCount != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        Utils.formatNumber(channel.subscriberCount!),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: isCompact ? 11 : 12,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

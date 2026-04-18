@@ -6,10 +6,8 @@ import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/blocs/playlist_page/playlist_bloc.dart';
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
+import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
-import 'package:my_tube/ui/views/common/video_tile.dart';
-import 'package:my_tube/utils/app_animations.dart';
-import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -35,10 +33,11 @@ class PlaylistTabletLayout extends StatelessWidget {
   final AnimationController staggerController;
 
   // ── Tablet-specific constants ─────────────────────────────────────────────
-  static const double _expandedHeight = 260.0;
+  static const double _expandedHeight = 300.0;
   static const double _listPadding = 20.0;
   static const double _itemSpacing = 12.0;
   static const double _iconSize = 22.0;
+  static const int _crossAxisCount = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -49,23 +48,24 @@ class PlaylistTabletLayout extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         _buildSliverAppBar(context, quickVideos),
-        SliverToBoxAdapter(child: _buildActionRow(context)),
         videos.isEmpty
             ? const SliverFillRemaining(child: _EmptyPlaylistBody())
             : SliverPadding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: _listPadding,
-                  vertical: 8,
-                ),
-                sliver: SliverList(
+                padding: const EdgeInsets.all(_listPadding),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _crossAxisCount,
+                    crossAxisSpacing: _itemSpacing,
+                    mainAxisSpacing: _itemSpacing,
+                    childAspectRatio: 16 / 10,
+                  ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final video = videos[index];
                       final quickVideo = {'id': video.id, 'title': video.title};
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: _itemSpacing),
-                        child: _buildStaggeredItem(
-                            context, video, quickVideo, index),
+                      return VideoMenuDialog(
+                        quickVideo: quickVideo,
+                        child: VideoGridItem(video: video),
                       );
                     },
                     childCount: videos.length,
@@ -119,10 +119,11 @@ class PlaylistTabletLayout extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
+        // Blurred background fill
         Transform.scale(
           scale: 1.1,
           child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            imageFilter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Utils.buildImageWithFallback(
               thumbnailUrl: thumbnailUrl,
               context: context,
@@ -132,66 +133,92 @@ class PlaylistTabletLayout extends StatelessWidget {
             ),
           ),
         ),
+        // Semi-transparent overlay for contrast
         DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0.0, 0.4, 1.0],
-              colors: [
-                theme.colorScheme.surface.withValues(alpha: 0.05),
-                theme.colorScheme.surface.withValues(alpha: 0.30),
-                theme.colorScheme.surface.withValues(alpha: 0.82),
-              ],
-            ),
+            color: theme.colorScheme.surface.withValues(alpha: 0.75),
           ),
         ),
+        // Side-by-side content (below toolbar)
         Positioned(
-          bottom: 20,
+          top: kToolbarHeight,
           left: _listPadding,
           right: _listPadding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          bottom: 12,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                playlist.title,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.playlist_play_rounded,
-                      size: 16, color: theme.colorScheme.primary),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${playlist.videoCount} video',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (playlist.author.isNotEmpty) ...[
-                    const SizedBox(width: 12),
-                    Icon(Icons.person_outline,
-                        size: 15, color: theme.colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        playlist.author,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+              // ── Left: playlist thumbnail (square) ──────────────────
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Utils.buildImageWithFallback(
+                    thumbnailUrl: thumbnailUrl,
+                    context: context,
+                    fit: BoxFit.cover,
+                    placeholder: Container(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: Icon(
+                        Icons.queue_music_outlined,
+                        size: 64,
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 24),
+              // ── Right: title, meta, buttons ────────────────────────
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      playlist.title,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(Icons.playlist_play_rounded,
+                            size: 16, color: theme.colorScheme.primary),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${playlist.videoCount} video',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (playlist.author.isNotEmpty) ...[
+                          const SizedBox(width: 12),
+                          Icon(Icons.person_outline,
+                              size: 15,
+                              color: theme.colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              playlist.author,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildHeaderActionButtons(context),
                   ],
-                ],
+                ),
               ),
             ],
           ),
@@ -200,120 +227,55 @@ class PlaylistTabletLayout extends StatelessWidget {
     );
   }
 
-  // ── Action row ────────────────────────────────────────────────────────────
+  // ── Header action buttons ─────────────────────────────────────────────────
 
-  Widget _buildActionRow(BuildContext context) {
+  Widget _buildHeaderActionButtons(BuildContext context) {
     final playerCubit = context.read<PlayerCubit>();
     final isPlaylistLoading = state.status == PlaylistStatus.loading;
-
-    return Center(
-      child: ConstrainedBox(
-        constraints:
-            BoxConstraints(maxWidth: context.responsiveContentMaxWidth),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: _listPadding, vertical: 12),
-          child: BlocBuilder<PlayerCubit, PlayerState>(
-            builder: (context, playerState) {
-              final isLoading = playerState.status == PlayerStatus.loading;
-              final isPlayLoading = isLoading &&
-                  playerState.loadingOperation == LoadingOperation.play;
-              final isQueueLoading = isLoading &&
-                  playerState.loadingOperation == LoadingOperation.addToQueue;
-              final disabled = isPlaylistLoading || isLoading;
-
-              return Row(
+    return BlocBuilder<PlayerCubit, PlayerState>(
+      builder: (context, playerState) {
+        final isLoading = playerState.status == PlayerStatus.loading;
+        final isPlayLoading =
+            isLoading && playerState.loadingOperation == LoadingOperation.play;
+        final isQueueLoading = isLoading &&
+            playerState.loadingOperation == LoadingOperation.addToQueue;
+        final disabled = isPlaylistLoading || isLoading;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FilledButton.icon(
+              onPressed: videoIds.isNotEmpty && !disabled
+                  ? () => playerCubit.startPlayingPlaylist(videoIds)
+                  : null,
+              icon: isPlayLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.play_arrow, size: 20),
+              label: Text(isPlayLoading ? 'Loading...' : 'Play All'),
+            ),
+            const SizedBox(width: 12),
+            FilledButton.tonal(
+              onPressed: videoIds.isNotEmpty && !disabled
+                  ? () => playerCubit.addAllToQueue(videoIds)
+                  : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: videoIds.isNotEmpty && !disabled
-                          ? () => playerCubit.startPlayingPlaylist(videoIds)
-                          : null,
-                      icon: isPlayLoading
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.play_arrow, size: 20),
-                      label: Text(isPlayLoading ? 'Loading...' : 'Play All'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton.tonal(
-                      onPressed: videoIds.isNotEmpty && !disabled
-                          ? () => playerCubit.addAllToQueue(videoIds)
-                          : null,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isQueueLoading)
-                            const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2))
-                          else
-                            const Icon(Icons.queue_music, size: 20),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              isQueueLoading ? 'Loading...' : 'Add to Queue',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  if (isQueueLoading)
+                    const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                  else
+                    const Icon(Icons.queue_music, size: 20),
+                  const SizedBox(width: 8),
+                  Text(isQueueLoading ? 'Loading...' : 'Add to Queue'),
                 ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Video list ────────────────────────────────────────────────────────────
-
-  Widget _buildStaggeredItem(
-    BuildContext context,
-    models.VideoTile video,
-    Map<String, String> quickVideo,
-    int index,
-  ) {
-    return AnimatedBuilder(
-      animation: staggerController,
-      builder: (context, child) {
-        final delay = (index * 0.1).clamp(0.0, 0.6);
-        final itemAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-          CurvedAnimation(
-            parent: staggerController,
-            curve: Interval(0.4 + delay, 1.0, curve: Curves.easeOut),
-          ),
-        );
-        final itemSlide = Tween<double>(begin: 20.0, end: 0.0).animate(
-          CurvedAnimation(
-            parent: staggerController,
-            curve: Interval(0.4 + delay, 1.0, curve: Curves.easeOut),
-          ),
-        );
-        return Transform.translate(
-          offset: Offset(0, itemSlide.value),
-          child: FadeTransition(
-            opacity: itemAnimation,
-            child: AnimatedContainer(
-              duration: AppAnimations.fast,
-              curve: AppAnimations.easeOut,
-              child: VideoMenuDialog(
-                quickVideo: quickVideo,
-                child: VideoTile(
-                    video: video, index: index, enableScrollAnimation: true),
               ),
             ),
-          ),
+          ],
         );
       },
     );

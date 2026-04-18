@@ -336,15 +336,17 @@ class ChannelMobileLayout extends StatelessWidget {
   }
 
   Widget _buildShortsTab(BuildContext context) {
-    if (state.isLoadingShorts)
+    if (state.isLoadingShorts) {
       return const Center(child: CircularProgressIndicator());
+    }
     final shorts = state.shorts != null
         ? List<models.VideoTile>.from(
             state.shorts!.map((e) => e as models.VideoTile))
         : null;
     if (shorts == null) return const Center(child: CircularProgressIndicator());
-    if (shorts.isEmpty)
+    if (shorts.isEmpty) {
       return _buildEmptyTabContent(context, 'No shorts found for this channel');
+    }
 
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
@@ -393,14 +395,16 @@ class ChannelMobileLayout extends StatelessWidget {
   }
 
   Widget _buildPlaylistsTab(BuildContext context) {
-    if (state.isLoadingPlaylists)
+    if (state.isLoadingPlaylists) {
       return const Center(child: CircularProgressIndicator());
+    }
     final playlists = state.playlists != null
         ? List<models.PlaylistTile>.from(
             state.playlists!.map((e) => e as models.PlaylistTile))
         : null;
-    if (playlists == null)
+    if (playlists == null) {
       return const Center(child: CircularProgressIndicator());
+    }
     if (playlists.isEmpty) {
       return _buildEmptyTabContent(
           context, 'No playlists found for this channel');

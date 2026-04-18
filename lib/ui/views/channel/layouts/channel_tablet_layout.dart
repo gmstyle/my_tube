@@ -6,14 +6,11 @@ import 'package:my_tube/blocs/channel_page/channel_page_bloc.dart';
 import 'package:my_tube/blocs/home/player_cubit/player_cubit.dart';
 import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/views/common/enhanced_action_buttons.dart';
-import 'package:my_tube/ui/views/common/enhanced_error_states.dart';
 import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
 import 'package:my_tube/ui/views/common/short_video_tile.dart';
+import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
-import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/models/tiles.dart' as models;
-import 'package:my_tube/utils/app_animations.dart';
-import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:my_tube/utils/utils.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -42,8 +39,7 @@ class ChannelTabletLayout extends StatelessWidget {
   // ── Tablet-specific constants ─────────────────────────────────────────────
   static const double _listPadding = 20.0;
   static const double _itemSpacing = 12.0;
-  static const double _avatarSize = 80.0;
-  static const double _expandedHeight = 200.0;
+  static const double _expandedHeight = 260.0;
   static const double _iconSize = 22.0;
   static const int _crossAxisCount = 3;
 
@@ -118,10 +114,11 @@ class ChannelTabletLayout extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
+        // Blurred background fill
         Transform.scale(
           scale: 1.1,
           child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            imageFilter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Utils.buildImageWithFallback(
               thumbnailUrl: channel.logoUrl,
               context: context,
@@ -131,63 +128,51 @@ class ChannelTabletLayout extends StatelessWidget {
             ),
           ),
         ),
+        // Semi-transparent overlay for contrast
         DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0.0, 0.4, 1.0],
-              colors: [
-                theme.colorScheme.surface.withValues(alpha: 0.05),
-                theme.colorScheme.surface.withValues(alpha: 0.30),
-                theme.colorScheme.surface.withValues(alpha: 0.82),
-              ],
-            ),
+            color: theme.colorScheme.surface.withValues(alpha: 0.75),
           ),
         ),
+        // Side-by-side content (below toolbar)
         Positioned(
-          bottom: 20,
+          top: kToolbarHeight,
           left: _listPadding,
           right: _listPadding,
+          bottom: 12,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: _avatarSize,
-                height: _avatarSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border:
-                      Border.all(color: theme.colorScheme.surface, width: 2.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.shadow.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: ClipOval(
+              // ── Left: channel art (square) ──────────────────────────
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: AspectRatio(
+                  aspectRatio: 1,
                   child: Utils.buildImageWithFallback(
                     thumbnailUrl: channel.logoUrl,
                     context: context,
                     fit: BoxFit.cover,
-                    placeholder: Icon(
-                      Icons.person,
-                      size: _avatarSize * 0.45,
-                      color: theme.colorScheme.onSurfaceVariant,
+                    placeholder: Container(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: Icon(
+                        Icons.person,
+                        size: 64,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 24),
+              // ── Right: title, subscribers, description, buttons ─────
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       channel.title,
-                      style: theme.textTheme.headlineSmall?.copyWith(
+                      style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.onSurface,
                       ),
@@ -202,18 +187,17 @@ class ChannelTabletLayout extends StatelessWidget {
                               size: 16,
                               color: theme.colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              '${Utils.formatNumber(channel.subscribersCount!)} subscribers',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            '${Utils.formatNumber(channel.subscribersCount!)} subscribers',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
                       ),
                     ],
+                    const SizedBox(height: 12),
+                    _buildHeaderActionButtons(context),
                   ],
                 ),
               ),
@@ -224,75 +208,55 @@ class ChannelTabletLayout extends StatelessWidget {
     );
   }
 
-  // ── Action row ────────────────────────────────────────────────────────────
+  // ── Header action buttons ─────────────────────────────────────────────────
 
-  Widget _buildActionRow(BuildContext context) {
+  Widget _buildHeaderActionButtons(BuildContext context) {
     final playerCubit = context.read<PlayerCubit>();
-    return Center(
-      child: ConstrainedBox(
-        constraints:
-            BoxConstraints(maxWidth: context.responsiveContentMaxWidth),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: _listPadding, vertical: 12),
-          child: BlocBuilder<PlayerCubit, PlayerState>(
-            builder: (context, playerState) {
-              final isLoading = playerState.status == PlayerStatus.loading;
-              final isPlayLoading = isLoading &&
-                  playerState.loadingOperation == LoadingOperation.play;
-              final isQueueLoading = isLoading &&
-                  playerState.loadingOperation == LoadingOperation.addToQueue;
-              return Row(
+    return BlocBuilder<PlayerCubit, PlayerState>(
+      builder: (context, playerState) {
+        final isLoading = playerState.status == PlayerStatus.loading;
+        final isPlayLoading =
+            isLoading && playerState.loadingOperation == LoadingOperation.play;
+        final isQueueLoading = isLoading &&
+            playerState.loadingOperation == LoadingOperation.addToQueue;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FilledButton.icon(
+              onPressed: ids.isNotEmpty && !isLoading
+                  ? () => playerCubit.startPlayingPlaylist(ids)
+                  : null,
+              icon: isPlayLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.play_arrow, size: 20),
+              label: Text(isPlayLoading ? 'Loading...' : 'Play All'),
+            ),
+            const SizedBox(width: 12),
+            FilledButton.tonal(
+              onPressed: ids.isNotEmpty && !isLoading
+                  ? () => playerCubit.addAllToQueue(ids)
+                  : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: ids.isNotEmpty && !isLoading
-                          ? () => playerCubit.startPlayingPlaylist(ids)
-                          : null,
-                      icon: isPlayLoading
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.play_arrow, size: 20),
-                      label: Text(isPlayLoading ? 'Loading...' : 'Play All'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton.tonal(
-                      onPressed: ids.isNotEmpty && !isLoading
-                          ? () => playerCubit.addAllToQueue(ids)
-                          : null,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isQueueLoading)
-                            const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2))
-                          else
-                            const Icon(Icons.queue_music, size: 20),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              isQueueLoading ? 'Loading...' : 'Add to Queue',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  if (isQueueLoading)
+                    const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                  else
+                    const Icon(Icons.queue_music, size: 20),
+                  const SizedBox(width: 8),
+                  Text(isQueueLoading ? 'Loading...' : 'Add to Queue'),
                 ],
-              );
-            },
-          ),
-        ),
-      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -315,31 +279,35 @@ class ChannelTabletLayout extends StatelessWidget {
       },
       child: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: _buildActionRow(context)),
           SliverPadding(
-            padding: EdgeInsets.symmetric(
-              horizontal: _listPadding,
-              vertical: 8,
-            ),
-            sliver: SliverList(
+            padding: const EdgeInsets.all(_listPadding),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _crossAxisCount,
+                crossAxisSpacing: _itemSpacing,
+                mainAxisSpacing: _itemSpacing,
+                childAspectRatio: 16 / 10,
+              ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  if (index >= videos.length) {
-                    return const LoadingMoreIndicator(
-                        message: 'Loading more videos...');
-                  }
                   final video = videos[index];
                   final quickVideo = {'id': video.id, 'title': video.title};
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: _itemSpacing),
-                    child:
-                        _buildStaggeredItem(context, video, quickVideo, index),
+                  return VideoMenuDialog(
+                    quickVideo: quickVideo,
+                    child: VideoGridItem(video: video),
                   );
                 },
-                childCount: videos.length + (state.isLoadingMore ? 1 : 0),
+                childCount: videos.length,
               ),
             ),
           ),
+          if (state.isLoadingMore)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
         ],
       ),
@@ -347,15 +315,17 @@ class ChannelTabletLayout extends StatelessWidget {
   }
 
   Widget _buildShortsTab(BuildContext context) {
-    if (state.isLoadingShorts)
+    if (state.isLoadingShorts) {
       return const Center(child: CircularProgressIndicator());
+    }
     final shorts = state.shorts != null
         ? List<models.VideoTile>.from(
             state.shorts!.map((e) => e as models.VideoTile))
         : null;
     if (shorts == null) return const Center(child: CircularProgressIndicator());
-    if (shorts.isEmpty)
+    if (shorts.isEmpty) {
       return _buildEmptyTabContent(context, 'No shorts found for this channel');
+    }
 
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
@@ -404,14 +374,16 @@ class ChannelTabletLayout extends StatelessWidget {
   }
 
   Widget _buildPlaylistsTab(BuildContext context) {
-    if (state.isLoadingPlaylists)
+    if (state.isLoadingPlaylists) {
       return const Center(child: CircularProgressIndicator());
+    }
     final playlists = state.playlists != null
         ? List<models.PlaylistTile>.from(
             state.playlists!.map((e) => e as models.PlaylistTile))
         : null;
-    if (playlists == null)
+    if (playlists == null) {
       return const Center(child: CircularProgressIndicator());
+    }
     if (playlists.isEmpty) {
       return _buildEmptyTabContent(
           context, 'No playlists found for this channel');
@@ -496,47 +468,6 @@ class ChannelTabletLayout extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStaggeredItem(
-    BuildContext context,
-    models.VideoTile video,
-    Map<String, String> quickVideo,
-    int index,
-  ) {
-    return AnimatedBuilder(
-      animation: staggerController,
-      builder: (context, child) {
-        final delay = (index * 0.1).clamp(0.0, 0.8);
-        final itemAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-          CurvedAnimation(
-            parent: staggerController,
-            curve: Interval(0.4 + delay, 1.0, curve: Curves.easeOut),
-          ),
-        );
-        final itemSlide = Tween<double>(begin: 20.0, end: 0.0).animate(
-          CurvedAnimation(
-            parent: staggerController,
-            curve: Interval(0.4 + delay, 1.0, curve: Curves.easeOut),
-          ),
-        );
-        return Transform.translate(
-          offset: Offset(0, itemSlide.value),
-          child: FadeTransition(
-            opacity: itemAnimation,
-            child: AnimatedContainer(
-              duration: AppAnimations.fast,
-              curve: AppAnimations.easeOut,
-              child: VideoMenuDialog(
-                quickVideo: quickVideo,
-                child: VideoTile(
-                    video: video, index: index, enableScrollAnimation: true),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 

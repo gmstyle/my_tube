@@ -9,9 +9,14 @@ import 'package:my_tube/ui/views/common/video_tile.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
 
 class VideoFavorites extends StatelessWidget {
-  const VideoFavorites({super.key, required this.searchQuery});
+  const VideoFavorites({
+    super.key,
+    required this.searchQuery,
+    this.isTablet = false,
+  });
 
   final String searchQuery;
+  final bool isTablet;
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +59,8 @@ class VideoFavorites extends StatelessWidget {
                         )
                       : GridView.builder(
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isTablet ? 3 : 2,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
                             childAspectRatio: 16 / 12,
