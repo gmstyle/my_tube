@@ -328,9 +328,8 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: isTablet
-          ? _buildTabletLayout(context)
-          : _buildMobileLayout(context),
+      child:
+          isTablet ? _buildTabletLayout(context) : _buildMobileLayout(context),
     );
   }
 
@@ -384,12 +383,10 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
             child: Row(
               children: [
                 Expanded(
-                    child:
-                        ShimmerButton(width: double.infinity, height: 40)),
+                    child: ShimmerButton(width: double.infinity, height: 40)),
                 SizedBox(width: 8),
                 Expanded(
-                    child:
-                        ShimmerButton(width: double.infinity, height: 40)),
+                    child: ShimmerButton(width: double.infinity, height: 40)),
               ],
             ),
           ),
@@ -507,8 +504,7 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
           ),
           // ── Tab bar ─────────────────────────────────────────────────
           const Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Row(
               children: [
                 ShimmerText(width: 60, height: 14),
@@ -639,9 +635,8 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: isTablet
-          ? _buildTabletLayout(context)
-          : _buildMobileLayout(context),
+      child:
+          isTablet ? _buildTabletLayout(context) : _buildMobileLayout(context),
     );
   }
 
@@ -692,12 +687,10 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
             child: Row(
               children: [
                 Expanded(
-                    child:
-                        ShimmerButton(width: double.infinity, height: 40)),
+                    child: ShimmerButton(width: double.infinity, height: 40)),
                 SizedBox(width: 8),
                 Expanded(
-                    child:
-                        ShimmerButton(width: double.infinity, height: 40)),
+                    child: ShimmerButton(width: double.infinity, height: 40)),
               ],
             ),
           ),
