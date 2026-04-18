@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_tube/ui/skeletons/custom_shimmer.dart';
+import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:my_tube/utils/constants.dart';
 
 /// Skeleton personalizzato per liste e grid di video/contenuti
@@ -9,7 +10,7 @@ class CustomSkeletonGridList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      final isTablet = constraints.maxWidth > 600;
+      final isTablet = constraints.maxWidth >= AppBreakpoints.compact;
 
       if (isTablet) {
         // Grid per tablet
@@ -109,6 +110,136 @@ class CustomSkeletonGridList extends StatelessWidget {
   }
 }
 
+/// Skeleton for the search results loading state.
+/// Mobile: full-width list of mixed items (video/channel/playlist rows).
+/// Tablet: same list but centered and constrained to 1000px, mirroring
+/// [GlobalSearchDelegate._buildTabletResults].
+class CustomSkeletonSearchResults extends StatelessWidget {
+  const CustomSkeletonSearchResults({super.key, this.itemCount = 12});
+
+  final int itemCount;
+
+  static const double _tabletMaxWidth = 1000.0;
+  static const double _mobileHPadding = 8.0;
+  static const double _tabletHPadding = 16.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final isTablet =
+        MediaQuery.sizeOf(context).width >= AppBreakpoints.sideBySide;
+
+    final list = ListView.separated(
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? _tabletHPadding : _mobileHPadding,
+        vertical: 8,
+      ),
+      itemCount: itemCount,
+      separatorBuilder: (_, __) => const SizedBox(height: 4),
+      itemBuilder: (_, index) => _buildItem(index),
+    );
+
+    if (!isTablet) return list;
+
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: _tabletMaxWidth),
+        child: list,
+      ),
+    );
+  }
+
+  Widget _buildItem(int index) {
+    // Cycle through the three item types to mirror mixed search results
+    switch (index % 3) {
+      case 0:
+        return _buildVideoRow();
+      case 1:
+        return _buildChannelRow();
+      default:
+        return _buildPlaylistRow();
+    }
+  }
+
+  /// Video row — thumbnail (160×90) + title + artist
+  Widget _buildVideoRow() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ShimmerImage(width: 160, height: 90, borderRadius: 8),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerText(width: double.infinity, height: 15),
+                SizedBox(height: 6),
+                ShimmerText(width: 200, height: 15),
+                SizedBox(height: 8),
+                ShimmerText(width: 130, height: 12),
+                SizedBox(height: 4),
+                ShimmerText(width: 100, height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Channel row — circle avatar + name + subscriber count
+  Widget _buildChannelRow() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ShimmerCircle(size: 56),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerText(width: 180, height: 15),
+                SizedBox(height: 6),
+                ShimmerText(width: 110, height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Playlist row — thumbnail (160×90) + title + video count
+  Widget _buildPlaylistRow() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ShimmerImage(width: 160, height: 90, borderRadius: 8),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerText(width: double.infinity, height: 15),
+                SizedBox(height: 6),
+                ShimmerText(width: 100, height: 12),
+                SizedBox(height: 4),
+                ShimmerText(width: 80, height: 12),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Skeleton per mini player
 class CustomSkeletonMiniPlayer extends StatelessWidget {
   const CustomSkeletonMiniPlayer({super.key});
@@ -192,128 +323,238 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
-    final headerHeight = isCompact ? 200.0 : 240.0;
-    final avatarSize = isCompact ? 64.0 : 80.0;
+    final isTablet =
+        MediaQuery.sizeOf(context).width >= AppBreakpoints.sideBySide;
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Collapsible header area ──────────────────────────────
-            SizedBox(
-              height: headerHeight,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Banner shimmer
-                  const ShimmerImage(
+      child:
+          isTablet ? _buildTabletLayout(context) : _buildMobileLayout(context),
+    );
+  }
+
+  // ── Mobile layout ────────────────────────────────────────────────────────
+
+  Widget _buildMobileLayout(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: banner + avatar/info anchored bottom
+          SizedBox(
+            height: 200,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                const ShimmerImage(
                     width: double.infinity,
                     height: double.infinity,
-                    borderRadius: 0,
-                  ),
-                  // Avatar + info anchored to bottom-left
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ShimmerCircle(size: avatarSize),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              ShimmerText(width: 160, height: 20),
-                              SizedBox(height: 8),
-                              ShimmerText(width: 100, height: 13),
-                            ],
-                          ),
+                    borderRadius: 0),
+                const Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ShimmerCircle(size: 64),
+                      SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ShimmerText(width: 160, height: 20),
+                            SizedBox(height: 8),
+                            ShimmerText(width: 100, height: 13),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Action buttons row ───────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                children: const [
-                  Expanded(
-                      child: ShimmerButton(width: double.infinity, height: 40)),
-                  SizedBox(width: 8),
-                  Expanded(
-                      child: ShimmerButton(width: double.infinity, height: 40)),
-                ],
-              ),
-            ),
-
-            // ── Tab bar ──────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: const [
-                  ShimmerText(width: 60, height: 14),
-                  SizedBox(width: 24),
-                  ShimmerText(width: 52, height: 14),
-                  SizedBox(width: 24),
-                  ShimmerText(width: 68, height: 14),
-                ],
-              ),
-            ),
-            const SizedBox(height: 4),
-            const Divider(height: 1),
-            const SizedBox(height: 12),
-
-            // ── Video list ───────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: widget.showVideoCount,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  return TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 500 + (index * 80)),
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, value, child) => Opacity(
-                      opacity: value,
-                      child: Transform.translate(
-                        offset: Offset(0, 16 * (1 - value)),
-                        child: _buildSkeletonListItem(),
                       ),
-                    ),
-                  );
-                },
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Action buttons
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                    child: ShimmerButton(width: double.infinity, height: 40)),
+                SizedBox(width: 8),
+                Expanded(
+                    child: ShimmerButton(width: double.infinity, height: 40)),
+              ],
+            ),
+          ),
+          // Tab bar
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                ShimmerText(width: 60, height: 14),
+                SizedBox(width: 24),
+                ShimmerText(width: 52, height: 14),
+                SizedBox(width: 24),
+                ShimmerText(width: 68, height: 14),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          // Video list
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.showVideoCount,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) => TweenAnimationBuilder<double>(
+                duration: Duration(milliseconds: 500 + (index * 80)),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) => Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 16 * (1 - value)),
+                    child: _buildSkeletonListItem(),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  // ── Tablet layout ────────────────────────────────────────────────────────
+
+  Widget _buildTabletLayout(BuildContext context) {
+    const listPadding = 20.0;
+    const headerHeight = 260.0;
+    const gridSpacing = 12.0;
+    const crossAxisCount = 3;
+
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Side-by-side header ────────────────────────────────────
+          SizedBox(
+            height: headerHeight,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Blurred background
+                const ShimmerImage(
+                    width: double.infinity,
+                    height: double.infinity,
+                    borderRadius: 0),
+                // Side-by-side content below toolbar
+                Positioned(
+                  top: kToolbarHeight,
+                  left: listPadding,
+                  right: listPadding,
+                  bottom: 12,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Square channel art
+                      AspectRatio(
+                        aspectRatio: 1,
+                        child: ShimmerImage(
+                          width: double.infinity,
+                          height: double.infinity,
+                          borderRadius: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      // Title / subscribers / buttons
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ShimmerText(width: 260, height: 28),
+                            SizedBox(height: 10),
+                            ShimmerText(width: 160, height: 16),
+                            SizedBox(height: 16),
+                            Row(
+                              children: [
+                                ShimmerButton(width: 120, height: 40),
+                                SizedBox(width: 12),
+                                ShimmerButton(width: 140, height: 40),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // ── Tab bar ─────────────────────────────────────────────────
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Row(
+              children: [
+                ShimmerText(width: 60, height: 14),
+                SizedBox(width: 24),
+                ShimmerText(width: 52, height: 14),
+                SizedBox(width: 24),
+                ShimmerText(width: 68, height: 14),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          const SizedBox(height: 8),
+          // ── 3-column grid ────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.all(listPadding),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: gridSpacing,
+                mainAxisSpacing: gridSpacing,
+                childAspectRatio: 16 / 10,
+              ),
+              itemCount: 9,
+              itemBuilder: (_, index) => TweenAnimationBuilder<double>(
+                duration: Duration(milliseconds: 400 + (index * 60)),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) => Opacity(
+                  opacity: value,
+                  child: _buildSkeletonGridCard(),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSkeletonListItem() {
-    return Row(
+    return const Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ShimmerImage(width: 120, height: 68, borderRadius: 8),
-        const SizedBox(width: 12),
+        ShimmerImage(width: 120, height: 68, borderRadius: 8),
+        SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               ShimmerText(width: double.infinity, height: 15),
               SizedBox(height: 6),
               ShimmerText(width: 180, height: 15),
@@ -324,6 +565,24 @@ class _CustomSkeletonChannelState extends State<CustomSkeletonChannel>
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildSkeletonGridCard() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ShimmerImage(
+              width: double.infinity,
+              height: double.infinity,
+              borderRadius: 12),
+        ),
+        SizedBox(height: 6),
+        ShimmerText(width: double.infinity, height: 13),
+        SizedBox(height: 4),
+        ShimmerText(width: 100, height: 11),
       ],
     );
   }
@@ -371,106 +630,211 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
-    final headerHeight = isCompact ? 220.0 : 260.0;
+    final isTablet =
+        MediaQuery.sizeOf(context).width >= AppBreakpoints.sideBySide;
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Collapsible header area ──────────────────────────
-            SizedBox(
-              height: headerHeight,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Thumbnail shimmer (16:9 fills the header)
-                  const ShimmerImage(
+      child:
+          isTablet ? _buildTabletLayout(context) : _buildMobileLayout(context),
+    );
+  }
+
+  // ── Mobile layout ────────────────────────────────────────────────────────
+
+  Widget _buildMobileLayout(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: thumbnail + title/meta anchored bottom
+          SizedBox(
+            height: 220,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                const ShimmerImage(
                     width: double.infinity,
                     height: double.infinity,
-                    borderRadius: 0,
+                    borderRadius: 0),
+                const Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ShimmerText(width: 200, height: 20),
+                      SizedBox(height: 8),
+                      ShimmerText(width: 220, height: 20),
+                      SizedBox(height: 8),
+                      Row(children: [
+                        ShimmerText(width: 70, height: 13),
+                        SizedBox(width: 12),
+                        ShimmerText(width: 110, height: 13),
+                      ]),
+                    ],
                   ),
-                  // Title + metadata anchored to bottom-left
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        ShimmerText(width: 200, height: 20),
-                        SizedBox(height: 8),
-                        ShimmerText(width: 220, height: 20),
-                        SizedBox(height: 8),
-                        // video count + author row
-                        Row(children: [
-                          ShimmerText(width: 70, height: 13),
-                          SizedBox(width: 12),
-                          ShimmerText(width: 110, height: 13),
-                        ]),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // ── Action buttons row ───────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                children: const [
-                  Expanded(
-                      child: ShimmerButton(width: double.infinity, height: 40)),
-                  SizedBox(width: 8),
-                  Expanded(
-                      child: ShimmerButton(width: double.infinity, height: 40)),
-                ],
-              ),
+          ),
+          // Action buttons
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                    child: ShimmerButton(width: double.infinity, height: 40)),
+                SizedBox(width: 8),
+                Expanded(
+                    child: ShimmerButton(width: double.infinity, height: 40)),
+              ],
             ),
-
-            // ── Video list ───────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: widget.showVideoCount,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) => TweenAnimationBuilder<double>(
-                  duration: Duration(milliseconds: 500 + (index * 80)),
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  builder: (context, value, child) => Opacity(
-                    opacity: value,
-                    child: Transform.translate(
-                      offset: Offset(0, 16 * (1 - value)),
-                      child: _buildSkeletonListItem(),
-                    ),
+          ),
+          // Video list
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.showVideoCount,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) => TweenAnimationBuilder<double>(
+                duration: Duration(milliseconds: 500 + (index * 80)),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) => Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 16 * (1 - value)),
+                    child: _buildSkeletonListItem(),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  // ── Tablet layout ────────────────────────────────────────────────────────
+
+  Widget _buildTabletLayout(BuildContext context) {
+    const listPadding = 20.0;
+    const headerHeight = 300.0;
+    const gridSpacing = 12.0;
+    const crossAxisCount = 3;
+
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Side-by-side header ────────────────────────────────────
+          SizedBox(
+            height: headerHeight,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Blurred background
+                const ShimmerImage(
+                    width: double.infinity,
+                    height: double.infinity,
+                    borderRadius: 0),
+                // Side-by-side content below toolbar
+                Positioned(
+                  top: kToolbarHeight,
+                  left: listPadding,
+                  right: listPadding,
+                  bottom: 12,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Square playlist thumbnail
+                      AspectRatio(
+                        aspectRatio: 1,
+                        child: ShimmerImage(
+                          width: double.infinity,
+                          height: double.infinity,
+                          borderRadius: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      // Title / meta / buttons
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ShimmerText(width: 300, height: 28),
+                            SizedBox(height: 10),
+                            Row(
+                              children: [
+                                ShimmerText(width: 80, height: 15),
+                                SizedBox(width: 12),
+                                ShimmerText(width: 120, height: 15),
+                              ],
+                            ),
+                            SizedBox(height: 16),
+                            Row(
+                              children: [
+                                ShimmerButton(width: 120, height: 40),
+                                SizedBox(width: 12),
+                                ShimmerButton(width: 140, height: 40),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          // ── 3-column grid ────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.all(listPadding),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: gridSpacing,
+                mainAxisSpacing: gridSpacing,
+                childAspectRatio: 16 / 10,
+              ),
+              itemCount: 9,
+              itemBuilder: (_, index) => TweenAnimationBuilder<double>(
+                duration: Duration(milliseconds: 400 + (index * 60)),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) => Opacity(
+                  opacity: value,
+                  child: _buildSkeletonGridCard(),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSkeletonListItem() {
-    return Row(
+    return const Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ShimmerImage(width: 120, height: 68, borderRadius: 8),
-        const SizedBox(width: 12),
+        ShimmerImage(width: 120, height: 68, borderRadius: 8),
+        SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               ShimmerText(width: double.infinity, height: 15),
               SizedBox(height: 6),
               ShimmerText(width: 180, height: 15),
@@ -481,6 +845,24 @@ class _CustomSkeletonPlaylistState extends State<CustomSkeletonPlaylist>
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildSkeletonGridCard() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ShimmerImage(
+              width: double.infinity,
+              height: double.infinity,
+              borderRadius: 12),
+        ),
+        SizedBox(height: 6),
+        ShimmerText(width: double.infinity, height: 13),
+        SizedBox(height: 4),
+        ShimmerText(width: 100, height: 11),
       ],
     );
   }
@@ -512,23 +894,34 @@ class CustomSkeletonMusicHome extends StatelessWidget {
             ),
           ),
 
-          // Section 0a: Explore by Genre
+          // Section 0a: Explore by Mood — header + chips + preselected card row
           const SkeletonSectionHeader(),
           const _SkeletonGenreChips(),
-          // Section 0b: Featured Channels
+          const SkeletonHorizontalCards(),
+
+          // Section 0b: Explore by Genre — header + chips + preselected card row
+          const SkeletonSectionHeader(),
+          const _SkeletonGenreChips(),
+          const SkeletonHorizontalCards(),
+
+          // Section 0c: Featured Channels
           const SkeletonSectionHeader(),
           const SkeletonChannelRow(),
           const SliverToBoxAdapter(child: SizedBox(height: 4)),
 
-          // Section 0c: Continue Listening
+          // Section 0d: Featured Playlists
           const SkeletonSectionHeader(),
-          const SkeletonHorizontalCards(),
+          const SkeletonFeaturedPlaylistsRow(),
+          const SliverToBoxAdapter(child: SizedBox(height: 4)),
+
           // Section 1: New Releases
           const SkeletonSectionHeader(),
           const SkeletonHorizontalCards(),
+
           // Section 2: Discover
           const SkeletonSectionHeader(),
           const SkeletonHorizontalCards(),
+
           // Section 3: Trending
           const SkeletonSectionHeader(),
           const SliverToBoxAdapter(
@@ -545,6 +938,82 @@ class CustomSkeletonMusicHome extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Skeleton for the Explore tab tablet loading state.
+/// Mirrors the actual loaded layout: full-width hero (260 px) + 4-col grid
+/// constrained to 1200 px, matching [ExploreTabletLayout].
+class CustomSkeletonExploreTablet extends StatelessWidget {
+  const CustomSkeletonExploreTablet({super.key});
+
+  static const double _contentMaxWidth = 1200.0;
+  static const double _gridPadding = 16.0;
+  static const double _gridSpacing = 12.0;
+  static const int _crossAxisCount = 4;
+  static const double _childAspectRatio = 16 / 10;
+  static const double _heroHeight = 260.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: _contentMaxWidth),
+        child: CustomScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          slivers: [
+            // Hero skeleton — matches _ExploreHeroCard dimensions
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    _gridPadding, _gridPadding, _gridPadding, 8),
+                child: ShimmerImage(
+                  width: double.infinity,
+                  height: _heroHeight,
+                  borderRadius: 16,
+                ),
+              ),
+            ),
+            // 4-col grid skeleton
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                  _gridPadding, 8, _gridPadding, _gridPadding),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _crossAxisCount,
+                  mainAxisSpacing: _gridSpacing,
+                  crossAxisSpacing: _gridSpacing,
+                  childAspectRatio: _childAspectRatio,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (_, __) => _buildGridCard(),
+                  childCount: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGridCard() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ShimmerImage(
+            width: double.infinity,
+            height: double.infinity,
+            borderRadius: 8,
+          ),
+        ),
+        SizedBox(height: 6),
+        ShimmerText(width: double.infinity, height: 12),
+        SizedBox(height: 3),
+        ShimmerText(width: 80, height: 10),
+      ],
     );
   }
 }
@@ -582,7 +1051,7 @@ class SkeletonHorizontalCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+    final isTablet = MediaQuery.sizeOf(context).width >= AppBreakpoints.compact;
     final cardHeight = isTablet ? 210.0 : 175.0;
     final cardWidth = isTablet ? 290.0 : 240.0;
     return SliverToBoxAdapter(
@@ -746,7 +1215,8 @@ class SkeletonFeaturedPlaylistsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.of(context).size.width < 720;
+    final isCompact =
+        MediaQuery.sizeOf(context).width < AppBreakpoints.sideBySide;
     final cardHeight = isCompact ? 180.0 : 220.0;
     final cardWidth = isCompact ? 180.0 : 240.0;
 
@@ -1240,6 +1710,54 @@ class _SkeletonLoadingMoreState extends State<SkeletonLoadingMore>
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// Horizontal row of shimmer cards used by music chip sections (mood & genre)
+/// while the FutureBuilder is in the waiting state.
+class MusicHorizontalSkeletonCards extends StatelessWidget {
+  const MusicHorizontalSkeletonCards({
+    super.key,
+    this.cardHeight = 175,
+    this.cardWidth = 240,
+  });
+
+  final double cardHeight;
+  final double cardWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final thumbHeight = cardWidth * 9 / 16;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: SizedBox(
+        height: cardHeight,
+        child: ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: 3,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (_, __) => SizedBox(
+            width: cardWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerImage(
+                  width: cardWidth,
+                  height: thumbHeight,
+                  borderRadius: 8,
+                ),
+                const SizedBox(height: 8),
+                ShimmerText(width: cardWidth * 0.75, height: 12),
+                const SizedBox(height: 6),
+                ShimmerText(width: cardWidth * 0.5, height: 10),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -1,19 +1,21 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_tube/services/player/mt_player_service.dart';
 import 'package:my_tube/ui/views/common/expandable_text.dart';
+import 'package:my_tube/ui/views/common/seek_bar.dart';
+import 'package:my_tube/ui/views/video/widget/controls.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/clear_queue_button.dart';
 import 'package:my_tube/ui/views/video/widget/queue_draggable_sheet/media_item_list.dart';
 import 'package:my_tube/ui/views/video/widget/video_action_row.dart';
 
-class VideoTabletScreen extends StatelessWidget {
-  const VideoTabletScreen(
-      {super.key,
-      required this.mtPlayerService,
-      this.mediaItem,
-      required this.aspectRatio});
+class VideoTabletLayout extends StatelessWidget {
+  const VideoTabletLayout({
+    super.key,
+    required this.mtPlayerService,
+    this.mediaItem,
+    required this.aspectRatio,
+  });
 
   final MtPlayerService mtPlayerService;
   final MediaItem? mediaItem;
@@ -31,16 +33,6 @@ class VideoTabletScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // back button row
-                  if (context.canPop())
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        tooltip: 'Back',
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
                   // video player
                   ConstrainedBox(
                     constraints: BoxConstraints(
@@ -100,6 +92,11 @@ class VideoTabletScreen extends StatelessWidget {
                   const SizedBox(
                     height: 8,
                   ),
+                  // seek bar + playback controls
+                  const SeekBar(showTimings: true),
+                  const Controls(),
+                  const SizedBox(height: 8),
+
                   // action row: download + favorite
                   VideoActionRow(mediaItem: mediaItem),
                   const SizedBox(height: 8),
@@ -180,10 +177,7 @@ class VideoTabletScreen extends StatelessWidget {
                         }),
                   ],
                 ),
-                const Expanded(
-                    child: MediaItemList(
-                  isTablet: true,
-                ))
+                const Expanded(child: MediaItemList()),
               ],
             ),
           ),

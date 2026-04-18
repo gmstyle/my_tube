@@ -6,14 +6,12 @@ import 'package:my_tube/blocs/home/search_suggestion/search_suggestion_cubit.dar
 import 'package:my_tube/models/tiles.dart' as models;
 import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
-import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
-import 'package:my_tube/ui/views/common/playlist_grid_item.dart';
 import 'package:my_tube/ui/views/common/playlist_tile.dart';
-import 'package:my_tube/ui/views/common/video_grid_item.dart';
 import 'package:my_tube/ui/views/common/video_menu_dialog.dart';
 import 'package:my_tube/ui/views/common/video_tile.dart';
+import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:my_tube/utils/constants.dart';
 import 'package:my_tube/utils/enums.dart';
 
@@ -70,70 +68,81 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
   }
 
   @override
-  @override
   Widget buildResults(BuildContext context) {
+    final isMobile = AppBreakpoints.isMobile(context);
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
         final parentTheme = Theme.of(context);
 
         switch (state.status) {
           case SearchStatus.loading:
-            return const CustomSkeletonGridList();
+            return const CustomSkeletonSearchResults();
 
           case SearchStatus.success:
             if (state.items == null || state.items!.isEmpty) {
               return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.search_off,
-                        size: 64, color: parentTheme.colorScheme.onSurface),
-                    const SizedBox(height: 12),
-                    Text('No results found',
-                        style: parentTheme.textTheme.titleMedium?.copyWith(
-                            color: parentTheme.colorScheme.onSurface)),
-                    const SizedBox(height: 6),
-                    Text('Try a different search term',
-                        style: parentTheme.textTheme.bodySmall?.copyWith(
-                            color: parentTheme.colorScheme.onSurfaceVariant)),
-                  ],
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.search_off,
+                          size: 64, color: parentTheme.colorScheme.onSurface),
+                      const SizedBox(height: 12),
+                      Text('No results found',
+                          style: parentTheme.textTheme.titleMedium?.copyWith(
+                              color: parentTheme.colorScheme.onSurface)),
+                      const SizedBox(height: 6),
+                      Text('Try a different search term',
+                          style: parentTheme.textTheme.bodySmall?.copyWith(
+                              color: parentTheme.colorScheme.onSurfaceVariant)),
+                    ],
+                  ),
                 ),
               );
             }
 
-            return _buildUnifiedResults(context, state.items!, state);
+            return isMobile
+                ? _buildResultsList(context, state.items!, state)
+                : _buildTabletResults(context, state.items!, state);
 
           case SearchStatus.failure:
             return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.error_outline,
-                      size: 64, color: parentTheme.colorScheme.onSurface),
-                  const SizedBox(height: 12),
-                  Text('Search failed',
-                      style: parentTheme.textTheme.titleMedium
-                          ?.copyWith(color: parentTheme.colorScheme.onSurface)),
-                  const SizedBox(height: 6),
-                  Text(state.error ?? 'Unknown error occurred',
-                      style: parentTheme.textTheme.bodySmall?.copyWith(
-                          color: parentTheme.colorScheme.onSurfaceVariant)),
-                ],
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.error_outline,
+                        size: 64, color: parentTheme.colorScheme.onSurface),
+                    const SizedBox(height: 12),
+                    Text('Search failed',
+                        style: parentTheme.textTheme.titleMedium?.copyWith(
+                            color: parentTheme.colorScheme.onSurface)),
+                    const SizedBox(height: 6),
+                    Text(state.error ?? 'Unknown error occurred',
+                        style: parentTheme.textTheme.bodySmall?.copyWith(
+                            color: parentTheme.colorScheme.onSurfaceVariant)),
+                  ],
+                ),
               ),
             );
 
           default:
             return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.search,
-                      size: 64, color: parentTheme.colorScheme.onSurface),
-                  const SizedBox(height: 12),
-                  Text('Search for videos, channels, and playlists',
-                      style: parentTheme.textTheme.titleMedium
-                          ?.copyWith(color: parentTheme.colorScheme.onSurface)),
-                ],
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.search,
+                        size: 64, color: parentTheme.colorScheme.onSurface),
+                    const SizedBox(height: 12),
+                    Text('Search for videos, channels, and playlists',
+                        style: parentTheme.textTheme.titleMedium?.copyWith(
+                            color: parentTheme.colorScheme.onSurface)),
+                  ],
+                ),
               ),
             );
         }
@@ -144,151 +153,44 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final parentTheme = Theme.of(context);
+    final isMobile = AppBreakpoints.isMobile(context);
 
     if (query.isEmpty) {
-      // Show search history
       return BlocBuilder<SearchSuggestionCubit, SearchSuggestionState>(
         builder: (context, state) {
-          // Carica sempre la history ogni volta che il delegate mostra i suggerimenti senza query
           if (!state.isQueryHistory) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.read<SearchSuggestionCubit>().getQueryHistory();
             });
           }
-
-          if (state.suggestions.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.history,
-                      size: 64, color: parentTheme.colorScheme.onSurface),
-                  const SizedBox(height: 12),
-                  Text('No search history',
-                      style: parentTheme.textTheme.titleMedium
-                          ?.copyWith(color: parentTheme.colorScheme.onSurface)),
-                  const SizedBox(height: 6),
-                  Text('Your recent searches will appear here',
-                      style: parentTheme.textTheme.bodySmall?.copyWith(
-                          color: parentTheme.colorScheme.onSurfaceVariant)),
-                ],
-              ),
-            );
-          }
-
-          final reversed = state.suggestions.reversed.toList();
-          return ListView.builder(
-            itemCount: reversed.length + 1, // +1 per header
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                  child: Text(
-                    'Recent searches',
-                    style: parentTheme.textTheme.titleMedium?.copyWith(
-                      color: parentTheme.colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                );
-              }
-              final suggestion = reversed[index - 1];
-              return ListTile(
-                dense: true,
-                leading: Icon(
-                  Icons.history,
-                  color: parentTheme.colorScheme.onSurface,
-                  size: 20,
-                ),
-                title: Text(
-                  suggestion,
-                  style: TextStyle(color: parentTheme.colorScheme.onSurface),
-                ),
-                trailing: IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    color: parentTheme.colorScheme.onSurface,
-                    size: 18,
-                  ),
-                  onPressed: () {
-                    context
-                        .read<SearchSuggestionCubit>()
-                        .deleteQueryFromHistory(suggestion);
-                  },
-                ),
-                onTap: () {
-                  query = suggestion;
-                  _performSearch(context);
-                  showResults(context);
-                },
-              );
-            },
-          );
+          final inner = _buildHistoryList(context, state, parentTheme);
+          if (isMobile) return inner;
+          return _tabletSuggestionsShell(context, inner);
         },
       );
     } else {
-      // Show live search suggestions
       return BlocBuilder<SearchSuggestionCubit, SearchSuggestionState>(
         builder: (context, state) {
-          // Only fetch suggestions if query has changed
           if (query != _lastQuery && query.isNotEmpty) {
             _lastQuery = query;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.read<SearchSuggestionCubit>().getSuggestions(query);
             });
           }
-
-          if ((state.suggestions.isEmpty && !state.isQueryHistory) ||
-              query != _lastQuery) {
-            return Center(
-              child: CircularProgressIndicator(
-                color: parentTheme.colorScheme.primary,
-              ),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: state.suggestions.length + 1, // +1 per header
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                  child: Text(
-                    'Suggestions',
-                    style: parentTheme.textTheme.titleMedium?.copyWith(
-                      color: parentTheme.colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                );
-              }
-              final suggestion = state.suggestions[index - 1];
-              return ListTile(
-                dense: true,
-                leading: Icon(
-                  Icons.search,
-                  color: parentTheme.colorScheme.onSurface,
-                  size: 20,
-                ),
-                title: Text(
-                  suggestion,
-                  style: TextStyle(color: parentTheme.colorScheme.onSurface),
-                ),
-                onTap: () {
-                  query = suggestion;
-                  _performSearch(context);
-                  showResults(context);
-                },
-              );
-            },
-          );
+          final inner = _buildSuggestionsList(context, state, parentTheme);
+          if (isMobile) return inner;
+          return _tabletSuggestionsShell(context, inner);
         },
       );
     }
   }
 
-  Widget _buildUnifiedResults(
-      BuildContext context, List<dynamic> items, SearchState state) {
+  // ── Common results list (API order, mixed types) ────────────────────────
+
+  Widget _buildResultsList(
+      BuildContext context, List<dynamic> items, SearchState state,
+      {EdgeInsetsGeometry padding =
+          const EdgeInsets.symmetric(vertical: 8, horizontal: 8)}) {
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (notification.metrics.axis == Axis.vertical) {
@@ -301,17 +203,15 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
         return false;
       },
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        padding: padding,
         itemCount: items.length + (state.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == items.length) {
-            // Loading indicator at the end
             return const Padding(
               padding: EdgeInsets.all(16),
               child: Center(child: CircularProgressIndicator()),
             );
           }
-
           final item = items[index];
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
@@ -322,34 +222,39 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
     );
   }
 
-  Widget _buildItemTile(BuildContext context, dynamic item) {
-    if (item is models.VideoTile) {
-      return _buildVideoTile(context, item, false);
-    } else if (item is models.ChannelTile) {
-      return _buildChannelTile(context, item, false);
-    } else if (item is models.PlaylistTile) {
-      return _buildPlaylistTile(context, item, false);
-    }
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildVideoTile(
-      BuildContext context, models.VideoTile video, bool isTablet) {
-    void handleTap() {
-      close(context, null);
-    }
-
-    final quickVideo = {'id': video.id, 'title': video.title};
-    return VideoMenuDialog(
-      quickVideo: quickVideo,
-      child: isTablet
-          ? VideoGridItem(video: video, onTap: handleTap)
-          : VideoTile(video: video, onTap: handleTap),
+  Widget _buildTabletResults(
+      BuildContext context, List<dynamic> items, SearchState state) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1000),
+        child: _buildResultsList(
+          context,
+          items,
+          state,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        ),
+      ),
     );
   }
 
-  Widget _buildChannelTile(
-      BuildContext context, models.ChannelTile channel, bool isTablet) {
+  Widget _buildItemTile(BuildContext context, dynamic item) {
+    if (item is models.VideoTile) return _buildVideoTile(context, item);
+    if (item is models.ChannelTile) return _buildChannelTile(context, item);
+    if (item is models.PlaylistTile) return _buildPlaylistTile(context, item);
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildVideoTile(BuildContext context, models.VideoTile video) {
+    void handleTap() => close(context, null);
+    final quickVideo = {'id': video.id, 'title': video.title};
+    return VideoMenuDialog(
+      quickVideo: quickVideo,
+      child: VideoTile(video: video, onTap: handleTap),
+    );
+  }
+
+  Widget _buildChannelTile(BuildContext context, models.ChannelTile channel) {
     void handleTap() {
       close(context, null);
       AppNavigator.pushChannel(context, channel.id);
@@ -358,20 +263,12 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
     return ChannelPlaylistMenuDialog(
       id: channel.id,
       kind: Kind.channel,
-      child: isTablet
-          ? ChannelGridItem(
-              channel: channel,
-              onTap: handleTap,
-            )
-          : ChannelTile(
-              channel: channel,
-              onTap: handleTap,
-            ),
+      child: ChannelTile(channel: channel, onTap: handleTap),
     );
   }
 
   Widget _buildPlaylistTile(
-      BuildContext context, models.PlaylistTile playlist, bool isTablet) {
+      BuildContext context, models.PlaylistTile playlist) {
     void handleTap() {
       close(context, null);
       AppNavigator.pushPlaylist(context, playlist.id);
@@ -380,15 +277,156 @@ class GlobalSearchDelegate extends SearchDelegate<void> {
     return ChannelPlaylistMenuDialog(
       id: playlist.id,
       kind: Kind.playlist,
-      child: isTablet
-          ? PlaylistGridItem(
-              playlist: playlist,
-              onTap: handleTap,
-            )
-          : PlaylistTile(
-              playlist: playlist,
-              onTap: handleTap,
+      child: PlaylistTile(playlist: playlist, onTap: handleTap),
+    );
+  }
+
+  // ── Suggestions helpers ─────────────────────────────────────────────────
+
+  Widget _buildHistoryList(BuildContext context, SearchSuggestionState state,
+      ThemeData parentTheme) {
+    if (state.suggestions.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.history,
+                size: 64, color: parentTheme.colorScheme.onSurface),
+            const SizedBox(height: 12),
+            Text('No search history',
+                style: parentTheme.textTheme.titleMedium
+                    ?.copyWith(color: parentTheme.colorScheme.onSurface)),
+            const SizedBox(height: 6),
+            Text('Your recent searches will appear here',
+                style: parentTheme.textTheme.bodySmall?.copyWith(
+                    color: parentTheme.colorScheme.onSurfaceVariant)),
+          ],
+        ),
+      );
+    }
+
+    final reversed = state.suggestions.reversed.toList();
+    return ListView.builder(
+      itemCount: reversed.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text(
+              'Recent searches',
+              style: parentTheme.textTheme.titleMedium?.copyWith(
+                color: parentTheme.colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
             ),
+          );
+        }
+        final suggestion = reversed[index - 1];
+        return ListTile(
+          dense: true,
+          leading: Icon(Icons.history,
+              color: parentTheme.colorScheme.onSurface, size: 20),
+          title: Text(suggestion,
+              style: TextStyle(color: parentTheme.colorScheme.onSurface)),
+          trailing: IconButton(
+            icon: Icon(Icons.close,
+                color: parentTheme.colorScheme.onSurface, size: 18),
+            onPressed: () => context
+                .read<SearchSuggestionCubit>()
+                .deleteQueryFromHistory(suggestion),
+          ),
+          onTap: () {
+            query = suggestion;
+            _performSearch(context);
+            showResults(context);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSuggestionsList(BuildContext context,
+      SearchSuggestionState state, ThemeData parentTheme) {
+    if ((state.suggestions.isEmpty && !state.isQueryHistory) ||
+        query != _lastQuery) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: parentTheme.colorScheme.primary,
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: state.suggestions.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text(
+              'Suggestions',
+              style: parentTheme.textTheme.titleMedium?.copyWith(
+                color: parentTheme.colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        }
+        final suggestion = state.suggestions[index - 1];
+        return ListTile(
+          dense: true,
+          leading: Icon(Icons.search,
+              color: parentTheme.colorScheme.onSurface, size: 20),
+          title: Text(suggestion,
+              style: TextStyle(color: parentTheme.colorScheme.onSurface)),
+          onTap: () {
+            query = suggestion;
+            _performSearch(context);
+            showResults(context);
+          },
+        );
+      },
+    );
+  }
+
+  // ── Tablet layouts ───────────────────────────────────────────────────────
+
+  Widget _tabletSuggestionsShell(BuildContext context, Widget listContent) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: listContent,
+        ),
+        VerticalDivider(
+          width: 1,
+          thickness: 1,
+          color: theme.colorScheme.outlineVariant,
+        ),
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.search_rounded,
+                  size: 80,
+                  color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Search for videos,\nchannels and playlists',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

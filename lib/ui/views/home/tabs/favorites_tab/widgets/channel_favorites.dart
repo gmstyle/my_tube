@@ -3,16 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_tube/blocs/home/favorites_tab/favorites_channel/favorites_channel_bloc.dart';
 import 'package:my_tube/router/app_navigator.dart';
 import 'package:my_tube/ui/skeletons/custom_skeletons.dart';
+import 'package:my_tube/ui/views/common/channel_grid_item.dart';
 import 'package:my_tube/ui/views/common/channel_tile.dart';
 import 'package:my_tube/ui/views/common/channel_playlist_menu_dialog.dart';
 import 'package:my_tube/ui/views/home/tabs/favorites_tab/widgets/empty_favorites.dart';
-
+import 'package:my_tube/utils/app_breakpoints.dart';
 import 'package:my_tube/utils/enums.dart';
 
 class ChannelFavorites extends StatelessWidget {
-  const ChannelFavorites({super.key, required this.searchQuery});
+  const ChannelFavorites({
+    super.key,
+    required this.searchQuery,
+    this.isTablet = false,
+  });
 
   final String searchQuery;
+  final bool isTablet;
 
   @override
   Widget build(BuildContext context) {
@@ -34,23 +40,46 @@ class ChannelFavorites extends StatelessWidget {
           return favorites.isNotEmpty
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ListView.separated(
-                    itemCount: favorites.length,
-                    itemBuilder: (context, index) {
-                      final channel = favorites[index];
-                      return GestureDetector(
-                        onTap: () {
-                          AppNavigator.pushChannel(context, channel.id);
-                        },
-                        child: ChannelPlaylistMenuDialog(
-                            id: channel.id,
-                            kind: Kind.channel,
-                            child: ChannelTile(channel: channel)),
-                      );
-                    },
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 8),
-                  ),
+                  child: context.isCompact
+                      ? ListView.separated(
+                          itemCount: favorites.length,
+                          itemBuilder: (context, index) {
+                            final channel = favorites[index];
+                            return GestureDetector(
+                              onTap: () {
+                                AppNavigator.pushChannel(context, channel.id);
+                              },
+                              child: ChannelPlaylistMenuDialog(
+                                  id: channel.id,
+                                  kind: Kind.channel,
+                                  child: ChannelTile(channel: channel)),
+                            );
+                          },
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 8),
+                        )
+                      : GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isTablet ? 4 : 3,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 1,
+                          ),
+                          itemCount: favorites.length,
+                          itemBuilder: (context, index) {
+                            final channel = favorites[index];
+                            return ChannelPlaylistMenuDialog(
+                              id: channel.id,
+                              kind: Kind.channel,
+                              child: ChannelGridItem(
+                                channel: channel,
+                                onTap: () => AppNavigator.pushChannel(
+                                    context, channel.id),
+                              ),
+                            );
+                          },
+                        ),
                 )
               : const EmptyFavorites(
                   message: 'No favorite channels yet',

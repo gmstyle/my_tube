@@ -117,6 +117,29 @@ class YoutubeExplodeRepository {
     }
   }
 
+  /// Mood-specific search: wider duration bounds (1 min–15 min), 5 queries per mood.
+  Future<List<VideoTile>> getMoodMusic(String mood,
+      {String countryCode = defaultCountryCode}) async {
+    try {
+      log('getMoodMusic: mood=$mood, paese=$countryCode');
+      final cacheKey = 'mood_${mood.toLowerCase()}_$countryCode';
+      final cached = _trendingCache.get(cacheKey);
+      if (cached != null) {
+        log('getMoodMusic: ${cached.length} video per "$mood" dalla cache');
+        return cached;
+      }
+      final videos = await youtubeExplodeProvider.getMoodMusicSimulated(mood,
+          countryCode: countryCode);
+      final tiles = videos.map((video) => VideoTile.fromVideo(video)).toList();
+      _trendingCache.set(cacheKey, tiles);
+      log('getMoodMusic completato, ${tiles.length} video per mood: $mood');
+      return tiles;
+    } catch (e) {
+      log('Errore getMoodMusic: $e');
+      rethrow;
+    }
+  }
+
   /// Priorità 8: trending personalizzato basato sugli artisti dei preferiti.
   /// La cache key è deterministica (artisti ordinati + paese) con TTL 1 ora.
   Future<List<VideoTile>> getPersonalizedTrending(List<String> artists,

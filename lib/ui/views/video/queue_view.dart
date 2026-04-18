@@ -222,71 +222,75 @@ class _ExpandedPlayerState extends State<_ExpandedPlayer> {
   Widget build(BuildContext context) {
     if (_isLoading) return const CustomSkeletonExpandedPlayer();
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Video + title/artist
-              StreamBuilder(
-                stream: widget.playerCubit.mtPlayerService.mediaItem,
-                builder: (context, snapshot) {
-                  final item = snapshot.data;
-                  return Row(
-                    children: [
-                      Hero(
-                        tag: 'video_image_or_player',
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: SizedBox(
-                            width: 72,
-                            height: 72,
-                            child: _cachedController == null
-                                ? const ColoredBox(color: Colors.black)
-                                : Chewie(controller: _cachedController!),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 400),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Video + title/artist
+                StreamBuilder(
+                  stream: widget.playerCubit.mtPlayerService.mediaItem,
+                  builder: (context, snapshot) {
+                    final item = snapshot.data;
+                    return Row(
+                      children: [
+                        Hero(
+                          tag: 'video_image_or_player',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: SizedBox(
+                              width: 72,
+                              height: 72,
+                              child: _cachedController == null
+                                  ? const ColoredBox(color: Colors.black)
+                                  : Chewie(controller: _cachedController!),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              item?.title ?? '',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              item?.album ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                item?.title ?? '',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item?.album ?? '',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              // Seek bar with timings
-              const SeekBar(showTimings: true),
-              Controls()
-            ],
+                      ],
+                    );
+                  },
+                ),
+                // Seek bar with timings
+                const SeekBar(showTimings: true),
+                Controls()
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -151,6 +151,50 @@ class YoutubeExplodeProvider {
     return _dedupeFilterSort(nestedResults.expand((v) => v).toList());
   }
 
+  /// Variant for mood-based music searches.
+  /// Uses wider duration bounds ([musicMoodMinDuration]–[musicMoodMaxDuration])
+  /// to capture both short singles and longer ambient pieces.
+  Future<List<Video>> getMoodMusicSimulated(String mood,
+      {String countryCode = defaultCountryCode}) async {
+    final queries = _getTrendingQueriesLocalized(mood, countryCode);
+    final searchFutures = queries.map((query) async {
+      try {
+        final searchResult =
+            await _yt.search.search(query, filter: TypeFilters.video);
+        return searchResult.toList();
+      } catch (e) {
+        log('Errore ricerca mood "$query": $e');
+        return <Video>[];
+      }
+    });
+    final nestedResults = await Future.wait(searchFutures);
+    return _dedupeFilterSortMood(nestedResults.expand((v) => v).toList());
+  }
+
+  List<Video> _dedupeFilterSortMood(List<Video> videos) {
+    final seenIds = <String>{};
+    final unique = videos.where((v) {
+      final id = v.id.value;
+      if (id.isEmpty || seenIds.contains(id)) return false;
+      seenIds.add(id);
+      return true;
+    }).toList();
+
+    final filtered = unique.where((v) {
+      final d = v.duration;
+      if (d == null) return true;
+      return d >= musicMoodMinDuration && d <= musicMoodMaxDuration;
+    }).toList();
+
+    filtered.sort((a, b) {
+      final aScore = a.musicData.isNotEmpty ? 0 : 1;
+      final bScore = b.musicData.isNotEmpty ? 0 : 1;
+      return aScore.compareTo(bScore);
+    });
+
+    return filtered;
+  }
+
   /// Priorità 8: trending personalizzato basato sugli artisti dei video preferiti.
   /// Usa query del tipo "artist new music" eseguite in parallelo.
   /// Ogni artista contribuisce al massimo [personalizedMaxPerArtist] video per evitare
