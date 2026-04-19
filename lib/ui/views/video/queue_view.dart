@@ -77,11 +77,6 @@ class _QueueViewState extends State<QueueView> {
         controller: _scrollController,
         slivers: [
           SliverAppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_down),
-              tooltip: 'Back',
-              onPressed: () => context.pop(),
-            ),
             title: _isCollapsed
                 ? StreamBuilder(
                     stream: _playerCubit.mtPlayerService.mediaItem,
