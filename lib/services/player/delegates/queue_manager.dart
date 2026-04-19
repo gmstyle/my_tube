@@ -41,35 +41,62 @@ class QueueManager {
       }
     }());
 
-    dev.log('Fetching video metadata for: $id');
-    final item = await _service._engine.createMediaItem(id);
+    try {
+      MediaItem? item;
+      final existingIndex = playlist.indexWhere((e) => e.id == id);
 
-    if (_currentPlayToken != token) {
-      dev.log('startPlaying: token invalidato, skip per id=$id');
-      return;
-    }
+      if (existingIndex != -1) {
+        item = playlist[existingIndex];
+        dev.log('Item trovato in cache locale alla posizione $existingIndex');
+      } else {
+        dev.log('Fetching video metadata for: $id');
+        item = await _service._engine.createMediaItem(id);
+      }
 
-    dev.log('Stopping previous playback...');
-    await _service.stop();
+      if (_currentPlayToken != token) {
+        dev.log('startPlaying: token invalidato, skip per id=$id');
+        return;
+      }
 
-    if (_currentPlayToken != token) {
-      dev.log('startPlaying: token invalidato dopo stop, skip per id=$id');
-      return;
-    }
+      dev.log('Stopping previous playback...');
+      await _service.stop();
 
-    if (!playlist.contains(item)) {
-      playlist.add(item);
-    }
+      if (_currentPlayToken != token) {
+        dev.log('startPlaying: token invalidato dopo stop, skip per id=$id');
+        return;
+      }
 
-    // Record in play history (fire-and-forget — Hive write is fast)
-    // ignore: unawaited_futures
-    _service.favoriteRepository?.addRecentlyPlayed(id);
+      // Inserimento "Up Next". Se è un nuovo video, inseriscilo dopo il brano corrente
+      if (existingIndex == -1) {
+        final insertIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
+        playlist.insert(insertIndex, item);
+        _service.queue.add(playlist);
+      }
 
-    await _service._engine.playAtIndex(playlist.indexOf(item));
+      // Record in play history (fire-and-forget — Hive write is fast)
+      // ignore: unawaited_futures
+      // Record in play history
+      unawaited(
+          _service.favoriteRepository?.addRecentlyPlayed(id) ?? Future.value());
 
-    // Carica in background i video correlati e appendili alla coda.
-    if (getRelatedVideos) {
-      unawaited(_loadRelatedVideosInBackground(id, token));
+      await _service._engine.playAtIndex(playlist.indexOf(item));
+
+      // Carica in background i video correlati e appendili alla coda.
+      if (getRelatedVideos) {
+        unawaited(_loadRelatedVideosInBackground(id, token));
+      }
+    } catch (e) {
+      dev.log('Errore in startPlaying per id=$id: $e');
+
+      // In caso di errore, resetto lo stato del player per evitare di rimanere bloccati in uno stato incoerente.
+      await _service.stop();
+      currentIndex = -1;
+      currentTrack = null;
+      _service.mediaItem.add(null);
+      _service.playbackState.add(_service.playbackState.value.copyWith(
+        processingState: AudioProcessingState.idle,
+        playing: false,
+      ));
     }
   }
 
@@ -173,7 +200,10 @@ class QueueManager {
 
   Future<void> addToQueue(String id) async {
     if (playlist.length >= maxQueueSize) {
-      throw Exception('Coda piena (max $maxQueueSize video)');
+      // svuota la coda per fare spazio al nuovo video e ricomincia il caricamento da zero, invece di rifiutare l'aggiunta o sovraccaricare la coda.
+      dev.log(
+          'Coda piena, svuotamento in corso per fare spazio al nuovo video.');
+      await stopPlayingAndClearQueue();
     }
 
     final item = await _service._engine.createMediaItem(id);
@@ -203,9 +233,13 @@ class QueueManager {
     Function(int current, int total)? onProgress,
   }) async {
     // Verifica il limite della coda
-    final remainingSpace = maxQueueSize - playlist.length;
+    int remainingSpace = maxQueueSize - playlist.length;
     if (remainingSpace <= 0) {
-      throw Exception('Coda piena (max $maxQueueSize video)');
+      // Svuota la coda per fare spazio ai nuovi video e ricomincia il caricamento da zero, invece di rifiutare l'aggiunta o sovraccaricare la coda.
+      dev.log(
+          'Coda piena, svuotamento in corso per fare spazio ai nuovi video.');
+      await stopPlayingAndClearQueue();
+      remainingSpace = maxQueueSize;
     }
 
     // Limita il numero di video da aggiungere allo spazio rimanente
@@ -246,12 +280,21 @@ class QueueManager {
   Future<int?> insertMediaItemsNext(List<MediaItem> items) async {
     if (items.isEmpty) return null;
 
+    if (playlist.length >= maxQueueSize) {
+      // Svuota una sola volta: evita stop/ripartenze ripetute durante il loop.
+      dev.log(
+          'Coda piena, svuotamento in corso per fare spazio ai nuovi video.');
+      await stopPlayingAndClearQueue();
+    }
+
     final existingIds = playlist.map((item) => item.id).toSet();
     var insertIndex = currentIndex >= 0 ? currentIndex + 1 : playlist.length;
     int? firstInsertedIndex;
 
     for (final item in items) {
       if (playlist.length >= maxQueueSize) {
+        dev.log(
+            'Raggiunto limite coda durante insertMediaItemsNext, stop inserimento.');
         break;
       }
       if (existingIds.contains(item.id)) {
@@ -383,6 +426,13 @@ class QueueManager {
   /// video nel frattempo il token cambia e il caricamento viene annullato.
   Future<void> _loadRelatedVideosInBackground(String id, Object token) async {
     try {
+      // Non caricare correlati se la coda dopo il brano corrente è già corposa
+      final remainingTracks = playlist.length - (currentIndex + 1);
+      if (remainingTracks >= relatedVideosQueueSize) {
+        dev.log(
+            'Coda già sufficientemente lunga ($remainingTracks brani), salto caricamento correlati.');
+        return;
+      }
       final repo = _service.youtubeExplodeRepository;
       if (repo == null) return;
 
@@ -399,7 +449,7 @@ class QueueManager {
       final existingIds = playlist.map((item) => item.id).toSet();
       final toAdd = relatedTiles
           .where((tile) => !existingIds.contains(tile.id))
-          .take(relatedVideosQueueSize)
+          .take(relatedVideosQueueSize - remainingTracks)
           .map(PlaybackEngine.mediaItemFromVideoTile)
           .toList();
 

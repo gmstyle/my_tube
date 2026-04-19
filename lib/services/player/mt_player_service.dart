@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:my_tube/models/custom_playlist.dart';
