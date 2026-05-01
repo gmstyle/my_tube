@@ -198,7 +198,25 @@ class QueueManager {
 
   // ============ Queue Operations ============
 
-  Future<void> addToQueue(String id) async {
+  // Coda delle operazioni di aggiunta per evitare race condition
+  // quando l'utente tappa "Add to queue" rapidamente su più elementi.
+  Future<void> _addOperationQueue = Future.value();
+
+  Future<T> _enqueueAddOperation<T>(Future<T> Function() operation) {
+    final completer = Completer<T>();
+    final nextOperation = _addOperationQueue.catchError((_) {}).then((_) async {
+      try {
+        final result = await operation();
+        completer.complete(result);
+      } catch (e, st) {
+        completer.completeError(e, st);
+      }
+    });
+    _addOperationQueue = nextOperation;
+    return completer.future;
+  }
+
+  Future<void> addToQueue(String id) => _enqueueAddOperation(() async {
     if (playlist.length >= maxQueueSize) {
       // svuota la coda per fare spazio al nuovo video e ricomincia il caricamento da zero, invece di rifiutare l'aggiunta o sovraccaricare la coda.
       dev.log(
@@ -226,12 +244,12 @@ class QueueManager {
         await _service._engine.playAtIndex(playlist.length - 1);
       }
     }
-  }
+  });
 
   Future<void> addAllToQueue(
     List<String> ids, {
     Function(int current, int total)? onProgress,
-  }) async {
+  }) => _enqueueAddOperation(() async {
     // Verifica il limite della coda
     int remainingSpace = maxQueueSize - playlist.length;
     if (remainingSpace <= 0) {
@@ -275,9 +293,9 @@ class QueueManager {
     if (currentIndex == -1 && firstAddedIndex != null) {
       await _service._engine.playAtIndex(firstAddedIndex);
     }
-  }
+  });
 
-  Future<int?> insertMediaItemsNext(List<MediaItem> items) async {
+  Future<int?> insertMediaItemsNext(List<MediaItem> items) => _enqueueAddOperation(() async {
     if (items.isEmpty) return null;
 
     if (playlist.length >= maxQueueSize) {
@@ -311,7 +329,7 @@ class QueueManager {
     }
 
     return firstInsertedIndex;
-  }
+  });
 
   Future<void> startIfIdle(int? firstInsertedIndex) async {
     if (currentIndex == -1 && firstInsertedIndex != null) {
