@@ -30,7 +30,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.6'
+          flutter-version: '3.41.9'
           channel: stable
           cache: true # Abilita la cache dell'SDK Flutter per velocizzare i run successivi
 
@@ -74,7 +74,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.6'
+          flutter-version: '3.41.9'
           channel: stable
           cache: true # Riusa la cache dell'SDK Flutter
 
