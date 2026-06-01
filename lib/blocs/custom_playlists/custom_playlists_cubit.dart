@@ -5,7 +5,8 @@ import 'package:my_tube/respositories/custom_playlist_repository.dart';
 class CustomPlaylistsCubit extends Cubit<CustomPlaylistsState> {
   final CustomPlaylistRepository repository;
 
-  CustomPlaylistsCubit({required this.repository}) : super(const CustomPlaylistsState()) {
+  CustomPlaylistsCubit({required this.repository})
+      : super(const CustomPlaylistsState()) {
     _initListen();
   }
 
@@ -53,7 +54,8 @@ class CustomPlaylistsCubit extends Cubit<CustomPlaylistsState> {
     await repository.addVideoToPlaylist(playlistId, videoId);
   }
 
-  Future<void> removeVideoFromPlaylist(String playlistId, String videoId) async {
+  Future<void> removeVideoFromPlaylist(
+      String playlistId, String videoId) async {
     await repository.removeVideoFromPlaylist(playlistId, videoId);
   }
 
@@ -63,4 +65,3 @@ class CustomPlaylistsCubit extends Cubit<CustomPlaylistsState> {
     return super.close();
   }
 }
-

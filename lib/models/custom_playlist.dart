@@ -48,7 +48,8 @@ class CustomPlaylist extends Equatable {
 
   String toJson() => json.encode(toMap());
 
-  factory CustomPlaylist.fromJson(String source) => CustomPlaylist.fromMap(json.decode(source));
+  factory CustomPlaylist.fromJson(String source) =>
+      CustomPlaylist.fromMap(json.decode(source));
 
   @override
   List<Object> get props => [id, title, videoIds, createdAt];
