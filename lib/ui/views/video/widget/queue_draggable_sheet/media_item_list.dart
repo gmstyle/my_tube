@@ -86,7 +86,7 @@ class _MediaItemListState extends State<MediaItemList> {
                             darkBackground:
                                 AppBreakpoints.isExpanded(context))));
               },
-              onReorder: (int oldIndex, int newIndex) async {
+              onReorderItem: (int oldIndex, int newIndex) async {
                 await playerCubit.mtPlayerService
                     .reorderQueue(oldIndex, newIndex);
               },

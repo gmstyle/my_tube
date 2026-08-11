@@ -129,7 +129,7 @@ class _QueueViewState extends State<QueueView> {
                   ),
                 );
               },
-              onReorder: (oldIndex, newIndex) async {
+              onReorderItem: (int oldIndex, int newIndex) async {
                 await _playerCubit.mtPlayerService
                     .reorderQueue(oldIndex, newIndex);
               },
