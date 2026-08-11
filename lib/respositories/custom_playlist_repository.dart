@@ -47,25 +47,28 @@ class CustomPlaylistRepository {
     if (jsonStr != null) {
       final playlist = CustomPlaylist.fromJson(jsonStr);
       if (!playlist.videoIds.contains(videoId)) {
-        final updated = playlist.copyWith(videoIds: [...playlist.videoIds, videoId]);
+        final updated =
+            playlist.copyWith(videoIds: [...playlist.videoIds, videoId]);
         await customPlaylistsBox.put(playlistId, updated.toJson());
       }
     }
   }
 
-  Future<void> removeVideoFromPlaylist(String playlistId, String videoId) async {
+  Future<void> removeVideoFromPlaylist(
+      String playlistId, String videoId) async {
     final jsonStr = customPlaylistsBox.get(playlistId);
     if (jsonStr != null) {
       final playlist = CustomPlaylist.fromJson(jsonStr);
-      final updatedList = playlist.videoIds.where((id) => id != videoId).toList();
+      final updatedList =
+          playlist.videoIds.where((id) => id != videoId).toList();
       final updated = playlist.copyWith(videoIds: updatedList);
       await customPlaylistsBox.put(playlistId, updated.toJson());
     }
   }
 
   CustomPlaylist? getPlaylist(String id) {
-     final jsonStr = customPlaylistsBox.get(id);
-     if (jsonStr != null) return CustomPlaylist.fromJson(jsonStr);
-     return null;
+    final jsonStr = customPlaylistsBox.get(id);
+    if (jsonStr != null) return CustomPlaylist.fromJson(jsonStr);
+    return null;
   }
 }

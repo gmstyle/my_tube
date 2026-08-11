@@ -71,10 +71,10 @@ class MusicTabBloc extends Bloc<MusicTabEvent, MusicTabState> {
       // Le sezioni di rete partono in parallelo; ognuna emette non appena
       // ha i propri dati, senza aspettare le altre.
       await Future.wait([
-        _loadSectionFeaturedChannels(emit, uniqueArtists,
-            favoriteRepository.channelIds.toSet()),
-        _loadSectionFeaturedPlaylists(emit, uniqueArtists,
-            favoriteRepository.playlistIds.toSet()),
+        _loadSectionFeaturedChannels(
+            emit, uniqueArtists, favoriteRepository.channelIds.toSet()),
+        _loadSectionFeaturedPlaylists(
+            emit, uniqueArtists, favoriteRepository.playlistIds.toSet()),
         _loadSectionNewReleases(emit, favoriteChannels),
         _loadSectionDiscover(emit, discoverVideo),
         _loadSectionTrending(emit, uniqueArtists, !hasFavorites),

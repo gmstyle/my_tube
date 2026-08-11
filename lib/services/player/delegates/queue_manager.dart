@@ -217,119 +217,122 @@ class QueueManager {
   }
 
   Future<void> addToQueue(String id) => _enqueueAddOperation(() async {
-    if (playlist.length >= maxQueueSize) {
-      // svuota la coda per fare spazio al nuovo video e ricomincia il caricamento da zero, invece di rifiutare l'aggiunta o sovraccaricare la coda.
-      dev.log(
-          'Coda piena, svuotamento in corso per fare spazio al nuovo video.');
-      await stopPlayingAndClearQueue();
-    }
-
-    final item = await _service._engine.createMediaItem(id);
-
-    if (!playlist.contains(item)) {
-      playlist.add(item);
-      _service.queue.add(playlist);
-
-      // Pre-warm AppCache: quando toccherà a questo video, getStreamUrl()
-      // troverà un cache hit invece di andare in rete.
-      unawaited(() async {
-        try {
-          await _service._engine.getStreamUrl(id);
-        } catch (e) {
-          dev.log('Errore pre-warm cache per queued track $id: $e');
+        if (playlist.length >= maxQueueSize) {
+          // svuota la coda per fare spazio al nuovo video e ricomincia il caricamento da zero, invece di rifiutare l'aggiunta o sovraccaricare la coda.
+          dev.log(
+              'Coda piena, svuotamento in corso per fare spazio al nuovo video.');
+          await stopPlayingAndClearQueue();
         }
-      }());
 
-      if (currentIndex == -1) {
-        await _service._engine.playAtIndex(playlist.length - 1);
-      }
-    }
-  });
+        final item = await _service._engine.createMediaItem(id);
+
+        if (!playlist.contains(item)) {
+          playlist.add(item);
+          _service.queue.add(playlist);
+
+          // Pre-warm AppCache: quando toccherà a questo video, getStreamUrl()
+          // troverà un cache hit invece di andare in rete.
+          unawaited(() async {
+            try {
+              await _service._engine.getStreamUrl(id);
+            } catch (e) {
+              dev.log('Errore pre-warm cache per queued track $id: $e');
+            }
+          }());
+
+          if (currentIndex == -1) {
+            await _service._engine.playAtIndex(playlist.length - 1);
+          }
+        }
+      });
 
   Future<void> addAllToQueue(
     List<String> ids, {
     Function(int current, int total)? onProgress,
-  }) => _enqueueAddOperation(() async {
-    // Verifica il limite della coda
-    int remainingSpace = maxQueueSize - playlist.length;
-    if (remainingSpace <= 0) {
-      // Svuota la coda per fare spazio ai nuovi video e ricomincia il caricamento da zero, invece di rifiutare l'aggiunta o sovraccaricare la coda.
-      dev.log(
-          'Coda piena, svuotamento in corso per fare spazio ai nuovi video.');
-      await stopPlayingAndClearQueue();
-      remainingSpace = maxQueueSize;
-    }
-
-    // Limita il numero di video da aggiungere allo spazio rimanente
-    final idsToAdd = ids.take(remainingSpace).toList();
-    const batchSize = 8;
-
-    int? firstAddedIndex;
-    int loaded = 0;
-
-    // Caricamento in batch paralleli per ridurre la latenza totale
-    for (int batchStart = 0;
-        batchStart < idsToAdd.length;
-        batchStart += batchSize) {
-      final batchEnd = min(batchStart + batchSize, idsToAdd.length);
-      final batch = idsToAdd.sublist(batchStart, batchEnd);
-
-      final items = await Future.wait(
-        batch.map((id) => _service._engine.createMediaItem(id)),
-      );
-
-      for (final item in items) {
-        if (!playlist.contains(item)) {
-          playlist.add(item);
-          firstAddedIndex ??= playlist.length - 1;
+  }) =>
+      _enqueueAddOperation(() async {
+        // Verifica il limite della coda
+        int remainingSpace = maxQueueSize - playlist.length;
+        if (remainingSpace <= 0) {
+          // Svuota la coda per fare spazio ai nuovi video e ricomincia il caricamento da zero, invece di rifiutare l'aggiunta o sovraccaricare la coda.
+          dev.log(
+              'Coda piena, svuotamento in corso per fare spazio ai nuovi video.');
+          await stopPlayingAndClearQueue();
+          remainingSpace = maxQueueSize;
         }
-        loaded++;
-        onProgress?.call(loaded, idsToAdd.length);
-      }
-    }
 
-    _service.queue.add(playlist);
+        // Limita il numero di video da aggiungere allo spazio rimanente
+        final idsToAdd = ids.take(remainingSpace).toList();
+        const batchSize = 8;
 
-    if (currentIndex == -1 && firstAddedIndex != null) {
-      await _service._engine.playAtIndex(firstAddedIndex);
-    }
-  });
+        int? firstAddedIndex;
+        int loaded = 0;
 
-  Future<int?> insertMediaItemsNext(List<MediaItem> items) => _enqueueAddOperation(() async {
-    if (items.isEmpty) return null;
+        // Caricamento in batch paralleli per ridurre la latenza totale
+        for (int batchStart = 0;
+            batchStart < idsToAdd.length;
+            batchStart += batchSize) {
+          final batchEnd = min(batchStart + batchSize, idsToAdd.length);
+          final batch = idsToAdd.sublist(batchStart, batchEnd);
 
-    if (playlist.length >= maxQueueSize) {
-      // Svuota una sola volta: evita stop/ripartenze ripetute durante il loop.
-      dev.log(
-          'Coda piena, svuotamento in corso per fare spazio ai nuovi video.');
-      await stopPlayingAndClearQueue();
-    }
+          final items = await Future.wait(
+            batch.map((id) => _service._engine.createMediaItem(id)),
+          );
 
-    final existingIds = playlist.map((item) => item.id).toSet();
-    var insertIndex = currentIndex >= 0 ? currentIndex + 1 : playlist.length;
-    int? firstInsertedIndex;
+          for (final item in items) {
+            if (!playlist.contains(item)) {
+              playlist.add(item);
+              firstAddedIndex ??= playlist.length - 1;
+            }
+            loaded++;
+            onProgress?.call(loaded, idsToAdd.length);
+          }
+        }
 
-    for (final item in items) {
-      if (playlist.length >= maxQueueSize) {
-        dev.log(
-            'Raggiunto limite coda durante insertMediaItemsNext, stop inserimento.');
-        break;
-      }
-      if (existingIds.contains(item.id)) {
-        continue;
-      }
-      playlist.insert(insertIndex, item);
-      existingIds.add(item.id);
-      firstInsertedIndex ??= insertIndex;
-      insertIndex++;
-    }
+        _service.queue.add(playlist);
 
-    if (firstInsertedIndex != null) {
-      _service.queue.add(playlist);
-    }
+        if (currentIndex == -1 && firstAddedIndex != null) {
+          await _service._engine.playAtIndex(firstAddedIndex);
+        }
+      });
 
-    return firstInsertedIndex;
-  });
+  Future<int?> insertMediaItemsNext(List<MediaItem> items) =>
+      _enqueueAddOperation(() async {
+        if (items.isEmpty) return null;
+
+        if (playlist.length >= maxQueueSize) {
+          // Svuota una sola volta: evita stop/ripartenze ripetute durante il loop.
+          dev.log(
+              'Coda piena, svuotamento in corso per fare spazio ai nuovi video.');
+          await stopPlayingAndClearQueue();
+        }
+
+        final existingIds = playlist.map((item) => item.id).toSet();
+        var insertIndex =
+            currentIndex >= 0 ? currentIndex + 1 : playlist.length;
+        int? firstInsertedIndex;
+
+        for (final item in items) {
+          if (playlist.length >= maxQueueSize) {
+            dev.log(
+                'Raggiunto limite coda durante insertMediaItemsNext, stop inserimento.');
+            break;
+          }
+          if (existingIds.contains(item.id)) {
+            continue;
+          }
+          playlist.insert(insertIndex, item);
+          existingIds.add(item.id);
+          firstInsertedIndex ??= insertIndex;
+          insertIndex++;
+        }
+
+        if (firstInsertedIndex != null) {
+          _service.queue.add(playlist);
+        }
+
+        return firstInsertedIndex;
+      });
 
   Future<void> startIfIdle(int? firstInsertedIndex) async {
     if (currentIndex == -1 && firstInsertedIndex != null) {

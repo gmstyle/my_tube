@@ -202,8 +202,7 @@ class _CustomPlaylistViewState extends State<CustomPlaylistView>
                   ),
                 ),
 
-              const SliverToBoxAdapter(
-                  child: SizedBox(height: 16)),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
             ],
           ),
         );
