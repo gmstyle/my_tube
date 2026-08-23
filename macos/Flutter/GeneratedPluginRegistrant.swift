@@ -9,7 +9,7 @@ import audio_service
 import audio_session
 import device_info_plus
 import dynamic_color
-import file_picker
+import file_picker_darwin
 import flutter_local_notifications
 import open_file_mac
 import package_info_plus

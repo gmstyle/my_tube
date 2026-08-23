@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.0.7+1
+version: 2.0.8+1
 
 environment:
   sdk: '>=3.2.2 <4.0.0'
@@ -40,15 +40,15 @@ dependencies:
   provider: ^6.1.5+1
   http: ^1.5.0
   equatable: ^2.1.0
-  go_router: ^17.4.0
+  go_router: ^17.5.0
   path_provider: ^2.1.6
-  chewie: ^1.14.1
+  chewie: ^1.15.0
   video_player: ^2.13.0
   hive_ce: ^2.19.3
   hive_ce_flutter: ^2.3.4
   audio_service: ^0.18.19
   wakelock_plus: ^1.7.0
-  dynamic_color: ^1.9.0
+  dynamic_color: ^1.1.0
   autorotation_check:
     git:
       url: https://github.com/gmstyle/autorotation_check.git
@@ -69,7 +69,7 @@ dependencies:
       url: https://github.com/gmstyle/youtube_explode_dart.git
   uuid: ^4.6.0
   # 12.x required for win32 ^6 (needed by share_plus 13 / package_info_plus 10 / device_info_plus 13)
-  file_picker: ^12.0.0-beta.7
+  file_picker: ^12.0.0
   share_plus: ^13.3.0
   terminate_restart: ^1.1.0
   
