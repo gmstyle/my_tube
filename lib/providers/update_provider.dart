@@ -9,11 +9,11 @@ class UpdateProvider {
       final response = await http.get(Uri.parse(githubLatestReleaseApiUrl),
           headers: headers);
       if (response.statusCode != 200) {
-        return Future.error('Error: ${response.statusCode}');
+        throw Exception('Error: ${response.statusCode}');
       }
       return response.body;
     } catch (error) {
-      return Future.error('Error: $error');
+      throw Exception('Error: $error');
     }
   }
 
@@ -27,11 +27,11 @@ class UpdateProvider {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
-        return Future.error('Error: ${response.statusCode}');
+        throw Exception('Error: ${response.statusCode}');
       }
       return response.bodyBytes;
     } catch (error) {
-      return Future.error('Error: $error');
+      throw Exception('Error: $error');
     }
   }
 

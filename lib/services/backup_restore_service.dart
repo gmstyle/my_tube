@@ -49,16 +49,16 @@ class BackupRestoreService {
   }
 
   Future<bool> importData() async {
-    final result = await FilePicker.pickFiles(
+    final files = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
 
-    if (result == null || result.files.isEmpty) {
+    if (files.isEmpty) {
       return false; // User canceled the picker
     }
 
-    final file = File(result.files.single.path!);
+    final file = File(files.single.path!);
     final jsonString = await file.readAsString();
     final data = jsonDecode(jsonString) as Map<String, dynamic>;
 

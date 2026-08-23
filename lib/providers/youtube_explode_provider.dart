@@ -100,7 +100,6 @@ class YoutubeExplodeProvider {
         ytClients: [
           YoutubeApiClient.androidVr,
           YoutubeApiClient.ios,
-          YoutubeApiClient.androidSdkless
         ],
         requireWatchPage: false);
     return manifest;
